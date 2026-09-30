@@ -1,0 +1,120 @@
+<!--
+  HELLO WORLD LAB — DENEY 003
+  Hedef: CSS Custom Properties ve OKLCH Algısal Renk Uzayı ile Işıltılı Tipografi
+  Yeni Teknoloji: CSS Custom Properties (:root, var(), calc()) + oklch() algısal renk uzayı + background-clip: text
+  Önemli Önceki Teknolojiler: 001 Semantik HTML (main, h1), 002 CSS Flexbox (display: flex, clamp, 100dvh)
+  Çalıştırma Adresi: http://localhost:7373/003.html (Geliştirme: http://localhost:7373/003.dev.html)
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 003 — Hello World (CSS Custom Properties & OKLCH)</title>
+  <style>
+    /*
+      ========================================================================
+      CSS CUSTOM PROPERTIES (DEĞİŞKENLER) VE OKLCH RENK SİSTEMİ:
+      Tüm sahnenin renk hiyerarşisi, tek bir kök açı parametresi (--base-hue)
+      üzerinden oklch() fonksiyonlarıyla dinamik olarak türetilir.
+      OKLCH, insan gözünün algısal parlaklığını (perceptual lightness) baz alarak
+      her ton açısında eşit algılanan parlaklık ve doygunluk sunar.
+      ========================================================================
+    */
+    :root {
+      /* Temel Renk Parametreleri */
+      --base-hue: 280;          /* Mor - Eflatun ana renk açısı */
+      --chroma: 0.24;           /* Zengin kroma (doygunluk) değeri */
+      --lightness: 0.78;        /* Ana metin algısal aydınlık oranı */
+
+      /* Türetilmiş Renk Değişkenleri */
+      --color-primary: oklch(var(--lightness) var(--chroma) var(--base-hue));
+      --color-secondary: oklch(calc(var(--lightness) + 0.08) var(--chroma) calc(var(--base-hue) + 45));
+      --color-accent: oklch(calc(var(--lightness) + 0.12) calc(var(--chroma) - 0.06) calc(var(--base-hue) + 90));
+
+      /* Zemin ve Işıma Değişkenleri */
+      --bg-deep: oklch(0.10 0.03 var(--base-hue));
+      --glow-ambient: oklch(0.65 var(--chroma) var(--base-hue) / 0.35);
+      --badge-border: oklch(var(--lightness) var(--chroma) var(--base-hue) / 0.25);
+      --badge-bg: oklch(0.18 0.04 var(--base-hue) / 0.6);
+
+      /* Tipografik Ölçek Değişkeni */
+      --title-size: clamp(2.5rem, 8vw, 6.8rem);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-deep);
+      color: var(--color-primary);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /*
+      Flex Sahnesi (Önceki Deney 002'den esnek birikim):
+      display: flex, justify-content ve align-items kullanılarak
+      sayfanın görsel ve kavramsal odak noktası kurulur.
+    */
+    .stage {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+      padding: 2rem;
+      gap: 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    /*
+      Odak Noktası — Işıltılı OKLCH Hello World Başlığı:
+      - background-image: CSS değişkenleri ile hesaplanan 3 duraklı OKLCH gradyanı.
+      - -webkit-background-clip / background-clip: Gradyanı harflerin vektörel sınırlarına hapseder.
+      - color: transparent: Harf dolgusunu görünmez yaparak gradyanın görünmesini sağlar.
+      - filter: drop-shadow: Harf silüetine değişken tabanlı derin bir ışık halesi (glow) yayar.
+    */
+    .title {
+      font-size: var(--title-size);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      background-image: linear-gradient(135deg, var(--color-primary), var(--color-secondary), var(--color-accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 35px var(--glow-ambient));
+    }
+
+    /*
+      Semantik Rozet:
+      CSS değişkenlerinin miras alma ve opaklık yönetimi yeteneğini sergiler.
+    */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.45rem 1.2rem;
+      border-radius: 9999px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      color: var(--color-accent);
+      font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <div class="badge">CSS Custom Properties &amp; OKLCH</div>
+    <h1 class="title">Hello World</h1>
+  </main>
+</body>
+</html>

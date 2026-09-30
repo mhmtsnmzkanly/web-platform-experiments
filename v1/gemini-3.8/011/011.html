@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World - Deney 011 (ResizeObserver ve Container Queries)</title>
+  <style>
+    /*
+     * CSS Temel Sıfırlama ve Sahne Yerleşimi
+     */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #060711;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .stage {
+      position: relative;
+      width: 100vw;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .hud-caption {
+      position: absolute;
+      top: 2rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    /*
+     * Yeniden Boyutlandırılabilir Konteyner Taşıyıcısı
+     * Bu çerçeve, içindeki kartın boyutunu belirler ve CSS Container Queries için referans teşkil eder.
+     */
+    .resizable-container {
+      /* W3C CSS Container Queries Temel Özelliği */
+      container-type: inline-size;
+      container-name: hw-box;
+
+      position: relative;
+      width: 840px;
+      min-width: 320px;
+      max-width: 1140px;
+      margin-bottom: 2rem;
+      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .resizable-container.is-resizing {
+      transition: none; /* Sürükleme anında gecikmesiz anlık tepki */
+    }
+
+    /*
+     * Konteyner İçi Kart
+     */
+    .card-box {
+      position: relative;
+      padding: 3rem 2.5rem;
+      border-radius: 2rem;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: ui-monospace, monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.95rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    /*
+     * Başlık Düzeni: Konteyner Sorgularıyla (@container) Şekil Değiştirir
+     */
+    .title {
+      font-weight: 900;
+      line-height: 1.05;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      color: #ffffff;
+    }
+
+    .word {
+      display: inline-block;
+      transition: all 0.35s ease;
+    }
+
+    .subtitle {
+      margin-top: 1.25rem;
+      font-size: 0.95rem;
+      color: #94a3b8;
+      letter-spacing: 0.04em;
+      transition: all 0.3s ease;
+    }
+
+    /*
+     * Sağ Kenar Sürükleme Tutamacı (Resize Handle)
+     */
+    .resize-handle {
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 64px;
+      border-radius: 12px;
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      cursor: ew-resize;
+      touch-action: none;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      transition: background 0.2s, transform 0.2s;
+      z-index: 30;
+    }
+
+    .resize-handle:hover, .resize-handle:active {
+      background: #38bdf8;
+      color: #041019;
+      transform: translateY(-50%) scale(1.08);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.8);
+    }
+
+    /*
+     * ========================================================
+     * CSS CONTAINER QUERIES (@container hw-box) KURALLARI
+     * ========================================================
+     */
+
+    /* 1. Kompakt Konteyner (< 440px): Dikey İstif ve Neon Pembe Vurgu */
+    @container hw-box (max-width: 440px) {
+      .card-box {
+        padding: 2rem 1.25rem;
+        border-color: rgba(244, 114, 182, 0.4);
+        box-shadow: 0 0 35px rgba(244, 114, 182, 0.3);
+      }
+      .status-badge {
+        color: #f472b6;
+        border-color: rgba(244, 114, 182, 0.3);
+        background: rgba(244, 114, 182, 0.08);
+      }
+      .title {
+        flex-direction: column;
+        gap: 0.15em;
+        font-size: 3rem;
+        text-shadow: 0 0 25px rgba(244, 114, 182, 0.7);
+      }
+      .subtitle {
+        font-size: 0.8rem;
+      }
+    }
+
+    /* 2. Tablet / Orta Konteyner (441px - 760px): Yatay Dengeli ve Camgöbeği Vurgu */
+    @container hw-box (min-width: 441px) and (max-width: 760px) {
+      .card-box {
+        padding: 2.75rem 2rem;
+        border-color: rgba(56, 189, 248, 0.4);
+        box-shadow: 0 0 35px rgba(56, 189, 248, 0.3);
+      }
+      .status-badge {
+        color: #38bdf8;
+        border-color: rgba(56, 189, 248, 0.3);
+        background: rgba(56, 189, 248, 0.08);
+      }
+      .title {
+        flex-direction: row;
+        gap: 0.35em;
+        font-size: 4.2rem;
+        text-shadow: 0 0 30px rgba(56, 189, 248, 0.7);
+      }
+      .subtitle {
+        font-size: 0.95rem;
+      }
+    }
+
+    /* 3. Geniş / Panoramik Konteyner (> 761px): Panoramik Dev Tipografi ve Mor/Eflatun Vurgu */
+    @container hw-box (min-width: 761px) {
+      .card-box {
+        padding: 3.5rem 3rem;
+        border-color: rgba(168, 85, 247, 0.4);
+        box-shadow: 0 0 45px rgba(168, 85, 247, 0.35);
+      }
+      .status-badge {
+        color: #c084fc;
+        border-color: rgba(168, 85, 247, 0.3);
+        background: rgba(168, 85, 247, 0.08);
+      }
+      .title {
+        flex-direction: row;
+        gap: 0.4em;
+        font-size: 5.6rem;
+        letter-spacing: -0.01em;
+        text-shadow: 0 0 40px rgba(192, 132, 252, 0.8);
+      }
+      .subtitle {
+        font-size: 1.05rem;
+      }
+    }
+
+    /*
+     * İnteraktif Boyut Kontrol Paneli ve Telemetri (HUD)
+     */
+    .controls-bar {
+      position: absolute;
+      bottom: 2rem;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      padding: 0.85rem 1.75rem;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      z-index: 20;
+    }
+
+    .preset-group {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      padding: 0.4rem 0.8rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .btn.active {
+      background: #38bdf8;
+      border-color: #38bdf8;
+      color: #041019;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    }
+
+    .telemetry-divider {
+      width: 1px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .telemetry-text {
+      font-family: ui-monospace, monospace;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .telemetry-val {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="stage">
+    <div class="hud-caption">Deney 011 // ResizeObserver &amp; Container Queries</div>
+
+    <!--
+      Yeniden Boyutlandırılabilir Konteyner (Container-Query Context)
+    -->
+    <div class="resizable-container" id="resizableBox">
+      <div class="card-box">
+        <div class="status-badge" id="containerRuleBadge">
+          <span class="dot">●</span>
+          <span id="badgeRuleText">@container (min-width: 761px)</span>
+        </div>
+
+        <!-- Semantik H1 Başlığı -->
+        <h1 class="title" aria-label="Hello World">
+          <span class="word">Hello</span>
+          <span class="word">World</span>
+        </h1>
+
+        <p class="subtitle" id="subtitleText">Piksel Düzeyinde Konteyner Hassasiyeti</p>
+      </div>
+
+      <!-- Sürükleme Tutamacı -->
+      <div class="resize-handle" id="resizeHandle" title="Genişliği Değiştirmek İçin Sürükleyin">⋮⋮</div>
+    </div>
+
+    <!-- İnteraktif Kontrol ve Telemetri Paneli -->
+    <nav class="controls-bar" aria-label="Konteyner Boyutlandırma Kontrolleri">
+      <div class="preset-group">
+        <button type="button" class="btn" data-width="360">Kompakt (360px)</button>
+        <button type="button" class="btn" data-width="580">Tablet (580px)</button>
+        <button type="button" class="btn active" data-width="840">Masaüstü (840px)</button>
+        <button type="button" class="btn" data-width="1060">Geniş (1060px)</button>
+      </div>
+
+      <div class="telemetry-divider"></div>
+
+      <div class="telemetry-text">
+        <span>Genişlik: </span>
+        <span class="telemetry-val" id="observedWidth">840px</span>
+        <span> | ResizeObserver: </span>
+        <span class="telemetry-val" id="roStatus">Aktif</span>
+      </div>
+    </nav>
+  </main>
+
+  <script>
+    /**
+     * Hello World Lab - Deney 011: ResizeObserver ve Container Queries
+     *
+     * Çalışma Mantığı:
+     * 1. .resizable-container elemanı CSS'te `container-type: inline-size` ile
+     *    bağımsız bir konteyner sorgu bağlamı (Container Query context) olarak atanır.
+     * 2. CSS `@container hw-box (...)` kuralları, tarayıcı penceresine değil, doğrudan
+     *    bu elemanın anlık inline genişliğine tepki vererek tipografiyi morfolojik olarak dönüştürür.
+     * 3. JavaScript `ResizeObserver` API, bu kutuyu piksel altı hassasiyetle izler.
+     *    Layout thrashing oluşturmadan `contentBoxSize` ölçümlerini canlı telemetri paneline aktarır.
+     * 4. Kullanıcı tutamacı sürükleyerek veya önayar butonlarına tıklayarak kutuyu boyutlandırabilir.
+     */
+
+    (function() {
+      'use strict';
+
+      const resizableBox = document.getElementById('resizableBox');
+      const resizeHandle = document.getElementById('resizeHandle');
+      const observedWidthEl = document.getElementById('observedWidth');
+      const badgeRuleText = document.getElementById('badgeRuleText');
+      const presetButtons = document.querySelectorAll('.btn[data-width]');
+
+      // 1. ResizeObserver Kurulumu
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          // Modern contentBoxSize dizisi veya geriye dönük contentRect
+          let width = 0;
+          if (entry.contentBoxSize) {
+            const size = Array.isArray(entry.contentBoxSize) ? entry.contentBoxSize[0] : entry.contentBoxSize;
+            width = Math.round(size.inlineSize);
+          } else {
+            width = Math.round(entry.contentRect.width);
+          }
+
+          // Telemetri Güncellemesi
+          observedWidthEl.textContent = `${width}px`;
+
+          // Aktif Konteyner Sorgusu Tespiti
+          let ruleName = '';
+          if (width <= 440) {
+            ruleName = '@container (max-width: 440px) [Kompakt Kule]';
+          } else if (width <= 760) {
+            ruleName = '@container (441px - 760px) [Tablet Çift Satır]';
+          } else {
+            ruleName = '@container (min-width: 761px) [Panoramik Satır]';
+          }
+          badgeRuleText.textContent = ruleName;
+        }
+      });
+
+      // Kutuyu gözlemlemeye başla
+      resizeObserver.observe(resizableBox);
+
+      // 2. Önayarlı Butonlar İle Boyutlandırma
+      presetButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          presetButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const targetWidth = parseInt(btn.getAttribute('data-width'), 10);
+          resizableBox.classList.remove('is-resizing'); // Animasyonlu geçiş
+          resizableBox.style.width = `${targetWidth}px`;
+        });
+      });
+
+      // 3. Tutamaç (Resize Handle) İle Serbest Sürükleme (Pointer Events)
+      let isDragging = false;
+      let startX = 0;
+      let startWidth = 0;
+
+      resizeHandle.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        isDragging = true;
+        startX = e.clientX;
+        startWidth = resizableBox.offsetWidth;
+
+        resizableBox.classList.add('is-resizing');
+        try {
+          resizeHandle.setPointerCapture(e.pointerId);
+        } catch (_) {}
+      });
+
+      resizeHandle.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const deltaX = (e.clientX - startX) * 2; // Simetrik merkezden genişleme hissi
+        const newWidth = Math.min(Math.max(startWidth + deltaX, 320), 1140);
+        resizableBox.style.width = `${newWidth}px`;
+
+        // Önayar butonlarındaki aktifliği kaldır
+        presetButtons.forEach(b => b.classList.remove('active'));
+      });
+
+      const stopDrag = (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        resizableBox.classList.remove('is-resizing');
+        try {
+          if (resizeHandle.hasPointerCapture(e.pointerId)) {
+            resizeHandle.releasePointerCapture(e.pointerId);
+          }
+        } catch (_) {}
+      };
+
+      resizeHandle.addEventListener('pointerup', stopDrag);
+      resizeHandle.addEventListener('pointercancel', stopDrag);
+
+    })();
+  </script>
+</body>
+</html>

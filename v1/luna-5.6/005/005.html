@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Cross Section</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --fog: #dfe1df;
+      --ink: #202422;
+      --orange: #ff5c35;
+      --line: rgba(32, 36, 34, 0.25);
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--fog);
+      color: var(--ink);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.46), transparent 42%),
+        var(--fog);
+    }
+
+    main {
+      width: min(1060px, calc(100vw - 64px));
+      height: 100vh;
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 24px;
+      padding: 34px 0 30px;
+    }
+
+    header,
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+    }
+
+    header span:first-child,
+    footer span:last-child {
+      color: var(--orange);
+    }
+
+    header span:last-child,
+    footer span:first-child {
+      color: rgba(32, 36, 34, 0.62);
+      text-align: right;
+    }
+
+    .window {
+      position: relative;
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .window::before,
+    .window::after {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-color: var(--orange);
+      border-style: solid;
+      content: "";
+      pointer-events: none;
+    }
+
+    .window::before {
+      top: 22px;
+      left: 22px;
+      border-width: 2px 0 0 2px;
+    }
+
+    .window::after {
+      right: 22px;
+      bottom: 22px;
+      border-width: 0 2px 2px 0;
+    }
+
+    .coordinates {
+      position: absolute;
+      top: 24px;
+      right: 56px;
+      left: 56px;
+      display: flex;
+      justify-content: space-between;
+      color: rgba(32, 36, 34, 0.54);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .coordinates::before {
+      position: absolute;
+      top: 20px;
+      right: 0;
+      left: 0;
+      height: 1px;
+      background: var(--line);
+      content: "";
+    }
+
+    .message {
+      position: relative;
+      margin: 0;
+      padding: 20px 34px;
+      color: var(--ink);
+      font-size: clamp(56px, 11.5vw, 154px);
+      font-weight: 800;
+      letter-spacing: -0.08em;
+      line-height: 0.9;
+      text-align: center;
+      clip-path: inset(0 100% 0 0);
+    }
+
+    .is-visible .message {
+      animation: reveal 0.8s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+    }
+
+    .cursor {
+      position: absolute;
+      bottom: 28%;
+      left: 16%;
+      width: 68%;
+      height: 3px;
+      background: var(--orange);
+      transform-origin: left center;
+    }
+
+    .is-visible .cursor {
+      animation: cursor-pulse 3.4s ease-in-out infinite;
+    }
+
+    .cursor::after {
+      position: absolute;
+      top: 50%;
+      right: -4px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--orange);
+      content: "";
+      transform: translateY(-50%);
+    }
+
+    @keyframes reveal {
+      0% {
+        clip-path: inset(0 100% 0 0);
+        transform: translateX(-18px);
+      }
+
+      100% {
+        clip-path: inset(0 0 0 0);
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes cursor-pulse {
+      0%,
+      100% {
+        opacity: 0.34;
+        transform: scaleX(0.82);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scaleX(1);
+      }
+    }
+
+    footer {
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    @media (max-width: 640px) {
+      main {
+        width: calc(100vw - 28px);
+        padding-top: 22px;
+      }
+
+      header,
+      footer {
+        font-size: 9px;
+      }
+
+      .coordinates {
+        right: 30px;
+        left: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span>005 / CROSS SECTION</span>
+      <span>INTERSECTION OBSERVER / CLIP-PATH</span>
+    </header>
+
+    <section class="window" aria-label="Hello World revealed through a cross section">
+      <div class="coordinates">
+        <span>VISIBLE / 100%</span>
+        <span>SECTION A—A</span>
+      </div>
+      <h1 class="message">Hello World</h1>
+      <div class="cursor" aria-hidden="true"></div>
+    </section>
+
+    <footer>
+      <span>THE WINDOW OPENS ON ENTRY</span>
+      <span>LIVE / CUT TO MEANING</span>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      const windowPanel = document.querySelector(".window");
+      const reveal = (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            windowPanel.classList.add("is-visible");
+          }
+        });
+      };
+
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(reveal, { threshold: 0.25 });
+        observer.observe(windowPanel);
+      } else {
+        windowPanel.classList.add("is-visible");
+      }
+    })();
+  </script>
+</body>
+</html>

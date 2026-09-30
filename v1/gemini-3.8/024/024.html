@@ -1,0 +1,770 @@
+<!--
+  DENEY 024: Selection & Range API ve Tipografik Lazer Dilimleme Geometrisi
+  
+  Yenilik Türü: Yeni Teknoloji (Selection & Range API - W3C DOM Level 2/3)
+  Kullanılan Web Standartları:
+    - window.getSelection()
+    - document.createRange()
+    - range.setStart(node, offset), range.setEnd(node, offset)
+    - range.getBoundingClientRect(), range.getClientRects()
+    - range.toString(), range.collapsed, range.commonAncestorContainer
+    - document.addEventListener('selectionchange', callback)
+    - Dinamik optik lazer kumpası ve piksel hassasiyetli geometrik izleme
+  
+  Tasarım Yaklaşımı:
+    - Yüksek hassasiyetli lazer optik metroloji laboratuvarı
+    - Hello World metninin alt-karakter seviyesinde mikroskobik geometrik analizi
+    - Sıfır dış kütüphane, sıfır main-thread jank
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 024: Selection & Range API ve Tipografik Lazer Dilimleme Geometrisi</title>
+  <style>
+    /* ==========================================================================
+       1. DEĞİŞKENLER VE TEMEL SIFIRLAMA
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --optics-bg: #05070d;
+      --optics-surface: #0b0f19;
+      --optics-elevated: #131b2e;
+      --optics-border: rgba(16, 185, 129, 0.22);
+      --optics-border-bright: #10b981;
+      --laser-emerald: #10b981;
+      --laser-red: #f43f5e;
+      --laser-cyan: #38bdf8;
+      --laser-amber: #fbbf24;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--optics-bg);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 60%),
+        linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+    }
+
+    /* ==========================================================================
+       2. ÜST METROLOJİ KONTROL ÇUBUĞU
+       ========================================================================== */
+    .optics-header {
+      padding: 1rem 2rem;
+      background: rgba(11, 15, 25, 0.9);
+      border-bottom: 1px solid var(--optics-border);
+      backdrop-filter: blur(16px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .laser-reticle-icon {
+      width: 26px;
+      height: 26px;
+      border: 2px solid var(--laser-emerald);
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: laser-spin 7s infinite linear;
+    }
+
+    @keyframes laser-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .reticle-core {
+      width: 6px;
+      height: 6px;
+      background: var(--laser-emerald);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--laser-emerald);
+    }
+
+    .header-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .optics-badge {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.6rem;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--optics-border);
+      border-radius: 4px;
+      color: var(--laser-emerald);
+      letter-spacing: 0.05em;
+    }
+
+    .mode-actions {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .mode-btn {
+      background: var(--optics-elevated);
+      color: var(--text-dim);
+      border: 1px solid var(--optics-border);
+      padding: 0.45rem 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn:hover {
+      color: var(--text-main);
+      border-color: var(--laser-emerald);
+    }
+
+    .mode-btn.active {
+      background: rgba(16, 185, 129, 0.25);
+      color: var(--laser-emerald);
+      border-color: var(--laser-emerald);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+      font-weight: 800;
+    }
+
+    /* ==========================================================================
+       3. ANA SAHNE: LAZER METROLOJİ ODASI VE HELLO WORLD
+       ========================================================================== */
+    .optics-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 1.75rem;
+      padding: 1.75rem 2rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1024px) {
+      .optics-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stage-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .laser-chamber {
+      background: var(--optics-surface);
+      border: 1px solid var(--optics-border);
+      border-radius: 8px;
+      padding: 4rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 480px;
+      position: relative;
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Optik Koordinat Çaprazları */
+    .chamber-axis-h {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.25), transparent);
+      pointer-events: none;
+    }
+
+    .chamber-axis-v {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(16, 185, 129, 0.25), transparent);
+      pointer-events: none;
+    }
+
+    /* Ana Hello World Başlığı */
+    .headline-stage {
+      position: relative;
+      user-select: text;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .metro-headline {
+      font-size: clamp(3.8rem, 10vw, 7.8rem);
+      font-family: var(--font-sans);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      display: inline-block;
+      color: var(--text-main);
+      cursor: text;
+    }
+
+    .metro-headline ::selection {
+      background: rgba(16, 185, 129, 0.4);
+      color: #ffffff;
+      text-shadow: 0 0 14px var(--laser-emerald);
+    }
+
+    .word-hello {
+      color: #ffffff;
+      text-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+    }
+
+    .word-world {
+      color: var(--laser-cyan);
+      text-shadow: 0 0 25px rgba(56, 189, 248, 0.5);
+    }
+
+    /* Dinamik Lazer Kumpas Çerçevesi (Range Caliper) */
+    .caliper-box {
+      position: fixed;
+      pointer-events: none;
+      border: 2px solid var(--laser-emerald);
+      background: rgba(16, 185, 129, 0.12);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(16, 185, 129, 0.3);
+      border-radius: 3px;
+      transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 10;
+      display: none;
+    }
+
+    .caliper-label {
+      position: absolute;
+      top: -24px;
+      left: 0;
+      background: var(--laser-emerald);
+      color: #000000;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 0.15rem 0.45rem;
+      border-radius: 2px;
+      font-family: var(--font-mono);
+      white-space: nowrap;
+      letter-spacing: 0.05em;
+    }
+
+    .caliper-dimension {
+      position: absolute;
+      bottom: -22px;
+      right: 0;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid var(--laser-emerald);
+      color: var(--laser-emerald);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+      font-family: var(--font-mono);
+      white-space: nowrap;
+    }
+
+    /* Etkileşim Butonları Çubuğu */
+    .action-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--optics-surface);
+      border: 1px solid var(--optics-border);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      background: var(--optics-elevated);
+      color: var(--laser-cyan);
+      border: 1px solid var(--optics-border);
+      padding: 0.55rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+    }
+
+    .action-btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--laser-cyan);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+    }
+
+    /* ==========================================================================
+       4. SAĞ PANEL: RANGE METROLOJİ TELEMETRİSİ
+       ========================================================================== */
+    .sidebar-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .telemetry-card {
+      background: var(--optics-surface);
+      border: 1px solid var(--optics-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--laser-emerald);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+      padding-bottom: 0.5rem;
+    }
+
+    /* Range Nesne Metrikleri Tablosu */
+    .metrics-table {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.4rem 0.6rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 3px;
+    }
+
+    .metric-key {
+      color: var(--text-dim);
+    }
+
+    .metric-val {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--laser-cyan);
+    }
+
+    /* Seçili Metin Kutusu */
+    .selected-text-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px dashed var(--optics-border);
+      border-radius: 4px;
+      padding: 0.75rem;
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+      color: var(--laser-emerald);
+      word-break: break-all;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ==========================================================================
+       5. ALT DURUM ÇUBUĞU
+       ========================================================================== */
+    .optics-footer {
+      padding: 0.75rem 2rem;
+      background: var(--optics-surface);
+      border-top: 1px solid var(--optics-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    .telemetry-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .laser-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--laser-emerald);
+      box-shadow: 0 0 8px var(--laser-emerald);
+      animation: laser-pulse 1.6s infinite alternate ease-in-out;
+    }
+
+    @keyframes laser-pulse {
+      0% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dinamik Lazer Kumpas Çerçevesi (DOM üstüne biner) -->
+  <div class="caliper-box" id="caliper-box" aria-hidden="true">
+    <div class="caliper-label" id="caliper-label">RANGE: "HELLO"</div>
+    <div class="caliper-dimension" id="caliper-dimension">W: 167px &bull; H: 36px</div>
+  </div>
+
+  <!-- Üst Başlık ve Mod Çubuğu -->
+  <header class="optics-header" role="banner">
+    <div class="header-branding">
+      <div class="laser-reticle-icon" aria-hidden="true">
+        <div class="reticle-core"></div>
+      </div>
+      <div>
+        <h1 class="header-title">SELECTION &amp; RANGE LAZER METROLOJİSİ</h1>
+      </div>
+      <span class="optics-badge" id="range-status-badge">W3C DOM RANGE &bull; AKTİF</span>
+    </div>
+
+    <nav class="mode-actions" aria-label="Lazer Tarama Modları">
+      <button class="mode-btn active" id="btn-mode-patrol" data-mode="patrol">01 OTO LAZER TARA</button>
+      <button class="mode-btn" id="btn-mode-words" data-mode="words">02 KELİME AYRIŞIMI</button>
+      <button class="mode-btn" id="btn-mode-all" data-mode="all">03 TÜMÜNÜ SEÇ</button>
+    </nav>
+  </header>
+
+  <!-- Ana Kokpit Grid -->
+  <main class="optics-layout" role="main">
+
+    <!-- Sol Sahne: Lazer Metroloji Odası -->
+    <section class="stage-section" aria-label="Tipografi Lazer Odası">
+      <div class="laser-chamber" id="laser-chamber">
+        <div class="chamber-axis-h" aria-hidden="true"></div>
+        <div class="chamber-axis-v" aria-hidden="true"></div>
+
+        <!-- Anıtsal Hello World Başlığı -->
+        <div class="headline-stage" aria-label="Hello World Metin Odak Noktası">
+          <h2 class="metro-headline" id="main-text">
+            <span class="word-hello" id="span-hello">HELLO</span> <span class="word-world" id="span-world">WORLD</span>
+          </h2>
+        </div>
+      </div>
+
+      <!-- Eylemler Çubuğu -->
+      <div class="action-toolbar">
+        <div style="display: flex; gap: 0.6rem;">
+          <button class="action-btn" id="btn-step-next">
+            <span>&rarr;</span> SONRAKİ KARAKTER
+          </button>
+          <button class="action-btn" id="btn-clear-selection">
+            <span>&times;</span> SEÇİMİ SIFIRLA
+          </button>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-dim);">
+          <span>İPUCU: Fare ile metin üzerinde dilediğiniz harfi seçebilirsiniz.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sağ Panel: Range Telemetrisi -->
+    <aside class="sidebar-section" aria-label="Metroloji Telemetrisi">
+
+      <!-- Seçili Metin Özeti -->
+      <div class="telemetry-card">
+        <div class="card-title">
+          <span>Seçili Aralık (range.toString())</span>
+          <span style="font-size: 0.65rem; color: var(--laser-emerald);" id="char-count-badge">5 KARAKTER</span>
+        </div>
+        <div class="selected-text-box" id="selected-text-display">
+          "HELLO"
+        </div>
+      </div>
+
+      <!-- Range Nesne Özellikleri -->
+      <div class="telemetry-card">
+        <div class="card-title">
+          <span>Range Geometrik Telemetrisi</span>
+          <span style="font-size: 0.65rem; color: var(--laser-cyan);">getBoundingClientRect</span>
+        </div>
+        <div class="metrics-table">
+          <div class="metric-row">
+            <span class="metric-key">Genişlik (Width):</span>
+            <span class="metric-val" id="metric-width">0px</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-key">Yükseklik (Height):</span>
+            <span class="metric-val" id="metric-height">0px</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-key">X / Left:</span>
+            <span class="metric-val" id="metric-left">0px</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-key">Y / Top:</span>
+            <span class="metric-val" id="metric-top">0px</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-key">startOffset &rarr; endOffset:</span>
+            <span class="metric-val" id="metric-offsets">0 &rarr; 5</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-key">Kapanmış (collapsed):</span>
+            <span class="metric-val" id="metric-collapsed" style="color: var(--laser-emerald);">false</span>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Alt Durum Çubuğu -->
+  <footer class="optics-footer">
+    <div class="telemetry-indicator">
+      <span class="laser-status-dot" aria-hidden="true"></span>
+      <span id="footer-status">SELECTION &amp; RANGE ENGINE: ÇİFT YÖNLÜ METİN GEOMETRİSİ AKTİF</span>
+    </div>
+    <div>
+      <span>HELLO WORLD LAB &bull; W3C DOM RANGE METROLOJİSİ</span>
+    </div>
+  </footer>
+
+  <script>
+    // ==========================================================================
+    // 6. SELECTION & RANGE LAZER METROLOJİ MOTORU
+    // ==========================================================================
+    (function initSelectionMetrology() {
+      const mainTextEl = document.getElementById("main-text");
+      const spanHello = document.getElementById("span-hello");
+      const spanWorld = document.getElementById("span-world");
+
+      const caliperBox = document.getElementById("caliper-box");
+      const caliperLabel = document.getElementById("caliper-label");
+      const caliperDimension = document.getElementById("caliper-dimension");
+
+      const selectedTextDisplay = document.getElementById("selected-text-display");
+      const charCountBadge = document.getElementById("char-count-badge");
+      const metricWidth = document.getElementById("metric-width");
+      const metricHeight = document.getElementById("metric-height");
+      const metricLeft = document.getElementById("metric-left");
+      const metricTop = document.getElementById("metric-top");
+      const metricOffsets = document.getElementById("metric-offsets");
+      const metricCollapsed = document.getElementById("metric-collapsed");
+
+      const btnPatrol = document.getElementById("btn-mode-patrol");
+      const btnWords = document.getElementById("btn-mode-words");
+      const btnAll = document.getElementById("btn-mode-all");
+      const btnStepNext = document.getElementById("btn-step-next");
+      const btnClear = document.getElementById("btn-clear-selection");
+
+      let currentMode = "patrol";
+      let patrolIndex = 0;
+      let patrolTimer = null;
+
+      // Karakter Listesi (Boşluk dahil 11 indeks)
+      // "HELLO WORLD" -> H(0), E(1), L(2), L(3), O(4), " "(5), W(6), O(7), R(8), L(9), D(10)
+      const fullString = "HELLO WORLD";
+
+      // 1. Verilen Karakter İndeksine Göre Range Oluştur
+      function createRangeForIndex(idx) {
+        const range = document.createRange();
+
+        if (idx < 5) {
+          // HELLO düğümü
+          const node = spanHello.firstChild;
+          range.setStart(node, idx);
+          range.setEnd(node, idx + 1);
+        } else if (idx === 5) {
+          // Boşluk düğümü (mainTextEl içindeki metin düğümü)
+          const node = mainTextEl.childNodes[1]; // boşluk metin düğümü
+          if (node && node.nodeType === Node.TEXT_NODE) {
+            range.setStart(node, 0);
+            range.setEnd(node, 1);
+          } else {
+            range.setStart(spanHello.firstChild, 4);
+            range.setEnd(spanWorld.firstChild, 1);
+          }
+        } else {
+          // WORLD düğümü
+          const node = spanWorld.firstChild;
+          const wIdx = idx - 6;
+          range.setStart(node, wIdx);
+          range.setEnd(node, wIdx + 1);
+        }
+        return range;
+      }
+
+      // 2. Range Koordinatlarını ve Telemetriyi Güncelle
+      function applyRange(range) {
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+
+        const rect = range.getBoundingClientRect();
+        const text = range.toString();
+
+        selectedTextDisplay.textContent = `"${text}"`;
+        charCountBadge.textContent = `${text.length} KARAKTER`;
+
+        metricWidth.textContent = `${rect.width.toFixed(1)}px`;
+        metricHeight.textContent = `${rect.height.toFixed(1)}px`;
+        metricLeft.textContent = `${rect.left.toFixed(1)}px`;
+        metricTop.textContent = `${rect.top.toFixed(1)}px`;
+        metricOffsets.textContent = `${range.startOffset} → ${range.endOffset}`;
+        metricCollapsed.textContent = String(range.collapsed);
+
+        // Kumpas Kutusunu Konumlandır
+        if (rect.width > 0 && rect.height > 0) {
+          caliperBox.style.display = "block";
+          caliperBox.style.width = `${rect.width + 8}px`;
+          caliperBox.style.height = `${rect.height + 8}px`;
+          caliperBox.style.left = `${rect.left - 4}px`;
+          caliperBox.style.top = `${rect.top - 4}px`;
+
+          caliperLabel.textContent = `RANGE: "${text.replace(/\s/g, '␣')}"`;
+          caliperDimension.textContent = `W: ${rect.width.toFixed(1)}px • H: ${rect.height.toFixed(1)}px`;
+        } else {
+          caliperBox.style.display = "none";
+        }
+      }
+
+      // 3. Modlar
+      function selectAllWords() {
+        stopPatrol();
+        const range = document.createRange();
+        range.setStart(spanHello.firstChild, 0);
+        range.setEnd(spanWorld.firstChild, spanWorld.firstChild.length);
+        applyRange(range);
+      }
+
+      function selectWord(which) {
+        stopPatrol();
+        const range = document.createRange();
+        if (which === "hello") {
+          range.selectNodeContents(spanHello);
+        } else {
+          range.selectNodeContents(spanWorld);
+        }
+        applyRange(range);
+      }
+
+      function stepPatrol() {
+        const r = createRangeForIndex(patrolIndex);
+        applyRange(r);
+        patrolIndex = (patrolIndex + 1) % fullString.length;
+      }
+
+      function startPatrol() {
+        stopPatrol();
+        btnPatrol.classList.add("active");
+        btnWords.classList.remove("active");
+        btnAll.classList.remove("active");
+        currentMode = "patrol";
+        stepPatrol();
+        patrolTimer = setInterval(stepPatrol, 850);
+      }
+
+      function stopPatrol() {
+        if (patrolTimer) {
+          clearInterval(patrolTimer);
+          patrolTimer = null;
+        }
+      }
+
+      // 4. Dinleyiciler
+      btnPatrol.addEventListener("click", startPatrol);
+
+      let wordToggle = false;
+      btnWords.addEventListener("click", () => {
+        btnWords.classList.add("active");
+        btnPatrol.classList.remove("active");
+        btnAll.classList.remove("active");
+        currentMode = "words";
+        wordToggle = !wordToggle;
+        selectWord(wordToggle ? "hello" : "world");
+      });
+
+      btnAll.addEventListener("click", () => {
+        btnAll.classList.add("active");
+        btnPatrol.classList.remove("active");
+        btnWords.classList.remove("active");
+        currentMode = "all";
+        selectAllWords();
+      });
+
+      btnStepNext.addEventListener("click", () => {
+        stopPatrol();
+        stepPatrol();
+      });
+
+      btnClear.addEventListener("click", () => {
+        stopPatrol();
+        window.getSelection().removeAllRanges();
+        caliperBox.style.display = "none";
+        selectedTextDisplay.textContent = "(SEÇİM YOK)";
+        charCountBadge.textContent = "0 KARAKTER";
+        metricWidth.textContent = "0px";
+        metricHeight.textContent = "0px";
+        metricCollapsed.textContent = "true";
+      });
+
+      // 5. Serbest Kullanıcı Seçimi Dinleyicisi
+      document.addEventListener("selectionchange", () => {
+        if (currentMode !== "patrol") {
+          const sel = window.getSelection();
+          if (sel.rangeCount > 0) {
+            const range = sel.getRangeAt(0);
+            if (mainTextEl.contains(range.commonAncestorContainer)) {
+              applyRange(range);
+            }
+          }
+        }
+      });
+
+      // Başlangıç: İlk olarak "HELLO" kelimesiyle başla, ardından devriyeye geç
+      setTimeout(() => {
+        selectWord("hello");
+        setTimeout(startPatrol, 1200);
+      }, 200);
+
+    })();
+  </script>
+</body>
+</html>

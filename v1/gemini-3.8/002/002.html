@@ -1,0 +1,110 @@
+<!--
+  HELLO WORLD LAB — DENEY 002
+  Hedef: CSS Flexbox ve Akışkan Tipografi ile Esnek Odak
+  Yeni Teknoloji: CSS Flexible Box Layout (display: flex, justify-content, align-items, gap) + clamp() Akışkan Tipografi + 100dvh
+  Önemli Önceki Teknolojiler: 001 Semantik HTML Belge İskeleti (main, h1)
+  Çalıştırma Adresi: http://localhost:7373/002.html (Geliştirme: http://localhost:7373/002.dev.html)
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 002 — Hello World (CSS Flexbox & Akışkan Tipografi)</title>
+  <style>
+    /*
+      Sıfırlama ve Temel Kutu Modeli:
+      Tüm elemanlarda border-box kutu modelini benimseyerek padding ve border
+      hesaplamalarının eleman genişliğini beklenmedik şekilde taşmasını önlüyoruz.
+    */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /*
+      Gövde ve Zemin Ayarları:
+      001'in beyaz zeminine karşıt olarak, bu deneyde derin koyu zemin (#0a0a0c) seçilmiştir.
+      Sistem yazı tipi yığını (system-ui) kullanılarak harici hiçbir font dosyası indirilmeden
+      cihazın en optimize ve keskin sans-serif fontu devreye sokulur.
+    */
+    body {
+      background-color: #0a0a0c;
+      color: #f5f5f7;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /*
+      Flex Kapsayıcı (Sahne):
+      Deney 001'deki varsayılan blok akışı (sol üst) yerine, burada CSS Flexbox
+      motoru devreye alınır.
+      - 'display: flex': Esnek kutu bağlamını başlatır.
+      - 'flex-direction: column': Öğeleri dikey bir sütun ekseninde alt alta dizer.
+      - 'justify-content: center': Ana eksende (dikey) içeriği tam ortalar.
+      - 'align-items: center': Çapraz eksende (yatay) içeriği tam ortalar.
+      - 'min-height: 100dvh': Modern dinamik viewport yüksekliği ile tarayıcı çubukları
+        kaybolup belirdiğinde dahi kırpılmayan tam ekran esnekliği sunar.
+    */
+    .stage {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+      padding: 2rem;
+      gap: 1.25rem;
+      text-align: center;
+    }
+
+    /*
+      Odak Noktası — Hello World Başlığı:
+      Akışkan tipografi fonksiyonu 'clamp(min, val, max)' kullanılmıştır.
+      - 2.5rem: En küçük mobil ekranlardaki taban boyut (küçülmeyi sınırlar).
+      - 8vw: Ekran genişliğine doğrudan duyarlı akışkan büyüme oranı.
+      - 7rem: Geniş masaüstü ekranlardaki tavan boyut (aşırı büyümeyi engeller).
+      Böylece tek bir medya sorgusu dahi yazmadan her ekranda ideal orantıda devasa bir
+      görsel odak noktası elde edilir.
+    */
+    .title {
+      font-size: clamp(2.5rem, 8vw, 7rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: #ffffff;
+      text-shadow: 0 4px 30px rgba(255, 255, 255, 0.12);
+    }
+
+    /*
+      Semantik Flex İkincil Eleman (Rozet):
+      Flexbox hiyerarşisini kanıtlamak amacıyla, başlığın altında esnek bir etiket
+      konumlandırılmıştır. Flex 'gap' değeri sayesinde başlıkla arasındaki boşluk
+      otomatik ve esnek yönetilir.
+    */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #a1a1a6;
+      font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
+<body>
+  <!--
+    <main class="stage">:
+    Sayfanın ana anlamsal gövdesi aynı zamanda CSS Flexbox'ın ana sahnesidir.
+  -->
+  <main class="stage">
+    <div class="badge">CSS Flexbox &amp; Fluid Typography</div>
+    <h1 class="title">Hello World</h1>
+  </main>
+</body>
+</html>

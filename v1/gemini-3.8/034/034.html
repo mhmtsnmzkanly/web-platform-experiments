@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 034: HTML5 Popover API — Yerel Katmanlama ve Boyutsal Tipografik HUD</title>
+  <style>
+    /* ==========================================================================
+       1. KÖK DEĞİŞKENLER VE TEMEL AYARLAR
+       ========================================================================== */
+    :root {
+      --bg-stage: #050814;
+      --panel-bg: rgba(9, 15, 30, 0.85);
+      --panel-border: rgba(14, 165, 233, 0.25);
+      --hud-cyan: #0ea5e9;
+      --hud-cyan-glow: rgba(14, 165, 233, 0.35);
+      --hud-amber: #f59e0b;
+      --hud-amber-glow: rgba(245, 158, 11, 0.3);
+      --hud-emerald: #10b981;
+      --hud-ruby: #f43f5e;
+      --hud-violet: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-stage);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(14, 165, 233, 0.05) 0%, transparent 65%),
+        repeating-linear-gradient(0deg, rgba(14, 165, 233, 0.015) 0px, rgba(14, 165, 233, 0.015) 1px, transparent 1px, transparent 32px);
+    }
+
+    /* ==========================================================================
+       2. ÜST TELEMETRİ BAŞLIĞI
+       ========================================================================== */
+    header {
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      backdrop-filter: blur(12px);
+      z-index: 10;
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .badge-milestone {
+      background: rgba(14, 165, 233, 0.12);
+      border: 1px solid var(--hud-cyan);
+      color: var(--hud-cyan);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      letter-spacing: 0.08em;
+      box-shadow: 0 0 10px var(--hud-cyan-glow);
+    }
+
+    .header-title-block h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+
+    .header-title-block p {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    .telemetry-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-chip {
+      background: rgba(14, 165, 233, 0.05);
+      border: 1px solid rgba(14, 165, 233, 0.2);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      min-width: 95px;
+    }
+
+    .stat-chip-label {
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-chip-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--hud-cyan);
+    }
+
+    .stat-chip-val.green { color: var(--hud-emerald); }
+    .stat-chip-val.amber { color: var(--hud-amber); }
+    .stat-chip-val.violet { color: var(--hud-violet); }
+
+    /* ==========================================================================
+       3. ANA DÜZEN (ZEMİN SAHNE & KONTROL MASASI)
+       ========================================================================== */
+    main {
+      flex: 1;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.5rem;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Zemin Kuantum Sahnesi */
+    .base-stage-card {
+      background: #020612;
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), inset 0 0 50px rgba(14, 165, 233, 0.04);
+      min-height: 480px;
+    }
+
+    .base-stage-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--hud-cyan), var(--hud-violet), transparent);
+    }
+
+    .stage-status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.3rem 0.8rem;
+      border-radius: 4px;
+      border: 1px solid var(--hud-cyan);
+      background: rgba(14, 165, 233, 0.1);
+      color: var(--hud-cyan);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 0 0 12px var(--hud-cyan-glow);
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    /* HELLO WORLD Ana Zemin Başlığı */
+    .base-typography-wrap {
+      margin: 2rem 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #hw-base-heading {
+      font-size: clamp(2.4rem, 5.5vw, 4.4rem);
+      font-weight: 900;
+      font-family: var(--font-sans);
+      letter-spacing: 0.12em;
+      color: #ffffff;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.25em;
+      user-select: none;
+      filter: drop-shadow(0 0 16px var(--hud-cyan-glow));
+    }
+
+    .glyph-button {
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      cursor: pointer;
+      color: inherit;
+      font: inherit;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .glyph-button:hover {
+      background: rgba(14, 165, 233, 0.15);
+      border-color: var(--hud-cyan);
+      box-shadow: 0 0 14px var(--hud-cyan-glow);
+      transform: translateY(-2px);
+    }
+
+    .glyph-sub {
+      font-size: 0.6rem;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+      letter-spacing: 0;
+    }
+
+    /* ==========================================================================
+       4. HTML5 POPOVER API & TOP LAYER ÖZELLEŞTİRMELERİ
+       ========================================================================== */
+    
+    /* A. Ana Top Layer HUD Popover'ı (popover="auto") */
+    #topLayerHud {
+      /* Popover Varsayılanlarını Sıfırla ve Top Layer'da Konumlandır */
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.92);
+      margin: 0;
+      border: 1px solid rgba(14, 165, 233, 0.5);
+      background: rgba(6, 12, 28, 0.92);
+      border-radius: 16px;
+      padding: 2.5rem 3rem;
+      color: #ffffff;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 50px rgba(14, 165, 233, 0.25);
+      max-width: 90vw;
+      width: 760px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), overlay 0.3s allow-discrete, display 0.3s allow-discrete;
+    }
+
+    /* Açık Popover Durumu (:popover-open) */
+    #topLayerHud:popover-open {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: auto;
+    }
+
+    /* Popover Yerel Arkalık (::backdrop) */
+    #topLayerHud::backdrop {
+      background: rgba(3, 7, 18, 0.82);
+      backdrop-filter: blur(16px);
+      opacity: 0;
+      transition: opacity 0.3s ease, overlay 0.3s allow-discrete, display 0.3s allow-discrete;
+    }
+
+    #topLayerHud:popover-open::backdrop {
+      opacity: 1;
+    }
+
+    /* Top Layer İçindeki Monolitik HUD Tipografisi */
+    .toplayer-hw-heading {
+      font-size: clamp(2.4rem, 6vw, 4.6rem);
+      font-weight: 900;
+      font-family: var(--font-sans);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-align: center;
+      background: linear-gradient(135deg, #ffffff 0%, var(--hud-cyan) 60%, var(--hud-violet) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 30px var(--hud-cyan-glow));
+      margin: 1.25rem 0;
+    }
+
+    .toplayer-hud-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--hud-cyan);
+      background: rgba(14, 165, 233, 0.12);
+      border: 1px solid var(--hud-cyan);
+      border-radius: 4px;
+      padding: 0.25rem 0.65rem;
+      margin-bottom: 0.75rem;
+    }
+
+    /* B. Harf Mikro-Popover'ı */
+    #letterDetailPopover {
+      position: fixed;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 10px;
+      padding: 1.25rem 1.75rem;
+      color: #ffffff;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 25px rgba(245, 158, 11, 0.25);
+      min-width: 280px;
+      text-align: center;
+    }
+
+    #letterDetailPopover::backdrop {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    /* C. Manuel Popover Toast (popover="manual") */
+    #manualToast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      margin: 0;
+      border: 1px solid var(--hud-emerald);
+      background: rgba(6, 24, 16, 0.95);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      color: #ffffff;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(16, 185, 129, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    /* ==========================================================================
+       5. SAĞ KONTROL PANELİ
+       ========================================================================== */
+    .controls-panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .panel-section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      border-radius: 6px;
+      padding: 0.65rem 0.75rem;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(14, 165, 233, 0.12);
+      border-color: var(--hud-cyan);
+      box-shadow: 0 0 12px var(--hud-cyan-glow);
+    }
+
+    .ctrl-btn-full {
+      grid-column: 1 / -1;
+    }
+
+    .ctrl-btn.btn-cyan {
+      border-color: var(--hud-cyan);
+      color: var(--hud-cyan);
+      background: rgba(14, 165, 233, 0.08);
+    }
+
+    .ctrl-btn.btn-cyan:hover {
+      background: rgba(14, 165, 233, 0.18);
+      box-shadow: 0 0 16px var(--hud-cyan-glow);
+    }
+
+    /* Olay Akış Listesi */
+    .popover-event-stream {
+      background: #02050c;
+      border: 1px solid rgba(14, 165, 233, 0.18);
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      max-height: 160px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .event-line {
+      display: flex;
+      gap: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .event-time { color: var(--text-dim); }
+    .event-tag { color: var(--hud-amber); font-weight: 700; }
+    .event-tag.open { color: var(--hud-cyan); }
+    .event-tag.close { color: var(--hud-ruby); }
+    .event-desc { color: #e2e8f0; }
+
+    /* ==========================================================================
+       6. ALT BİLGİ ŞERİDİ
+       ========================================================================== */
+    footer {
+      background: var(--panel-bg);
+      border-top: 1px solid var(--panel-border);
+      padding: 0.85rem 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .footer-stat {
+      color: var(--hud-cyan);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Kokpit Başlığı & Katman Telemetrisi -->
+  <header>
+    <div class="header-branding">
+      <span class="badge-milestone">DENEY 034</span>
+      <div class="header-title-block">
+        <h2>HTML5 Popover API ve Top Layer Morfolojisi</h2>
+        <p>Yerleşik Tarayıcı En Üst Katman Yığını (Top Layer Stack Management)</p>
+      </div>
+    </div>
+
+    <div class="telemetry-badges">
+      <div class="stat-chip">
+        <span class="stat-chip-label">Aktif Katman</span>
+        <span class="stat-chip-val" id="valActiveLayer">BASE_DOM</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Top Layer Durumu</span>
+        <span class="stat-chip-val green" id="valTopLayerStatus">IDLE</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Son Olay (Toggle)</span>
+        <span class="stat-chip-val amber" id="valLastEvent">NONE</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Kapatma Modu</span>
+        <span class="stat-chip-val violet" id="valDismissMode">LIGHT-DISMISS</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ana Düzen -->
+  <main>
+    <!-- Zemin Sahnesi -->
+    <section class="base-stage-card" aria-label="Zemin Sahnesi">
+      
+      <div class="stage-status-indicator">
+        <span class="pulse-dot"></span>
+        <span id="txtStageStatus">ZEMİN DÜZLEMİ (DOM ROOT)</span>
+      </div>
+
+      <!-- HELLO WORLD Ana Zemin Başlığı -->
+      <div class="base-typography-wrap">
+        <h1 id="hw-base-heading" aria-label="Hello World">
+          <button class="glyph-button" data-glyph="H" popovertarget="letterDetailPopover" type="button">
+            <span>H</span><span class="glyph-sub">0x48</span>
+          </button>
+          <button class="glyph-button" data-glyph="E" popovertarget="letterDetailPopover" type="button">
+            <span>E</span><span class="glyph-sub">0x45</span>
+          </button>
+          <button class="glyph-button" data-glyph="L" popovertarget="letterDetailPopover" type="button">
+            <span>L</span><span class="glyph-sub">0x4C</span>
+          </button>
+          <button class="glyph-button" data-glyph="L" popovertarget="letterDetailPopover" type="button">
+            <span>L</span><span class="glyph-sub">0x4C</span>
+          </button>
+          <button class="glyph-button" data-glyph="O" popovertarget="letterDetailPopover" type="button">
+            <span>O</span><span class="glyph-sub">0x4F</span>
+          </button>
+          <span style="width: 1rem;"></span>
+          <button class="glyph-button" data-glyph="W" popovertarget="letterDetailPopover" type="button">
+            <span>W</span><span class="glyph-sub">0x57</span>
+          </button>
+          <button class="glyph-button" data-glyph="O" popovertarget="letterDetailPopover" type="button">
+            <span>O</span><span class="glyph-sub">0x4F</span>
+          </button>
+          <button class="glyph-button" data-glyph="R" popovertarget="letterDetailPopover" type="button">
+            <span>R</span><span class="glyph-sub">0x52</span>
+          </button>
+          <button class="glyph-button" data-glyph="L" popovertarget="letterDetailPopover" type="button">
+            <span>L</span><span class="glyph-sub">0x4C</span>
+          </button>
+          <button class="glyph-button" data-glyph="D" popovertarget="letterDetailPopover" type="button">
+            <span>D</span><span class="glyph-sub">0x44</span>
+          </button>
+        </h1>
+      </div>
+
+      <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); text-align: center;">
+        Harflere tıklayarak mikro-popover'ı açabilir veya yan panelden Top Layer Süper Vizörünü tetikleyebilirsiniz.
+      </div>
+    </section>
+
+    <!-- Yan Kontrol Masası -->
+    <aside class="controls-panel" aria-label="Popover Kontrol Masası">
+      
+      <!-- Deklaratif ve Programatik Popover Tetikleyicileri -->
+      <div>
+        <div class="panel-section-title">
+          <span>Top Layer Tetikleyicileri</span>
+        </div>
+        <div class="btn-grid" style="margin-top: 0.75rem;">
+          <!-- Deklaratif Popover Açıcı (popovertarget) -->
+          <button class="ctrl-btn ctrl-btn-full btn-cyan" id="btnOpenTopLayer" popovertarget="topLayerHud" type="button">
+            <strong style="font-size: 0.82rem;">⛶ TOP LAYER SÜPER VİZÖRÜ</strong>
+            <span style="font-size: 0.65rem;">popovertarget="topLayerHud" (Deklaratif)</span>
+          </button>
+          <!-- Programatik Açıcı -->
+          <button class="ctrl-btn" id="btnProgrammaticOpen" type="button">
+            <strong>showPopover()</strong>
+            <span style="font-size: 0.65rem; color: var(--hud-cyan);">[JS API]</span>
+          </button>
+          <button class="ctrl-btn" id="btnToggleManualToast" type="button">
+            <strong>Manual Toast</strong>
+            <span style="font-size: 0.65rem; color: var(--hud-emerald);">[popover="manual"]</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Popover Tür Bilgilendirmesi -->
+      <div>
+        <div class="panel-section-title">
+          <span>Katman Özellikleri</span>
+          <span style="color: var(--hud-cyan); font-size: 0.72rem;">TOP LAYER</span>
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim); display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.75rem;">
+          <div>• <strong>Top Layer Stack:</strong> z-index bağımsız yerel üst katman.</div>
+          <div>• <strong>Light-Dismiss:</strong> Dışarı tıklandığında veya Esc ile otomatik kapanma.</div>
+          <div>• <strong>::backdrop:</strong> Yerel donanım hızlandırmalı buğulama.</div>
+        </div>
+      </div>
+
+      <!-- Canlı Olay Günlüğü (Top Layer Audit Log) -->
+      <div>
+        <div class="panel-section-title">
+          <span>Top Layer Olay Günlüğü</span>
+        </div>
+        <div class="popover-event-stream" id="eventLog" style="margin-top: 0.5rem;">
+          <!-- Canlı olaylar -->
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- ==========================================================================
+       7. POPOVER TOP LAYER NESNELERİ
+       ========================================================================== -->
+
+  <!-- A. Ana Top Layer Süper Vizörü (popover="auto") -->
+  <div id="topLayerHud" popover="auto" role="dialog" aria-modal="true" aria-label="Top Layer Süper Vizörü">
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <span class="toplayer-hud-badge">
+        <span class="pulse-dot"></span>
+        <span>TOP LAYER VİZÖRÜ: DEVREDE</span>
+      </span>
+      <button class="ctrl-btn" popovertarget="topLayerHud" popovertargetaction="hide" type="button" style="padding: 0.3rem 0.6rem;">
+        ✕ KAPAT (ESC)
+      </button>
+    </div>
+
+    <!-- Top Layer İçindeki Monolitik HELLO WORLD Başlığı -->
+    <h2 class="toplayer-hw-heading" aria-label="Hello World Top Layer">HELLO WORLD</h2>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; font-family: var(--font-mono); font-size: 0.72rem;">
+      <div style="background: rgba(14, 165, 233, 0.08); padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(14, 165, 233, 0.2);">
+        <div style="color: var(--text-dim);">KATMAN SEVİYESİ</div>
+        <div style="color: var(--hud-cyan); font-weight: 700; font-size: 0.9rem;">TOP_LAYER_PROMOTED</div>
+      </div>
+      <div style="background: rgba(16, 185, 129, 0.08); padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.2);">
+        <div style="color: var(--text-dim);">GÖLGELEME (BACKDROP)</div>
+        <div style="color: var(--hud-emerald); font-weight: 700; font-size: 0.9rem;">BLUR 16px</div>
+      </div>
+      <div style="background: rgba(245, 158, 11, 0.08); padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(245, 158, 11, 0.2);">
+        <div style="color: var(--text-dim);">KAPATMA YÖNTEMİ</div>
+        <div style="color: var(--hud-amber); font-weight: 700; font-size: 0.9rem;">ESC / CLICK-OUT</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B. Harf Mikro-Popover'ı (popover="auto") -->
+  <div id="letterDetailPopover" popover="auto" role="tooltip" aria-label="Harf Detayı">
+    <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--hud-amber); font-weight: 700;">GLİF TELEMETRİSİ</div>
+    <div id="txtGlyphChar" style="font-size: 2.5rem; font-weight: 900; margin: 0.25rem 0;">H</div>
+    <div id="txtGlyphHex" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim);">ASCII: 0x48 (Desimal: 72)</div>
+  </div>
+
+  <!-- C. Manuel Top Layer Toast (popover="manual") -->
+  <div id="manualToast" popover="manual" role="status" aria-label="Manuel Katman Toast">
+    <span class="pulse-dot" style="background: var(--hud-emerald);"></span>
+    <div>
+      <div style="color: var(--hud-emerald); font-weight: 700;">MANUAL TOP LAYER TOAST</div>
+      <div style="color: var(--text-dim); font-size: 0.65rem;">popover="manual" (Dışarı tıklamayla kapanmaz)</div>
+    </div>
+    <button class="ctrl-btn" id="btnCloseManualToast" type="button" style="padding: 0.25rem 0.5rem; margin-left: 0.5rem;">
+      ✕
+    </button>
+  </div>
+
+  <!-- Alt Bilgi Şeridi -->
+  <footer>
+    <div>
+      <span>KATMAN MOTORU: </span>
+      <span class="footer-stat">HTML5 Popover API Specification (WHATWG)</span>
+    </div>
+    <div>
+      <span>YIĞIN: </span>
+      <span class="footer-stat">Browser Native Top Layer Stack</span>
+    </div>
+    <div>
+      <span>UYUMLULUK: </span>
+      <span class="footer-stat">100% Yerel Tarayıcı Motoru (Sıfır Bağımlılık)</span>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       8. JAVASCRIPT ÇALIŞMA ZAMANI MOTORU (Tekil Script Bloğu)
+       ========================================================================== -->
+  <script>
+    (function initPopoverCockpit() {
+      // DOM Elemanları
+      const topLayerHud = document.getElementById("topLayerHud");
+      const letterDetailPopover = document.getElementById("letterDetailPopover");
+      const manualToast = document.getElementById("manualToast");
+      const valActiveLayer = document.getElementById("valActiveLayer");
+      const valTopLayerStatus = document.getElementById("valTopLayerStatus");
+      const valLastEvent = document.getElementById("valLastEvent");
+      const valDismissMode = document.getElementById("valDismissMode");
+      const txtStageStatus = document.getElementById("txtStageStatus");
+      const btnProgrammaticOpen = document.getElementById("btnProgrammaticOpen");
+      const btnToggleManualToast = document.getElementById("btnToggleManualToast");
+      const btnCloseManualToast = document.getElementById("btnCloseManualToast");
+      const txtGlyphChar = document.getElementById("txtGlyphChar");
+      const txtGlyphHex = document.getElementById("txtGlyphHex");
+      const eventLog = document.getElementById("eventLog");
+
+      // Olay Günlüğüne Yazma
+      function logEvent(tag, desc, cls = "") {
+        if (!eventLog) return;
+        const now = new Date();
+        const timeStr = now.toTimeString().split(" ")[0] + "." + String(now.getMilliseconds()).padStart(3, "0");
+        const row = document.createElement("div");
+        row.className = "event-line";
+        row.innerHTML = `<span class="event-time">${timeStr}</span><span class="event-tag ${cls}">[${tag}]</span><span class="event-desc">${desc}</span>`;
+        eventLog.prepend(row);
+        while (eventLog.children.length > 25) {
+          eventLog.removeChild(eventLog.lastChild);
+        }
+      }
+
+      // 1. Ana Popover Olay Dinleyicileri (beforetoggle ve toggle)
+      topLayerHud.addEventListener("beforetoggle", (e) => {
+        valLastEvent.textContent = `beforetoggle (${e.newState})`;
+        logEvent("BEFORE_TOGGLE", `topLayerHud durumu değişiyor: → ${e.newState}`, e.newState === "open" ? "open" : "close");
+      });
+
+      topLayerHud.addEventListener("toggle", (e) => {
+        valLastEvent.textContent = `toggle (${e.newState})`;
+        if (e.newState === "open") {
+          valActiveLayer.textContent = "TOP_LAYER_HUD";
+          valActiveLayer.className = "stat-chip-val cyan";
+          valTopLayerStatus.textContent = "PROMOTED";
+          valTopLayerStatus.className = "stat-chip-val cyan";
+          txtStageStatus.textContent = "TOP LAYER AKTİF (BACKDROP DEVREDE)";
+          logEvent("TOP_LAYER", "topLayerHud Top Layer seviyesine terfi etti (AÇIK)", "open");
+        } else {
+          valActiveLayer.textContent = "BASE_DOM";
+          valActiveLayer.className = "stat-chip-val green";
+          valTopLayerStatus.textContent = "IDLE";
+          valTopLayerStatus.className = "stat-chip-val green";
+          txtStageStatus.textContent = "ZEMİN DÜZLEMİ (DOM ROOT)";
+          logEvent("TOP_LAYER", "topLayerHud kapandı, zemin düzlemine dönüldü", "close");
+        }
+      });
+
+      // 2. Programatik showPopover()
+      btnProgrammaticOpen.addEventListener("click", () => {
+        try {
+          topLayerHud.showPopover();
+          logEvent("JS_API", "topLayerHud.showPopover() çağrıldı", "open");
+        } catch (err) {
+          logEvent("API_ERR", err.message, "close");
+        }
+      });
+
+      // 3. Harf Glif Tıklamaları (Mikro-Popover)
+      const glyphButtons = document.querySelectorAll(".glyph-button");
+      glyphButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const char = btn.getAttribute("data-glyph");
+          const code = char.charCodeAt(0);
+          const hex = "0x" + code.toString(16).toUpperCase();
+          txtGlyphChar.textContent = char;
+          txtGlyphHex.textContent = `ASCII: ${hex} (Desimal: ${code})`;
+          logEvent("GLYPH_POP", `Harf seçildi: '${char}' (${hex})`, "open");
+        });
+      });
+
+      // 4. Manuel Toast Yönetimi (popover="manual")
+      btnToggleManualToast.addEventListener("click", () => {
+        try {
+          manualToast.togglePopover();
+          logEvent("MANUAL_POP", "manualToast.togglePopover() tetiklendi", "open");
+        } catch (err) {
+          logEvent("API_ERR", err.message, "close");
+        }
+      });
+
+      btnCloseManualToast.addEventListener("click", () => {
+        manualToast.hidePopover();
+        logEvent("MANUAL_POP", "manualToast.hidePopover() ile kapatıldı", "close");
+      });
+
+      logEvent("INIT", "HTML5 Popover ve Top Layer kokpiti hazırlandı.", "open");
+    })();
+  </script>
+</body>
+</html>

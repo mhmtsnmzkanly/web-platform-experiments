@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World Lab — Deney 038: Gamepad API & Kinetik Aviyonik Tipografi</title>
+  <style>
+    /* ==========================================================================
+       1. KÖK DEĞİŞKENLER VE TEMA KURALLARI
+       ========================================================================== */
+    :root {
+      --bg-base: #030712;
+      --bg-surface: #070c1b;
+      --bg-card: rgba(15, 23, 42, 0.85);
+      --bg-card-hover: rgba(30, 41, 59, 0.9);
+
+      --neon-cyan: #06b6d4;
+      --neon-cyan-glow: rgba(6, 182, 212, 0.35);
+      --neon-amber: #f59e0b;
+      --neon-amber-glow: rgba(245, 158, 11, 0.35);
+      --neon-green: #10b981;
+      --neon-green-glow: rgba(16, 185, 129, 0.35);
+      --neon-ruby: #f43f5e;
+      --neon-ruby-glow: rgba(244, 63, 94, 0.35);
+      --neon-violet: #8b5cf6;
+      --neon-violet-glow: rgba(139, 92, 246, 0.35);
+
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --text-muted: #64748b;
+      --border-subtle: rgba(56, 189, 248, 0.18);
+      --border-active: rgba(6, 182, 212, 0.55);
+
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       2. BAŞLIK VE KONTROL ŞERİDİ (Header HUD)
+       ========================================================================== */
+    header {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(3, 7, 18, 0.95));
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .badge-experiment {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(245, 158, 11, 0.2));
+      color: var(--neon-cyan);
+      border: 1px solid var(--border-active);
+      padding: 0.3rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      font-family: var(--font-mono);
+      box-shadow: 0 0 12px var(--neon-cyan-glow);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    .header-telemetry {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .telemetry-chip {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      min-width: 105px;
+    }
+
+    .telemetry-label {
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .telemetry-value {
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--neon-cyan);
+    }
+
+    .telemetry-value.green { color: var(--neon-green); }
+    .telemetry-value.amber { color: var(--neon-amber); }
+    .telemetry-value.ruby { color: var(--neon-ruby); }
+
+    /* ==========================================================================
+       3. ANA ÇALIŞMA ALANI (Master Layout)
+       ========================================================================== */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.25rem;
+      padding: 1.25rem 1.75rem;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1080px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Sol Panel: Aviyonik 3D Uçuş Sahnesi ve Kontrol Güvertesi */
+    .cockpit-stage {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.25rem;
+      position: relative;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.75);
+      overflow: hidden;
+    }
+
+    /* 3D Görsel Uzay Odası (Viewport Arena) */
+    .spatial-arena {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      background: radial-gradient(circle at center, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      border-radius: 8px;
+      overflow: hidden;
+      perspective: 900px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(6, 182, 212, 0.06);
+    }
+
+    /* Yıldız Alanı Canvas */
+    #starfieldCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* Aviyonik Nişangah Kılavuzları (HUD Crosshair) */
+    .hud-reticle {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .reticle-ring {
+      width: 220px;
+      height: 220px;
+      border: 1px dashed rgba(6, 182, 212, 0.2);
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .reticle-axis-h {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.15) 30%, rgba(6, 182, 212, 0.15) 70%, transparent);
+      position: absolute;
+    }
+
+    .reticle-axis-v {
+      height: 100%;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(6, 182, 212, 0.15) 30%, rgba(6, 182, 212, 0.15) 70%, transparent);
+      position: absolute;
+    }
+
+    /* Uçuş Vektörü İzi (Thrust Vector) */
+    #vectorLine {
+      position: absolute;
+      width: 2px;
+      height: 60px;
+      background: linear-gradient(180deg, var(--neon-cyan), transparent);
+      transform-origin: top center;
+      pointer-events: none;
+      display: none;
+    }
+
+    /* Kinetik HELLO WORLD Uzay Aracı / Monoliti */
+    .hello-world-vessel {
+      position: relative;
+      transform-style: preserve-3d;
+      will-change: transform;
+      user-select: none;
+      cursor: grab;
+      z-index: 10;
+      text-align: center;
+      transition: filter 0.2s ease;
+    }
+
+    .vessel-heading {
+      font-size: 3.8rem;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ffffff 0%, var(--neon-cyan) 50%, var(--neon-violet) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 20px var(--neon-cyan-glow));
+      line-height: 1;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .vessel-heading.boosted {
+      background: linear-gradient(135deg, #ffffff 0%, var(--neon-green) 50%, var(--neon-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 35px var(--neon-green-glow));
+    }
+
+    .vessel-heading.braked {
+      background: linear-gradient(135deg, #ffffff 0%, var(--neon-ruby) 50%, var(--neon-amber) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 35px var(--neon-ruby-glow));
+    }
+
+    .vessel-sub {
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+      margin-top: 0.4rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* Sentetik Çift Analog Joystick ve Buton Masası */
+    .gamepad-deck {
+      display: grid;
+      grid-template-columns: 140px 1fr 140px;
+      gap: 1rem;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.85rem 1.25rem;
+    }
+
+    /* Joystick Konteyneri */
+    .joystick-module {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .joystick-base {
+      width: 90px;
+      height: 90px;
+      background: radial-gradient(circle at center, #1e293b, #0f172a);
+      border: 2px solid var(--border-subtle);
+      border-radius: 50%;
+      position: relative;
+      touch-action: none;
+      cursor: crosshair;
+      box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .joystick-thumb {
+      width: 36px;
+      height: 36px;
+      background: radial-gradient(circle at 30% 30%, #38bdf8, #0284c7);
+      border: 1px solid #ffffff;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6), 0 0 10px var(--neon-cyan-glow);
+      pointer-events: none;
+    }
+
+    .joystick-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    /* Orta Buton Masası ($A, B, X, Y$) */
+    .face-buttons-deck {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .buttons-diamond {
+      display: grid;
+      grid-template-columns: repeat(3, 42px);
+      grid-template-rows: repeat(3, 42px);
+      gap: 0.25rem;
+      align-items: center;
+      justify-items: center;
+    }
+
+    .pad-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border-subtle);
+      background: #1e293b;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .pad-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .pad-btn:active, .pad-btn.pressed {
+      transform: translateY(1px);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .pad-btn.btn-a {
+      grid-column: 2;
+      grid-row: 3;
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+    }
+    .pad-btn.btn-a.pressed { background: var(--neon-green); color: #000; box-shadow: 0 0 15px var(--neon-green); }
+
+    .pad-btn.btn-b {
+      grid-column: 3;
+      grid-row: 2;
+      border-color: var(--neon-ruby);
+      color: var(--neon-ruby);
+    }
+    .pad-btn.btn-b.pressed { background: var(--neon-ruby); color: #fff; box-shadow: 0 0 15px var(--neon-ruby); }
+
+    .pad-btn.btn-x {
+      grid-column: 1;
+      grid-row: 2;
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+    }
+    .pad-btn.btn-x.pressed { background: var(--neon-cyan); color: #000; box-shadow: 0 0 15px var(--neon-cyan); }
+
+    .pad-btn.btn-y {
+      grid-column: 2;
+      grid-row: 1;
+      border-color: var(--neon-amber);
+      color: var(--neon-amber);
+    }
+    .pad-btn.btn-y.pressed { background: var(--neon-amber); color: #000; box-shadow: 0 0 15px var(--neon-amber); }
+
+    /* ==========================================================================
+       4. YAN KONTROL VE TELEMETRİ MASASI (Sidebar)
+       ========================================================================== */
+    .controls-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .panel-section-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* 4 Eksen Gösterge Barları */
+    .axis-bars-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .axis-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+    }
+
+    .axis-header {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-dim);
+    }
+
+    .axis-track {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .axis-indicator {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      background: var(--neon-cyan);
+      left: 50%;
+      transform-origin: left center;
+      transition: width 0.05s ease, left 0.05s ease;
+    }
+
+    /* 17 Butonluk Durum Matrisi */
+    .btn-matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.35rem;
+      margin-top: 0.65rem;
+    }
+
+    .matrix-pill {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      padding: 0.2rem 0;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      text-align: center;
+      color: var(--text-muted);
+      transition: all 0.1s ease;
+    }
+
+    .matrix-pill.active {
+      background: var(--neon-cyan);
+      color: #000000;
+      font-weight: 700;
+      border-color: #ffffff;
+      box-shadow: 0 0 8px var(--neon-cyan-glow);
+    }
+
+    /* Hızlı Simülasyon Butonları */
+    .quick-actions-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 0.65rem;
+    }
+
+    .quick-action-btn {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.5rem 0.6rem;
+      color: var(--text-dim);
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .quick-action-btn:hover {
+      border-color: var(--neon-cyan);
+      color: #ffffff;
+      background: rgba(30, 41, 59, 0.9);
+    }
+
+    /* Olay Telemetri Günlüğü */
+    .telemetry-log {
+      background: #020612;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 0.5rem;
+      height: 110px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .log-line {
+      display: flex;
+      gap: 0.4rem;
+      line-height: 1.3;
+    }
+
+    .log-time { color: var(--text-muted); }
+    .log-tag { font-weight: 700; color: var(--neon-cyan); }
+    .log-tag.axis { color: var(--neon-amber); }
+    .log-tag.btn { color: var(--neon-green); }
+    .log-tag.loop { color: var(--neon-violet); }
+    .log-desc { color: var(--text-dim); }
+
+    /* ==========================================================================
+       5. ALT BİLGİ ŞERİDİ (Footer)
+       ========================================================================== */
+    footer {
+      background: rgba(3, 7, 18, 0.95);
+      border-top: 1px solid var(--border-subtle);
+      padding: 0.75rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+    }
+
+    .footer-stat {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Bilgi ve Telemetri Şeridi -->
+  <header>
+    <div class="brand-section">
+      <span class="badge-experiment">DENEY 038</span>
+      <div>
+        <h1 class="brand-title">
+          <span>Gamepad API & Kinetik Aviyonik Tipografi</span>
+        </h1>
+        <p class="brand-subtitle">Analog Çift Joystick, Buton Basıncı ve Uçuş Kontrol Kokpiti</p>
+      </div>
+    </div>
+
+    <div class="header-telemetry">
+      <div class="telemetry-chip">
+        <span class="telemetry-label">KONTROLCÜ</span>
+        <span class="telemetry-value green" id="valControllerType">SENTETİK</span>
+      </div>
+      <div class="telemetry-chip">
+        <span class="telemetry-label">İTKİ HIZI</span>
+        <span class="telemetry-value" id="valVelocity">0.00 M/S</span>
+      </div>
+      <div class="telemetry-chip">
+        <span class="telemetry-label">GİMBAL ROTASYON</span>
+        <span class="telemetry-value amber" id="valOrientation">0° / 0°</span>
+      </div>
+      <div class="telemetry-chip">
+        <span class="telemetry-label">YOKLAMA (POLL)</span>
+        <span class="telemetry-value" id="valPollingRate">60 HZ</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ana Çalışma Alanı -->
+  <main>
+    <!-- Sol Panel: 3D Aviyonik Uçuş Kokpiti ve Sentetik Joystick Masası -->
+    <section class="cockpit-stage" aria-label="Aviyonik Uçuş Kokpiti">
+      
+      <!-- 3D Uzaysal Arena -->
+      <div class="spatial-arena" id="spatialArena">
+        <!-- Arka Plan Yıldız Alanı -->
+        <canvas id="starfieldCanvas" width="840" height="380"></canvas>
+
+        <!-- Aviyonik HUD Nişangahı -->
+        <div class="hud-reticle">
+          <div class="reticle-ring"></div>
+          <div class="reticle-axis-h"></div>
+          <div class="reticle-axis-v"></div>
+          <div id="vectorLine"></div>
+        </div>
+
+        <!-- 3D HELLO WORLD Uçuş Monoliti -->
+        <div class="hello-world-vessel" id="vesselEl">
+          <div class="vessel-heading" id="txtVesselHeading">HELLO WORLD</div>
+          <div class="vessel-sub" id="txtVesselCoords">POS: [0.0, 0.0, 0.0] | PITCH: 0.0° | ROLL: 0.0°</div>
+        </div>
+      </div>
+
+      <!-- Sentetik Çift Analog Joystick ve Buton Güvertesi -->
+      <div class="gamepad-deck">
+        
+        <!-- Sol Analog: Translasyon İtkisi (X, Y) -->
+        <div class="joystick-module">
+          <div class="joystick-base" id="stickLeftBase">
+            <div class="joystick-thumb" id="stickLeftThumb"></div>
+          </div>
+          <span class="joystick-label">SOL ANALOG (İTKİ / POS)</span>
+        </div>
+
+        <!-- Orta Buton Masası (A, B, X, Y) -->
+        <div class="face-buttons-deck">
+          <div class="buttons-diamond">
+            <button class="pad-btn btn-y" id="btnPadY" type="button" title="Button Y: 360° Gyro Loop">Y</button>
+            <button class="pad-btn btn-x" id="btnPadX" type="button" title="Button X: Spektral Renk">X</button>
+            <button class="pad-btn btn-b" id="btnPadB" type="button" title="Button B: Hava Freni">B</button>
+            <button class="pad-btn btn-a" id="btnPadA" type="button" title="Button A: Warp İtki">A</button>
+          </div>
+          <span style="font-size: 0.65rem; font-family: var(--font-mono); color: var(--text-dim);">
+            [A] BOOST • [B] FREN • [X] RENK • [Y] TAKLA
+          </span>
+        </div>
+
+        <!-- Sağ Analog: Açısal Rotasyon (Pitch, Yaw, Roll) -->
+        <div class="joystick-module">
+          <div class="joystick-base" id="stickRightBase">
+            <div class="joystick-thumb" id="stickRightThumb"></div>
+          </div>
+          <span class="joystick-label">SAĞ ANALOG (ROTASYON)</span>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Yan Kontrol ve Aviyonik Telemetri Masası -->
+    <aside class="controls-panel" aria-label="Aviyonik Telemetri Masası">
+      
+      <!-- 4 Eksen Göstergeleri -->
+      <div>
+        <div class="panel-section-title">
+          <span>Gamepad Analog Eksenleri</span>
+          <span style="color: var(--neon-cyan); font-size: 0.68rem;">AXES[0..3]</span>
+        </div>
+        <div class="axis-bars-group">
+          
+          <div class="axis-item">
+            <div class="axis-header">
+              <span>Eksen 0 (Sol X):</span>
+              <strong id="valAxis0">0.00</strong>
+            </div>
+            <div class="axis-track"><div class="axis-indicator" id="barAxis0"></div></div>
+          </div>
+
+          <div class="axis-item">
+            <div class="axis-header">
+              <span>Eksen 1 (Sol Y):</span>
+              <strong id="valAxis1">0.00</strong>
+            </div>
+            <div class="axis-track"><div class="axis-indicator" id="barAxis1"></div></div>
+          </div>
+
+          <div class="axis-item">
+            <div class="axis-header">
+              <span>Eksen 2 (Sağ X):</span>
+              <strong id="valAxis2">0.00</strong>
+            </div>
+            <div class="axis-track"><div class="axis-indicator" id="barAxis2"></div></div>
+          </div>
+
+          <div class="axis-item">
+            <div class="axis-header">
+              <span>Eksen 3 (Sağ Y):</span>
+              <strong id="valAxis3">0.00</strong>
+            </div>
+            <div class="axis-track"><div class="axis-indicator" id="barAxis3"></div></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 17 Standart Buton Matrisi -->
+      <div>
+        <div class="panel-section-title">
+          <span>Standart Buton Matrisi</span>
+          <span style="color: var(--neon-amber); font-size: 0.68rem;">B0..B16</span>
+        </div>
+        <div class="btn-matrix-grid" id="btnMatrixDeck">
+          <!-- 17 buton hücresi -->
+        </div>
+      </div>
+
+      <!-- Hızlı Uçuş Aksiyonları -->
+      <div>
+        <div class="panel-section-title">
+          <span>Hızlı Aviyonik Aksiyonlar</span>
+        </div>
+        <div class="quick-actions-row">
+          <button class="quick-action-btn" id="actBoost" type="button">🚀 Warp Boost (A)</button>
+          <button class="quick-action-btn" id="actBrake" type="button">🛑 Hava Freni (B)</button>
+          <button class="quick-action-btn" id="actColor" type="button">🎨 Spektrum (X)</button>
+          <button class="quick-action-btn" id="actLoop" type="button">🌀 360° Loop (Y)</button>
+          <button class="quick-action-btn" id="actReset" type="button" style="grid-column: span 2;">🔄 Konumu Sıfırla</button>
+        </div>
+      </div>
+
+      <!-- Canlı Olay Akış Konsolu -->
+      <div>
+        <div class="panel-section-title">
+          <span>Aviyonik Olay Akışı</span>
+        </div>
+        <div class="telemetry-log" id="telemetryLog" style="margin-top: 0.5rem;">
+          <!-- Canlı satırlar -->
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- Alt Bilgi Şeridi -->
+  <footer>
+    <div>
+      <span>STANDART: </span>
+      <span class="footer-stat">W3C Gamepad API (Standard Gamepad Mapping)</span>
+    </div>
+    <div>
+      <span>KONTROL MODU: </span>
+      <span class="footer-stat" id="ftrControlMode">Dual Synthetic Stick + Physical Gamepad Polling</span>
+    </div>
+    <div>
+      <span>UYUMLULUK: </span>
+      <span class="footer-stat">100% Yerel Tarayıcı Motoru</span>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       6. JAVASCRIPT ÇALIŞMA ZAMANI MOTORU (Tekil Script Bloğu)
+       ========================================================================== -->
+  <script>
+    (function initGamepadAvionics() {
+      // 1. DOM ELEMANLARI
+      const spatialArena = document.getElementById("spatialArena");
+      const starfieldCanvas = document.getElementById("starfieldCanvas");
+      const ctxStars = starfieldCanvas.getContext("2d");
+      const vesselEl = document.getElementById("vesselEl");
+      const txtVesselHeading = document.getElementById("txtVesselHeading");
+      const txtVesselCoords = document.getElementById("txtVesselCoords");
+      const vectorLine = document.getElementById("vectorLine");
+
+      const stickLeftBase = document.getElementById("stickLeftBase");
+      const stickLeftThumb = document.getElementById("stickLeftThumb");
+      const stickRightBase = document.getElementById("stickRightBase");
+      const stickRightThumb = document.getElementById("stickRightThumb");
+
+      const btnPadA = document.getElementById("btnPadA");
+      const btnPadB = document.getElementById("btnPadB");
+      const btnPadX = document.getElementById("btnPadX");
+      const btnPadY = document.getElementById("btnPadY");
+
+      const valControllerType = document.getElementById("valControllerType");
+      const valVelocity = document.getElementById("valVelocity");
+      const valOrientation = document.getElementById("valOrientation");
+      const valPollingRate = document.getElementById("valPollingRate");
+
+      const valAxis0 = document.getElementById("valAxis0");
+      const valAxis1 = document.getElementById("valAxis1");
+      const valAxis2 = document.getElementById("valAxis2");
+      const valAxis3 = document.getElementById("valAxis3");
+      const barAxis0 = document.getElementById("barAxis0");
+      const barAxis1 = document.getElementById("barAxis1");
+      const barAxis2 = document.getElementById("barAxis2");
+      const barAxis3 = document.getElementById("barAxis3");
+
+      const btnMatrixDeck = document.getElementById("btnMatrixDeck");
+      const telemetryLog = document.getElementById("telemetryLog");
+
+      const actBoost = document.getElementById("actBoost");
+      const actBrake = document.getElementById("actBrake");
+      const actColor = document.getElementById("actColor");
+      const actLoop = document.getElementById("actLoop");
+      const actReset = document.getElementById("actReset");
+
+      // 17 Butonluk Matris Hücrelerini Oluşturma
+      const matrixPills = [];
+      for (let i = 0; i < 17; i++) {
+        const pill = document.createElement("div");
+        pill.className = "matrix-pill";
+        pill.textContent = `B${i}`;
+        btnMatrixDeck.appendChild(pill);
+        matrixPills.push(pill);
+      }
+
+      // 2. YILDIZ ALANI ÇİZİM MOTORU (Starfield Engine)
+      const stars = [];
+      const numStars = 80;
+      function resizeStarfield() {
+        starfieldCanvas.width = spatialArena.clientWidth;
+        starfieldCanvas.height = spatialArena.clientHeight;
+        stars.length = 0;
+        for (let i = 0; i < numStars; i++) {
+          stars.push({
+            x: Math.random() * starfieldCanvas.width,
+            y: Math.random() * starfieldCanvas.height,
+            size: Math.random() * 2 + 0.8,
+            speed: Math.random() * 1.5 + 0.5,
+            alpha: Math.random() * 0.7 + 0.3
+          });
+        }
+      }
+      resizeStarfield();
+      window.addEventListener("resize", resizeStarfield);
+
+      function renderStarfield(vx, vy) {
+        ctxStars.clearRect(0, 0, starfieldCanvas.width, starfieldCanvas.height);
+        stars.forEach(s => {
+          s.x -= vx * s.speed * 0.5;
+          s.y -= vy * s.speed * 0.5;
+
+          if (s.x < 0) s.x = starfieldCanvas.width;
+          if (s.x > starfieldCanvas.width) s.x = 0;
+          if (s.y < 0) s.y = starfieldCanvas.height;
+          if (s.y > starfieldCanvas.height) s.y = 0;
+
+          ctxStars.fillStyle = `rgba(148, 163, 184, ${s.alpha})`;
+          ctxStars.fillRect(s.x, s.y, s.size, s.size);
+        });
+      }
+
+      // 3. TELEMETRİ GÜNLÜĞÜ YORDAMI
+      function logEvent(tag, desc, cls = "") {
+        if (!telemetryLog) return;
+        const now = new Date();
+        const timeStr = now.toTimeString().split(" ")[0] + "." + String(now.getMilliseconds()).padStart(3, "0");
+        const row = document.createElement("div");
+        row.className = "log-line";
+        row.innerHTML = `<span class="log-time">${timeStr}</span><span class="log-tag ${cls}">[${tag}]</span><span class="log-desc">${desc}</span>`;
+        telemetryLog.prepend(row);
+        while (telemetryLog.children.length > 25) {
+          telemetryLog.removeChild(telemetryLog.lastChild);
+        }
+      }
+
+      // 4. SENTETİK OYUN KOLU DURUMU (Virtual Gamepad State)
+      const syntheticGamepad = {
+        axes: [0, 0, 0, 0], // Axis 0: Sol X, Axis 1: Sol Y, Axis 2: Sağ X, Axis 3: Sağ Y
+        buttons: Array.from({ length: 17 }, () => ({ pressed: false, value: 0 }))
+      };
+
+      // 5. ETKİLEŞİMLİ DOKUNMATİK / FARE JOYSTICK KONTROLLERİ
+      function setupVirtualStick(baseEl, thumbEl, axisXIdx, axisYIdx) {
+        let isDragging = false;
+        const radius = 35; // Maksimum kayma mesafesi
+
+        function handlePointer(clientX, clientY) {
+          const rect = baseEl.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+
+          let dx = clientX - centerX;
+          let dy = clientY - centerY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist > radius) {
+            dx = (dx / dist) * radius;
+            dy = (dy / dist) * radius;
+          }
+
+          thumbEl.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+
+          // Normalized axes [-1.0, 1.0]
+          syntheticGamepad.axes[axisXIdx] = Number((dx / radius).toFixed(2));
+          syntheticGamepad.axes[axisYIdx] = Number((dy / radius).toFixed(2));
+        }
+
+        baseEl.addEventListener("pointerdown", (e) => {
+          isDragging = true;
+          baseEl.setPointerCapture(e.pointerId);
+          handlePointer(e.clientX, e.clientY);
+        });
+
+        baseEl.addEventListener("pointermove", (e) => {
+          if (!isDragging) return;
+          handlePointer(e.clientX, e.clientY);
+        });
+
+        const resetStick = (e) => {
+          if (!isDragging) return;
+          isDragging = false;
+          thumbEl.style.transform = "translate(-50%, -50%)";
+          syntheticGamepad.axes[axisXIdx] = 0;
+          syntheticGamepad.axes[axisYIdx] = 0;
+        };
+
+        baseEl.addEventListener("pointerup", resetStick);
+        baseEl.addEventListener("pointercancel", resetStick);
+      }
+
+      setupVirtualStick(stickLeftBase, stickLeftThumb, 0, 1);
+      setupVirtualStick(stickRightBase, stickRightThumb, 2, 3);
+
+      // Sentetik Buton Bağlantıları
+      function bindPadButton(el, btnIndex, actionName) {
+        const press = () => {
+          syntheticGamepad.buttons[btnIndex].pressed = true;
+          syntheticGamepad.buttons[btnIndex].value = 1.0;
+          el.classList.add("pressed");
+          handleButtonAction(btnIndex, true);
+        };
+        const release = () => {
+          syntheticGamepad.buttons[btnIndex].pressed = false;
+          syntheticGamepad.buttons[btnIndex].value = 0.0;
+          el.classList.remove("pressed");
+          handleButtonAction(btnIndex, false);
+        };
+
+        el.addEventListener("pointerdown", press);
+        el.addEventListener("pointerup", release);
+        el.addEventListener("pointercancel", release);
+      }
+
+      bindPadButton(btnPadA, 0, "BOOST");
+      bindPadButton(btnPadB, 1, "BRAKE");
+      bindPadButton(btnPadX, 2, "COLOR");
+      bindPadButton(btnPadY, 3, "LOOP");
+
+      // 6. AVİYONİK FİZİK VE UÇUŞ SİMÜLASYONU
+      let posX = 0;
+      let posY = 0;
+      let posZ = 0;
+      let vx = 0;
+      let vy = 0;
+      let rotPitch = 0;
+      let rotYaw = 0;
+      let rotRoll = 0;
+
+      let boostMultiplier = 1.0;
+      let baseHue = 188; // Başlangıç siyan rengi
+      let gyroLoopAnimation = 0;
+
+      function handleButtonAction(btnIndex, isPressed) {
+        if (!isPressed) return;
+
+        if (btnIndex === 0) { // A: Warp Boost
+          boostMultiplier = 3.5;
+          txtVesselHeading.classList.add("boosted");
+          logEvent("BTN_A", "Warp İtki devreye girdi! (Boost 3.5x)", "btn");
+          setTimeout(() => {
+            boostMultiplier = 1.0;
+            txtVesselHeading.classList.remove("boosted");
+          }, 800);
+        } else if (btnIndex === 1) { // B: Fren
+          vx *= 0.1;
+          vy *= 0.1;
+          txtVesselHeading.classList.add("braked");
+          logEvent("BTN_B", "Kinetik hava freni sıkıldı.", "btn");
+          setTimeout(() => txtVesselHeading.classList.remove("braked"), 600);
+        } else if (btnIndex === 2) { // X: Renk Döngüsü
+          baseHue = (baseHue + 60) % 360;
+          txtVesselHeading.style.filter = `drop-shadow(0 0 25px hsl(${baseHue}, 90%, 55%)) hue-rotate(${baseHue - 188}deg)`;
+          logEvent("BTN_X", `Spektral renk değiştirildi (Hue: ${baseHue}°)`, "axis");
+        } else if (btnIndex === 3) { // Y: 360 Gyro Loop
+          gyroLoopAnimation = 360;
+          logEvent("BTN_Y", "360° Akrobatik Gyro Loop başlatıldı!", "loop");
+        }
+      }
+
+      // Hızlı Aksiyon Butonları
+      actBoost.addEventListener("click", () => handleButtonAction(0, true));
+      actBrake.addEventListener("click", () => handleButtonAction(1, true));
+      actColor.addEventListener("click", () => handleButtonAction(2, true));
+      actLoop.addEventListener("click", () => handleButtonAction(3, true));
+      actReset.addEventListener("click", () => {
+        posX = posY = posZ = vx = vy = rotPitch = rotYaw = rotRoll = 0;
+        logEvent("RESET", "Uçuş koordinatları orijine sıfırlandı.");
+      });
+
+      // Klavye Kısayolları (WASD / Ok Tuşları)
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") syntheticGamepad.axes[0] = -0.8;
+        if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") syntheticGamepad.axes[0] = 0.8;
+        if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") syntheticGamepad.axes[1] = -0.8;
+        if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") syntheticGamepad.axes[1] = 0.8;
+        if (e.key === " ") handleButtonAction(0, true); // Space -> Boost
+        if (e.key === "Shift") handleButtonAction(1, true); // Shift -> Brake
+      });
+
+      window.addEventListener("keyup", (e) => {
+        if (["ArrowLeft", "ArrowRight", "a", "d", "A", "D"].includes(e.key)) syntheticGamepad.axes[0] = 0;
+        if (["ArrowUp", "ArrowDown", "w", "s", "W", "S"].includes(e.key)) syntheticGamepad.axes[1] = 0;
+      });
+
+      // Donanım Gamepad Olay Dinleyicileri
+      window.addEventListener("gamepadconnected", (e) => {
+        logEvent("CONNECTED", `Fiziksel Kol Bağlandı: ${e.gamepad.id}`, "btn");
+      });
+      window.addEventListener("gamepaddisconnected", (e) => {
+        logEvent("DISCONNECTED", `Kol Ayrıldı: ${e.gamepad.id}`, "reject");
+      });
+
+      // 7. 60 FPS AVIYONIK GÜNCELLEME DÖNGÜSÜ (requestAnimationFrame)
+      let lastLoopTime = performance.now();
+      let frameCounter = 0;
+
+      function updateAvionics(now) {
+        // 1. Gamepad API Sorgulama (Hardware Polling)
+        const gamepads = typeof navigator.getGamepads === "function" ? navigator.getGamepads() : [];
+        const hwPad = gamepads && (gamepads[0] || gamepads[1] || gamepads[2] || gamepads[3]);
+
+        let activeAxes = syntheticGamepad.axes;
+        let activeButtons = syntheticGamepad.buttons;
+
+        if (hwPad) {
+          valControllerType.textContent = "FİZİKSEL KOL";
+          valControllerType.className = "telemetry-value green";
+          activeAxes = hwPad.axes.slice(0, 4);
+          activeButtons = hwPad.buttons;
+        } else {
+          valControllerType.textContent = "SENTETİK JOYSTICK";
+          valControllerType.className = "telemetry-value cyan";
+        }
+
+        // Ölü Bölge (Deadzone) Filtresi
+        const deadzone = 0.12;
+        const ax0 = Math.abs(activeAxes[0]) > deadzone ? activeAxes[0] : 0;
+        const ax1 = Math.abs(activeAxes[1]) > deadzone ? activeAxes[1] : 0;
+        const ax2 = Math.abs(activeAxes[2]) > deadzone ? activeAxes[2] : 0;
+        const ax3 = Math.abs(activeAxes[3]) > deadzone ? activeAxes[3] : 0;
+
+        // 2. Fizik Hız ve Konum Entegrasyonu
+        const thrustPower = 1.2 * boostMultiplier;
+        vx += ax0 * thrustPower;
+        vy += ax1 * thrustPower;
+
+        // Hava sürtünmesi / sönümleme
+        vx *= 0.92;
+        vy *= 0.92;
+
+        posX += vx;
+        posY += vy;
+
+        // Sahne Sınırları Koruması
+        const maxBoundX = 260;
+        const maxBoundY = 110;
+        if (posX > maxBoundX) { posX = maxBoundX; vx = -vx * 0.5; }
+        if (posX < -maxBoundX) { posX = -maxBoundX; vx = -vx * 0.5; }
+        if (posY > maxBoundY) { posY = maxBoundY; vy = -vy * 0.5; }
+        if (posY < -maxBoundY) { posY = -maxBoundY; vy = -vy * 0.5; }
+
+        // Açısal Rotasyon
+        rotYaw = (rotYaw + ax2 * 2.5) % 360;
+        rotPitch = (ax1 * -25); // İleri itince burnu daldır
+        rotRoll = (ax0 * 20);   // Sağa dönünce sağa yat
+
+        if (gyroLoopAnimation > 0) {
+          rotPitch += (360 - gyroLoopAnimation);
+          gyroLoopAnimation = Math.max(0, gyroLoopAnimation - 12);
+        }
+
+        // 3. 3D Dönüşümün HELLO WORLD Monolitine Uygulanması
+        vesselEl.style.transform = `
+          translate3d(${posX.toFixed(1)}px, ${posY.toFixed(1)}px, ${posZ}px)
+          rotateX(${rotPitch.toFixed(1)}deg)
+          rotateY(${rotYaw.toFixed(1)}deg)
+          rotateZ(${rotRoll.toFixed(1)}deg)
+        `;
+
+        // Koordinat Bilgisi
+        txtVesselCoords.textContent = `POS: [X:${posX.toFixed(0)}, Y:${posY.toFixed(0)}] | PITCH: ${rotPitch.toFixed(0)}° | ROLL: ${rotRoll.toFixed(0)}°`;
+
+        // 4. Yıldız Alanı Paralaksı
+        renderStarfield(vx, vy);
+
+        // 5. Yan Panel Telemetrisi (Eksen Barları)
+        valAxis0.textContent = ax0.toFixed(2);
+        valAxis1.textContent = ax1.toFixed(2);
+        valAxis2.textContent = ax2.toFixed(2);
+        valAxis3.textContent = ax3.toFixed(2);
+
+        function updateBar(barEl, val) {
+          const pct = Math.abs(val) * 50;
+          if (val >= 0) {
+            barEl.style.left = "50%";
+            barEl.style.width = `${pct}%`;
+          } else {
+            barEl.style.left = `${50 - pct}%`;
+            barEl.style.width = `${pct}%`;
+          }
+        }
+        updateBar(barAxis0, ax0);
+        updateBar(barAxis1, ax1);
+        updateBar(barAxis2, ax2);
+        updateBar(barAxis3, ax3);
+
+        // 6. Buton Matrisi Güncellemesi
+        for (let i = 0; i < 17; i++) {
+          const btnObj = activeButtons[i];
+          const isPressed = btnObj && (typeof btnObj === "object" ? btnObj.pressed : Boolean(btnObj));
+          if (isPressed) {
+            matrixPills[i].classList.add("active");
+          } else {
+            matrixPills[i].classList.remove("active");
+          }
+        }
+
+        // Hız Göstergesi
+        const currentSpeed = Math.sqrt(vx * vx + vy * vy) * 10;
+        valVelocity.textContent = `${currentSpeed.toFixed(1)} M/S`;
+        valOrientation.textContent = `${rotPitch.toFixed(0)}° / ${rotRoll.toFixed(0)}°`;
+
+        frameCounter++;
+        requestAnimationFrame(updateAvionics);
+      }
+
+      // Başlat
+      requestAnimationFrame(updateAvionics);
+      logEvent("INIT", "Gamepad API Aviyonik Kokpiti 60 FPS başlatıldı.", "btn");
+    })();
+  </script>
+</body>
+</html>

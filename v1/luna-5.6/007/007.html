@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — View Transition</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #eeeade;
+      --ink: #17191c;
+      --blue: #1d3fa3;
+      --lemon: #d4e83d;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, transparent 0 49.9%, rgba(29, 63, 163, 0.08) 50%, transparent 50.1%),
+        var(--paper);
+    }
+
+    main {
+      width: min(1080px, calc(100vw - 64px));
+      height: 100vh;
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 28px;
+      padding: 34px 0 28px;
+    }
+
+    header,
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 22px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    header {
+      border-top: 3px solid var(--ink);
+      padding-top: 12px;
+    }
+
+    header span:first-child,
+    footer span:last-child {
+      color: var(--blue);
+    }
+
+    header span:last-child,
+    footer span:first-child {
+      color: rgba(23, 25, 28, 0.58);
+      text-align: right;
+    }
+
+    .gallery {
+      position: relative;
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--blue);
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 16px 16px 0 var(--ink);
+    }
+
+    .gallery::before,
+    .gallery::after {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--lemon);
+      content: "";
+    }
+
+    .gallery::before {
+      top: 26px;
+      left: 26px;
+      border-right: 0;
+      border-bottom: 0;
+    }
+
+    .gallery::after {
+      right: 26px;
+      bottom: 26px;
+      border-top: 0;
+      border-left: 0;
+    }
+
+    .label {
+      position: absolute;
+      top: 28px;
+      right: 58px;
+      left: 58px;
+      display: flex;
+      justify-content: space-between;
+      color: rgba(23, 25, 28, 0.58);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .label::after {
+      position: absolute;
+      top: 22px;
+      right: 0;
+      left: 0;
+      height: 1px;
+      background: rgba(29, 63, 163, 0.28);
+      content: "";
+    }
+
+    h1 {
+      width: max-content;
+      margin: 0;
+      color: transparent;
+      font-size: clamp(62px, 13.4vw, 178px);
+      font-weight: 900;
+      letter-spacing: -0.09em;
+      line-height: 0.86;
+      text-align: center;
+      -webkit-text-stroke: 2px var(--ink);
+      text-shadow: 12px 12px 0 rgba(29, 63, 163, 0.18);
+      view-transition-name: hello-title;
+    }
+
+    .settled h1 {
+      color: var(--ink);
+      text-shadow: 12px 12px 0 var(--lemon);
+    }
+
+    ::view-transition-old(hello-title),
+    ::view-transition-new(hello-title) {
+      animation-duration: 950ms;
+      animation-timing-function: cubic-bezier(0.22, 0.8, 0.32, 1);
+      mix-blend-mode: normal;
+    }
+
+    ::view-transition-old(hello-title) {
+      animation-name: title-out;
+    }
+
+    ::view-transition-new(hello-title) {
+      animation-name: title-in;
+    }
+
+    @keyframes title-out {
+      to {
+        opacity: 0;
+        transform: translateX(-28px) rotate(-2deg);
+      }
+    }
+
+    @keyframes title-in {
+      from {
+        opacity: 0;
+        transform: translateX(28px) rotate(2deg);
+      }
+    }
+
+    footer {
+      border-bottom: 1px solid rgba(23, 25, 28, 0.34);
+      padding-bottom: 12px;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        width: calc(100vw - 28px);
+        padding-top: 22px;
+      }
+
+      header,
+      footer {
+        font-size: 9px;
+      }
+
+      .gallery {
+        box-shadow: 8px 8px 0 var(--ink);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span>007 / VIEW TRANSITION</span>
+      <span>OLD STATE → NEW STATE</span>
+    </header>
+
+    <section class="gallery" aria-label="Hello World view transition gallery">
+      <div class="label">
+        <span>OUTLINE / 01</span>
+        <span>FILLED / 02</span>
+      </div>
+      <h1 id="hello-title">Hello World</h1>
+    </section>
+
+    <footer>
+      <span>THE WORD CHANGES ITS SURFACE</span>
+      <span>LIVE / <strong>SNAPSHOT COMPOSITOR</strong></span>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      const settle = () => document.documentElement.classList.add("settled");
+      if ("startViewTransition" in document) {
+        document.startViewTransition(settle);
+      } else {
+        settle();
+      }
+    })();
+  </script>
+</body>
+</html>

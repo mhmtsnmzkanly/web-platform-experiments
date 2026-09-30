@@ -1,0 +1,475 @@
+<!--
+  DENEY 020: View Transitions API ve Çok Durumlu Morfolojik Tipografi
+  
+  Yenilik Türü: Yeni Teknoloji (View Transitions API)
+  Kullanılan Web Standartları:
+    - document.startViewTransition(callback)
+    - view-transition-name: hello-word, world-word, masthead-pill, layout-stage
+    - ::view-transition-old(*), ::view-transition-new(*), ::view-transition-group(*)
+    - CSS Custom Properties (:root) ile 4 tasarım dili (İsviçre, Bauhaus, Siber, Editoryal)
+  
+  Tasarım Yaklaşımı:
+    - 4 farklı tasarım felsefesinin kesintisiz morfolojik dönüşümü
+    - Sıfır dış kütüphane, sıfır main-thread gecikmesi
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 020: View Transitions API ve Çok Durumlu Morfolojik Tipografi</title>
+  <style>
+    /* ==========================================================================
+       1. TEMEL DEĞİŞKENLER VE SIFIRLAMA
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+      /* Varsayılan Tema: 0 (İsviçre Modernizmi) */
+      --theme-bg: #f8fafc;
+      --theme-surface: #ffffff;
+      --theme-ink-primary: #0f172a;
+      --theme-ink-secondary: #475569;
+      --theme-accent: #ef4444;
+      --theme-accent-secondary: #3b82f6;
+      --theme-border: rgba(15, 23, 42, 0.12);
+      --theme-font: var(--font-sans);
+      --theme-radius: 0px;
+    }
+
+    /* Durum 1: Bauhaus Geometrisi */
+    html[data-theme="bauhaus"] {
+      --theme-bg: #fef08a;
+      --theme-surface: #ffffff;
+      --theme-ink-primary: #18181b;
+      --theme-ink-secondary: #3f3f46;
+      --theme-accent: #2563eb;
+      --theme-accent-secondary: #dc2626;
+      --theme-border: #18181b;
+      --theme-font: var(--font-sans);
+      --theme-radius: 24px;
+    }
+
+    /* Durum 2: Siber Monospace Konsol */
+    html[data-theme="cyber"] {
+      --theme-bg: #090d16;
+      --theme-surface: #111827;
+      --theme-ink-primary: #10b981;
+      --theme-ink-secondary: #34d399;
+      --theme-accent: #06b6d4;
+      --theme-accent-secondary: #a855f7;
+      --theme-border: rgba(16, 185, 129, 0.3);
+      --theme-font: var(--font-mono);
+      --theme-radius: 2px;
+    }
+
+    /* Durum 3: Klasik Editoryal */
+    html[data-theme="editorial"] {
+      --theme-bg: #f5f0e6;
+      --theme-surface: #fffdfa;
+      --theme-ink-primary: #4a044e;
+      --theme-ink-secondary: #701a75;
+      --theme-accent: #c026d3;
+      --theme-accent-secondary: #d97706;
+      --theme-border: rgba(74, 4, 78, 0.18);
+      --theme-font: var(--font-serif);
+      --theme-radius: 4px;
+    }
+
+    body {
+      background-color: var(--theme-bg);
+      color: var(--theme-ink-primary);
+      font-family: var(--theme-font);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-x: hidden;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* ==========================================================================
+       2. VIEW TRANSITIONS VE MORFOLOJİ KURALLARI
+       ========================================================================== */
+    /* View-transition-name atamaları */
+    .masthead-pill {
+      view-transition-name: masthead-pill;
+    }
+
+    .word-hello {
+      view-transition-name: word-hello;
+    }
+
+    .word-world {
+      view-transition-name: word-world;
+    }
+
+    .theme-card-active {
+      view-transition-name: theme-card-active;
+    }
+
+    /* Özelleştirilmiş Geçiş Zamanlamaları */
+    ::view-transition-group(word-hello),
+    ::view-transition-group(word-world) {
+      animation-duration: 0.55s;
+      animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    ::view-transition-old(word-hello),
+    ::view-transition-old(word-world) {
+      animation-duration: 0.35s;
+      animation-timing-function: ease-in;
+    }
+
+    ::view-transition-new(word-hello),
+    ::view-transition-new(word-world) {
+      animation-duration: 0.55s;
+      animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ==========================================================================
+       3. ÜST BİLGİ VE KONTROL PANELİ
+       ========================================================================== */
+    .top-bar {
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--theme-border);
+      background: var(--theme-surface);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .app-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .masthead-pill {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 0.3rem 0.65rem;
+      background: var(--theme-accent);
+      color: #ffffff;
+      border-radius: var(--theme-radius);
+      letter-spacing: 0.05em;
+      font-weight: 700;
+    }
+
+    .theme-nav {
+      display: flex;
+      gap: 0.5rem;
+      background: var(--theme-bg);
+      padding: 0.35rem;
+      border-radius: var(--theme-radius);
+      border: 1px solid var(--theme-border);
+    }
+
+    .theme-btn {
+      background: transparent;
+      border: none;
+      padding: 0.5rem 0.85rem;
+      font-family: var(--theme-font);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--theme-ink-secondary);
+      border-radius: var(--theme-radius);
+      cursor: pointer;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .theme-btn:hover {
+      color: var(--theme-ink-primary);
+    }
+
+    .theme-btn.active {
+      background: var(--theme-surface);
+      color: var(--theme-accent);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       4. ANA SAHNE: HELLO WORLD ODAK NOKTASI
+       ========================================================================== */
+    .main-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+
+    .typography-hero {
+      margin: 1.5rem 0;
+      user-select: none;
+    }
+
+    /* Başlık Odak Noktası */
+    .main-title {
+      font-size: clamp(4rem, 14vw, 11rem);
+      font-weight: 900;
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2rem;
+    }
+
+    .word-hello {
+      color: var(--theme-accent);
+      display: inline-block;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    .word-world {
+      color: var(--theme-ink-primary);
+      display: inline-block;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    /* Duruma Göre Tipografi Varyasyonları */
+    html[data-theme="bauhaus"] .word-hello {
+      color: var(--theme-accent);
+      transform: rotate(-2deg);
+      letter-spacing: 0.04em;
+    }
+
+    html[data-theme="bauhaus"] .word-world {
+      color: var(--theme-accent-secondary);
+      transform: rotate(2deg);
+      letter-spacing: 0.04em;
+    }
+
+    html[data-theme="cyber"] .main-title {
+      letter-spacing: 0.1em;
+      text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+
+    html[data-theme="cyber"] .word-hello {
+      color: var(--theme-accent);
+    }
+
+    html[data-theme="cyber"] .word-world {
+      color: var(--theme-ink-primary);
+    }
+
+    html[data-theme="editorial"] .main-title {
+      font-style: italic;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    html[data-theme="editorial"] .word-hello {
+      color: var(--theme-accent);
+    }
+
+    html[data-theme="editorial"] .word-world {
+      color: var(--theme-ink-primary);
+    }
+
+    .state-description-badge {
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 0.6rem 1.25rem;
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: var(--theme-radius);
+      font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+      font-weight: 600;
+      color: var(--theme-ink-secondary);
+      max-width: 650px;
+      line-height: 1.5;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    }
+
+    /* ==========================================================================
+       5. ALT BİLGİ VE TELEMETRİ GÖSTERGELERİ
+       ========================================================================== */
+    .bottom-bar {
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--theme-border);
+      background: var(--theme-surface);
+      font-size: 0.8rem;
+      color: var(--theme-ink-secondary);
+      font-family: var(--font-mono);
+    }
+
+    .telemetry-status {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--theme-accent);
+      border-radius: 50%;
+      animation: pulse-dot 1.5s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulse-dot {
+      from { transform: scale(0.8); opacity: 0.5; }
+      to { transform: scale(1.2); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Üst Başlık ve Tema Değiştirici -->
+  <header class="top-bar" role="banner">
+    <div class="app-title">
+      <span>HELLO WORLD LAB</span>
+      <span class="masthead-pill" id="current-badge">DENEY 020: İSVİÇRE</span>
+    </div>
+    <nav class="theme-nav" role="navigation" aria-label="Tasarım Durumu Seçici">
+      <button class="theme-btn active" data-target="swiss" aria-label="İsviçre Modernizmi Durumu">01 İsviçre</button>
+      <button class="theme-btn" data-target="bauhaus" aria-label="Bauhaus Geometrisi Durumu">02 Bauhaus</button>
+      <button class="theme-btn" data-target="cyber" aria-label="Siber Monospace Durumu">03 Siber</button>
+      <button class="theme-btn" data-target="editorial" aria-label="Klasik Editoryal Durumu">04 Editoryal</button>
+    </nav>
+  </header>
+
+  <!-- Ana Odak Sahnesi: Hello World -->
+  <main class="main-stage" role="main" aria-label="Hello World Morfolojik Tipografi Sahnesi">
+    <div class="typography-hero">
+      <h1 class="main-title" aria-label="Hello World">
+        <span class="word-hello" id="word-hello">HELLO</span>
+        <span class="word-world" id="word-world">WORLD</span>
+      </h1>
+    </div>
+
+    <div class="state-description-badge" id="state-desc">
+      Durum 01: İsviçre Modernizmi — Asimetrik ızgara, tavizsiz sans-serif ve vermilion vurgusu.
+    </div>
+  </main>
+
+  <!-- Alt Bilgi ve Telemetri -->
+  <footer class="bottom-bar">
+    <div class="telemetry-status">
+      <span class="status-dot"></span>
+      <span id="transition-status">VIEW TRANSITIONS API: AKTİF</span>
+    </div>
+    <div>
+      <span id="cycle-indicator">DÖNGÜ: OTOMATİK (4s) &bull; ETKİLEŞİMLİ</span>
+    </div>
+  </footer>
+
+  <script>
+    // ==========================================================================
+    // 6. VIEW TRANSITIONS DURUM YÖNETİMİ
+    // ==========================================================================
+    const themes = [
+      {
+        id: "swiss",
+        name: "DENEY 020: İSVİÇRE",
+        desc: "Durum 01: İsviçre Modernizmi — Asimetrik ızgara, tavizsiz sans-serif ve vermilion vurgusu."
+      },
+      {
+        id: "bauhaus",
+        name: "DENEY 020: BAUHAUS",
+        desc: "Durum 02: Bauhaus Geometrisi — Birincil renk üçlüsü, dinamik dönüş açıları ve dairesel yarıçaplar."
+      },
+      {
+        id: "cyber",
+        name: "DENEY 020: SİBER",
+        desc: "Durum 03: Siber Monospace — Yüksek kontrastlı fosfor yeşili, zümrüt ışığı ve monospaced telemetri."
+      },
+      {
+        id: "editorial",
+        name: "DENEY 020: EDİTORYAL",
+        desc: "Durum 04: Klasik Editoryal — Sıcak kâğıt dokusu, asil mor/altın dengesi ve zarif serif tipografisi."
+      }
+    ];
+
+    let currentThemeIndex = 0;
+    let transitionCount = 0;
+    window._viewTransitionCount = 0;
+
+    const badgeEl = document.getElementById("current-badge");
+    const descEl = document.getElementById("state-desc");
+    const statusEl = document.getElementById("transition-status");
+    const buttons = document.querySelectorAll(".theme-btn");
+
+    function applyThemeState(themeIndex) {
+      currentThemeIndex = themeIndex;
+      const theme = themes[currentThemeIndex];
+
+      // HTML dataset güncellemesi
+      if (theme.id === "swiss") {
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", theme.id);
+      }
+
+      // Metin içerikleri
+      badgeEl.textContent = theme.name;
+      descEl.textContent = theme.desc;
+
+      // Buton aktiflik durumu
+      buttons.forEach((btn, idx) => {
+        if (idx === currentThemeIndex) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+
+    function switchTheme(newIndex) {
+      if (newIndex === currentThemeIndex) return;
+
+      // View Transitions API destek kontrolü
+      if (document.startViewTransition) {
+        const transition = document.startViewTransition(() => {
+          applyThemeState(newIndex);
+        });
+
+        transition.finished.then(() => {
+          transitionCount++;
+          window._viewTransitionCount = transitionCount;
+          statusEl.textContent = `VIEW TRANSITIONS API: GEÇİŞ #${transitionCount} TAMAMLANDI`;
+        });
+      } else {
+        // Yedek doğrudan geçiş
+        applyThemeState(newIndex);
+        statusEl.textContent = "VIEW TRANSITIONS DESTEKLENMİYOR (STANDART GEÇİŞ)";
+      }
+    }
+
+    // Buton Tıklama Dinleyicileri
+    buttons.forEach((btn, idx) => {
+      btn.addEventListener("click", () => {
+        switchTheme(idx);
+      });
+    });
+
+    // Otomatik Periyodik Geçiş (4 saniye)
+    setInterval(() => {
+      const nextIndex = (currentThemeIndex + 1) % themes.length;
+      switchTheme(nextIndex);
+    }, 4000);
+  </script>
+</body>
+</html>

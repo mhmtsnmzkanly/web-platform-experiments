@@ -1,0 +1,887 @@
+<!--
+  DENEY 022: IndexedDB API ve Kalıcı Tipografik Bellek Kasası
+  
+  Yenilik Türü: Yeni Teknoloji (IndexedDB API)
+  Kullanılan Web Standartları:
+    - window.indexedDB.open(dbName, version)
+    - IDBTransaction ('readwrite', 'readonly') ve ACID işlem garantisi
+    - IDBObjectStore ('vault_snapshots', 'glyph_audit')
+    - createIndex('by_theme', 'theme'), createIndex('by_timestamp', 'timestamp')
+    - IDBCursor (openCursor) ile zaman makinesi / sürüm gezinimi
+    - CSS Custom Properties modülasyonu (--glyph-weight, --glyph-color, --glyph-glow)
+  
+  Tasarım Yaklaşımı:
+    - Kriptografik arşiv kasası ve yüksek güvenlikli veri merkezi estetiği
+    - ACID garantili kalıcı Hello World tipografik sürümleme
+    - Sıfır dış kütüphane, sıfır main-thread jank
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 022: IndexedDB API ve Kalıcı Tipografik Bellek Kasası</title>
+  <style>
+    /* ==========================================================================
+       1. DEĞİŞKENLER VE TEMEL SIFIRLAMA
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --vault-bg: #080a11;
+      --vault-surface: #0f1322;
+      --vault-elevated: #181f36;
+      --vault-border: rgba(245, 158, 11, 0.25);
+      --vault-border-bright: #f59e0b;
+      --amber-gold: #f59e0b;
+      --cyan-data: #38bdf8;
+      --emerald-commit: #10b981;
+      --rose-warn: #f43f5e;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --font-serif: Charter, "Bitstream Charter", Cambria, Georgia, serif;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+      /* Aktif Tipografi Değişkenleri */
+      --active-font: var(--font-serif);
+      --active-weight: 800;
+      --active-color: #f59e0b;
+      --active-glow: 20px;
+      --active-tracking: 0.05em;
+    }
+
+    body {
+      background-color: var(--vault-bg);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(245, 158, 11, 0.08) 0%, transparent 60%),
+        linear-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245, 158, 11, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 36px 36px, 36px 36px;
+    }
+
+    /* ==========================================================================
+       2. ÜST VERİTABANI DURUM ÇUBUĞU
+       ========================================================================== */
+    .vault-header {
+      padding: 1rem 2rem;
+      background: rgba(15, 19, 34, 0.9);
+      border-bottom: 1px solid var(--vault-border);
+      backdrop-filter: blur(16px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .db-status-ring {
+      width: 26px;
+      height: 26px;
+      border: 2px dashed var(--amber-gold);
+      border-radius: 50%;
+      position: relative;
+      animation: db-ring-rotate 8s infinite linear;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @keyframes db-ring-rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .db-center-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--emerald-commit);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--emerald-commit);
+      animation: dot-pulse 1.6s infinite alternate ease-in-out;
+    }
+
+    @keyframes dot-pulse {
+      0% { transform: scale(0.8); opacity: 0.6; }
+      100% { transform: scale(1.3); opacity: 1; }
+    }
+
+    .header-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: var(--amber-gold);
+    }
+
+    .vault-badge {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.6rem;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid var(--vault-border);
+      border-radius: 4px;
+      color: var(--amber-gold);
+      letter-spacing: 0.05em;
+    }
+
+    .preset-toolbar {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .preset-btn {
+      background: var(--vault-elevated);
+      color: var(--text-dim);
+      border: 1px solid var(--vault-border);
+      padding: 0.45rem 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .preset-btn:hover {
+      color: var(--text-main);
+      border-color: var(--amber-gold);
+    }
+
+    .preset-btn.active {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--amber-gold);
+      border-color: var(--amber-gold);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+      font-weight: 800;
+    }
+
+    /* ==========================================================================
+       3. ANA SAHNE: KASA VE HELLO WORLD VİTRİNİ
+       ========================================================================== */
+    .vault-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 1.75rem;
+      padding: 1.75rem 2rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1024px) {
+      .vault-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Sol Panel: Ana Tipografi Kasası */
+    .vault-main-stage {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .vault-chamber {
+      background: var(--vault-surface);
+      border: 1px solid var(--vault-border);
+      border-radius: 8px;
+      padding: 3rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 480px;
+      position: relative;
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.6);
+      transition: border-color 0.3s ease;
+    }
+
+    .chamber-corner-mark {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--amber-gold);
+    }
+
+    .mark-tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+    .mark-tr { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+    .mark-bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+    .mark-br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+    /* Hello World Glif Grubu */
+    .vault-typography-group {
+      text-align: center;
+      user-select: none;
+      z-index: 2;
+    }
+
+    .vault-headline {
+      font-size: clamp(3.8rem, 10vw, 8rem);
+      font-family: var(--active-font);
+      font-weight: var(--active-weight);
+      letter-spacing: var(--active-tracking);
+      line-height: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .word-hello {
+      color: var(--active-color);
+      text-shadow: 0 0 var(--active-glow) var(--active-color);
+      display: inline-block;
+      transition: all 0.35s ease;
+    }
+
+    .word-world {
+      color: var(--text-main);
+      text-shadow: 0 0 calc(var(--active-glow) * 0.6) rgba(255, 255, 255, 0.4);
+      display: inline-block;
+      transition: all 0.35s ease;
+    }
+
+    .chamber-meta-bar {
+      margin-top: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      background: var(--vault-elevated);
+      padding: 0.6rem 1.25rem;
+      border-radius: 6px;
+      border: 1px solid var(--vault-border);
+    }
+
+    .chamber-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .meta-val {
+      color: var(--amber-gold);
+      font-weight: 700;
+    }
+
+    /* ACID İşlem Eylemleri Çubuğu */
+    .acid-actions-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--vault-surface);
+      border: 1px solid var(--vault-border);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      gap: 1rem;
+    }
+
+    .btn-acid-commit {
+      background: var(--amber-gold);
+      color: #000000;
+      border: none;
+      padding: 0.65rem 1.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 800;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-acid-commit:hover {
+      background: #fbbf24;
+      transform: translateY(-1px);
+      box-shadow: 0 0 24px rgba(245, 158, 11, 0.6);
+    }
+
+    .cursor-nav-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .btn-cursor-step {
+      background: var(--vault-elevated);
+      color: var(--cyan-data);
+      border: 1px solid var(--vault-border);
+      padding: 0.55rem 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-cursor-step:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--cyan-data);
+    }
+
+    /* ==========================================================================
+       4. SAĞ PANEL: DENETİM DEFTERİ (AUDIT LEDGER) & TELEMETRİ
+       ========================================================================== */
+    .vault-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .sidebar-card {
+      background: var(--vault-surface);
+      border: 1px solid var(--vault-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .card-heading {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--amber-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+      padding-bottom: 0.5rem;
+    }
+
+    /* Canlı Metrik Tablosu */
+    .ledger-stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .stat-tile {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 0.75rem;
+      border-radius: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--cyan-data);
+      margin-top: 0.2rem;
+      font-family: var(--font-mono);
+    }
+
+    /* İşlem Günlüğü (Audit Stream) */
+    .audit-log-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      max-height: 220px;
+      overflow-y: auto;
+      font-size: 0.72rem;
+    }
+
+    .audit-entry {
+      background: rgba(255, 255, 255, 0.02);
+      border-left: 3px solid var(--emerald-commit);
+      padding: 0.45rem 0.65rem;
+      border-radius: 0 4px 4px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .audit-entry.cursor-target {
+      border-left-color: var(--amber-gold);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .audit-top-row {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .audit-detail {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+    }
+
+    /* ==========================================================================
+       5. ALT DURUM ÇUBUĞU (FOOTER)
+       ========================================================================== */
+    .vault-footer {
+      padding: 0.75rem 2rem;
+      background: var(--vault-surface);
+      border-top: 1px solid var(--vault-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    .footer-telemetry {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .status-bulb {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald-commit);
+      box-shadow: 0 0 8px var(--emerald-commit);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Başlık ve Önayar Menüsü -->
+  <header class="vault-header" role="banner">
+    <div class="header-branding">
+      <div class="db-status-ring" aria-hidden="true">
+        <div class="db-center-dot"></div>
+      </div>
+      <div>
+        <h1 class="header-title">INDEXEDDB TIPOGRAFİK BELLEK KASASI</h1>
+      </div>
+      <span class="vault-badge" id="db-engine-badge">IDB v1 &bull; BAĞLI</span>
+    </div>
+
+    <nav class="preset-toolbar" aria-label="Tipografi Varyantları">
+      <button class="preset-btn active" data-preset="amber">01 ALTIN KASA</button>
+      <button class="preset-btn" data-preset="quantum">02 KUANTUM NEON</button>
+      <button class="preset-btn" data-preset="monolith">03 MONOLİT BRÜT</button>
+      <button class="preset-btn" data-preset="ruby">04 YAKUT DEFTER</button>
+    </nav>
+  </header>
+
+  <!-- Ana Kokpit Grid -->
+  <main class="vault-layout" role="main">
+
+    <!-- Sol Sahne: Hello World Vitrini -->
+    <section class="vault-main-stage" aria-label="Kasa Vitrini">
+      <div class="vault-chamber" id="vault-chamber">
+        <div class="chamber-corner-mark mark-tl" aria-hidden="true"></div>
+        <div class="chamber-corner-mark mark-tr" aria-hidden="true"></div>
+        <div class="chamber-corner-mark mark-bl" aria-hidden="true"></div>
+        <div class="chamber-corner-mark mark-br" aria-hidden="true"></div>
+
+        <!-- Anıtsal Hello World Başlığı -->
+        <div class="vault-typography-group" aria-label="Hello World Tipografik Kasa Odak Noktası">
+          <h2 class="vault-headline" id="main-headline" aria-label="Hello World">
+            <span class="word-hello" id="label-hello">HELLO</span>
+            <span class="word-world" id="label-world">WORLD</span>
+          </h2>
+        </div>
+
+        <!-- Parametrik Durum Rozeti -->
+        <div class="chamber-meta-bar">
+          <div class="chamber-meta-item">
+            <span>ŞEMA:</span>
+            <span class="meta-val" id="meta-schema">vault_snapshots</span>
+          </div>
+          <div class="chamber-meta-item">
+            <span>AĞIRLIK:</span>
+            <span class="meta-val" id="meta-weight">800</span>
+          </div>
+          <div class="chamber-meta-item">
+            <span>İZLEME:</span>
+            <span class="meta-val" id="meta-tracking">0.05em</span>
+          </div>
+          <div class="chamber-meta-item">
+            <span>ACID COMMİT:</span>
+            <span class="meta-val" id="meta-commits">#1</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACID İşlem Kontrol Çubuğu -->
+      <div class="acid-actions-bar">
+        <div>
+          <button class="btn-acid-commit" id="btn-commit" aria-label="Durumu IndexedDB Veritabanına Kaydet">
+            <span>&#10003;</span> ACID COMMIT (YENİ SÜRÜM OLUŞTUR)
+          </button>
+        </div>
+
+        <div class="cursor-nav-group" aria-label="İmleç Gezinimi">
+          <span style="font-size: 0.72rem; color: var(--text-dim); margin-right: 0.25rem;">İMLEÇ:</span>
+          <button class="btn-cursor-step" id="btn-cursor-prev" aria-label="Önceki Kayda Git">&larr; ÖNCEKİ</button>
+          <span id="cursor-pos-label" style="font-size: 0.75rem; color: var(--amber-gold); font-weight: 700; min-width: 60px; text-align: center;">1 / 1</span>
+          <button class="btn-cursor-step" id="btn-cursor-next" aria-label="Sonraki Kayda Git">SONRAKİ &rarr;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sağ Panel: Denetim Defteri (Audit Ledger) -->
+    <aside class="vault-sidebar" aria-label="Veritabanı Telemetrisi">
+
+      <!-- Veritabanı Telemetri Kartı -->
+      <div class="sidebar-card">
+        <div class="card-heading">
+          <span>Veritabanı İstatistikleri</span>
+          <span style="font-size: 0.65rem; color: var(--emerald-commit);">IDBTransaction</span>
+        </div>
+        <div class="ledger-stat-grid">
+          <div class="stat-tile">
+            <div class="stat-label">Toplam Kayıt</div>
+            <div class="stat-value" id="val-total-records">1</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-label">İşlem Gecikmesi</div>
+            <div class="stat-value" id="val-latency">1.2ms</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-label">Nesne Deposu</div>
+            <div class="stat-value" style="font-size: 0.95rem;">SNAPSHOTS</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-label">İkili İndeks</div>
+            <div class="stat-value" style="font-size: 0.95rem;">by_theme</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Denetim Defteri Akışı -->
+      <div class="sidebar-card" style="flex: 1;">
+        <div class="card-heading">
+          <span>ACID İşlem Defteri (Audit)</span>
+          <span id="log-count-badge" style="font-size: 0.65rem; color: var(--cyan-data);">1 LOG</span>
+        </div>
+        <div class="audit-log-stream" id="audit-stream">
+          <!-- JS ile doldurulacak -->
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Alt Durum Çubuğu -->
+  <footer class="vault-footer">
+    <div class="footer-telemetry">
+      <span class="status-bulb" aria-hidden="true"></span>
+      <span id="vault-status-text">INDEXEDDB TRANSACTION MOTORU: HAZIR (ACID DESTEKLİ)</span>
+    </div>
+    <div>
+      <span>HELLO WORLD LAB &bull; KALICI TİPOGRAFİK ARŞİV KASASI</span>
+    </div>
+  </footer>
+
+  <script>
+    // ==========================================================================
+    // 6. INDEXEDDB TIPOGRAFİK MOTOR VE ACID İŞLEM YÖNETİMİ
+    // ==========================================================================
+    (function initVaultDatabase() {
+      const DB_NAME = "HelloWorldVaultDB";
+      const DB_VERSION = 1;
+      let db = null;
+
+      // Öntanımlı Tipografi Varyantları
+      const presets = {
+        amber: {
+          theme: "amber",
+          name: "Altın Arşiv",
+          font: "Charter, Cambria, Georgia, serif",
+          weight: 800,
+          color: "#f59e0b",
+          glow: "24px",
+          tracking: "0.04em",
+          desc: "Klasik serif, altın yaldız ve ağır arşiv mühür ağırlığı."
+        },
+        quantum: {
+          theme: "quantum",
+          name: "Kuantum Neon",
+          font: "ui-monospace, SFMono-Regular, Menlo, monospace",
+          weight: 700,
+          color: "#06b6d4",
+          glow: "32px",
+          tracking: "0.12em",
+          desc: "Monospace matris, camgöbeği plazma ve yüksek aralıklı veri akışı."
+        },
+        monolith: {
+          theme: "monolith",
+          name: "Monolit Brüt",
+          font: "system-ui, -apple-system, sans-serif",
+          weight: 900,
+          color: "#e2e8f0",
+          glow: "10px",
+          tracking: "-0.04em",
+          desc: "Tavizsiz brutalist sans-serif, monolitik blok ve titan grisi."
+        },
+        ruby: {
+          theme: "ruby",
+          name: "Yakut Defter",
+          font: "Charter, Georgia, serif",
+          weight: 500,
+          color: "#f43f5e",
+          glow: "18px",
+          tracking: "0.02em",
+          desc: "Zarif editoryal serif, yakut kırmızısı ve narin manşet formu."
+        }
+      };
+
+      let currentPresetKey = "amber";
+      let allSnapshots = [];
+      let currentCursorIndex = 0;
+
+      // DOM Elemanları
+      const headlineEl = document.getElementById("main-headline");
+      const labelHelloEl = document.getElementById("label-hello");
+      const labelWorldEl = document.getElementById("label-world");
+      const metaWeightEl = document.getElementById("meta-weight");
+      const metaTrackingEl = document.getElementById("meta-tracking");
+      const metaCommitsEl = document.getElementById("meta-commits");
+      const latencyEl = document.getElementById("val-latency");
+      const totalRecordsEl = document.getElementById("val-total-records");
+      const auditStreamEl = document.getElementById("audit-stream");
+      const logCountBadge = document.getElementById("log-count-badge");
+      const cursorPosLabel = document.getElementById("cursor-pos-label");
+      const vaultStatusEl = document.getElementById("vault-status-text");
+
+      const btnCommit = document.getElementById("btn-commit");
+      const btnPrev = document.getElementById("btn-cursor-prev");
+      const btnNext = document.getElementById("btn-cursor-next");
+      const presetBtns = Array.from(document.querySelectorAll(".preset-btn"));
+
+      // 1. Tipografiyi Ekrana Uygula
+      function renderTypography(data) {
+        headlineEl.style.fontFamily = data.font;
+        headlineEl.style.fontWeight = data.weight;
+        headlineEl.style.letterSpacing = data.tracking;
+        labelHelloEl.style.color = data.color;
+        labelHelloEl.style.textShadow = `0 0 ${data.glow} ${data.color}`;
+
+        metaWeightEl.textContent = data.weight;
+        metaTrackingEl.textContent = data.tracking;
+      }
+
+      // 2. Denetim Defterine (Audit Stream) Kayıt Ekle
+      function appendAuditUI(entry, isCursorTarget = false) {
+        const div = document.createElement("div");
+        div.className = "audit-entry" + (isCursorTarget ? " cursor-target" : "");
+        const d = new Date(entry.timestamp);
+        const timeStr = d.toTimeString().split(" ")[0] + "." + String(d.getMilliseconds()).padStart(3, "0");
+        div.innerHTML = `
+          <div class="audit-top-row">
+            <span>TX #${entry.id || entry.txId}: ${entry.theme.toUpperCase()}</span>
+            <span style="color: var(--cyan-data);">${entry.latency ? entry.latency.toFixed(2) + "ms" : "OK"}</span>
+          </div>
+          <div class="audit-detail">
+            ${timeStr} &bull; W:${entry.weight} Trk:${entry.tracking} &bull; ACID COMMIT
+          </div>
+        `;
+        auditStreamEl.prepend(div);
+      }
+
+      // 3. İmleç Durumunu Güncelle
+      function updateCursorStatus() {
+        if (allSnapshots.length === 0) {
+          cursorPosLabel.textContent = "0 / 0";
+          return;
+        }
+        cursorPosLabel.textContent = `${currentCursorIndex + 1} / ${allSnapshots.length}`;
+        const activeSnap = allSnapshots[currentCursorIndex];
+        if (activeSnap) {
+          renderTypography(activeSnap);
+          metaCommitsEl.textContent = `#${activeSnap.id}`;
+        }
+      }
+
+      // 4. IndexedDB Bağlantısını Aç
+      const openReq = indexedDB.open(DB_NAME, DB_VERSION);
+
+      openReq.onupgradeneeded = function(e) {
+        db = e.target.result;
+        // snapshots tablosu
+        if (!db.objectStoreNames.contains("vault_snapshots")) {
+          const store = db.createObjectStore("vault_snapshots", { keyPath: "id", autoIncrement: true });
+          store.createIndex("by_theme", "theme", { unique: false });
+          store.createIndex("by_timestamp", "timestamp", { unique: false });
+        }
+        // denetim tablosu
+        if (!db.objectStoreNames.contains("glyph_audit")) {
+          db.createObjectStore("glyph_audit", { keyPath: "txId", autoIncrement: true });
+        }
+      };
+
+      openReq.onsuccess = function(e) {
+        db = e.target.result;
+        vaultStatusEl.textContent = `INDEXEDDB ENGINE AKTİF: ${db.name} (v${db.version})`;
+
+        // İlk başlangıç durumunu yükle veya ilk kaydı oluştur
+        loadAllSnapshots(() => {
+          if (allSnapshots.length === 0) {
+            commitSnapshot(presets.amber);
+          }
+        });
+      };
+
+      openReq.onerror = function(e) {
+        vaultStatusEl.textContent = "INDEXEDDB HATA: " + (e.target.error ? e.target.error.message : "Bilinmeyen hata");
+      };
+
+      // 5. ACID Snapshot Commit İşlemi
+      function commitSnapshot(presetData) {
+        if (!db) return;
+        const t0 = performance.now();
+
+        const record = {
+          theme: presetData.theme,
+          name: presetData.name,
+          font: presetData.font,
+          weight: presetData.weight,
+          color: presetData.color,
+          glow: presetData.glow,
+          tracking: presetData.tracking,
+          timestamp: Date.now()
+        };
+
+        const tx = db.transaction(["vault_snapshots", "glyph_audit"], "readwrite");
+        const snapStore = tx.objectStore("vault_snapshots");
+        const auditStore = tx.objectStore("glyph_audit");
+
+        const addReq = snapStore.add(record);
+
+        addReq.onsuccess = function(ev) {
+          const newId = ev.target.result;
+          record.id = newId;
+
+          const t1 = performance.now();
+          const latency = t1 - t0;
+          record.latency = latency;
+
+          auditStore.add({
+            snapshotId: newId,
+            theme: record.theme,
+            latency: latency,
+            timestamp: record.timestamp
+          });
+        };
+
+        tx.oncomplete = function() {
+          const tEnd = performance.now();
+          const totalLatency = tEnd - t0;
+          latencyEl.textContent = totalLatency.toFixed(2) + "ms";
+
+          allSnapshots.push(record);
+          currentCursorIndex = allSnapshots.length - 1;
+
+          totalRecordsEl.textContent = allSnapshots.length;
+          logCountBadge.textContent = allSnapshots.length + " LOG";
+
+          appendAuditUI(record, true);
+          updateCursorStatus();
+
+          vaultStatusEl.textContent = `ACID COMMIT BAŞARILI: TX #${record.id} (${totalLatency.toFixed(2)}ms)`;
+        };
+
+        tx.onerror = function(ev) {
+          vaultStatusEl.textContent = "COMMIT ROLLBACK / HATA: " + ev.target.error.message;
+        };
+      }
+
+      // 6. openCursor ile Tüm Kayıtları Oku
+      function loadAllSnapshots(onDone) {
+        allSnapshots = [];
+        auditStreamEl.innerHTML = "";
+        const tx = db.transaction("vault_snapshots", "readonly");
+        const store = tx.objectStore("vault_snapshots");
+        const cursorReq = store.openCursor();
+
+        cursorReq.onsuccess = function(ev) {
+          const cursor = ev.target.result;
+          if (cursor) {
+            allSnapshots.push(cursor.value);
+            appendAuditUI(cursor.value);
+            cursor.continue();
+          } else {
+            totalRecordsEl.textContent = allSnapshots.length;
+            logCountBadge.textContent = allSnapshots.length + " LOG";
+            if (allSnapshots.length > 0) {
+              currentCursorIndex = allSnapshots.length - 1;
+              updateCursorStatus();
+            }
+            if (onDone) onDone();
+          }
+        };
+      }
+
+      // Önayar Butonları
+      presetBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          presetBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentPresetKey = btn.getAttribute("data-preset");
+          const preset = presets[currentPresetKey];
+          renderTypography(preset);
+        });
+      });
+
+      // Commit Butonu
+      btnCommit.addEventListener("click", () => {
+        const preset = presets[currentPresetKey];
+        commitSnapshot(preset);
+      });
+
+      // İmleç Gezinim Butonları
+      btnPrev.addEventListener("click", () => {
+        if (currentCursorIndex > 0) {
+          currentCursorIndex--;
+          updateCursorStatus();
+        }
+      });
+
+      btnNext.addEventListener("click", () => {
+        if (currentCursorIndex < allSnapshots.length - 1) {
+          currentCursorIndex++;
+          updateCursorStatus();
+        }
+      });
+
+      // Otomatik Sürümleme Gösterimi (İlk 5 saniyede periyodik varyant testi)
+      setTimeout(() => {
+        if (db && allSnapshots.length === 1) {
+          commitSnapshot(presets.quantum);
+        }
+      }, 1500);
+
+    })();
+  </script>
+</body>
+</html>

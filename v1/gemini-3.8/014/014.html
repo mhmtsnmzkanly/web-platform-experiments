@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 014: Web Audio API ve Akustik Dalga Tipografisi</title>
+  <style>
+    /* ==========================================================================
+       1. KÖK DEĞİŞKENLER VE TEMEL AYARLAR (CUSTOM PROPERTIES)
+       ========================================================================== */
+    :root {
+      --bg-chassis: oklch(0.12 0.02 250);
+      --bg-panel: oklch(0.16 0.03 250 / 0.9);
+      --bg-key: oklch(0.20 0.04 250);
+      --bg-key-hover: oklch(0.26 0.06 240);
+      
+      --neon-cyan: oklch(0.88 0.18 195);
+      --neon-green: oklch(0.86 0.22 145);
+      --neon-purple: oklch(0.78 0.24 310);
+      --neon-amber: oklch(0.88 0.18 85);
+      
+      --text-main: oklch(0.96 0.02 240);
+      --text-muted: oklch(0.65 0.04 250);
+      --border-rack: oklch(0.28 0.04 250 / 0.8);
+      --border-active: oklch(0.85 0.18 195 / 0.8);
+      
+      --glow-cyan: 0 0 20px oklch(0.88 0.18 195 / 0.5);
+      --glow-green: 0 0 16px oklch(0.86 0.22 145 / 0.45);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-chassis);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-main);
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       2. ANA SAHNE VE ŞASİ YERLEŞİMİ (MAIN SYNTHESIZER CHASSIS)
+       ========================================================================== */
+    .synth-app {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      position: relative;
+      background: 
+        radial-gradient(circle at 50% 30%, oklch(0.18 0.04 240) 0%, var(--bg-chassis) 80%),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.25) 3px);
+    }
+
+    /* ==========================================================================
+       3. TELEMETRİ VE BAŞLIK HUD'I (HEADER HUD)
+       ========================================================================== */
+    .hud-header {
+      width: 100%;
+      max-width: 1180px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-rack {
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: oklch(0.22 0.05 250);
+      border: 1px solid var(--border-rack);
+      color: var(--neon-cyan);
+      padding: 6px 12px;
+      border-radius: 6px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .badge-status {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--neon-green);
+      background: oklch(0.18 0.04 145 / 0.3);
+      border: 1px solid oklch(0.4 0.1 145 / 0.5);
+      padding: 5px 10px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-status::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--neon-green);
+      box-shadow: 0 0 8px var(--neon-green);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .dsp-telemetry {
+      display: flex;
+      gap: 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: var(--bg-panel);
+      border: 1px solid var(--border-rack);
+      padding: 6px 14px;
+      border-radius: 6px;
+    }
+
+    .dsp-telemetry span b {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       4. OSİLOSKOP VE TİPOGRAFİK SAHNE (OSCILLOSCOPE CRT STAGE)
+       ========================================================================== */
+    .stage-center {
+      width: 100%;
+      max-width: 1180px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin: 10px 0;
+    }
+
+    /* CRT Osiloskop Tuvali */
+    .scope-bezel {
+      position: relative;
+      width: 100%;
+      height: min(44vh, 360px);
+      background: oklch(0.08 0.03 240);
+      border: 2px solid var(--border-rack);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 
+        inset 0 0 40px rgba(0, 0, 0, 0.9),
+        0 12px 30px rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Izgara Ağı (Reticle Grid) */
+    .scope-bezel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: 
+        linear-gradient(to right, oklch(0.3 0.05 195 / 0.15) 1px, transparent 1px),
+        linear-gradient(to bottom, oklch(0.3 0.05 195 / 0.15) 1px, transparent 1px);
+      background-size: 40px 40px;
+      background-position: center center;
+      z-index: 5;
+    }
+
+    /* CRT Cam Yansıması ve Tarama Çizgisi */
+    .scope-bezel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, transparent 60%);
+      z-index: 6;
+    }
+
+    .scope-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ==========================================================================
+       5. HELLO WORLD AKUSTİK KLAVYESİ (ACOUSTIC TYPOGRAPHIC KEYBOARD)
+       ========================================================================== */
+    .keyboard-deck {
+      width: 100%;
+      max-width: 1180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      z-index: 10;
+    }
+
+    /* Başlık ve Klavye Taşıyıcısı */
+    .synth-keyboard {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: nowrap;
+      width: 100%;
+    }
+
+    .key-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .key-space {
+      width: 24px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .key-space::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    /* Bireysel Harf Tuşu */
+    .synth-key {
+      appearance: none;
+      background: var(--bg-key);
+      border: 1px solid var(--border-rack);
+      border-radius: 10px;
+      padding: 12px 14px;
+      min-width: 68px;
+      height: 98px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 
+        0 6px 14px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .synth-key:hover {
+      background: var(--bg-key-hover);
+      border-color: var(--neon-cyan);
+      transform: translateY(-2px);
+    }
+
+    .synth-key:active, .synth-key.active-playing {
+      background: oklch(0.32 0.08 240);
+      border-color: var(--neon-cyan);
+      box-shadow: 
+        var(--glow-cyan),
+        inset 0 0 12px oklch(0.88 0.18 195 / 0.3);
+      transform: translateY(2px);
+    }
+
+    .synth-key:focus-visible {
+      outline: 2px solid var(--neon-cyan);
+      outline-offset: 3px;
+    }
+
+    .key-glyph {
+      font-size: clamp(2rem, 3.8vw, 3rem);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      color: var(--text-main);
+      line-height: 1;
+      transition: color 0.15s ease;
+    }
+
+    .synth-key:hover .key-glyph,
+    .synth-key.active-playing .key-glyph {
+      color: var(--neon-cyan);
+      text-shadow: 0 0 12px var(--neon-cyan);
+    }
+
+    .key-meta {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .synth-key.active-playing .key-meta {
+      color: var(--neon-green);
+    }
+
+    /* ==========================================================================
+       6. MODÜLER KONTROL PANELİ (SYNTH CONTROL RACK)
+       ========================================================================== */
+    .controls-rack {
+      width: 100%;
+      max-width: 1180px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-rack);
+      padding: 10px 18px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      flex-wrap: wrap;
+      z-index: 20;
+    }
+
+    .rack-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .rack-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .btn-action {
+      appearance: none;
+      background: oklch(0.22 0.04 250);
+      border: 1px solid var(--border-rack);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-action:hover {
+      background: oklch(0.28 0.06 250);
+      border-color: var(--neon-cyan);
+    }
+
+    .btn-action.active {
+      background: var(--neon-cyan);
+      color: oklch(0.12 0.04 250);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 12px oklch(0.88 0.18 195 / 0.4);
+    }
+
+    .btn-action:focus-visible {
+      outline: 2px solid var(--neon-cyan);
+      outline-offset: 2px;
+    }
+
+    /* Dalga Biçimi Seçicisi */
+    .wave-selector {
+      display: flex;
+      background: oklch(0.14 0.03 250);
+      border: 1px solid var(--border-rack);
+      border-radius: 8px;
+      padding: 2px;
+    }
+
+    .wave-btn {
+      appearance: none;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .wave-btn:hover {
+      color: #ffffff;
+    }
+
+    .wave-btn.active {
+      background: oklch(0.26 0.06 250);
+      color: var(--neon-cyan);
+      box-shadow: inset 0 0 6px oklch(0.88 0.18 195 / 0.3);
+    }
+
+    /* Sentezleyici Pot / Kaydırıcılar */
+    .knob-rack {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .knob-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .knob-item input[type="range"] {
+      appearance: none;
+      width: 75px;
+      height: 4px;
+      background: oklch(0.26 0.04 250);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .knob-item input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--neon-cyan);
+      box-shadow: 0 0 6px var(--neon-cyan);
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       7. ERİŞİLEBİLİRLİK GİZLİ BAŞLIK
+       ========================================================================== */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="synth-app" role="main" aria-label="Hello World Web Audio Sentezleyici Deneyimi">
+    
+    <!-- Üst Başlık ve Telemetri HUD -->
+    <header class="hud-header">
+      <div class="brand-group">
+        <div class="badge-rack">EXP 014 // WEB AUDIO SYNTH</div>
+        <div class="badge-status" id="badge-engine">DSP ENGINE: HAZIR</div>
+      </div>
+      <div class="dsp-telemetry" id="dsp-telemetry" aria-live="polite">
+        <span>ÖRNEKLEME: <b id="val-sr">48.0 kHz</b></span>
+        <span>SESLER: <b id="val-voices">0 AKTİF</b></span>
+        <span>FİLTRE: <b id="val-cutoff">3200 Hz</b></span>
+        <span>MOD: <b>POLİFONİK</b></span>
+      </div>
+    </header>
+
+    <!-- Erişilebilir Birincil Başlık -->
+    <h1 class="sr-only">Hello World Web Audio API ve Akustik Dalga Tipografisi</h1>
+
+    <!-- Merkez Sahne: CRT Osiloskop Ekranı -->
+    <section class="stage-center" aria-label="Canlı Osiloskop Dalga Formu">
+      <div class="scope-bezel">
+        <canvas class="scope-canvas" id="scope-canvas" width="1180" height="340" role="img" aria-label="Canlı Akustik Osiloskop Dalga Çizgisi">Hello World Osiloskop</canvas>
+      </div>
+
+      <!-- Akustik Hello World Tipografi Klavyesi -->
+      <div class="keyboard-deck">
+        <div class="synth-keyboard" role="group" aria-label="Hello World Sentetik Klavye">
+          
+          <!-- HELLO KELİMESİ -->
+          <div class="key-group" role="group" aria-label="HELLO">
+            <button type="button" class="synth-key" data-letter="H" data-freq="261.63" aria-label="Harf H, Nota C4 261 Hz">
+              <span class="key-glyph">H</span>
+              <span class="key-meta">C4 261Hz</span>
+            </button>
+            <button type="button" class="synth-key" data-letter="E" data-freq="293.66" aria-label="Harf E, Nota D4 294 Hz">
+              <span class="key-glyph">E</span>
+              <span class="key-meta">D4 294Hz</span>
+            </button>
+            <button type="button" class="synth-key" data-letter="L" data-freq="329.63" aria-label="Harf L, Nota E4 330 Hz">
+              <span class="key-glyph">L</span>
+              <span class="key-meta">E4 330Hz</span>
+            </button>
+            <button type="button" class="synth-key" data-letter="L" data-freq="392.00" aria-label="Harf L, Nota G4 392 Hz">
+              <span class="key-glyph">L</span>
+              <span class="key-meta">G4 392Hz</span>
+            </button>
+            <button type="button" class="synth-key" data-letter="O" data-freq="440.00" aria-label="Harf O, Nota A4 440 Hz">
+              <span class="key-glyph">O</span>
+              <span class="key-meta">A4 440Hz</span>
+            </button>
+          </div>
+
+          <!-- AYIRICI BOŞLUK -->
+          <div class="key-space" aria-hidden="true"></div>
+
+          <!-- WORLD KELİMESİ -->
+          <div class="key-group" role="group" aria-label="WORLD">
+            <button type="button" class="synth-key" data-letter="W" data-freq="523.25" aria-label="Harf W, Nota C5 523 Hz">
+              <span class="key-glyph">W</span>
+              <span class="key-meta">C5 523Hz</span>
+            </button>
+            <button type="button" class="synth-key" data-letter="O" data-freq="587.33" aria-label="Harf O, Nota D5 587 Hz">
+              <span class="key-glyph">O</span>
+              <span class="key-meta">D5 587Hz</span>
+            </button>
+            <button type="button" class="synth-key" data-letter="R" data-freq="659.25" aria-label="Harf R, Nota E5 659 Hz">
+              <span class="key-glyph">R</span>
+              <span class="key-meta">E5 659Hz</span>
+            </button>
+            <button type="button" class="synth-key" data-letter="L" data-freq="783.99" aria-label="Harf L, Nota G5 784 Hz">
+              <span class="key-glyph">L</span>
+              <span class="key-meta">G5 784Hz</span>
+            </button>
+            <button type="button" class="synth-key" data-letter="D" data-freq="880.00" aria-label="Harf D, Nota A5 880 Hz">
+              <span class="key-glyph">D</span>
+              <span class="key-meta">A5 880Hz</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Alt Kontrol Paneli (Controls Rack) -->
+    <footer class="controls-rack" role="toolbar" aria-label="Synthesizer Parametreleri">
+      <div class="rack-group">
+        <span class="rack-label">Sekans:</span>
+        <button type="button" class="btn-action" id="btn-arpeggio">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Hello World Arpejini Çal
+        </button>
+        <button type="button" class="btn-action" id="btn-chord">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          Tam Akor
+        </button>
+      </div>
+
+      <!-- Dalga Biçimi Seçici -->
+      <div class="rack-group">
+        <span class="rack-label">Dalga:</span>
+        <div class="wave-selector" id="wave-selector">
+          <button type="button" class="wave-btn active" data-wave="sine">Sinüs</button>
+          <button type="button" class="wave-btn" data-wave="triangle">Üçgen</button>
+          <button type="button" class="wave-btn" data-wave="sawtooth">Testere</button>
+          <button type="button" class="wave-btn" data-wave="square">Kare</button>
+        </div>
+      </div>
+
+      <!-- ADSR ve Filtre Potları -->
+      <div class="knob-rack">
+        <div class="knob-item">
+          <label for="range-attack">Atak:</label>
+          <input type="range" id="range-attack" min="0.01" max="0.5" value="0.04" step="0.01">
+        </div>
+        <div class="knob-item">
+          <label for="range-release">Bırakma:</label>
+          <input type="range" id="range-release" min="0.1" max="1.5" value="0.55" step="0.05">
+        </div>
+        <div class="knob-item">
+          <label for="range-cutoff">Filtre (Cutoff):</label>
+          <input type="range" id="range-cutoff" min="400" max="8000" value="3200" step="100">
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ==========================================================================
+       8. SAYISAL SES SENTEZLEYİCİ VE OSİLOSKOP MOTORU (DSP ENGINE)
+       ========================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      // DOM Referansları
+      const canvas = document.getElementById('scope-canvas');
+      const ctx = canvas.getContext('2d');
+      const keys = Array.from(document.querySelectorAll('.synth-key'));
+      const btnArpeggio = document.getElementById('btn-arpeggio');
+      const btnChord = document.getElementById('btn-chord');
+      const waveButtons = Array.from(document.querySelectorAll('.wave-btn'));
+      const rangeAttack = document.getElementById('range-attack');
+      const rangeRelease = document.getElementById('range-release');
+      const rangeCutoff = document.getElementById('range-cutoff');
+      
+      const badgeEngine = document.getElementById('badge-engine');
+      const valSr = document.getElementById('val-sr');
+      const valVoices = document.getElementById('val-voices');
+      const valCutoff = document.getElementById('val-cutoff');
+
+      // DSP Durum Değişkenleri
+      let audioCtx = null;
+      let masterGain = null;
+      let filterNode = null;
+      let analyserNode = null;
+      let timeData = null;
+      let activeVoiceCount = 0;
+      let currentWaveform = 'sine';
+      let isPlayingArpeggio = false;
+      let arpeggioTimer = null;
+
+      // Boyutlandırma ve Piksel Oranı
+      function resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      // AudioContext Başlatma (Kullanıcı etkileşiminde devreye girer)
+      function ensureAudioContext() {
+        if (!audioCtx) {
+          const AudioClass = window.AudioContext || window.webkitAudioContext;
+          if (!AudioClass) return false;
+          audioCtx = new AudioClass();
+
+          masterGain = audioCtx.createGain();
+          masterGain.gain.setValueAtTime(0.75, audioCtx.currentTime);
+
+          filterNode = audioCtx.createBiquadFilter();
+          filterNode.type = 'lowpass';
+          filterNode.frequency.setValueAtTime(parseFloat(rangeCutoff.value), audioCtx.currentTime);
+          filterNode.Q.setValueAtTime(3.5, audioCtx.currentTime);
+
+          analyserNode = audioCtx.createAnalyser();
+          analyserNode.fftSize = 1024;
+          analyserNode.smoothingTimeConstant = 0.82;
+
+          masterGain.connect(filterNode);
+          filterNode.connect(analyserNode);
+          analyserNode.connect(audioCtx.destination);
+
+          timeData = new Uint8Array(analyserNode.fftSize);
+
+          if (valSr) valSr.textContent = (audioCtx.sampleRate / 1000).toFixed(1) + ' kHz';
+          if (badgeEngine) badgeEngine.textContent = 'DSP ENGINE: AKTİF';
+        }
+
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        return true;
+      }
+
+      // Tekil Nota Ses Sentezleme (ADSR Zarfı ile)
+      function triggerNote(freq, targetButton = null) {
+        if (!ensureAudioContext()) return;
+
+        const now = audioCtx.currentTime;
+        const attack = parseFloat(rangeAttack.value);
+        const release = parseFloat(rangeRelease.value);
+
+        const osc = audioCtx.createOscillator();
+        const noteGain = audioCtx.createGain();
+
+        osc.type = currentWaveform;
+        osc.frequency.setValueAtTime(freq, now);
+
+        // Doğal ADSR Zarfı
+        noteGain.gain.setValueAtTime(0.0001, now);
+        noteGain.gain.exponentialRampToValueAtTime(0.7, now + attack);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, now + attack + release);
+
+        osc.connect(noteGain);
+        noteGain.connect(masterGain);
+
+        osc.start(now);
+        osc.stop(now + attack + release + 0.05);
+
+        activeVoiceCount++;
+        updateVoicesDisplay();
+
+        setTimeout(() => {
+          activeVoiceCount = Math.max(0, activeVoiceCount - 1);
+          updateVoicesDisplay();
+        }, (attack + release) * 1000);
+
+        // Tuş Görsel Geri Bildirimi
+        if (targetButton) {
+          targetButton.classList.add('active-playing');
+          setTimeout(() => {
+            targetButton.classList.remove('active-playing');
+          }, (attack + release * 0.6) * 1000);
+        }
+      }
+
+      function updateVoicesDisplay() {
+        if (valVoices) valVoices.textContent = activeVoiceCount + ' AKTİF';
+      }
+
+      // Tuş Tıklama Olayları
+      keys.forEach(k => {
+        const freq = parseFloat(k.getAttribute('data-freq'));
+        k.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          triggerNote(freq, k);
+        });
+      });
+
+      // Klavye Tuşlama Desteği (H, E, L, O, W, R, D tuşları)
+      window.addEventListener('keydown', (e) => {
+        if (e.repeat || e.target.tagName === 'INPUT') return;
+        const letter = e.key.toUpperCase();
+        const matchedKey = keys.find(k => k.getAttribute('data-letter') === letter);
+        if (matchedKey) {
+          const freq = parseFloat(matchedKey.getAttribute('data-freq'));
+          triggerNote(freq, matchedKey);
+        }
+        if (e.key === ' ') {
+          e.preventDefault();
+          btnArpeggio.click();
+        }
+      });
+
+      // Arpej Sekansı ("HELLO WORLD" Harf Dizisi)
+      btnArpeggio.addEventListener('click', () => {
+        if (isPlayingArpeggio) {
+          clearInterval(arpeggioTimer);
+          isPlayingArpeggio = false;
+          btnArpeggio.classList.remove('active');
+          return;
+        }
+
+        ensureAudioContext();
+        isPlayingArpeggio = true;
+        btnArpeggio.classList.add('active');
+
+        let index = 0;
+        arpeggioTimer = setInterval(() => {
+          if (!isPlayingArpeggio || index >= keys.length) {
+            clearInterval(arpeggioTimer);
+            isPlayingArpeggio = false;
+            btnArpeggio.classList.remove('active');
+            return;
+          }
+          const currentKey = keys[index];
+          const freq = parseFloat(currentKey.getAttribute('data-freq'));
+          triggerNote(freq, currentKey);
+          index++;
+        }, 220);
+      });
+
+      // Tam Polifonik Akor (Tüm Pentatonik Harflerin Harmonik Tınısı)
+      btnChord.addEventListener('click', () => {
+        ensureAudioContext();
+        // C-Majör Pentatonik Akoru: H (C4), L (E4), O (A4), W (C5)
+        const chordKeys = [keys[0], keys[2], keys[4], keys[5], keys[7]];
+        chordKeys.forEach((k, i) => {
+          if (k) {
+            setTimeout(() => {
+              const freq = parseFloat(k.getAttribute('data-freq'));
+              triggerNote(freq, k);
+            }, i * 35);
+          }
+        });
+      });
+
+      // Dalga Biçimi Seçimi
+      waveButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          waveButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentWaveform = btn.getAttribute('data-wave');
+        });
+      });
+
+      // Filtre Frekansı Ayarı
+      rangeCutoff.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        if (valCutoff) valCutoff.textContent = val + ' Hz';
+        if (filterNode && audioCtx) {
+          filterNode.frequency.setTargetAtTime(val, audioCtx.currentTime, 0.05);
+        }
+      });
+
+      // ==========================================================================
+      // CANLI OSİLOSKOP VE STANDING WAVE ÇİZİM DÖNGÜSÜ (RENDER LOOP)
+      // ==========================================================================
+      let idlePhase = 0;
+
+      function renderScope() {
+        const rect = canvas.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
+        const centerY = height / 2;
+
+        // Arka planı hafif alfa ile temizle (CRT fosfor persistance / iz etkisi)
+        ctx.fillStyle = 'rgba(8, 12, 20, 0.35)';
+        ctx.fillRect(0, 0, width, height);
+
+        // Aktif AudioContext verisi var mı kontrol et
+        const hasActiveAudio = analyserNode && audioCtx && audioCtx.state === 'running' && activeVoiceCount > 0;
+
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+
+        if (hasActiveAudio) {
+          analyserNode.getByteTimeDomainData(timeData);
+          const sliceWidth = width / timeData.length;
+          let x = 0;
+
+          for (let i = 0; i < timeData.length; i++) {
+            const v = timeData[i] / 128.0; // 0.0 .. 2.0 (1.0 = orta)
+            const y = (v * centerY);
+
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+
+            x += sliceWidth;
+          }
+
+          ctx.strokeStyle = '#00f3ff';
+          ctx.shadowColor = '#00f3ff';
+          ctx.shadowBlur = 14;
+          ctx.stroke();
+
+        } else {
+          // Boşta dururken estetik sentetik analog taşıyıcı dalga (Synthesized Idle Wave)
+          idlePhase += 0.04;
+          const points = 240;
+          const step = width / points;
+
+          for (let i = 0; i <= points; i++) {
+            const x = i * step;
+            const normX = (i / points) * Math.PI * 4;
+            const amp = Math.sin(idlePhase * 0.8) * 12 + 16;
+            const y = centerY + 
+                      Math.sin(normX + idlePhase) * amp + 
+                      Math.sin(normX * 2.5 - idlePhase * 1.4) * (amp * 0.4);
+
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+
+          ctx.strokeStyle = '#00ff88';
+          ctx.shadowColor = '#00ff88';
+          ctx.shadowBlur = 10;
+          ctx.stroke();
+        }
+
+        ctx.shadowBlur = 0;
+        requestAnimationFrame(renderScope);
+      }
+      requestAnimationFrame(renderScope);
+
+    })();
+  </script>
+</body>
+</html>

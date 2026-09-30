@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World - Deney 007 (Web Animations API - WAAPI)</title>
+  <style>
+    /*
+     * CSS Temel Sıfırlama ve 3D Sahne Perspektifi
+     * WAAPI 3D rotasyonlarının derinlik kazanması için perspektif tanımlanır.
+     */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #060712;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .stage {
+      position: relative;
+      width: 100vw;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      perspective: 1200px;
+      perspective-origin: center center;
+    }
+
+    /*
+     * Ana Başlık ve Glif Dizilimi
+     * Harflerin bağımsız 3D hareket edebilmesi için inline-block glif yapısı.
+     */
+    .title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: clamp(3rem, 10vw, 7.5rem);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      transform-style: preserve-3d;
+      margin-bottom: 2rem;
+    }
+
+    .word {
+      display: inline-flex;
+      transform-style: preserve-3d;
+    }
+
+    .space {
+      width: clamp(1rem, 3.5vw, 2.8rem);
+    }
+
+    /*
+     * Harf Glifleri
+     * WAAPI element.animate() doğrudan bu elemanların transform ve filtrelerini donanım hızlandırmalı yönetir.
+     */
+    .glyph {
+      display: inline-block;
+      transform-origin: center bottom;
+      will-change: transform, filter, color;
+      cursor: pointer;
+      padding: 0 0.05em;
+    }
+
+    /*
+     * İnteraktif WAAPI Kontrol Paneli (HUD)
+     * Kullanıcının animasyon zaman çizelgesini (playbackRate, reverse, play/pause) canlı yönetmesini sağlar.
+     */
+    .controls {
+      position: absolute;
+      bottom: 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding: 0.85rem 1.75rem;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      z-index: 20;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      padding: 0.45rem 0.95rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .btn:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+      color: #38bdf8;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .slider-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .slider {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 90px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .slider::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #38bdf8;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+      transition: transform 0.1s;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .badge {
+      font-family: ui-monospace, monospace;
+      font-size: 0.75rem;
+      color: #38bdf8;
+      min-width: 32px;
+    }
+
+    .hud-caption {
+      position: absolute;
+      top: 2rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #64748b;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="stage">
+    <div class="hud-caption">Deney 007 // Web Animations API (WAAPI)</div>
+
+    <!--
+      Semantik H1 Başlığı:
+      aria-label="Hello World" sayesinde ekran okuyucular harfleri tek tek hecelemek yerine
+      bütünlüklü metin olarak seslendirir.
+      İçerideki harf span'leri görsel WAAPI animasyon düğümleridir.
+    -->
+    <h1 class="title" aria-label="Hello World">
+      <span class="word" aria-hidden="true">
+        <span class="glyph">H</span>
+        <span class="glyph">e</span>
+        <span class="glyph">l</span>
+        <span class="glyph">l</span>
+        <span class="glyph">o</span>
+      </span>
+      <span class="space" aria-hidden="true">&nbsp;</span>
+      <span class="word" aria-hidden="true">
+        <span class="glyph">W</span>
+        <span class="glyph">o</span>
+        <span class="glyph">r</span>
+        <span class="glyph">l</span>
+        <span class="glyph">d</span>
+      </span>
+    </h1>
+
+    <!-- İnteraktif WAAPI Canlı Kontrol Paneli -->
+    <nav class="controls" aria-label="Animasyon Kontrolleri">
+      <button type="button" class="btn" id="togglePlayBtn" title="Animasyonu Duraklat / Oynat">
+        <span id="playIcon">⏸</span>
+        <span id="playText">Duraklat</span>
+      </button>
+
+      <button type="button" class="btn" id="reverseBtn" title="Animasyon Yönünü Tersine Çevir">
+        <span>🔄</span>
+        <span>Yönü Değiştir</span>
+      </button>
+
+      <div class="slider-group">
+        <label for="speedSlider">Hız:</label>
+        <input type="range" id="speedSlider" class="slider" min="0.2" max="3" step="0.1" value="1.0">
+        <span class="badge" id="speedBadge">1.0x</span>
+      </div>
+
+      <button type="button" class="btn" id="rippleBtn" title="Rezonans Dalgası Başlat">
+        <span>⚡</span>
+        <span>Rezonans</span>
+      </button>
+    </nav>
+  </main>
+
+  <script>
+    /**
+     * Hello World Lab - Deney 007: Web Animations API (WAAPI)
+     *
+     * Çalışma Mantığı:
+     * 1. DOM üzerindeki her bir harf (.glyph) için tarayıcının yerel kompozitör
+     *    iş parçacığına bağlı bir `Animation` nesnesi oluşturulur (element.animate()).
+     * 2. Her harfe matematiksel gecikme (staggered delay = index * 110ms) verilerek
+     *    3D uzayda (translateY, rotateX, rotateZ, scale) akıcı bir dalga üretilir.
+     * 3. Renkler ve ışıma filtreleri OKLCH uzayında sürekli spektral bir akışla değişir.
+     * 4. Animation arayüzü sayesinde tarayıcının yerel animasyon zaman çizelgesi (timeline)
+     *    JavaScript üzerinden doğrudan yönetilir:
+     *    - animation.playbackRate: Hızlandırma ve yavaşlatma
+     *    - animation.reverse(): Yönü tersine çevirme
+     *    - animation.play() / animation.pause(): Canlı duraklatma ve devam ettirme
+     */
+
+    (function() {
+      'use strict';
+
+      const glyphs = Array.from(document.querySelectorAll('.glyph'));
+      const animations = [];
+
+      // UI Eleman Referansları
+      const togglePlayBtn = document.getElementById('togglePlayBtn');
+      const playIcon = document.getElementById('playIcon');
+      const playText = document.getElementById('playText');
+      const reverseBtn = document.getElementById('reverseBtn');
+      const speedSlider = document.getElementById('speedSlider');
+      const speedBadge = document.getElementById('speedBadge');
+      const rippleBtn = document.getElementById('rippleBtn');
+
+      let isPlaying = true;
+      let playbackRate = 1.0;
+
+      /**
+       * Ana WAAPI Dalga Animasyonlarının Oluşturulması
+       */
+      glyphs.forEach((glyph, index) => {
+        // Her glifin yatay konumuna göre renk fazı hesabı
+        const hueStart = Math.floor(180 + index * 14); // Camgöbeği başlangıç
+        const huePeak = Math.floor(hueStart + 80);     // Zirvede mor / macenta geçişi
+
+        // WAAPI Anahtar Kareleri (Keyframes)
+        const keyframes = [
+          {
+            transform: 'translate3d(0, 0px, 0px) rotateX(0deg) rotateZ(0deg) scale(1)',
+            color: `oklch(0.85 0.18 ${hueStart})`,
+            filter: `drop-shadow(0 0 12px oklch(0.85 0.18 ${hueStart} / 0.45))`,
+            offset: 0
+          },
+          {
+            transform: 'translate3d(0, -32px, 40px) rotateX(24deg) rotateZ(-3deg) scale(1.14)',
+            color: `oklch(0.90 0.26 ${huePeak})`,
+            filter: `drop-shadow(0 15px 30px oklch(0.90 0.26 ${huePeak} / 0.8))`,
+            offset: 0.5
+          },
+          {
+            transform: 'translate3d(0, 0px, 0px) rotateX(0deg) rotateZ(0deg) scale(1)',
+            color: `oklch(0.85 0.18 ${hueStart})`,
+            filter: `drop-shadow(0 0 12px oklch(0.85 0.18 ${hueStart} / 0.45))`,
+            offset: 1
+          }
+        ];
+
+        // WAAPI Zamanlama Seçenekleri (KeyframeEffectOptions)
+        const timing = {
+          duration: 2200,
+          iterations: Infinity,
+          easing: 'cubic-bezier(0.45, 0.05, 0.55, 0.95)',
+          delay: index * 110 // Glifler arası faz kayması (Koreografi)
+        };
+
+        // Tarayıcının donanım hızlandırmalı animasyon motorunu tetikle
+        const anim = glyph.animate(keyframes, timing);
+        animations.push(anim);
+
+        // Harfin üzerine gelindiğinde anlık mikro yaylanma animasyonu (Composite WAAPI)
+        glyph.addEventListener('mouseenter', () => {
+          glyph.animate([
+            { transform: 'scale(1.25) translateY(-15px)', filter: 'brightness(1.5)' },
+            { transform: 'scale(1)', filter: 'brightness(1)' }
+          ], {
+            duration: 450,
+            easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+          });
+        });
+      });
+
+      /**
+       * Kontrol 1: Oynat / Duraklat (Play / Pause)
+       */
+      togglePlayBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        animations.forEach(anim => {
+          if (isPlaying) {
+            anim.play();
+          } else {
+            anim.pause();
+          }
+        });
+
+        playIcon.textContent = isPlaying ? '⏸' : '▶';
+        playText.textContent = isPlaying ? 'Duraklat' : 'Oynat';
+      });
+
+      /**
+       * Kontrol 2: Yönü Tersine Çevir (Reverse)
+       */
+      reverseBtn.addEventListener('click', () => {
+        animations.forEach(anim => {
+          anim.reverse();
+        });
+      });
+
+      /**
+       * Kontrol 3: Canlı Hız Kontrolü (PlaybackRate)
+       */
+      speedSlider.addEventListener('input', (e) => {
+        playbackRate = parseFloat(e.target.value);
+        speedBadge.textContent = `${playbackRate.toFixed(1)}x`;
+        animations.forEach(anim => {
+          anim.playbackRate = playbackRate;
+        });
+      });
+
+      /**
+       * Kontrol 4: Rezonans Dalgası (Geçici Şok Dalgası)
+       */
+      rippleBtn.addEventListener('click', () => {
+        glyphs.forEach((glyph, index) => {
+          glyph.animate([
+            { transform: 'translateY(0) scale(1) rotateY(0deg)', filter: 'hue-rotate(0deg)' },
+            { transform: 'translateY(-60px) scale(1.3) rotateY(180deg)', filter: 'hue-rotate(180deg) brightness(1.8)' },
+            { transform: 'translateY(0) scale(1) rotateY(360deg)', filter: 'hue-rotate(360deg)' }
+          ], {
+            duration: 900,
+            delay: index * 60,
+            easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+          });
+        });
+      });
+
+    })();
+  </script>
+</body>
+</html>

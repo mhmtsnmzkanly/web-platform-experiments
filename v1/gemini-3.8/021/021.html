@@ -1,0 +1,848 @@
+<!--
+  DENEY 021: IntersectionObserver API ve Çok Eşikli Kinetik Tipografik Telemetri
+  
+  Yenilik Türü: Yeni Teknoloji (IntersectionObserver API)
+  Kullanılan Web Standartları:
+    - new IntersectionObserver(callback, { root, rootMargin, threshold })
+    - 101 Kademeli Eşik Dizisi: threshold: Array.from({length: 101}, (_, i) => i / 100)
+    - entry.intersectionRatio, entry.boundingClientRect, entry.isIntersecting
+    - CSS Custom Properties modülasyonu (--ratio, --weight, --hue, --glow)
+    - Canlı Havacılık/Optik Telemetri HUD Arayüzü
+  
+  Tasarım Yaklaşımı:
+    - Bilimsel optik tarayıcı ve uzay telemetri kokpiti
+    - 10 bağımsız glif hedefi (H-E-L-L-O W-O-R-L-D)
+    - Sıfır dış kütüphane, sıfır main-thread kaydırma tıkanması
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 021: IntersectionObserver API ve Kinetik Tipografik Telemetri</title>
+  <style>
+    /* ==========================================================================
+       1. DEĞİŞKENLER VE TEMEL SIFIRLAMA
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-deep: #070a12;
+      --bg-surface: #0f172a;
+      --bg-surface-elevated: #1e293b;
+      --border-hud: rgba(56, 189, 248, 0.2);
+      --border-hud-active: #38bdf8;
+      --cyan-bright: #38bdf8;
+      --emerald-radar: #10b981;
+      --amber-warn: #fbbf24;
+      --rose-accent: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-deep);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    /* ==========================================================================
+       2. ÜST HUD BAŞLIK VE KONTROL PANELİ
+       ========================================================================== */
+    .hud-header {
+      padding: 1rem 1.75rem;
+      background: rgba(15, 23, 42, 0.85);
+      border-bottom: 1px solid var(--border-hud);
+      backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .hud-title-block {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .hud-radar-icon {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--cyan-bright);
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .radar-sweep-line {
+      width: 50%;
+      height: 2px;
+      background: var(--cyan-bright);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-origin: 0% 50%;
+      animation: radar-sweep 2.5s infinite linear;
+      box-shadow: 0 0 6px var(--cyan-bright);
+    }
+
+    @keyframes radar-sweep {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .hud-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .hud-badge {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--cyan-bright);
+      border: 1px solid var(--border-hud);
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .hud-btn {
+      background: var(--bg-surface-elevated);
+      color: var(--cyan-bright);
+      border: 1px solid var(--border-hud);
+      padding: 0.45rem 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .hud-btn:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--cyan-bright);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+    }
+
+    .hud-btn.active {
+      background: var(--cyan-bright);
+      color: var(--bg-deep);
+      font-weight: 800;
+    }
+
+    /* ==========================================================================
+       3. KOKPİT MİZANPAJI (ANA SAHNE & TELEMETRİ)
+       ========================================================================== */
+    .cockpit-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.5rem;
+      padding: 1.5rem 1.75rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1024px) {
+      .cockpit-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Sol Panel: Gözlem Tüneli ve Hello World Glifleri */
+    .observation-tunnel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .reticle-viewport {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hud);
+      border-radius: 8px;
+      padding: 2.5rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Görsel Kesişim Çaprazları (Reticle Crosshairs) */
+    .reticle-crosshair-h {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.3), transparent);
+      pointer-events: none;
+    }
+
+    .reticle-crosshair-v {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(56, 189, 248, 0.3), transparent);
+      pointer-events: none;
+    }
+
+    /* Kinetik Harf Sahnesi */
+    .kinetic-word-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      width: 100%;
+      z-index: 2;
+    }
+
+    .word-cluster {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(0.5rem, 2vw, 1.5rem);
+      flex-wrap: wrap;
+    }
+
+    /* Bireysel Gözlemlenen Glifler */
+    .glyph-unit {
+      --ratio: 1;
+      --scale: 1;
+      --weight: 800;
+      --hue: 195;
+      --glow: 0px;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 1rem 0.75rem;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(56, 189, 248, calc(0.15 + var(--ratio) * 0.7));
+      border-radius: 6px;
+      transition: border-color 0.1s ease, transform 0.1s ease, box-shadow 0.1s ease;
+      transform: scale(calc(0.85 + var(--ratio) * 0.25)) translateY(calc((1 - var(--ratio)) * 12px));
+      box-shadow: 0 0 calc(var(--ratio) * 20px) hsla(var(--hue), 90%, 55%, calc(var(--ratio) * 0.4));
+    }
+
+    .glyph-char {
+      font-size: clamp(3.2rem, 8vw, 6.5rem);
+      font-weight: var(--weight);
+      font-family: var(--font-sans);
+      line-height: 1;
+      color: hsl(var(--hue), 95%, calc(55% + var(--ratio) * 35%));
+      text-shadow: 0 0 calc(var(--ratio) * 15px) hsl(var(--hue), 95%, 60%);
+      user-select: none;
+    }
+
+    .glyph-telemetry {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--cyan-bright);
+      margin-top: 0.6rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* Kesişim Kaydırma Simülasyon Şeridi */
+    .corridor-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hud);
+      border-radius: 8px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .corridor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .corridor-scroll-track {
+      height: 140px;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      background: var(--bg-deep);
+      border: 1px dashed var(--border-hud);
+      border-radius: 6px;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .corridor-scroll-content {
+      height: 480px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .corridor-target-marker {
+      padding: 0.75rem 1.5rem;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--emerald-radar);
+      border-radius: 4px;
+      color: var(--emerald-radar);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      transition: all 0.15s ease;
+    }
+
+    /* ==========================================================================
+       4. SAĞ TELEMETRİ VE RADAR MATRİSİ
+       ========================================================================== */
+    .telemetry-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .telemetry-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hud);
+      border-radius: 8px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--cyan-bright);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+      padding-bottom: 0.5rem;
+    }
+
+    /* Glif Telemetri Matrisi */
+    .glyph-matrix-table {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .matrix-row {
+      display: grid;
+      grid-template-columns: 24px 1fr 50px 45px;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.4rem;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .matrix-char {
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .matrix-bar-track {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .matrix-bar-fill {
+      height: 100%;
+      background: var(--cyan-bright);
+      width: 0%;
+      transition: width 0.08s ease, background-color 0.15s ease;
+    }
+
+    .matrix-ratio {
+      text-align: right;
+      color: var(--cyan-bright);
+      font-family: var(--font-mono);
+    }
+
+    .matrix-status {
+      text-align: center;
+      font-size: 0.65rem;
+      padding: 0.1rem 0.3rem;
+      border-radius: 2px;
+      font-weight: 700;
+    }
+
+    .status-in {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--emerald-radar);
+    }
+
+    .status-out {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--rose-accent);
+    }
+
+    /* Metrik Sayaçları */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .metric-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 0.75rem;
+      border-radius: 4px;
+    }
+
+    .metric-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--cyan-bright);
+      margin-top: 0.25rem;
+      font-family: var(--font-mono);
+    }
+
+    /* ==========================================================================
+       5. ALT DURUM ÇUBUĞU (FOOTER TELEMETRİ)
+       ========================================================================== */
+    .hud-footer {
+      padding: 0.75rem 1.75rem;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-hud);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .telemetry-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .led-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald-radar);
+      box-shadow: 0 0 8px var(--emerald-radar);
+      animation: led-blink 1.8s infinite alternate ease-in-out;
+    }
+
+    @keyframes led-blink {
+      0% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst HUD Kontrol Çubuğu -->
+  <header class="hud-header" role="banner">
+    <div class="hud-title-block">
+      <div class="hud-radar-icon" aria-hidden="true">
+        <div class="radar-sweep-line"></div>
+      </div>
+      <div>
+        <h1 class="hud-title">INTERSECTION OBSERVER OPTİK TELEMETRİ</h1>
+      </div>
+      <span class="hud-badge">DENEY 021 &bull; 101 EŞİK</span>
+    </div>
+
+    <nav class="controls-group" aria-label="Gözlem Denetimleri">
+      <button class="hud-btn active" id="btn-patrol" aria-pressed="true">
+        <span aria-hidden="true">&#9658;</span> OTO DEVRİYE
+      </button>
+      <button class="hud-btn" id="btn-scan-step" aria-label="Tekil Tarama Tetikle">
+        <span>&#8635;</span> TEK ADIM
+      </button>
+    </nav>
+  </header>
+
+  <!-- Ana Kokpit Grid -->
+  <main class="cockpit-grid" role="main">
+
+    <!-- Sol Gözlem Tüneli -->
+    <section class="observation-tunnel" aria-label="Optik Gözlem Alanı">
+      <div class="reticle-viewport" id="viewport-stage">
+        <div class="reticle-crosshair-h" aria-hidden="true"></div>
+        <div class="reticle-crosshair-v" aria-hidden="true"></div>
+
+        <!-- Hello World Harf Sahnesi -->
+        <div class="kinetic-word-stage" aria-label="Hello World Kinetik Glifler">
+          
+          <!-- HELLO KELİMESİ -->
+          <div class="word-cluster" id="word-hello" aria-label="HELLO">
+            <div class="glyph-unit" data-char="H">
+              <span class="glyph-char">H</span>
+              <span class="glyph-telemetry">100.0%</span>
+            </div>
+            <div class="glyph-unit" data-char="E">
+              <span class="glyph-char">E</span>
+              <span class="glyph-telemetry">100.0%</span>
+            </div>
+            <div class="glyph-unit" data-char="L">
+              <span class="glyph-char">L</span>
+              <span class="glyph-telemetry">100.0%</span>
+            </div>
+            <div class="glyph-unit" data-char="L">
+              <span class="glyph-char">L</span>
+              <span class="glyph-telemetry">100.0%</span>
+            </div>
+            <div class="glyph-unit" data-char="O">
+              <span class="glyph-char">O</span>
+              <span class="glyph-telemetry">100.0%</span>
+            </div>
+          </div>
+
+          <!-- WORLD KELİMESİ -->
+          <div class="word-cluster" id="word-world" aria-label="WORLD">
+            <div class="glyph-unit" data-char="W">
+              <span class="glyph-char">W</span>
+              <span class="glyph-telemetry">100.0%</span>
+            </div>
+            <div class="glyph-unit" data-char="O">
+              <span class="glyph-char">O</span>
+              <span class="glyph-telemetry">100.0%</span>
+            </div>
+            <div class="glyph-unit" data-char="R">
+              <span class="glyph-char">R</span>
+              <span class="glyph-telemetry">100.0%</span>
+            </div>
+            <div class="glyph-unit" data-char="L">
+              <span class="glyph-char">L</span>
+              <span class="glyph-telemetry">100.0%</span>
+            </div>
+            <div class="glyph-unit" data-char="D">
+              <span class="glyph-char">D</span>
+              <span class="glyph-telemetry">100.0%</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Kesişim Koridoru (Kaydırma Tüneli) -->
+      <div class="corridor-container">
+        <div class="corridor-header">
+          <span>Hassas Kesişim Koridoru (Intersection Scroll Corridor)</span>
+          <span id="corridor-status">Kesişim: %100.0</span>
+        </div>
+        <div class="corridor-scroll-track" id="corridor-scroll">
+          <div class="corridor-scroll-content">
+            <div style="font-size: 0.7rem; color: var(--text-muted);">[ÜST TAMPON: GİRİŞ ALANI]</div>
+            <div class="corridor-target-marker" id="corridor-target">
+              &#10022; GÖZLEMLENEN ODAK: HELLO WORLD MERKEZİ &#10022;
+            </div>
+            <div style="font-size: 0.7rem; color: var(--text-muted);">[ALT TAMPON: ÇIKIŞ ALANI]</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sağ Telemetri Paneli -->
+    <aside class="telemetry-sidebar" aria-label="Telemetri Verileri">
+      
+      <!-- Glif Kesişim Oranları Matrisi -->
+      <div class="telemetry-card">
+        <div class="card-title">
+          <span>Glif Kesişim Oranları</span>
+          <span style="font-size: 0.65rem; color: var(--emerald-radar);">10 HEDEF</span>
+        </div>
+        <div class="glyph-matrix-table" id="matrix-table">
+          <!-- JS ile doldurulacak -->
+        </div>
+      </div>
+
+      <!-- Genel Metrikler -->
+      <div class="telemetry-card">
+        <div class="card-title">
+          <span>Telemetri Metrikleri</span>
+          <span>W3C OBSERVER</span>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-box">
+            <div class="metric-label">Ortalama Görünürlük</div>
+            <div class="metric-value" id="val-avg-ratio">100%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Tetikleme Sayısı</div>
+            <div class="metric-value" id="val-event-count">0</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Aktif Kesişim</div>
+            <div class="metric-value" id="val-active-count">10/10</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Eşik Çözünürlüğü</div>
+            <div class="metric-value">101 ADIM</div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Alt Durum Çubuğu -->
+  <footer class="hud-footer">
+    <div class="telemetry-indicator">
+      <span class="led-dot" aria-hidden="true"></span>
+      <span id="observer-engine-status">INTERSECTION OBSERVER ENGINE: AKTİF (101 EŞİK DİZİSİ)</span>
+    </div>
+    <div>
+      <span>HELLO WORLD LAB &bull; ÇOK EŞİKLİ KİNETİK TELEMETRİ</span>
+    </div>
+  </footer>
+
+  <script>
+    // ==========================================================================
+    // 6. INTERSECTION OBSERVER TELEMETRİ VE KİNETİK MANTIK
+    // ==========================================================================
+    (function initIntersectionTelemetry() {
+      const glyphUnits = Array.from(document.querySelectorAll(".glyph-unit"));
+      const matrixTable = document.getElementById("matrix-table");
+      const avgRatioEl = document.getElementById("val-avg-ratio");
+      const eventCountEl = document.getElementById("val-event-count");
+      const activeCountEl = document.getElementById("val-active-count");
+      const corridorStatusEl = document.getElementById("corridor-status");
+      const corridorScrollEl = document.getElementById("corridor-scroll");
+      const corridorTargetEl = document.getElementById("corridor-target");
+      const btnPatrol = document.getElementById("btn-patrol");
+      const btnScanStep = document.getElementById("btn-scan-step");
+
+      let totalEvents = 0;
+      let isPatrolActive = true;
+      let patrolDirection = 1;
+      let patrolTimer = null;
+
+      // 101 Eşik Dizisi: [0.00, 0.01, ..., 1.00]
+      const thresholds = Array.from({ length: 101 }, (_, i) => +(i / 100).toFixed(2));
+
+      // Sağ paneldeki Glif Matrisi Satırlarını Oluştur
+      const matrixRows = [];
+      glyphUnits.forEach((unit, idx) => {
+        const char = unit.getAttribute("data-char") || "?";
+        const row = document.createElement("div");
+        row.className = "matrix-row";
+        row.innerHTML = `
+          <span class="matrix-char">${char}</span>
+          <div class="matrix-bar-track">
+            <div class="matrix-bar-fill" style="width: 100%;"></div>
+          </div>
+          <span class="matrix-ratio">100.0%</span>
+          <span class="matrix-status status-in">İN</span>
+        `;
+        matrixTable.appendChild(row);
+        matrixRows.push({
+          bar: row.querySelector(".matrix-bar-fill"),
+          ratio: row.querySelector(".matrix-ratio"),
+          status: row.querySelector(".matrix-status")
+        });
+      });
+
+      // 1. Ana Glifler İçin IntersectionObserver (Pencere Görünürlüğü)
+      const glyphObserver = new IntersectionObserver((entries) => {
+        totalEvents += entries.length;
+        window._intersectionObserverEventCount = totalEvents;
+        eventCountEl.textContent = totalEvents;
+
+        entries.forEach((entry) => {
+          const unit = entry.target;
+          const idx = glyphUnits.indexOf(unit);
+          const ratio = entry.intersectionRatio;
+          const isIntersecting = entry.isIntersecting;
+
+          // CSS Custom Properties güncellemesi
+          const weight = Math.round(300 + ratio * 600);
+          const hue = Math.round(180 + ratio * 35); // 180 (Camgöbeği) -> 215 (Elektrik Mavisi)
+          unit.style.setProperty("--ratio", ratio.toFixed(3));
+          unit.style.setProperty("--weight", weight);
+          unit.style.setProperty("--hue", hue);
+
+          // Glif üzerindeki telemetri etiketi
+          const telemEl = unit.querySelector(".glyph-telemetry");
+          if (telemEl) {
+            telemEl.textContent = (ratio * 100).toFixed(1) + "%";
+          }
+
+          // Matris tablosu güncellemesi
+          if (idx >= 0 && matrixRows[idx]) {
+            const m = matrixRows[idx];
+            m.bar.style.width = (ratio * 100).toFixed(1) + "%";
+            m.ratio.textContent = (ratio * 100).toFixed(1) + "%";
+            if (isIntersecting && ratio > 0.05) {
+              m.status.className = "matrix-status status-in";
+              m.status.textContent = "İN";
+              m.bar.style.backgroundColor = "var(--cyan-bright)";
+            } else {
+              m.status.className = "matrix-status status-out";
+              m.status.textContent = "OUT";
+              m.bar.style.backgroundColor = "var(--rose-accent)";
+            }
+          }
+        });
+
+        // Toplam Özet Metrikleri Hesapla
+        let sumRatio = 0;
+        let activeCount = 0;
+        glyphUnits.forEach((u) => {
+          const r = parseFloat(u.style.getPropertyValue("--ratio") || "1");
+          sumRatio += r;
+          if (r > 0.05) activeCount++;
+        });
+        const avg = (sumRatio / glyphUnits.length) * 100;
+        avgRatioEl.textContent = avg.toFixed(1) + "%";
+        activeCountEl.textContent = `${activeCount}/${glyphUnits.length}`;
+      }, {
+        threshold: thresholds,
+        rootMargin: "0px"
+      });
+
+      // Her glifi gözleme ekle
+      glyphUnits.forEach((u) => glyphObserver.observe(u));
+
+      // 2. Kesişim Koridoru İçin Bağımsız IntersectionObserver (root: corridorScrollEl)
+      const corridorObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          const ratio = entry.intersectionRatio;
+          const pct = (ratio * 100).toFixed(1);
+          corridorStatusEl.textContent = `Kesişim: %${pct}`;
+
+          if (entry.isIntersecting && ratio > 0.3) {
+            corridorTargetEl.style.backgroundColor = "rgba(16, 185, 129, 0.25)";
+            corridorTargetEl.style.borderColor = "var(--emerald-radar)";
+            corridorTargetEl.style.boxShadow = "0 0 15px rgba(16, 185, 129, 0.4)";
+          } else {
+            corridorTargetEl.style.backgroundColor = "rgba(244, 63, 94, 0.15)";
+            corridorTargetEl.style.borderColor = "var(--rose-accent)";
+            corridorTargetEl.style.boxShadow = "none";
+          }
+        });
+      }, {
+        root: corridorScrollEl,
+        threshold: thresholds
+      });
+
+      corridorObserver.observe(corridorTargetEl);
+
+      // 3. Otomatik Devriye (Patrol) ve Kaydırma Simülasyonu
+      function stepPatrol() {
+        if (!corridorScrollEl) return;
+        const maxScroll = corridorScrollEl.scrollHeight - corridorScrollEl.clientHeight;
+        if (maxScroll <= 0) return;
+
+        let cur = corridorScrollEl.scrollTop;
+        cur += patrolDirection * 4;
+
+        if (cur >= maxScroll) {
+          cur = maxScroll;
+          patrolDirection = -1;
+        } else if (cur <= 0) {
+          cur = 0;
+          patrolDirection = 1;
+        }
+
+        corridorScrollEl.scrollTop = cur;
+      }
+
+      function startPatrol() {
+        if (patrolTimer) clearInterval(patrolTimer);
+        patrolTimer = setInterval(stepPatrol, 50);
+        btnPatrol.classList.add("active");
+        btnPatrol.setAttribute("aria-pressed", "true");
+        isPatrolActive = true;
+      }
+
+      function stopPatrol() {
+        if (patrolTimer) clearInterval(patrolTimer);
+        patrolTimer = null;
+        btnPatrol.classList.remove("active");
+        btnPatrol.setAttribute("aria-pressed", "false");
+        isPatrolActive = false;
+      }
+
+      btnPatrol.addEventListener("click", () => {
+        if (isPatrolActive) {
+          stopPatrol();
+        } else {
+          startPatrol();
+        }
+      });
+
+      btnScanStep.addEventListener("click", () => {
+        stopPatrol();
+        stepPatrol();
+      });
+
+      // Başlangıçta devriyeyi başlat
+      startPatrol();
+
+      // Başlangıçta hedefi merkeze getir
+      setTimeout(() => {
+        if (corridorScrollEl) {
+          corridorScrollEl.scrollTop = 120;
+        }
+      }, 100);
+
+    })();
+  </script>
+</body>
+</html>

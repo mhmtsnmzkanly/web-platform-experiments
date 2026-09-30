@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 016: Web Cryptography API ve Matris Şifre Çözücü Tipografi</title>
+  <style>
+    /* ==========================================================================
+       1. KÖK DEĞİŞKENLER VE SİBER KRİPTO PALETİ (CYBER SECURITY PALETTE)
+       ========================================================================== */
+    :root {
+      --bg-terminal: oklch(0.10 0.02 250);
+      --bg-module: oklch(0.14 0.03 250 / 0.85);
+      --bg-panel: oklch(0.18 0.04 250 / 0.7);
+      
+      --crypto-green: oklch(0.86 0.22 145);
+      --crypto-cyan: oklch(0.88 0.18 195);
+      --crypto-amber: oklch(0.85 0.18 85);
+      --crypto-red: oklch(0.65 0.24 25);
+      
+      --text-main: oklch(0.96 0.01 250);
+      --text-dim: oklch(0.65 0.04 250);
+      --border-terminal: oklch(0.28 0.05 250 / 0.8);
+      --border-glow: oklch(0.86 0.22 145 / 0.5);
+      
+      --glow-emerald: 0 0 20px oklch(0.86 0.22 145 / 0.45);
+      --glow-cyan: 0 0 16px oklch(0.88 0.18 195 / 0.4);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-terminal);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      color: var(--text-main);
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       2. ANA SAHNE VE ŞASİ YERLEŞİMİ (CYBER TERMINAL VIEWPORT)
+       ========================================================================== */
+    .terminal-app {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 24px;
+      position: relative;
+      background: 
+        radial-gradient(circle at 50% 40%, oklch(0.16 0.04 240) 0%, var(--bg-terminal) 85%),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.3) 3px);
+    }
+
+    /* ==========================================================================
+       3. TELEMETRİ VE BAŞLIK HUD'I (HEADER HUD)
+       ========================================================================== */
+    .hud-header {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+    }
+
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-terminal {
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: oklch(0.20 0.05 250);
+      border: 1px solid var(--border-terminal);
+      color: var(--crypto-green);
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-terminal::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--crypto-green);
+      box-shadow: 0 0 8px var(--crypto-green);
+    }
+
+    .badge-algo {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--crypto-cyan);
+      background: oklch(0.18 0.04 195 / 0.2);
+      border: 1px solid oklch(0.4 0.1 195 / 0.5);
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+
+    .crypto-telemetry {
+      display: flex;
+      gap: 16px;
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      background: var(--bg-module);
+      border: 1px solid var(--border-terminal);
+      padding: 6px 14px;
+      border-radius: 6px;
+      backdrop-filter: blur(8px);
+    }
+
+    .crypto-telemetry span b {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       4. MERKEZ SAHNE: KRİPTOGRAFİK ŞİFRE ÇÖZÜCÜ VE HELLO WORLD
+       ========================================================================== */
+    .stage-center {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      position: relative;
+    }
+
+    /* Kripto Modülü Kartı */
+    .crypto-card {
+      width: 100%;
+      background: var(--bg-module);
+      border: 2px solid var(--border-terminal);
+      border-radius: 14px;
+      padding: 24px;
+      position: relative;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .crypto-card::before {
+      content: "TOP SECRET // AES-256-GCM AUTHENTICATED STREAM // HARDWARE ACCELERATED";
+      position: absolute;
+      top: -10px;
+      left: 20px;
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-terminal);
+      padding: 2px 8px;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      color: var(--crypto-amber);
+      border-radius: 4px;
+    }
+
+    /* Birincil Tipografik Başlık: HELLO WORLD */
+    .title-wrapper {
+      position: relative;
+      width: 100%;
+      text-align: center;
+      padding: 16px 0;
+    }
+
+    .hw-title {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: clamp(3.6rem, 10.5vw, 8.2rem);
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1;
+      color: var(--crypto-green);
+      text-shadow: var(--glow-emerald);
+      display: inline-block;
+      transition: all 0.2s ease;
+    }
+
+    .hw-title.scrambling {
+      color: var(--crypto-amber);
+      text-shadow: 0 0 20px oklch(0.85 0.18 85 / 0.5);
+    }
+
+    .hw-title.encrypted {
+      color: var(--text-dim);
+      text-shadow: none;
+      letter-spacing: 0.15em;
+    }
+
+    /* Kriptografik Ham Veri İnceleme Izgarası (Hex & Hashes) */
+    .crypto-grid-meta {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      font-size: 0.75rem;
+    }
+
+    .meta-box {
+      background: oklch(0.12 0.02 250);
+      border: 1px solid var(--border-terminal);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: hidden;
+    }
+
+    .meta-label {
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .meta-value {
+      font-family: ui-monospace, monospace;
+      color: var(--crypto-cyan);
+      word-break: break-all;
+      line-height: 1.3;
+      font-size: 0.72rem;
+    }
+
+    .meta-value.highlight {
+      color: var(--crypto-green);
+    }
+
+    /* ==========================================================================
+       5. CANLI PROOF-OF-WORK MADENCİ BARI (LIVE POW MINER)
+       ========================================================================== */
+    .pow-mining-bar {
+      width: 100%;
+      background: oklch(0.12 0.02 250);
+      border: 1px solid var(--border-terminal);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 0.72rem;
+      flex-wrap: wrap;
+    }
+
+    .pow-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pow-item b {
+      color: #ffffff;
+    }
+
+    .pow-tag {
+      color: var(--crypto-amber);
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       6. KONTROL DOKU VE BUTONLAR (CONTROLS DOCK)
+       ========================================================================== */
+    .controls-dock {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: var(--bg-module);
+      border: 1px solid var(--border-terminal);
+      padding: 10px 18px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      flex-wrap: wrap;
+      z-index: 20;
+    }
+
+    .btn-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-crypto {
+      appearance: none;
+      background: oklch(0.20 0.04 250);
+      border: 1px solid var(--border-terminal);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .btn-crypto:hover {
+      background: oklch(0.26 0.06 250);
+      border-color: var(--crypto-green);
+    }
+
+    .btn-crypto.active {
+      background: var(--crypto-green);
+      color: oklch(0.12 0.03 250);
+      border-color: var(--crypto-green);
+      box-shadow: var(--glow-emerald);
+    }
+
+    .btn-crypto:focus-visible {
+      outline: 2px solid var(--crypto-green);
+      outline-offset: 2px;
+    }
+
+    /* Algoritma Seçici */
+    .algo-selector {
+      display: flex;
+      background: oklch(0.12 0.02 250);
+      border: 1px solid var(--border-terminal);
+      border-radius: 8px;
+      padding: 2px;
+    }
+
+    .algo-btn {
+      appearance: none;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .algo-btn:hover {
+      color: #ffffff;
+    }
+
+    .algo-btn.active {
+      background: oklch(0.24 0.05 250);
+      color: var(--crypto-cyan);
+    }
+  </style>
+</head>
+<body>
+
+  <main class="terminal-app" role="main" aria-label="Hello World Web Cryptography Güvenlik Terminali">
+    
+    <!-- Üst Başlık ve Telemetri HUD -->
+    <header class="hud-header">
+      <div class="brand-box">
+        <div class="badge-terminal">EXP 016 // WEB CRYPTO TERMINAL</div>
+        <div class="badge-algo" id="badge-algo">AES-256-GCM + SHA-256</div>
+      </div>
+      <div class="crypto-telemetry" id="crypto-telemetry" aria-live="polite">
+        <span>GÜVENLİ BAĞLAM: <b id="val-secure">EVET</b></span>
+        <span>ENTROPİ: <b>CSPRNG 96-BIT</b></span>
+        <span>DONANIM HIZLANDIRMA: <b>AKTİF (AES-NI)</b></span>
+      </div>
+    </header>
+
+    <!-- Merkez Sahne: Kriptografik Şifre Çözücü Kartı -->
+    <section class="stage-center" aria-label="Kriptografik Akış Sahnesi">
+      <div class="crypto-card">
+        
+        <!-- Ana Tipografik Başlık: HELLO WORLD -->
+        <div class="title-wrapper">
+          <h1 class="hw-title" id="hw-title" aria-label="Hello World">HELLO WORLD</h1>
+        </div>
+
+        <!-- İkili Şifreli Veri ve Doğrulama Izgarası -->
+        <div class="crypto-grid-meta">
+          <div class="meta-box">
+            <div class="meta-label">
+              <span>AES-256-GCM ŞİFRELİ VERİ (CIPHERTEXT HEX)</span>
+              <span id="label-cipher-len">11 BAYT</span>
+            </div>
+            <div class="meta-value" id="val-ciphertext">Şifreleniyor...</div>
+          </div>
+
+          <div class="meta-box">
+            <div class="meta-label">
+              <span>STANDART SHA-256 ÖZET DOĞRULAMASI</span>
+              <span style="color: var(--crypto-green);">DOĞRULANDI ✓</span>
+            </div>
+            <div class="meta-value highlight" id="val-sha256">Hesaplanıyor...</div>
+          </div>
+
+          <div class="meta-box">
+            <div class="meta-label">
+              <span>BAŞLATMA VEKTÖRÜ (IV / CSPRNG NONCE)</span>
+              <span>12 BAYT (96-BIT)</span>
+            </div>
+            <div class="meta-value" id="val-iv">Üretiliyor...</div>
+          </div>
+
+          <div class="meta-box">
+            <div class="meta-label">
+              <span>BÜTÜNLÜK VE KİMLİK MÜHRÜ (GCM AUTH TAG)</span>
+              <span>128-BIT MAC</span>
+            </div>
+            <div class="meta-value highlight" id="val-authtag">AUTHENTICATED</div>
+          </div>
+        </div>
+
+        <!-- Canlı Proof-of-Work Madencilik Barı -->
+        <div class="pow-mining-bar">
+          <div class="pow-item">
+            <span class="pow-tag">POW HASH MINER:</span>
+            <span>GİRDİ: <b>"Hello World" + nonce</b></span>
+          </div>
+          <div class="pow-item">
+            <span>HIZ: <b id="pow-rate">0 H/s</b></span>
+          </div>
+          <div class="pow-item">
+            <span>DENENEN NONCE: <b id="pow-nonce">0</b></span>
+          </div>
+          <div class="pow-item">
+            <span>SON GEÇERLİ HASH: <b id="pow-last-hash" style="color: var(--crypto-green);">BEKLENİYOR...</b></span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Alt Kontrol Paneli -->
+    <footer class="controls-dock" role="toolbar" aria-label="Kriptografi Operasyon Butonları">
+      <div class="btn-group">
+        <button type="button" class="btn-crypto active" id="btn-decrypt">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+          Şifreyi Çöz (Decrypt Stream)
+        </button>
+        <button type="button" class="btn-crypto" id="btn-reencrypt">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Yeniden Şifrele (Re-Encrypt)
+        </button>
+        <button type="button" class="btn-crypto" id="btn-mine">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/></svg>
+          SHA-256 Madenciliği (Başlat)
+        </button>
+      </div>
+
+      <!-- Algoritma Seçici -->
+      <div class="btn-group">
+        <span style="font-size: 0.72rem; color: var(--text-dim);">Özet Tipi:</span>
+        <div class="algo-selector">
+          <button type="button" class="algo-btn active" data-hash="SHA-256">SHA-256</button>
+          <button type="button" class="algo-btn" data-hash="SHA-512">SHA-512</button>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ==========================================================================
+       7. WEB CRYPTOGRAPHY MOTORU VE MATRİS ÇÖZÜCÜ (SUBTLECRYPTO DSP)
+       ========================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      // DOM Referansları
+      const hwTitle = document.getElementById('hw-title');
+      const valCiphertext = document.getElementById('val-ciphertext');
+      const valSha256 = document.getElementById('val-sha256');
+      const valIv = document.getElementById('val-iv');
+      const valAuthtag = document.getElementById('val-authtag');
+      const labelCipherLen = document.getElementById('label-cipher-len');
+      const badgeAlgo = document.getElementById('badge-algo');
+      const valSecure = document.getElementById('val-secure');
+      
+      const btnDecrypt = document.getElementById('btn-decrypt');
+      const btnReencrypt = document.getElementById('btn-reencrypt');
+      const btnMine = document.getElementById('btn-mine');
+      const algoButtons = Array.from(document.querySelectorAll('.algo-btn'));
+      
+      const powRate = document.getElementById('pow-rate');
+      const powNonce = document.getElementById('pow-nonce');
+      const powLastHash = document.getElementById('pow-last-hash');
+
+      // Güvenli Bağlam Denetimi
+      if (valSecure) {
+        valSecure.textContent = window.isSecureContext ? 'EVET (GÜVENLİ)' : 'HAYIR';
+      }
+
+      // Durum Vektörleri
+      let cryptoKey = null;
+      let currentIv = null;
+      let currentCiphertext = null;
+      let currentPlainText = "HELLO WORLD";
+      let activeHashAlgo = "SHA-256";
+      let isMining = false;
+      let miningNonce = 0;
+      let miningHashesInSecond = 0;
+      let miningInterval = null;
+
+      // Heksadesimal Dönüştürücü Yardımcı Fonksiyon
+      function bufToHex(buffer) {
+        return Array.from(new Uint8Array(buffer))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+      }
+
+      // 1. Kriptografik Oturum Başlatma (Generate 256-bit AES-GCM Key + Encrypt)
+      async function initCryptography() {
+        try {
+          if (!crypto.subtle) {
+            valCiphertext.textContent = "Web Cryptography API bu ortamda desteklenmiyor.";
+            return;
+          }
+
+          // 256-bit AES-GCM Anahtarı Üretimi
+          cryptoKey = await crypto.subtle.generateKey(
+            { name: "AES-GCM", length: 256 },
+            true,
+            ["encrypt", "decrypt"]
+          );
+
+          // 96-bit Rastgele CSPRNG IV
+          currentIv = crypto.getRandomValues(new Uint8Array(12));
+          valIv.textContent = bufToHex(currentIv);
+
+          // "HELLO WORLD" Metnini Şifrele
+          const encoded = new TextEncoder().encode(currentPlainText);
+          currentCiphertext = await crypto.subtle.encrypt(
+            { name: "AES-GCM", iv: currentIv },
+            cryptoKey,
+            encoded
+          );
+
+          const hexCipher = bufToHex(currentCiphertext);
+          valCiphertext.textContent = hexCipher;
+          labelCipherLen.textContent = `${currentCiphertext.byteLength} BAYT (ŞİFRELİ + TAG)`;
+
+          // SHA-256 / SHA-512 Özeti Hesapla
+          await updateDigest();
+
+        } catch (err) {
+          console.error("Crypto Hatası:", err);
+          valCiphertext.textContent = "Kripto hatası: " + err.message;
+        }
+      }
+
+      // 2. Kriptografik Özet (Digest) Hesaplama
+      async function updateDigest() {
+        const encoded = new TextEncoder().encode(currentPlainText);
+        const digestBuf = await crypto.subtle.digest(activeHashAlgo, encoded);
+        const hexDigest = bufToHex(digestBuf);
+        valSha256.textContent = hexDigest;
+        if (badgeAlgo) {
+          badgeAlgo.textContent = `AES-256-GCM + ${activeHashAlgo}`;
+        }
+      }
+
+      // 3. Matris Şifre Çözücü Animasyonu (Decryption Scrambler)
+      function scrambleDecrypt() {
+        hwTitle.classList.remove('encrypted');
+        hwTitle.classList.add('scrambling');
+        
+        const chars = "0123456789ABCDEF!@#$%^&*";
+        const target = currentPlainText;
+        let iteration = 0;
+        const maxIterations = target.length * 4;
+
+        const interval = setInterval(() => {
+          hwTitle.textContent = target
+            .split("")
+            .map((char, index) => {
+              if (char === " ") return " ";
+              if (index < iteration / 4) {
+                return target[index];
+              }
+              return chars[Math.floor(Math.random() * chars.length)];
+            })
+            .join("");
+
+          if (iteration >= maxIterations) {
+            clearInterval(interval);
+            hwTitle.textContent = target;
+            hwTitle.classList.remove('scrambling');
+            valAuthtag.textContent = "AUTHENTICATED & VERIFIED ✓";
+            valAuthtag.style.color = "var(--crypto-green)";
+          }
+
+          iteration++;
+        }, 30);
+      }
+
+      // Şifre Çöz Butonu
+      btnDecrypt.addEventListener('click', async () => {
+        if (!cryptoKey || !currentCiphertext) return;
+        try {
+          // Gerçek donanım AES-GCM çözme testi
+          const decryptedBuf = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: currentIv },
+            cryptoKey,
+            currentCiphertext
+          );
+          const decryptedText = new TextDecoder().decode(decryptedBuf);
+          if (decryptedText === currentPlainText) {
+            scrambleDecrypt();
+          }
+        } catch (err) {
+          valAuthtag.textContent = "DEŞİFRELEME BAŞARISIZ!";
+          valAuthtag.style.color = "var(--crypto-red)";
+        }
+      });
+
+      // Yeniden Şifrele Butonu
+      btnReencrypt.addEventListener('click', async () => {
+        hwTitle.classList.add('encrypted');
+        hwTitle.textContent = bufToHex(crypto.getRandomValues(new Uint8Array(6)));
+        valAuthtag.textContent = "AUTHENTICATING...";
+        valAuthtag.style.color = "var(--crypto-amber)";
+        await initCryptography();
+      });
+
+      // 4. Canlı SHA-256 Proof-of-Work (PoW) Madencisi
+      async function mineBatch() {
+        if (!isMining) return;
+
+        const batchSize = 120;
+        for (let i = 0; i < batchSize; i++) {
+          miningNonce++;
+          miningHashesInSecond++;
+          
+          const msg = `Hello World:${miningNonce}`;
+          const encoded = new TextEncoder().encode(msg);
+          const hashBuf = await crypto.subtle.digest("SHA-256", encoded);
+          const hex = bufToHex(hashBuf);
+
+          // 2 adet sıfırla başlayan hash bulma (PoW zorluğu: "00...")
+          if (hex.startsWith("00")) {
+            powLastHash.textContent = hex.slice(0, 24) + "... (BULUNDU!)";
+            powLastHash.style.color = "var(--crypto-green)";
+          }
+        }
+
+        powNonce.textContent = miningNonce.toLocaleString();
+        if (isMining) {
+          requestAnimationFrame(mineBatch);
+        }
+      }
+
+      btnMine.addEventListener('click', () => {
+        isMining = !isMining;
+        btnMine.classList.toggle('active', isMining);
+        
+        if (isMining) {
+          btnMine.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Madenciliği Durdur';
+          miningInterval = setInterval(() => {
+            powRate.textContent = `${miningHashesInSecond.toLocaleString()} H/s`;
+            miningHashesInSecond = 0;
+          }, 1000);
+          requestAnimationFrame(mineBatch);
+        } else {
+          btnMine.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/></svg> SHA-256 Madenciliği (Başlat)';
+          clearInterval(miningInterval);
+          powRate.textContent = '0 H/s';
+        }
+      });
+
+      // Algoritma Seçimi
+      algoButtons.forEach(btn => {
+        btn.addEventListener('click', async () => {
+          algoButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeHashAlgo = btn.getAttribute('data-hash');
+          await updateDigest();
+        });
+      });
+
+      // Klavye Kısayolları
+      window.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT') return;
+        if (e.key === 'd' || e.key === 'D') {
+          btnDecrypt.click();
+        } else if (e.key === 'r' || e.key === 'R') {
+          btnReencrypt.click();
+        } else if (e.key === 'm' || e.key === 'M') {
+          btnMine.click();
+        }
+      });
+
+      // Başlangıç Yüklemesi
+      initCryptography();
+
+    })();
+  </script>
+</body>
+</html>

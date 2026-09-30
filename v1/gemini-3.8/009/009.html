@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World - Deney 009 (SVG Filtreleri ve Sıvı Deformasyonu)</title>
+  <style>
+    /*
+     * CSS Temel Sıfırlama ve Sahne Düzeni
+     * Sıvı tipografinin tüm ekranda merkezlenmesini sağlar.
+     */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #060714;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .stage {
+      position: relative;
+      width: 100vw;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    /*
+     * Görünmez SVG Tanım Katmanı
+     * SVG filtrelerini bellekte tutar, DOM akışını veya boyutları etkilemez.
+     */
+    .svg-filter-defs {
+      position: absolute;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .hud-caption {
+      position: absolute;
+      top: 2rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    /*
+     * Sıvı Tipografi (Liquid Typography)
+     * SVG #liquidFilter boru hattına bağlanmış semantik başlık.
+     * OKLCH/Vibrant lineer gradyan ve background-clip: text ile sıvı parlaklığı kazanır.
+     */
+    .liquid-title {
+      font-size: clamp(3.2rem, 11vw, 8.5rem);
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      line-height: 1.1;
+      text-align: center;
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 35%, #c084fc 70%, #f472b6 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: url(#liquidFilter);
+      will-change: filter;
+      cursor: pointer;
+      margin-bottom: 2rem;
+      transition: transform 0.2s ease;
+    }
+
+    .liquid-title:hover {
+      transform: scale(1.02);
+    }
+
+    /*
+     * İnteraktif Filtre Kontrol Paneli (HUD)
+     * Kullanıcının türbülans genliğini, frekansını ve modlarını değiştirmesini sağlar.
+     */
+    .controls-panel {
+      position: absolute;
+      bottom: 2.5rem;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.25rem;
+      padding: 0.85rem 1.75rem;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      z-index: 20;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .slider {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 80px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .slider::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #38bdf8;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+    }
+
+    .badge {
+      font-family: ui-monospace, monospace;
+      font-size: 0.75rem;
+      color: #38bdf8;
+      min-width: 28px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .btn:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+
+    .btn.active {
+      background: #a855f7;
+      border-color: #a855f7;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <!--
+    SVG Filtre Primitifleri Boru Hattı:
+    1. feTurbulence: Perlin fraktal gürültüsü üreterek doğal bir doku haritası oluşturur.
+    2. feDisplacementMap: Bu gürültünün Kırmızı (R) ve Yeşil (G) piksel kanallarını
+       metin piksellerinin X ve Y koordinatlarını saptırmak (deformasyon) için kullanır.
+    3. feGaussianBlur: Sıvının yüzey gerilimini ve yumuşak akışkanlığını simüle eder.
+    4. feMerge: Keskin saptırılmış metin ile parlak sıvı ışıltısını birleştirir.
+  -->
+  <svg class="svg-filter-defs" aria-hidden="true">
+    <defs>
+      <filter id="liquidFilter" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox">
+        <feTurbulence id="feTurbulenceEl" type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" result="noise" seed="2" />
+        <feDisplacementMap id="feDisplacementEl" in="SourceGraphic" in2="noise" scale="32" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+        <feGaussianBlur in="displaced" stdDeviation="0.6" result="softGlow" />
+        <feMerge>
+          <feMergeNode in="displaced" />
+          <feMergeNode in="softGlow" />
+        </feMerge>
+      </filter>
+    </defs>
+  </svg>
+
+  <main class="stage">
+    <div class="hud-caption">Deney 009 // SVG Filtreleri &amp; Sıvı Deformasyonu</div>
+
+    <!--
+      Sıvı Deformasyonuna Tabi Tutulan Semantik H1 Başlığı:
+      DOM ağacında tam erişilebilir metin kalırken, ekranda SVG filtre motoruyla deforme edilir.
+    -->
+    <h1 class="liquid-title" id="liquidText">Hello World</h1>
+
+    <!-- İnteraktif Parametre Paneli -->
+    <nav class="controls-panel" aria-label="Sıvı Filtresi Kontrolleri">
+      <div class="control-group">
+        <label for="scaleSlider">Dalga Şiddeti:</label>
+        <input type="range" id="scaleSlider" class="slider" min="0" max="80" step="1" value="32">
+        <span class="badge" id="scaleBadge">32</span>
+      </div>
+
+      <div class="control-group">
+        <label for="freqSlider">Frekans:</label>
+        <input type="range" id="freqSlider" class="slider" min="5" max="35" step="1" value="16">
+        <span class="badge" id="freqBadge">0.016</span>
+      </div>
+
+      <button type="button" class="btn" id="octaveBtn" title="Gürültü Karmaşıklığını Değiştir">
+        <span>🌊</span>
+        <span id="octaveText">Katman: 2</span>
+      </button>
+
+      <button type="button" class="btn" id="flowToggleBtn" title="Sıvı Akışını Duraklat / Başlat">
+        <span id="flowIcon">⏸</span>
+        <span id="flowText">Akış</span>
+      </button>
+    </nav>
+  </main>
+
+  <script>
+    /**
+     * Hello World Lab - Deney 009: SVG Filtreleri ve Sıvı Deformasyonu
+     *
+     * Çalışma Mantığı:
+     * 1. CSS `filter: url(#liquidFilter)` ile DOM elemanı (<h1 class="liquid-title">)
+     *    vektörel filtre donanımına bağlanır.
+     * 2. <feTurbulence> primitifinin `baseFrequency` parametresi zamanla (t)
+     *    sinüzoidal olarak güncellenir; böylece gürültü alanı dinamik olarak akar.
+     * 3. <feDisplacementMap> gürültü alanının piksel değerlerini alıp kaynak metnin
+     *    koordinatlarını bükerek erimiş metal / sıvı dalgalanması hissi oluşturur.
+     * 4. Fare metin üzerine geldiğinde lokal dalga enerjisi (ripple surge) eklenir.
+     */
+
+    (function() {
+      'use strict';
+
+      const turbulenceEl = document.getElementById('feTurbulenceEl');
+      const displacementEl = document.getElementById('feDisplacementEl');
+      const liquidText = document.getElementById('liquidText');
+
+      // UI Referansları
+      const scaleSlider = document.getElementById('scaleSlider');
+      const scaleBadge = document.getElementById('scaleBadge');
+      const freqSlider = document.getElementById('freqSlider');
+      const freqBadge = document.getElementById('freqBadge');
+      const octaveBtn = document.getElementById('octaveBtn');
+      const octaveText = document.getElementById('octaveText');
+      const flowToggleBtn = document.getElementById('flowToggleBtn');
+      const flowIcon = document.getElementById('flowIcon');
+      const flowText = document.getElementById('flowText');
+
+      // Simülasyon Durumu
+      let time = 0;
+      let isFlowing = true;
+      let baseScale = 32;
+      let currentScale = 32;
+      let baseFreq = 0.016;
+      let currentOctave = 2;
+      let mouseEnergy = 0;
+
+      /**
+       * Sıvı Akış Animasyon Döngüsü (requestAnimationFrame)
+       */
+      function animateFluid() {
+        if (isFlowing) {
+          time += 0.018;
+
+          // Sinüzoidal frekans salınımı (organik akış hissi)
+          const freqX = baseFreq + Math.sin(time) * 0.0035;
+          const freqY = (baseFreq * 1.25) + Math.cos(time * 0.85) * 0.004;
+
+          turbulenceEl.setAttribute('baseFrequency', `${freqX.toFixed(5)} ${freqY.toFixed(5)}`);
+
+          // Fare enerjisi sönümleme
+          if (mouseEnergy > 0.1) {
+            mouseEnergy *= 0.92;
+          } else {
+            mouseEnergy = 0;
+          }
+
+          const effectiveScale = baseScale + mouseEnergy;
+          displacementEl.setAttribute('scale', effectiveScale.toFixed(1));
+        }
+
+        requestAnimationFrame(animateFluid);
+      }
+
+      // 1. Dalga Şiddeti Kaydırıcısı
+      scaleSlider.addEventListener('input', (e) => {
+        baseScale = parseFloat(e.target.value);
+        scaleBadge.textContent = Math.round(baseScale);
+        displacementEl.setAttribute('scale', baseScale);
+      });
+
+      // 2. Frekans Kaydırıcısı
+      freqSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        baseFreq = val / 1000;
+        freqBadge.textContent = baseFreq.toFixed(3);
+      });
+
+      // 3. Octave (Karmaşıklık Katmanı) Değiştirici
+      octaveBtn.addEventListener('click', () => {
+        currentOctave = currentOctave === 1 ? 2 : currentOctave === 2 ? 3 : 1;
+        turbulenceEl.setAttribute('numOctaves', currentOctave);
+        octaveText.textContent = `Katman: ${currentOctave}`;
+      });
+
+      // 4. Akış Duraklat / Başlat
+      flowToggleBtn.addEventListener('click', () => {
+        isFlowing = !isFlowing;
+        flowIcon.textContent = isFlowing ? '⏸' : '▶';
+        flowText.textContent = isFlowing ? 'Akış' : 'Durgun';
+      });
+
+      // 5. Etkileşimli Dalga (İmleç Hareketi)
+      liquidText.addEventListener('pointermove', (e) => {
+        mouseEnergy = Math.min(mouseEnergy + 2.5, 30);
+      });
+
+      // Başlatma
+      animateFluid();
+    })();
+  </script>
+</body>
+</html>

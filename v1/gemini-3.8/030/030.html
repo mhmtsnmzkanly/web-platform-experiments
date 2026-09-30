@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 030: Web Locks API & Dağıtık Tipografik Mutex ve Kaynak Tahsisi</title>
+  <style>
+    :root {
+      --bg-color: #060914;
+      --panel-bg: rgba(12, 19, 38, 0.75);
+      --panel-border: rgba(0, 240, 255, 0.25);
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.4);
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.4);
+      --ruby: #f43f5e;
+      --ruby-glow: rgba(244, 63, 94, 0.4);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.4);
+      --violet: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-dim: #64748b;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(245, 158, 11, 0.07) 0%, transparent 60%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+    }
+
+    /* Üst Kokpit Başlığı & Kilit Durumu */
+    header {
+      padding: 1rem 1.5rem;
+      background: rgba(8, 14, 26, 0.85);
+      border-bottom: 1px solid var(--panel-border);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      z-index: 20;
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .badge-milestone {
+      background: linear-gradient(135deg, var(--amber), var(--ruby));
+      color: #000;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 0 12px var(--amber-glow);
+    }
+
+    .header-title-block h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .header-title-block p {
+      font-size: 0.8rem;
+      color: var(--amber);
+      font-family: var(--font-mono);
+    }
+
+    /* Kilit Telemetri Rozetleri */
+    .telemetry-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .stat-chip {
+      background: rgba(245, 158, 11, 0.06);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      min-width: 95px;
+    }
+
+    .stat-chip-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+    }
+
+    .stat-chip-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--amber);
+    }
+
+    .stat-chip-val.green { color: var(--emerald); }
+    .stat-chip-val.cyan { color: var(--cyan); }
+    .stat-chip-val.ruby { color: var(--ruby); }
+
+    /* Ana Düzen (Grid Mizanpaj) */
+    main {
+      flex: 1;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      grid-template-rows: auto 1fr;
+      gap: 1.5rem;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Kriptografik Mutex Kasası Sahnesi */
+    .vault-stage-card {
+      grid-column: 1 / 2;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 2.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      min-height: 400px;
+      transition: all 0.4s ease;
+    }
+
+    .vault-stage-card.locked-exclusive {
+      border-color: rgba(244, 63, 94, 0.5);
+      box-shadow: 0 0 40px rgba(244, 63, 94, 0.25), inset 0 0 50px rgba(244, 63, 94, 0.1);
+    }
+
+    .vault-stage-card.locked-shared {
+      border-color: rgba(0, 240, 255, 0.5);
+      box-shadow: 0 0 40px rgba(0, 240, 255, 0.25), inset 0 0 50px rgba(0, 240, 255, 0.1);
+    }
+
+    .vault-stage-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--amber), var(--ruby), transparent);
+    }
+
+    .vault-meta-top {
+      position: absolute;
+      top: 1rem;
+      left: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .vault-status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--emerald);
+      font-weight: 700;
+    }
+
+    .pulse-lock-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+      animation: pulseLock 1.8s infinite;
+    }
+
+    @keyframes pulseLock {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.7); opacity: 0.4; }
+    }
+
+    /* HELLO WORLD Odak ve Glif Kilit Rozetleri */
+    .vault-typography-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 2rem 0;
+      position: relative;
+    }
+
+    h1#hw-mutex-heading {
+      font-size: clamp(2.5rem, 5.5vw, 4.6rem);
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      user-select: none;
+      transition: all 0.3s ease;
+    }
+
+    .glyph-cluster {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.3rem;
+      border-radius: 8px;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .glyph-letter {
+      font-size: clamp(2.4rem, 5vw, 4.2rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #ffffff 0%, var(--cyan) 60%, var(--emerald) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 16px var(--cyan-glow));
+      transition: all 0.3s ease;
+    }
+
+    .lock-pill {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--emerald);
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+    }
+
+    /* Kilit Modları Görselleştirme */
+    .vault-stage-card.locked-exclusive .glyph-letter {
+      background: linear-gradient(135deg, #ffffff 0%, var(--amber) 40%, var(--ruby) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 24px var(--ruby-glow));
+      transform: scale(1.05);
+    }
+
+    .vault-stage-card.locked-exclusive .lock-pill {
+      color: #fff;
+      background: var(--ruby);
+      border-color: var(--ruby);
+      box-shadow: 0 0 12px var(--ruby-glow);
+    }
+
+    .vault-stage-card.locked-shared .glyph-letter {
+      background: linear-gradient(135deg, #ffffff 0%, var(--cyan) 50%, var(--violet) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 20px var(--cyan-glow));
+    }
+
+    .vault-stage-card.locked-shared .lock-pill {
+      color: #fff;
+      background: var(--cyan);
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    /* Lazer Kafesi Izgarası */
+    .laser-cage-grid {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border: 2px dashed rgba(244, 63, 94, 0.4);
+      border-radius: 10px;
+      pointer-events: none;
+      opacity: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(244, 63, 94, 0.03),
+        rgba(244, 63, 94, 0.03) 1px,
+        transparent 1px,
+        transparent 16px
+      );
+      transition: opacity 0.4s ease;
+    }
+
+    .laser-cage-grid.active-grid {
+      opacity: 1;
+    }
+
+    /* Sağ Kontrol Paneli */
+    .controls-panel {
+      grid-column: 2 / 3;
+      grid-row: 1 / 3;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    @media (max-width: 1024px) {
+      .controls-panel {
+        grid-column: 1 / 2;
+        grid-row: auto;
+      }
+    }
+
+    .panel-section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    button.ctrl-btn {
+      background: rgba(0, 240, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 6px;
+      padding: 0.65rem 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    button.ctrl-btn:hover {
+      background: rgba(0, 240, 255, 0.2);
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+      transform: translateX(2px);
+    }
+
+    button.ctrl-btn.exclusive-btn {
+      border-color: rgba(244, 63, 94, 0.4);
+      background: rgba(244, 63, 94, 0.1);
+      color: var(--ruby);
+    }
+    button.ctrl-btn.exclusive-btn:hover {
+      border-color: var(--ruby);
+      box-shadow: 0 0 12px var(--ruby-glow);
+    }
+
+    button.ctrl-btn.shared-btn {
+      border-color: rgba(6, 182, 212, 0.4);
+      background: rgba(6, 182, 212, 0.1);
+      color: var(--cyan);
+    }
+    button.ctrl-btn.shared-btn:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    /* Sürgü Grupları */
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .slider-group label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-dim);
+    }
+
+    input[type="range"] {
+      accent-color: var(--amber);
+      width: 100%;
+      cursor: pointer;
+    }
+
+    /* Alt Kilit Denetleyici ve Olay Akışı */
+    .telemetry-card {
+      grid-column: 1 / 2;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .locks-event-stream {
+      background: rgba(3, 7, 18, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .lock-log-row {
+      display: grid;
+      grid-template-columns: 85px 140px 1fr 100px;
+      padding: 0.35rem 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      align-items: center;
+    }
+
+    .lock-log-row:last-child {
+      border-bottom: none;
+    }
+
+    .log-mode-tag {
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .log-mode-tag.exclusive { color: var(--ruby); }
+    .log-mode-tag.shared { color: var(--cyan); }
+    .log-mode-tag.released { color: var(--emerald); }
+
+    /* Alt Bilgi Çubuğu */
+    footer {
+      padding: 0.75rem 1.5rem;
+      background: rgba(8, 14, 26, 0.85);
+      border-top: 1px solid var(--panel-border);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .footer-stat {
+      color: var(--amber);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Kokpit Başlığı & Kilit Telemetrisi -->
+  <header>
+    <div class="header-branding">
+      <span class="badge-milestone">KİLOMETRE TAŞI 030</span>
+      <div class="header-title-block">
+        <h2>Dağıtık Tipografik Mutex Kasası</h2>
+        <p>W3C Web Locks API (navigator.locks.request & query)</p>
+      </div>
+    </div>
+
+    <div class="telemetry-badges">
+      <div class="stat-chip">
+        <span class="stat-chip-label">Aktif Kilit Modu</span>
+        <span class="stat-chip-val green" id="valLockMode">UNLOCKED</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Tutulan (Held) Kilit</span>
+        <span class="stat-chip-val" id="valHeldCount">0</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Bekleyen (Pending) Kuyruk</span>
+        <span class="stat-chip-val amber" id="valPendingCount">0</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">İşlemci Düğümü</span>
+        <span class="stat-chip-val cyan" id="valActiveNode">MAIN_THREAD</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ana Düzen -->
+  <main>
+    <!-- Kriptografik Mutex Kasası Sahnesi -->
+    <section class="vault-stage-card" id="vaultCard" aria-label="Kriptografik Mutex Sahnesi">
+      <div class="vault-meta-top">
+        <span class="vault-status-indicator" id="statusIndicator">
+          <span class="pulse-lock-dot" id="pulseLockDot"></span>
+          <span id="vaultStatusText">KAYNAK SERBEST (UNLOCKED)</span>
+        </span>
+        <span id="resourceNameText">PAYLAŞILAN KAYNAK: <code>hw_master_mutex</code></span>
+      </div>
+
+      <!-- HELLO WORLD Başlığı ve Glif Kilitleri -->
+      <div class="vault-typography-wrap">
+        <h1 id="hw-mutex-heading" aria-label="Hello World">
+          <div class="glyph-cluster" data-idx="0">
+            <span class="glyph-letter">H</span>
+            <span class="lock-pill">FREE</span>
+          </div>
+          <div class="glyph-cluster" data-idx="1">
+            <span class="glyph-letter">E</span>
+            <span class="lock-pill">FREE</span>
+          </div>
+          <div class="glyph-cluster" data-idx="2">
+            <span class="glyph-letter">L</span>
+            <span class="lock-pill">FREE</span>
+          </div>
+          <div class="glyph-cluster" data-idx="3">
+            <span class="glyph-letter">L</span>
+            <span class="lock-pill">FREE</span>
+          </div>
+          <div class="glyph-cluster" data-idx="4">
+            <span class="glyph-letter">O</span>
+            <span class="lock-pill">FREE</span>
+          </div>
+          <div style="width: 1rem;"></div>
+          <div class="glyph-cluster" data-idx="5">
+            <span class="glyph-letter">W</span>
+            <span class="lock-pill">FREE</span>
+          </div>
+          <div class="glyph-cluster" data-idx="6">
+            <span class="glyph-letter">O</span>
+            <span class="lock-pill">FREE</span>
+          </div>
+          <div class="glyph-cluster" data-idx="7">
+            <span class="glyph-letter">R</span>
+            <span class="lock-pill">FREE</span>
+          </div>
+          <div class="glyph-cluster" data-idx="8">
+            <span class="glyph-letter">L</span>
+            <span class="lock-pill">FREE</span>
+          </div>
+          <div class="glyph-cluster" data-idx="9">
+            <span class="glyph-letter">D</span>
+            <span class="lock-pill">FREE</span>
+          </div>
+        </h1>
+        <div class="laser-cage-grid" id="laserGrid" aria-hidden="true"></div>
+      </div>
+
+      <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); text-align: center;">
+        Eşzamanlı Dağıtık Koordinasyon: Aynı köke sahip tüm açık sekmeler ve worker'lar arasında yarış koşulu önlenir.
+      </div>
+    </section>
+
+    <!-- Yan Kontrol Paneli -->
+    <aside class="controls-panel" aria-label="Kilit Kontrol Masası">
+      <div>
+        <div class="panel-section-title">
+          <span>Yazıcı Düğümler (Exclusive Mutex)</span>
+          <span style="color: var(--ruby); font-size: 0.75rem;">Yazma</span>
+        </div>
+        <div class="btn-grid" style="margin-top: 0.75rem;">
+          <button class="ctrl-btn exclusive-btn" id="btnLockAlpha" type="button">
+            <strong>Düğüm Alfa: Lazer Dalgası</strong>
+            <span style="font-size: 0.7rem;">[EXCLUSIVE]</span>
+          </button>
+          <button class="ctrl-btn exclusive-btn" id="btnLockBeta" type="button">
+            <strong>Düğüm Beta: Spektral Mod</strong>
+            <span style="font-size: 0.7rem;">[EXCLUSIVE]</span>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel-section-title">
+          <span>Okuyucu Düğümler (Shared Mutex)</span>
+          <span style="color: var(--cyan); font-size: 0.75rem;">Okuma</span>
+        </div>
+        <div class="btn-grid" style="margin-top: 0.75rem;">
+          <button class="ctrl-btn shared-btn" id="btnLockShared" type="button">
+            <strong>Düğüm Gamma: Telemetri Örnekleme</strong>
+            <span style="font-size: 0.7rem;">[SHARED]</span>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel-section-title">
+          <span>Öncelik ve Dağıtık İşlemler</span>
+        </div>
+        <div class="btn-grid" style="margin-top: 0.75rem;">
+          <button class="ctrl-btn" id="btnLockSteal" type="button" style="border-color: rgba(244,63,94,0.3); color: var(--ruby);">
+            <span>Kritik Müdahale (Steal Preemption)</span>
+            <span style="font-size: 0.7rem;">[STEAL]</span>
+          </button>
+          <button class="ctrl-btn" id="btnOpenTab" type="button" style="border-color: rgba(245,158,11,0.3); color: var(--amber);">
+            <span>Yeni Dolanık Sekme Aç</span>
+            <span style="font-size: 0.7rem;">[MULTI-TAB]</span>
+          </button>
+          <button class="ctrl-btn" id="btnClearLog" type="button" style="border-color: rgba(255,255,255,0.2);">
+            <span>Kilit Günlüğünü Temizle</span>
+            <span style="font-size: 0.7rem; color: var(--text-dim);">[RESET]</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="slider-group">
+        <label>
+          <span>Kilit Tutma Süresi (Duration)</span>
+          <span id="lblDuration">2.5s</span>
+        </label>
+        <input type="range" id="rangeDuration" min="1.0" max="5.0" step="0.5" value="2.5">
+      </div>
+    </aside>
+
+    <!-- Alt Kilit Denetleyici ve Olay Akışı -->
+    <section class="telemetry-card" aria-label="Web Locks Denetleyici">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.85rem; font-weight: 700; color: var(--amber); font-family: var(--font-mono);">
+          DAĞITIK KİLİT AKIŞI VE KUYRUK DENETLEYİCİSİ (LOCKS AUDIT STREAM)
+        </span>
+        <span style="font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-dim);">
+          navigator.locks.query()
+        </span>
+      </div>
+
+      <div class="locks-event-stream" id="locksEventLog">
+        <!-- Olaylar dinamik eklenecek -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Alt Bilgi Çubuğu -->
+  <footer>
+    <div>
+      <span>Standart: <strong class="footer-stat">W3C Web Locks API Recommendation</strong></span>
+    </div>
+    <div>
+      <span>Kilit Kaynağı: <strong class="footer-stat">hw_master_mutex</strong></span>
+    </div>
+    <div>
+      <span>Eşzamanlılık Modeli: <strong class="footer-stat" id="footerSync">RACE_FREE_COORDINATION</strong></span>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const hasLocks = 'locks' in navigator;
+      const RESOURCE_NAME = 'hw_master_mutex';
+
+      // DOM Elemanları
+      const valLockMode = document.getElementById('valLockMode');
+      const valHeldCount = document.getElementById('valHeldCount');
+      const valPendingCount = document.getElementById('valPendingCount');
+      const valActiveNode = document.getElementById('valActiveNode');
+
+      const vaultCard = document.getElementById('vaultCard');
+      const statusIndicator = document.getElementById('statusIndicator');
+      const pulseLockDot = document.getElementById('pulseLockDot');
+      const vaultStatusText = document.getElementById('vaultStatusText');
+      const laserGrid = document.getElementById('laserGrid');
+      const lockPills = document.querySelectorAll('.lock-pill');
+      const locksEventLog = document.getElementById('locksEventLog');
+
+      // Butonlar & Sürgüler
+      const btnLockAlpha = document.getElementById('btnLockAlpha');
+      const btnLockBeta = document.getElementById('btnLockBeta');
+      const btnLockShared = document.getElementById('btnLockShared');
+      const btnLockSteal = document.getElementById('btnLockSteal');
+      const btnOpenTab = document.getElementById('btnOpenTab');
+      const btnClearLog = document.getElementById('btnClearLog');
+      const rangeDuration = document.getElementById('rangeDuration');
+      const lblDuration = document.getElementById('lblDuration');
+
+      // Olay Günlüğü Yazıcısı
+      function logLockEvent(mode, action, detail) {
+        const row = document.createElement('div');
+        row.className = 'lock-log-row';
+        const timestamp = (performance.now() / 1000).toFixed(2) + 's';
+
+        row.innerHTML = `
+          <span class="log-mode-tag ${mode.toLowerCase()}">${mode}</span>
+          <span style="color: var(--amber);">${action}</span>
+          <span style="color: var(--text-main);">${detail}</span>
+          <span style="color: var(--text-dim); text-align: right;">@${timestamp}</span>
+        `;
+
+        locksEventLog.insertBefore(row, locksEventLog.firstChild);
+        if (locksEventLog.children.length > 25) {
+          locksEventLog.removeChild(locksEventLog.lastChild);
+        }
+      }
+
+      // Kilit Görsel Durumunu Güncelleme
+      function setVisualLockState(mode, nodeName) {
+        if (mode === 'exclusive') {
+          vaultCard.className = 'vault-stage-card locked-exclusive';
+          laserGrid.className = 'laser-cage-grid active-grid';
+          pulseLockDot.style.background = 'var(--ruby)';
+          pulseLockDot.style.boxShadow = '0 0 10px var(--ruby)';
+          vaultStatusText.textContent = `ÖZEL KİLİT TUTULUYOR: ${nodeName} (EXCLUSIVE)`;
+          vaultStatusText.style.color = 'var(--ruby)';
+
+          valLockMode.textContent = 'EXCLUSIVE';
+          valLockMode.className = 'stat-chip-val ruby';
+          valActiveNode.textContent = nodeName;
+
+          lockPills.forEach(p => {
+            p.textContent = 'LOCKED';
+          });
+        } else if (mode === 'shared') {
+          vaultCard.className = 'vault-stage-card locked-shared';
+          laserGrid.className = 'laser-cage-grid';
+          pulseLockDot.style.background = 'var(--cyan)';
+          pulseLockDot.style.boxShadow = '0 0 10px var(--cyan)';
+          vaultStatusText.textContent = `PAYLAŞIMLI KİLİT: ${nodeName} (SHARED)`;
+          vaultStatusText.style.color = 'var(--cyan)';
+
+          valLockMode.textContent = 'SHARED';
+          valLockMode.className = 'stat-chip-val cyan';
+          valActiveNode.textContent = nodeName;
+
+          lockPills.forEach(p => {
+            p.textContent = 'SHARED';
+          });
+        } else {
+          // Serbest
+          vaultCard.className = 'vault-stage-card';
+          laserGrid.className = 'laser-cage-grid';
+          pulseLockDot.style.background = 'var(--emerald)';
+          pulseLockDot.style.boxShadow = '0 0 8px var(--emerald)';
+          vaultStatusText.textContent = 'KAYNAK SERBEST (UNLOCKED)';
+          vaultStatusText.style.color = 'var(--emerald)';
+
+          valLockMode.textContent = 'UNLOCKED';
+          valLockMode.className = 'stat-chip-val green';
+          valActiveNode.textContent = 'IDLE';
+
+          lockPills.forEach(p => {
+            p.textContent = 'FREE';
+          });
+        }
+      }
+
+      // Kilit Durumu Sorgulama (navigator.locks.query)
+      async function refreshLockTelemetry() {
+        if (!hasLocks) return;
+        try {
+          const snapshot = await navigator.locks.query();
+          const held = snapshot.held ? snapshot.held.filter(l => l.name === RESOURCE_NAME) : [];
+          const pending = snapshot.pending ? snapshot.pending.filter(l => l.name === RESOURCE_NAME) : [];
+
+          valHeldCount.textContent = held.length;
+          valPendingCount.textContent = pending.length;
+
+          if (held.length === 0 && valLockMode.textContent !== 'UNLOCKED') {
+            setVisualLockState('unlocked', 'NONE');
+          }
+        } catch (e) {}
+      }
+
+      setInterval(refreshLockTelemetry, 250);
+
+      // Kilit Alma İşlemi
+      async function requestLockOperation(mode, nodeName, operationFn, steal = false) {
+        const durationMs = parseFloat(rangeDuration.value) * 1000;
+        logLockEvent(mode, 'LOCK_REQUEST', `Düğüm: ${nodeName} kuyruğa girdi`);
+
+        if (!hasLocks) {
+          // Desteklenmeyen ortamlarda görsel simülasyon
+          setVisualLockState(mode, nodeName);
+          operationFn();
+          setTimeout(() => setVisualLockState('unlocked', 'NONE'), durationMs);
+          return;
+        }
+
+        const options = { mode };
+        if (steal) options.steal = true;
+
+        navigator.locks.request(RESOURCE_NAME, options, async (lock) => {
+          logLockEvent(mode, 'LOCK_ACQUIRED', `Düğüm: ${nodeName} kilidi aldı (${durationMs}ms)`);
+          setVisualLockState(mode, nodeName);
+          await refreshLockTelemetry();
+
+          // Kilitli işlem yürütme
+          operationFn();
+
+          // Kilit süresince bekle
+          await new Promise(resolve => setTimeout(resolve, durationMs));
+
+          logLockEvent('RELEASED', 'LOCK_RELEASED', `Düğüm: ${nodeName} kilidi bıraktı`);
+          setVisualLockState('unlocked', 'NONE');
+          await refreshLockTelemetry();
+        });
+      }
+
+      // Buton Dinleyicileri
+      btnLockAlpha.addEventListener('click', () => {
+        requestLockOperation('exclusive', 'NODE_ALPHA', () => {
+          const letters = document.querySelectorAll('.glyph-letter');
+          letters.forEach((l, i) => {
+            setTimeout(() => {
+              l.style.transform = 'translateY(-12px) scale(1.15)';
+              setTimeout(() => l.style.transform = '', 350);
+            }, i * 60);
+          });
+        });
+      });
+
+      btnLockBeta.addEventListener('click', () => {
+        requestLockOperation('exclusive', 'NODE_BETA', () => {
+          const heading = document.getElementById('hw-mutex-heading');
+          heading.style.filter = 'hue-rotate(90deg) drop-shadow(0 0 30px var(--amber-glow))';
+          setTimeout(() => heading.style.filter = '', 1800);
+        });
+      });
+
+      btnLockShared.addEventListener('click', () => {
+        requestLockOperation('shared', 'NODE_GAMMA_READER', () => {
+          const pills = document.querySelectorAll('.lock-pill');
+          pills.forEach(p => {
+            p.style.transform = 'scale(1.2)';
+            setTimeout(() => p.style.transform = '', 400);
+          });
+        });
+      });
+
+      btnLockSteal.addEventListener('click', () => {
+        requestLockOperation('exclusive', 'STEAL_INTERVENE', () => {
+          const heading = document.getElementById('hw-mutex-heading');
+          heading.style.transform = 'scale(1.1) rotate(2deg)';
+          setTimeout(() => heading.style.transform = '', 300);
+        }, true);
+      });
+
+      btnOpenTab.addEventListener('click', () => {
+        window.open(window.location.href, '_blank');
+      });
+
+      btnClearLog.addEventListener('click', () => {
+        locksEventLog.innerHTML = '';
+      });
+
+      rangeDuration.addEventListener('input', () => {
+        lblDuration.textContent = `${rangeDuration.value}s`;
+      });
+
+      // Glif Tıklama (Bireysel Kilit İstemi)
+      document.querySelectorAll('.glyph-cluster').forEach(cluster => {
+        cluster.addEventListener('click', () => {
+          const idx = cluster.getAttribute('data-idx');
+          requestLockOperation('exclusive', `GLYPH_${idx}_MUTEX`, () => {
+            const letter = cluster.querySelector('.glyph-letter');
+            letter.style.transform = 'scale(1.3) translateY(-10px)';
+            setTimeout(() => letter.style.transform = '', 400);
+          });
+        });
+      });
+
+      // Başlangıç Bootstrap
+      window.addEventListener('load', () => {
+        logLockEvent('SYSTEM', 'BOOT_READY', `Web Locks API: ${hasLocks ? 'AKTİF' : 'MOCK'}`);
+        refreshLockTelemetry();
+
+        // Otomatik Devriye Nabzı (Kısa başlangıç kilidi testi)
+        setTimeout(() => {
+          requestLockOperation('exclusive', 'AUTO_BOOT_PATROL', () => {});
+        }, 300);
+      });
+
+    })();
+  </script>
+</body>
+</html>

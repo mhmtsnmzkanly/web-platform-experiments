@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="wide-light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Adaptive Context</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --paper: #e9ebea;
+      --ink: #17191c;
+      --accent: #244bb2;
+      --signal: #c9e33b;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      background: var(--paper);
+    }
+
+    html[data-mode="wide-dark"],
+    html[data-mode="compact-dark"] {
+      --paper: #111522;
+      --ink: #f1f3ff;
+      --accent: #8ea8ff;
+      --signal: #e5f04e;
+    }
+
+    main {
+      width: min(1100px, calc(100vw - 64px));
+      height: 100vh;
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 26px;
+      padding: 34px 0 28px;
+    }
+
+    header,
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    header {
+      border-top: 3px solid var(--ink);
+      padding-top: 12px;
+    }
+
+    header span:first-child,
+    footer span:last-child {
+      color: var(--accent);
+    }
+
+    header span:last-child,
+    footer span:first-child {
+      color: color-mix(in srgb, var(--ink) 58%, transparent);
+      text-align: right;
+    }
+
+    .adaptive {
+      position: relative;
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      border: 1px solid color-mix(in srgb, var(--ink) 42%, transparent);
+      background:
+        linear-gradient(90deg, transparent 0 49.9%, color-mix(in srgb, var(--accent) 20%, transparent) 50%, transparent 50.1%),
+        color-mix(in srgb, var(--paper) 76%, var(--accent));
+      box-shadow: 14px 14px 0 var(--ink);
+    }
+
+    .adaptive::before,
+    .adaptive::after {
+      position: absolute;
+      top: 50%;
+      width: 54px;
+      height: 1px;
+      background: var(--signal);
+      content: "";
+    }
+
+    .adaptive::before {
+      left: 28px;
+    }
+
+    .adaptive::after {
+      right: 28px;
+    }
+
+    .mode {
+      position: absolute;
+      top: 26px;
+      right: 42px;
+      left: 42px;
+      display: flex;
+      justify-content: space-between;
+      color: color-mix(in srgb, var(--ink) 64%, transparent);
+      font-family: "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(64px, 13.6vw, 180px);
+      font-weight: 900;
+      letter-spacing: -0.1em;
+      line-height: 0.86;
+      text-align: center;
+      text-shadow: 9px 9px 0 color-mix(in srgb, var(--accent) 28%, transparent);
+    }
+
+    html[data-mode^="compact"] h1 {
+      font-size: clamp(52px, 12.5vw, 132px);
+      letter-spacing: -0.075em;
+    }
+
+    html[data-mode^="compact"] .adaptive::before,
+    html[data-mode^="compact"] .adaptive::after {
+      width: 22px;
+    }
+
+    footer {
+      border-bottom: 1px solid color-mix(in srgb, var(--ink) 34%, transparent);
+      padding-bottom: 12px;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        width: calc(100vw - 28px);
+        padding-top: 22px;
+      }
+
+      header,
+      footer {
+        font-size: 9px;
+      }
+
+      .adaptive {
+        box-shadow: 8px 8px 0 var(--ink);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span>009 / ADAPTIVE CONTEXT</span>
+      <span>MEDIA QUERY LIST / LIVE MODE</span>
+    </header>
+
+    <section class="adaptive" aria-label="Hello World adaptive media query poster">
+      <div class="mode">
+        <span id="mode-label">MODE / WIDE LIGHT</span>
+        <span>THE WORD RESPONDS</span>
+      </div>
+      <h1>Hello World</h1>
+    </section>
+
+    <footer>
+      <span>ONE PHRASE / MANY CONTEXTS</span>
+      <span>LIVE / <strong>MEDIA-AWARE</strong></span>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const modeLabel = document.getElementById("mode-label");
+      const wide = window.matchMedia("(min-width: 900px)");
+      const dark = window.matchMedia("(prefers-color-scheme: dark)");
+
+      function applyMode() {
+        const mode = `${wide.matches ? "wide" : "compact"}-${dark.matches ? "dark" : "light"}`;
+        root.dataset.mode = mode;
+        modeLabel.textContent = `MODE / ${mode.replace("-", " ").toUpperCase()}`;
+      }
+
+      applyMode();
+      wide.addEventListener("change", applyMode);
+      dark.addEventListener("change", applyMode);
+    })();
+  </script>
+</body>
+</html>

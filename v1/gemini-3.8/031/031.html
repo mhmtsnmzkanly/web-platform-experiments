@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 031: Screen Orientation & Fullscreen API — Yapay Ufuk ve Jiroskopik Uçuş Göstergesi</title>
+  <style>
+    /* ==========================================================================
+       1. KÖK DEĞİŞKENLER VE TEMEL AYARLAR
+       ========================================================================== */
+    :root {
+      --bg-cockpit: #040810;
+      --panel-bg: rgba(7, 16, 28, 0.85);
+      --panel-border: rgba(0, 255, 136, 0.25);
+      --hud-green: #00ff88;
+      --hud-green-dim: rgba(0, 255, 136, 0.45);
+      --hud-green-glow: rgba(0, 255, 136, 0.3);
+      --hud-amber: #f59e0b;
+      --hud-amber-glow: rgba(245, 158, 11, 0.3);
+      --hud-cyan: #00f0ff;
+      --hud-ruby: #f43f5e;
+      --sky-color: #0c2d48;
+      --ground-color: #3b2207;
+      --text-main: #f0fdf4;
+      --text-dim: #94a3b8;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      
+      /* Jiroskopik Değişkenler (JavaScript ile dinamik güncellenir) */
+      --roll-angle: 0deg;
+      --pitch-offset: 0px;
+      --orientation-angle: 0deg;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-cockpit);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.04) 0%, transparent 80%),
+        repeating-linear-gradient(0deg, rgba(0, 255, 136, 0.015) 0px, rgba(0, 255, 136, 0.015) 1px, transparent 1px, transparent 24px);
+    }
+
+    /* ==========================================================================
+       2. FULLSCREEN MODU ÖZELLEŞTİRMESİ (:fullscreen)
+       ========================================================================== */
+    :fullscreen {
+      background-color: #010408;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      padding: 1rem;
+    }
+
+    :fullscreen header {
+      padding: 0.5rem 1rem;
+    }
+
+    :fullscreen main {
+      padding: 0.5rem;
+      max-width: 100%;
+      height: calc(100vh - 100px);
+    }
+
+    :fullscreen .hud-stage-card {
+      min-height: calc(100vh - 220px);
+    }
+
+    :fullscreen .fullscreen-indicator {
+      display: inline-flex !important;
+    }
+
+    /* ==========================================================================
+       3. ÜST KOKPİT BAŞLIĞI VE TELEMETRİ
+       ========================================================================== */
+    header {
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .badge-milestone {
+      background: rgba(0, 255, 136, 0.12);
+      border: 1px solid var(--hud-green);
+      color: var(--hud-green);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      letter-spacing: 0.08em;
+      box-shadow: 0 0 10px var(--hud-green-glow);
+    }
+
+    .header-title-block h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-title-block p {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    .telemetry-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-chip {
+      background: rgba(0, 255, 136, 0.05);
+      border: 1px solid rgba(0, 255, 136, 0.2);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      min-width: 90px;
+    }
+
+    .stat-chip-label {
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-chip-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--hud-green);
+    }
+
+    .stat-chip-val.amber { color: var(--hud-amber); }
+    .stat-chip-val.cyan { color: var(--hud-cyan); }
+    .stat-chip-val.ruby { color: var(--hud-ruby); }
+
+    /* ==========================================================================
+       4. ANA DÜZEN (HUD VİZÖRÜ & YAN KONTROL MASASI)
+       ========================================================================== */
+    main {
+      flex: 1;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.5rem;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* PFD (Primary Flight Display) Sahnesi */
+    .hud-stage-card {
+      background: #02060c;
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 480px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(0, 255, 136, 0.05);
+    }
+
+    /* Yapay Ufuk Arka Plan Küresi (Sky & Ground Sphere) */
+    .artificial-horizon-sphere {
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      top: -50%;
+      left: -50%;
+      transform: rotate(var(--roll-angle)) translateY(var(--pitch-offset));
+      transform-origin: center center;
+      transition: transform 0.1s cubic-bezier(0.1, 0.9, 0.2, 1);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .sky-half {
+      width: 100%;
+      height: 50%;
+      background: linear-gradient(180deg, #06192c 0%, var(--sky-color) 85%, #195280 100%);
+      border-bottom: 2px solid var(--hud-green);
+      box-shadow: 0 0 15px var(--hud-green);
+    }
+
+    .ground-half {
+      width: 100%;
+      height: 50%;
+      background: linear-gradient(180deg, #241403 0%, var(--ground-color) 70%, #170d02 100%);
+    }
+
+    /* Pitch Merdiveni (Pitch Ladder Lines) */
+    .pitch-ladder {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .pitch-line {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--hud-green);
+      opacity: 0.85;
+      text-shadow: 0 0 8px var(--hud-green-glow);
+      margin: 1.4rem 0;
+    }
+
+    .pitch-bar {
+      width: 60px;
+      height: 2px;
+      background: var(--hud-green);
+      position: relative;
+    }
+
+    .pitch-bar.positive::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 2px;
+      height: 8px;
+      background: var(--hud-green);
+    }
+
+    .pitch-bar.positive::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 2px;
+      height: 8px;
+      background: var(--hud-green);
+    }
+
+    .pitch-bar.negative {
+      background: repeating-linear-gradient(90deg, var(--hud-green), var(--hud-green) 6px, transparent 6px, transparent 12px);
+    }
+
+    .pitch-bar.negative::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 2px;
+      height: 8px;
+      background: var(--hud-green);
+    }
+
+    .pitch-bar.negative::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2px;
+      height: 8px;
+      background: var(--hud-green);
+    }
+
+    /* Sabit Uçak Sembolü (Aircraft Watermark) */
+    .aircraft-watermark {
+      position: absolute;
+      width: 120px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .watermark-center-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--hud-amber);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--hud-amber);
+    }
+
+    .watermark-wing {
+      width: 45px;
+      height: 4px;
+      background: var(--hud-amber);
+      box-shadow: 0 0 8px var(--hud-amber);
+    }
+
+    /* Roll Arkı Göstergesi */
+    .roll-arc-wrap {
+      position: absolute;
+      top: 25px;
+      width: 280px;
+      height: 140px;
+      pointer-events: none;
+      z-index: 12;
+    }
+
+    .roll-sky-pointer {
+      position: absolute;
+      top: 10px;
+      left: calc(50% - 7px);
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-bottom: 12px solid var(--hud-green);
+      filter: drop-shadow(0 0 8px var(--hud-green));
+      transform-origin: 7px 115px;
+      transform: rotate(calc(-1 * var(--roll-angle)));
+      transition: transform 0.1s linear;
+    }
+
+    /* ==========================================================================
+       5. HELLO WORLD ANA NİŞANGAH VE ODAK TİPOGRAFİSİ
+       ========================================================================== */
+    .hud-focus-reticle {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 2.5rem;
+      border-radius: 12px;
+      transition: transform 0.15s ease-out;
+    }
+
+    /* Jiroskopik Mod Mantığı */
+    .reticle-horizon-locked {
+      transform: rotate(var(--roll-angle));
+    }
+
+    .reticle-gimbal-stabilized {
+      transform: rotate(0deg);
+    }
+
+    /* Dönen Kutu Nişangah Köşebentleri */
+    .reticle-bracket {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--hud-green);
+      pointer-events: none;
+      filter: drop-shadow(0 0 6px var(--hud-green-glow));
+    }
+
+    .reticle-bracket.top-left {
+      top: 0; left: 0;
+      border-right: none; border-bottom: none;
+    }
+    .reticle-bracket.top-right {
+      top: 0; right: 0;
+      border-left: none; border-bottom: none;
+    }
+    .reticle-bracket.bottom-left {
+      bottom: 0; left: 0;
+      border-right: none; border-top: none;
+    }
+    .reticle-bracket.bottom-right {
+      bottom: 0; right: 0;
+      border-left: none; border-top: none;
+    }
+
+    /* HELLO WORLD Başlığı */
+    #hud-main-heading {
+      font-size: clamp(2.4rem, 5.5vw, 4.4rem);
+      font-weight: 900;
+      font-family: var(--font-sans);
+      letter-spacing: 0.12em;
+      color: #ffffff;
+      text-transform: uppercase;
+      text-shadow: 
+        0 0 10px var(--hud-green),
+        0 0 25px var(--hud-green-glow),
+        0 0 45px rgba(0, 255, 136, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.35em;
+      margin: 0.5rem 0;
+      user-select: none;
+      transition: all 0.3s ease;
+    }
+
+    .hud-target-pill {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--hud-green);
+      background: rgba(0, 255, 136, 0.1);
+      border: 1px solid var(--hud-green);
+      border-radius: 4px;
+      padding: 0.2rem 0.6rem;
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .pulse-hud-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--hud-green);
+      box-shadow: 0 0 8px var(--hud-green);
+      animation: pulseGreen 1.5s infinite;
+    }
+
+    @keyframes pulseGreen {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.8); }
+    }
+
+    /* Yan Uçuş Şeritleri (Airspeed & Altitude Tapes) */
+    .flight-tape {
+      position: absolute;
+      top: 15%;
+      bottom: 15%;
+      width: 65px;
+      background: rgba(2, 6, 12, 0.7);
+      border: 1px solid rgba(0, 255, 136, 0.25);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--hud-green);
+      pointer-events: none;
+      z-index: 15;
+      padding: 0.5rem 0;
+    }
+
+    .flight-tape.speed-tape { left: 16px; }
+    .flight-tape.alt-tape { right: 16px; }
+
+    .tape-title {
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      font-weight: 700;
+    }
+
+    .tape-box {
+      background: rgba(0, 255, 136, 0.15);
+      border: 1px solid var(--hud-green);
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-weight: 800;
+    }
+
+    /* Üst Pusula Şeridi */
+    .compass-tape {
+      position: absolute;
+      top: 10px;
+      width: 260px;
+      background: rgba(2, 6, 12, 0.75);
+      border: 1px solid rgba(0, 255, 136, 0.25);
+      border-radius: 4px;
+      padding: 0.25rem 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--hud-green);
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    .compass-caret {
+      color: var(--hud-amber);
+      font-weight: 900;
+    }
+
+    /* ==========================================================================
+       6. SAĞ KONTROL PANASİ (AVIONICS CONTROL DECK)
+       ========================================================================== */
+    .controls-panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .panel-section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      border-radius: 6px;
+      padding: 0.65rem 0.75rem;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(0, 255, 136, 0.12);
+      border-color: var(--hud-green);
+      box-shadow: 0 0 12px var(--hud-green-glow);
+    }
+
+    .ctrl-btn.active {
+      background: rgba(0, 255, 136, 0.2);
+      border-color: var(--hud-green);
+      box-shadow: 0 0 16px var(--hud-green-glow);
+      color: var(--hud-green);
+      font-weight: 800;
+    }
+
+    .ctrl-btn-full {
+      grid-column: 1 / -1;
+    }
+
+    .ctrl-btn.fullscreen-btn {
+      border-color: var(--hud-cyan);
+      color: var(--hud-cyan);
+      background: rgba(0, 240, 255, 0.06);
+    }
+
+    .ctrl-btn.fullscreen-btn:hover {
+      background: rgba(0, 240, 255, 0.15);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+    }
+
+    .slider-header span:last-child {
+      color: var(--hud-green);
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      accent-color: var(--hud-green);
+      cursor: pointer;
+    }
+
+    /* Olay Akış Listesi */
+    .avionics-event-stream {
+      background: #010408;
+      border: 1px solid rgba(0, 255, 136, 0.15);
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      max-height: 140px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .event-line {
+      display: flex;
+      gap: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .event-time { color: var(--text-dim); }
+    .event-tag { color: var(--hud-amber); font-weight: 700; }
+    .event-tag.fs { color: var(--hud-cyan); }
+    .event-tag.orient { color: var(--hud-green); }
+    .event-desc { color: #e2e8f0; }
+
+    /* ==========================================================================
+       7. ALT BİLGİ ŞERİDİ
+       ========================================================================== */
+    footer {
+      background: var(--panel-bg);
+      border-top: 1px solid var(--panel-border);
+      padding: 0.85rem 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .footer-highlight {
+      color: var(--hud-green);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Kokpit Başlığı & Kilit Telemetrisi -->
+  <header>
+    <div class="header-branding">
+      <span class="badge-milestone">DENEY 031</span>
+      <div class="header-title-block">
+        <h2>Havacılık Yapay Ufuk ve Jiroskopik HUD</h2>
+        <p>Screen Orientation API & Fullscreen API (PFD Avionics Telemetry)</p>
+      </div>
+    </div>
+
+    <div class="telemetry-badges">
+      <div class="stat-chip">
+        <span class="stat-chip-label">Ekran Açısı</span>
+        <span class="stat-chip-val" id="valOrientAngle">0°</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Yönelim Tipi</span>
+        <span class="stat-chip-val cyan" id="valOrientType">landscape-primary</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Tam Ekran</span>
+        <span class="stat-chip-val amber" id="valFullscreen">PENCERE</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Jiroskop Modu</span>
+        <span class="stat-chip-val green" id="valGimbalMode">UFUK KİLİTLİ</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ana Düzen -->
+  <main>
+    <!-- PFD (Primary Flight Display) Sahnesi -->
+    <section class="hud-stage-card" id="hudStage" aria-label="Havacılık Yapay Ufuk Kokpiti">
+      
+      <!-- Yapay Ufuk Gök ve Yer Küresi -->
+      <div class="artificial-horizon-sphere" id="horizonSphere" aria-hidden="true">
+        <div class="sky-half"></div>
+        <div class="ground-half"></div>
+      </div>
+
+      <!-- Pitch (Yunuslama) Merdiven Çizgileri -->
+      <div class="pitch-ladder" id="pitchLadder" aria-hidden="true">
+        <div class="pitch-line"><span class="pitch-bar positive"></span>+20°<span class="pitch-bar positive"></span></div>
+        <div class="pitch-line"><span class="pitch-bar positive"></span>+10°<span class="pitch-bar positive"></span></div>
+        <div class="pitch-line" style="opacity: 0.4;"><span class="pitch-bar positive"></span>+05°<span class="pitch-bar positive"></span></div>
+        <div class="pitch-line" style="opacity: 0.4;"><span class="pitch-bar negative"></span>-05°<span class="pitch-bar negative"></span></div>
+        <div class="pitch-line"><span class="pitch-bar negative"></span>-10°<span class="pitch-bar negative"></span></div>
+        <div class="pitch-line"><span class="pitch-bar negative"></span>-20°<span class="pitch-bar negative"></span></div>
+      </div>
+
+      <!-- Roll Arkı ve Gösterge Üçgeni -->
+      <div class="roll-arc-wrap" aria-hidden="true">
+        <svg viewBox="0 0 280 140" style="width: 100%; height: 100%;">
+          <path d="M 30,130 A 110,110 0 0,1 250,130" fill="none" stroke="rgba(0,255,136,0.3)" stroke-width="2" />
+          <!-- Çizgiler: 0, 10, 20, 30, 45, 60 -->
+          <line x1="140" y1="20" x2="140" y2="30" stroke="var(--hud-green)" stroke-width="2" />
+          <line x1="121" y1="22" x2="123" y2="31" stroke="var(--hud-green)" stroke-width="1.5" />
+          <line x1="159" y1="22" x2="157" y2="31" stroke="var(--hud-green)" stroke-width="1.5" />
+          <line x1="103" y1="27" x2="106" y2="36" stroke="var(--hud-green)" stroke-width="1.5" />
+          <line x1="177" y1="27" x2="174" y2="36" stroke="var(--hud-green)" stroke-width="1.5" />
+          <line x1="86" y1="36" x2="90" y2="44" stroke="var(--hud-green)" stroke-width="2" />
+          <line x1="194" y1="36" x2="190" y2="44" stroke="var(--hud-green)" stroke-width="2" />
+        </svg>
+        <div class="roll-sky-pointer" id="rollPointer"></div>
+      </div>
+
+      <!-- Sabit Uçak Sembolü (Aircraft Watermark) -->
+      <div class="aircraft-watermark" aria-hidden="true">
+        <div class="watermark-wing"></div>
+        <div class="watermark-center-dot"></div>
+        <div class="watermark-wing"></div>
+      </div>
+
+      <!-- Yan Uçuş Şeritleri (Speed / Alt) -->
+      <div class="flight-tape speed-tape" aria-hidden="true">
+        <span class="tape-title">HIZ (IAS)</span>
+        <span>260</span>
+        <div class="tape-box" id="dispSpeed">240</div>
+        <span>220</span>
+        <span>200</span>
+      </div>
+
+      <div class="flight-tape alt-tape" aria-hidden="true">
+        <span class="tape-title">İRTİFA (ALT)</span>
+        <span>10500</span>
+        <div class="tape-box" id="dispAlt">10000</div>
+        <span>09500</span>
+        <span>09000</span>
+      </div>
+
+      <!-- Üst Pusula Şeridi -->
+      <div class="compass-tape" aria-hidden="true">
+        <span>330</span>
+        <span>340</span>
+        <span>350</span>
+        <span class="compass-caret">▲ 000 (K)</span>
+        <span>010</span>
+        <span>020</span>
+        <span>030</span>
+      </div>
+
+      <!-- HELLO WORLD Ana Nişangah ve Odak Tipografisi -->
+      <div class="hud-focus-reticle reticle-horizon-locked" id="hudReticle">
+        <div class="reticle-bracket top-left" aria-hidden="true"></div>
+        <div class="reticle-bracket top-right" aria-hidden="true"></div>
+        <div class="reticle-bracket bottom-left" aria-hidden="true"></div>
+        <div class="reticle-bracket bottom-right" aria-hidden="true"></div>
+
+        <div class="hud-target-pill">
+          <span class="pulse-hud-dot"></span>
+          <span>HEDEF NİŞANGAH: KİLİTLİ</span>
+        </div>
+
+        <h1 id="hud-main-heading" aria-label="Hello World">HELLO WORLD</h1>
+
+        <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--hud-green-dim); display: flex; gap: 1rem;">
+          <span>PITCH: <strong id="lblPitchReticle">0.0°</strong></span>
+          <span>ROLL: <strong id="lblRollReticle">0.0°</strong></span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Yan Kontrol Masası -->
+    <aside class="controls-panel" aria-label="Aviyonik Kontrol Paneli">
+      
+      <!-- Tam Ekran Kokpit Düğmesi -->
+      <div>
+        <div class="panel-section-title">
+          <span>Görünüm ve Daldırma (Fullscreen)</span>
+          <span style="color: var(--hud-cyan); font-size: 0.72rem;">API</span>
+        </div>
+        <div style="margin-top: 0.75rem;">
+          <button class="ctrl-btn ctrl-btn-full fullscreen-btn" id="btnToggleFullscreen" type="button">
+            <strong style="font-size: 0.85rem;">⛶ TAM EKRAN KOKPİT (FULLSCREEN)</strong>
+            <span style="font-size: 0.68rem;">document.documentElement.requestFullscreen()</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 Yönlü Jiroskop Simülatörü (Screen Orientation) -->
+      <div>
+        <div class="panel-section-title">
+          <span>Dinamik Yönlendirme (Orientation)</span>
+          <span style="color: var(--hud-green); font-size: 0.72rem;">4 AÇI</span>
+        </div>
+        <div class="btn-grid" style="margin-top: 0.75rem;">
+          <button class="ctrl-btn active" id="btnOrient0" type="button">
+            <strong>0° YATAY</strong>
+            <span style="font-size: 0.65rem;">Landscape Normal</span>
+          </button>
+          <button class="ctrl-btn" id="btnOrient90" type="button">
+            <strong>90° DİKEY</strong>
+            <span style="font-size: 0.65rem;">Portrait (Saat Yönü)</span>
+          </button>
+          <button class="ctrl-btn" id="btnOrient180" type="button">
+            <strong>180° TERS</strong>
+            <span style="font-size: 0.65rem;">Landscape Ters Uçuş</span>
+          </button>
+          <button class="ctrl-btn" id="btnOrient270" type="button">
+            <strong>270° DİKEY</strong>
+            <span style="font-size: 0.65rem;">Portrait Ters</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Uçuş Dinamiği Eğim Sürgüleri -->
+      <div>
+        <div class="panel-section-title">
+          <span>Uçuş Dinamikleri (Pitch & Roll)</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.9rem; margin-top: 0.75rem;">
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>YUNUSLAMA (PITCH)</span>
+              <span id="txtPitchVal">0.0°</span>
+            </div>
+            <input type="range" id="sliderPitch" min="-30" max="30" step="1" value="0">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>YATIŞ (ROLL)</span>
+              <span id="txtRollVal">0.0°</span>
+            </div>
+            <input type="range" id="sliderRoll" min="-60" max="60" step="1" value="0">
+          </div>
+
+          <div class="btn-grid">
+            <button class="ctrl-btn" id="btnModeLock" type="button">
+              <span>Ufuk Kilidi</span>
+              <span style="font-size: 0.65rem; color: var(--hud-green);">[HORIZON]</span>
+            </button>
+            <button class="ctrl-btn" id="btnModeGimbal" type="button">
+              <span>Gimbal Denge</span>
+              <span style="font-size: 0.65rem; color: var(--hud-amber);">[STABILIZED]</span>
+            </button>
+          </div>
+
+          <button class="ctrl-btn ctrl-btn-full" id="btnAutoFlight" type="button" style="border-color: rgba(245, 158, 11, 0.4); color: var(--hud-amber);">
+            <strong>OTONOM UÇUŞ SALINIMI (AUTO GYRO)</strong>
+            <span style="font-size: 0.65rem;">Sürekli Harmonik Jiroskopik Dalga</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Olay Denetleyicisi -->
+      <div>
+        <div class="panel-section-title">
+          <span>Aviyonik Olay Günlüğü</span>
+        </div>
+        <div class="avionics-event-stream" id="eventLog" style="margin-top: 0.5rem;">
+          <!-- Canlı olaylar -->
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- Alt Bilgi Şeridi -->
+  <footer>
+    <div>
+      <span>HELLOLAB AVIONICS: </span>
+      <span class="footer-highlight">W3C Screen Orientation & Fullscreen Specifications</span>
+    </div>
+    <div>
+      <span>GÖRÜŞ ALANI: </span>
+      <span class="footer-highlight" id="footerViewport">1280 x 800</span>
+    </div>
+    <div>
+      <span>UYUMLULUK: </span>
+      <span class="footer-highlight">100% Yerel Tarayıcı Motoru (Sıfır Bağımlılık)</span>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       8. JAVASCRIPT ÇALIŞMA ZAMANI MOTORU (Tekil Script Bloğu)
+       ========================================================================== -->
+  <script>
+    (function initAvionicsCockpit() {
+      // DOM Elemanları
+      const hudStage = document.getElementById("hudStage");
+      const horizonSphere = document.getElementById("horizonSphere");
+      const pitchLadder = document.getElementById("pitchLadder");
+      const rollPointer = document.getElementById("rollPointer");
+      const hudReticle = document.getElementById("hudReticle");
+      const sliderPitch = document.getElementById("sliderPitch");
+      const sliderRoll = document.getElementById("sliderRoll");
+      const txtPitchVal = document.getElementById("txtPitchVal");
+      const txtRollVal = document.getElementById("txtRollVal");
+      const lblPitchReticle = document.getElementById("lblPitchReticle");
+      const lblRollReticle = document.getElementById("lblRollReticle");
+      const valOrientAngle = document.getElementById("valOrientAngle");
+      const valOrientType = document.getElementById("valOrientType");
+      const valFullscreen = document.getElementById("valFullscreen");
+      const valGimbalMode = document.getElementById("valGimbalMode");
+      const btnToggleFullscreen = document.getElementById("btnToggleFullscreen");
+      const btnModeLock = document.getElementById("btnModeLock");
+      const btnModeGimbal = document.getElementById("btnModeGimbal");
+      const btnAutoFlight = document.getElementById("btnAutoFlight");
+      const eventLog = document.getElementById("eventLog");
+      const footerViewport = document.getElementById("footerViewport");
+
+      const orientButtons = {
+        0: document.getElementById("btnOrient0"),
+        90: document.getElementById("btnOrient90"),
+        180: document.getElementById("btnOrient180"),
+        270: document.getElementById("btnOrient270")
+      };
+
+      // Durum Değişkenleri
+      let currentPitch = 0;       // Derece (-30 to +30)
+      let currentRoll = 0;        // Derece (-60 to +60)
+      let simulatedAngle = 0;     // 0, 90, 180, 270
+      let gimbalMode = "horizon"; // "horizon" veya "gimbal"
+      let isAutoFlight = false;
+      let autoFlightTimer = null;
+      let flightStep = 0;
+
+      // Olay Günlüğüne Yazma Yardımcısı
+      function logEvent(tag, desc, cls = "") {
+        if (!eventLog) return;
+        const now = new Date();
+        const timeStr = now.toTimeString().split(" ")[0] + "." + String(now.getMilliseconds()).padStart(3, "0");
+        const row = document.createElement("div");
+        row.className = "event-line";
+        row.innerHTML = `<span class="event-time">${timeStr}</span><span class="event-tag ${cls}">[${tag}]</span><span class="event-desc">${desc}</span>`;
+        eventLog.prepend(row);
+        while (eventLog.children.length > 25) {
+          eventLog.removeChild(eventLog.lastChild);
+        }
+      }
+
+      // 1. Screen Orientation API Okuma ve Dinleme
+      function updateScreenOrientation() {
+        let angle = 0;
+        let type = "landscape-primary";
+
+        if (window.screen && window.screen.orientation) {
+          angle = window.screen.orientation.angle || 0;
+          type = window.screen.orientation.type || "landscape-primary";
+        } else if (typeof window.orientation !== "undefined") {
+          angle = window.orientation;
+          type = Math.abs(angle) === 90 ? "landscape" : "portrait";
+        }
+
+        // Eğer simülatör devrede değilse cihaz açısını kullan
+        if (simulatedAngle === 0 && angle !== 0) {
+          simulatedAngle = angle;
+        }
+
+        valOrientAngle.textContent = (simulatedAngle || angle) + "°";
+        valOrientType.textContent = type;
+
+        logEvent("ORIENT", `Ekran yönelimi güncellendi: ${type} (${angle}°)`, "orient");
+      }
+
+      if (window.screen && window.screen.orientation && window.screen.orientation.addEventListener) {
+        window.screen.orientation.addEventListener("change", () => {
+          updateScreenOrientation();
+        });
+      } else {
+        window.addEventListener("orientationchange", () => {
+          updateScreenOrientation();
+        });
+      }
+
+      // 2. Fullscreen API Entegrasyonu
+      function isFullscreenActive() {
+        return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+      }
+
+      function updateFullscreenStatus() {
+        const active = isFullscreenActive();
+        if (active) {
+          valFullscreen.textContent = "TAM EKRAN (HUD)";
+          valFullscreen.className = "stat-chip-val cyan";
+          btnToggleFullscreen.innerHTML = `<strong style="font-size:0.85rem;">⛶ PENCERE MODUNA DÖN</strong><span style="font-size:0.68rem;">document.exitFullscreen()</span>`;
+          logEvent("FULLSCREEN", "Tam ekran kokpit modu aktifleşti.", "fs");
+        } else {
+          valFullscreen.textContent = "PENCERE";
+          valFullscreen.className = "stat-chip-val amber";
+          btnToggleFullscreen.innerHTML = `<strong style="font-size:0.85rem;">⛶ TAM EKRAN KOKPİT (FULLSCREEN)</strong><span style="font-size:0.68rem;">document.documentElement.requestFullscreen()</span>`;
+          logEvent("FULLSCREEN", "Pencere görünümüne dönüldü.", "fs");
+        }
+      }
+
+      btnToggleFullscreen.addEventListener("click", async () => {
+        try {
+          if (!isFullscreenActive()) {
+            const target = document.documentElement;
+            if (target.requestFullscreen) {
+              await target.requestFullscreen();
+            } else if (target.webkitRequestFullscreen) {
+              await target.webkitRequestFullscreen();
+            }
+          } else {
+            if (document.exitFullscreen) {
+              await document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+              await document.webkitExitFullscreen();
+            }
+          }
+        } catch (err) {
+          logEvent("FS_ERROR", "Tam ekran isteği başarısız: " + err.message, "ruby");
+        }
+      });
+
+      document.addEventListener("fullscreenchange", updateFullscreenStatus);
+      document.addEventListener("webkitfullscreenchange", updateFullscreenStatus);
+
+      // 3. Aviyonik Görsel Sahne Güncelleme (Pitch & Roll Uygulaması)
+      function renderAvionics() {
+        // Toplam yatış açısı = Manuel Roll + Simüle Edilen Ekran Açısı
+        const totalRoll = currentRoll + simulatedAngle;
+        const pitchPx = currentPitch * 4.2; // 1 derece = 4.2px dikey kayma
+
+        // CSS değişkenlerini sahneye uygula
+        hudStage.style.setProperty("--roll-angle", totalRoll + "deg");
+        hudStage.style.setProperty("--pitch-offset", pitchPx + "px");
+
+        txtPitchVal.textContent = (currentPitch >= 0 ? "+" : "") + currentPitch.toFixed(1) + "°";
+        txtRollVal.textContent = (currentRoll >= 0 ? "+" : "") + currentRoll.toFixed(1) + "°";
+        lblPitchReticle.textContent = (currentPitch >= 0 ? "+" : "") + currentPitch.toFixed(1) + "°";
+        lblRollReticle.textContent = (totalRoll >= 0 ? "+" : "") + totalRoll.toFixed(1) + "°";
+
+        // Jiroskop Modu
+        if (gimbalMode === "horizon") {
+          hudReticle.className = "hud-focus-reticle reticle-horizon-locked";
+          valGimbalMode.textContent = "UFUK KİLİTLİ";
+          valGimbalMode.className = "stat-chip-val green";
+          btnModeLock.classList.add("active");
+          btnModeGimbal.classList.remove("active");
+        } else {
+          hudReticle.className = "hud-focus-reticle reticle-gimbal-stabilized";
+          valGimbalMode.textContent = "GİMBAL DENGE";
+          valGimbalMode.className = "stat-chip-val amber";
+          btnModeGimbal.classList.add("active");
+          btnModeLock.classList.remove("active");
+        }
+
+        // Hız ve İrtifa yapay dalgalanması
+        const dispSpeed = document.getElementById("dispSpeed");
+        const dispAlt = document.getElementById("dispAlt");
+        if (dispSpeed) dispSpeed.textContent = Math.round(240 + currentPitch * 1.5);
+        if (dispAlt) dispAlt.textContent = Math.round(10000 + currentPitch * 45);
+      }
+
+      // Sürgü Olayları
+      sliderPitch.addEventListener("input", (e) => {
+        currentPitch = parseFloat(e.target.value);
+        renderAvionics();
+      });
+
+      sliderRoll.addEventListener("input", (e) => {
+        currentRoll = parseFloat(e.target.value);
+        renderAvionics();
+      });
+
+      // Jiroskop Mod Seçicileri
+      btnModeLock.addEventListener("click", () => {
+        gimbalMode = "horizon";
+        logEvent("GIMBAL", "Mod: Ufuk Kilitli (Metin ufukla birlikte döner)", "orient");
+        renderAvionics();
+      });
+
+      btnModeGimbal.addEventListener("click", () => {
+        gimbalMode = "gimbal";
+        logEvent("GIMBAL", "Mod: Gimbal Dengeli (Metin pilot görüş düzleminde sabit kalır)", "orient");
+        renderAvionics();
+      });
+
+      // 4 Yönlü Simülatör Düğmeleri
+      function setOrientationAngle(deg) {
+        simulatedAngle = deg;
+        valOrientAngle.textContent = deg + "°";
+        
+        Object.keys(orientButtons).forEach(k => {
+          if (parseInt(k, 10) === deg) {
+            orientButtons[k].classList.add("active");
+          } else {
+            orientButtons[k].classList.remove("active");
+          }
+        });
+
+        const typeMap = {
+          0: "landscape-primary",
+          90: "portrait-secondary",
+          180: "landscape-secondary",
+          270: "portrait-primary"
+        };
+        valOrientType.textContent = typeMap[deg] || "landscape-primary";
+
+        logEvent("SIM_ORIENT", `Simülatör Açısı: ${deg}° [${typeMap[deg]}]`, "orient");
+        renderAvionics();
+      }
+
+      orientButtons[0].addEventListener("click", () => setOrientationAngle(0));
+      orientButtons[90].addEventListener("click", () => setOrientationAngle(90));
+      orientButtons[180].addEventListener("click", () => setOrientationAngle(180));
+      orientButtons[270].addEventListener("click", () => setOrientationAngle(270));
+
+      // 4. Otonom Jiroskop Uçuş Salınımı (Auto Gyro Flight)
+      btnAutoFlight.addEventListener("click", () => {
+        isAutoFlight = !isAutoFlight;
+        if (isAutoFlight) {
+          btnAutoFlight.classList.add("active");
+          btnAutoFlight.innerHTML = `<strong>OTONOM UÇUŞ DEVREDE (DURDUR)</strong><span style="font-size:0.65rem;">Salınım Aktif</span>`;
+          logEvent("AUTO_GYRO", "Otonom jiroskopik dalga salınımı başlatıldı.", "orient");
+
+          autoFlightTimer = setInterval(() => {
+            flightStep += 0.05;
+            currentRoll = Math.sin(flightStep) * 25;
+            currentPitch = Math.cos(flightStep * 0.7) * 12;
+            sliderRoll.value = currentRoll.toFixed(0);
+            sliderPitch.value = currentPitch.toFixed(0);
+            renderAvionics();
+          }, 33);
+        } else {
+          clearInterval(autoFlightTimer);
+          autoFlightTimer = null;
+          btnAutoFlight.classList.remove("active");
+          btnAutoFlight.innerHTML = `<strong>OTONOM UÇUŞ SALINIMI (AUTO GYRO)</strong><span style="font-size:0.65rem;">Sürekli Harmonik Jiroskopik Dalga</span>`;
+          logEvent("AUTO_GYRO", "Otonom uçuş durduruldu.", "orient");
+        }
+      });
+
+      // Boyut Değişimi İzleyicisi (Viewport Telemetry)
+      function updateViewportSize() {
+        if (footerViewport) {
+          footerViewport.textContent = `${window.innerWidth} x ${window.innerHeight}`;
+        }
+      }
+      window.addEventListener("resize", updateViewportSize);
+
+      // Başlangıç Kurulumu
+      updateScreenOrientation();
+      updateFullscreenStatus();
+      updateViewportSize();
+      renderAvionics();
+      logEvent("INIT", "Aviyonik Yapay Ufuk ve Jiroskopik Kokpit hazırlandı.", "orient");
+    })();
+  </script>
+</body>
+</html>

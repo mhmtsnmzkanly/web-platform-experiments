@@ -1,0 +1,704 @@
+<!--
+  DENEY 023: CSS Typed Object Model (CSS Typed OM) API ve Tip Güvenli Houdini Tipografik Matris Motoru
+  
+  Yenilik Türü: Yeni Teknoloji (CSS Typed OM API - W3C CSS Houdini Level 1)
+  Kullanılan Web Standartları:
+    - CSS.px(), CSS.deg(), CSS.number(), CSS.percent()
+    - CSSTransformValue, CSSTranslate, CSSRotate, CSSScale
+    - element.attributeStyleMap.set('transform', transformValue)
+    - element.attributeStyleMap.set('opacity', CSS.number(val))
+    - element.computedStyleMap().get('font-size')
+    - Dizgisiz (zero-string-concatenation) C++ seviyesinde 60 FPS CSS motoru
+  
+  Tasarım Yaklaşımı:
+    - Fütüristik Houdini hesaplama laboratuvarı
+    - 10 bağımsız glif hedefi (H-E-L-L-O W-O-R-L-D)
+    - Canlı Typed OM AST (Abstract Syntax Tree) görselleştiricisi
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 023: CSS Typed OM API ve Tip Güvenli Houdini Tipografik Matris Motoru</title>
+  <style>
+    /* ==========================================================================
+       1. DEĞİŞKENLER VE TEMEL SIFIRLAMA
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --houdini-bg: #07070d;
+      --houdini-surface: #0e0e1a;
+      --houdini-elevated: #161628;
+      --houdini-border: rgba(168, 85, 247, 0.22);
+      --houdini-border-active: #a855f7;
+      --violet-houdini: #a855f7;
+      --pink-plasma: #ec4899;
+      --cyan-vector: #06b6d4;
+      --emerald-ok: #10b981;
+      --amber-warn: #f59e0b;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--houdini-bg);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 15%, rgba(168, 85, 247, 0.08) 0%, transparent 60%),
+        linear-gradient(rgba(168, 85, 247, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(168, 85, 247, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+    }
+
+    /* ==========================================================================
+       2. ÜST HOUDINI KONTROL ÇUBUĞU
+       ========================================================================== */
+    .houdini-header {
+      padding: 1rem 2rem;
+      background: rgba(14, 14, 26, 0.88);
+      border-bottom: 1px solid var(--houdini-border);
+      backdrop-filter: blur(16px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .houdini-gyro-icon {
+      width: 26px;
+      height: 26px;
+      border: 2px solid var(--violet-houdini);
+      border-radius: 6px;
+      position: relative;
+      animation: houdini-spin 6s infinite linear;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @keyframes houdini-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .gyro-inner-square {
+      width: 12px;
+      height: 12px;
+      background: var(--pink-plasma);
+      border-radius: 2px;
+      box-shadow: 0 0 10px var(--pink-plasma);
+    }
+
+    .header-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .houdini-badge {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.6rem;
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid var(--houdini-border);
+      border-radius: 4px;
+      color: var(--violet-houdini);
+      letter-spacing: 0.05em;
+    }
+
+    .mode-toolbar {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .mode-btn {
+      background: var(--houdini-elevated);
+      color: var(--text-dim);
+      border: 1px solid var(--houdini-border);
+      padding: 0.45rem 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn:hover {
+      color: var(--text-main);
+      border-color: var(--violet-houdini);
+    }
+
+    .mode-btn.active {
+      background: rgba(168, 85, 247, 0.25);
+      color: var(--text-main);
+      border-color: var(--violet-houdini);
+      box-shadow: 0 0 14px rgba(168, 85, 247, 0.4);
+      font-weight: 800;
+    }
+
+    /* ==========================================================================
+       3. ANA SAHNE: HOUDINI TIPOGRAFİ VİTRİNİ
+       ========================================================================== */
+    .houdini-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 1.75rem;
+      padding: 1.75rem 2rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1024px) {
+      .houdini-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stage-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .stage-chamber {
+      background: var(--houdini-surface);
+      border: 1px solid var(--houdini-border);
+      border-radius: 8px;
+      padding: 3.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 480px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .chamber-cross-h {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.25), transparent);
+      pointer-events: none;
+    }
+
+    .chamber-cross-v {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(168, 85, 247, 0.25), transparent);
+      pointer-events: none;
+    }
+
+    /* Hello World Kinetik Glif Grubu */
+    .kinetic-words-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      z-index: 2;
+      user-select: none;
+    }
+
+    .word-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(0.6rem, 1.8vw, 1.6rem);
+      flex-wrap: wrap;
+    }
+
+    /* Bireysel CSS Typed OM ile Denetlenen Glif */
+    .houdini-glyph {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.8rem 1.1rem;
+      background: rgba(22, 22, 40, 0.5);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 6px;
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.15);
+      will-change: transform, opacity;
+      cursor: pointer;
+    }
+
+    .glyph-text {
+      font-size: clamp(3.2rem, 8vw, 6.2rem);
+      font-family: var(--font-sans);
+      font-weight: 900;
+      line-height: 1;
+      color: var(--text-main);
+      text-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+    }
+
+    .word-world .glyph-text {
+      color: var(--cyan-vector);
+      text-shadow: 0 0 20px rgba(6, 182, 212, 0.6);
+    }
+
+    /* Kontrol Parametreleri Çubuğu */
+    .math-param-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--houdini-surface);
+      border: 1px solid var(--houdini-border);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .param-control {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    .param-label {
+      color: var(--text-dim);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .param-slider {
+      accent-color: var(--violet-houdini);
+      cursor: pointer;
+    }
+
+    .param-val {
+      font-family: var(--font-mono);
+      color: var(--cyan-vector);
+      font-weight: 700;
+      min-width: 45px;
+    }
+
+    /* ==========================================================================
+       4. SAĞ PANEL: TYPED OM AST VE HESAPLANAN DEĞERLER
+       ========================================================================== */
+    .sidebar-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .sidebar-card {
+      background: var(--houdini-surface);
+      border: 1px solid var(--houdini-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--violet-houdini);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(168, 85, 247, 0.15);
+      padding-bottom: 0.5rem;
+    }
+
+    /* AST Ağacı Görüntüleyici */
+    .ast-tree-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      padding: 0.85rem;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      line-height: 1.6;
+      color: var(--text-main);
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .ast-node-type {
+      color: var(--pink-plasma);
+      font-weight: 700;
+    }
+
+    .ast-unit-type {
+      color: var(--cyan-vector);
+    }
+
+    .ast-num-val {
+      color: var(--amber-warn);
+      font-weight: 700;
+    }
+
+    /* Telemetri Metrikleri */
+    .stat-tiles-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 0.75rem;
+      border-radius: 4px;
+    }
+
+    .stat-lbl {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-num {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--violet-houdini);
+      margin-top: 0.25rem;
+      font-family: var(--font-mono);
+    }
+
+    /* ==========================================================================
+       5. ALT DURUM ÇUBUĞU (FOOTER TELEMETRİ)
+       ========================================================================== */
+    .houdini-footer {
+      padding: 0.75rem 2rem;
+      background: var(--houdini-surface);
+      border-top: 1px solid var(--houdini-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    .telemetry-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .led-ring {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--violet-houdini);
+      box-shadow: 0 0 8px var(--violet-houdini);
+      animation: led-glow 1.5s infinite alternate ease-in-out;
+    }
+
+    @keyframes led-glow {
+      0% { opacity: 0.4; transform: scale(0.85); }
+      100% { opacity: 1; transform: scale(1.15); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Başlık ve Mod Seçici -->
+  <header class="houdini-header" role="banner">
+    <div class="header-branding">
+      <div class="houdini-gyro-icon" aria-hidden="true">
+        <div class="gyro-inner-square"></div>
+      </div>
+      <div>
+        <h1 class="header-title">CSS TYPED OM HOUDINI MATRİS MOTORU</h1>
+      </div>
+      <span class="houdini-badge" id="typed-engine-badge">HOUDINI LEVEL 1 &bull; 60 FPS</span>
+    </div>
+
+    <nav class="mode-toolbar" aria-label="Kinetik Mod Seçici">
+      <button class="mode-btn active" data-mode="wave">01 HARMONİK DALGA</button>
+      <button class="mode-btn" data-mode="vortex">02 GİRDAP DÖNÜŞÜ</button>
+      <button class="mode-btn" data-mode="skew">03 İZOMETRİK EĞİM</button>
+    </nav>
+  </header>
+
+  <!-- Ana Kokpit Grid -->
+  <main class="houdini-layout" role="main">
+
+    <!-- Sol Sahne: Kinetik Hello World Glifleri -->
+    <section class="stage-column" aria-label="Tipografi Sahnesi">
+      <div class="stage-chamber" id="stage-chamber">
+        <div class="chamber-cross-h" aria-hidden="true"></div>
+        <div class="chamber-cross-v" aria-hidden="true"></div>
+
+        <div class="kinetic-words-container" aria-label="Hello World Kinetik Glif Sahnesi">
+          <!-- HELLO KELİMESİ -->
+          <div class="word-row word-hello" id="row-hello" aria-label="HELLO">
+            <div class="houdini-glyph" data-index="0" data-char="H"><span class="glyph-text">H</span></div>
+            <div class="houdini-glyph" data-index="1" data-char="E"><span class="glyph-text">E</span></div>
+            <div class="houdini-glyph" data-index="2" data-char="L"><span class="glyph-text">L</span></div>
+            <div class="houdini-glyph" data-index="3" data-char="L"><span class="glyph-text">L</span></div>
+            <div class="houdini-glyph" data-index="4" data-char="O"><span class="glyph-text">O</span></div>
+          </div>
+
+          <!-- WORLD KELİMESİ -->
+          <div class="word-row word-world" id="row-world" aria-label="WORLD">
+            <div class="houdini-glyph" data-index="5" data-char="W"><span class="glyph-text">W</span></div>
+            <div class="houdini-glyph" data-index="6" data-char="O"><span class="glyph-text">O</span></div>
+            <div class="houdini-glyph" data-index="7" data-char="R"><span class="glyph-text">R</span></div>
+            <div class="houdini-glyph" data-index="8" data-char="L"><span class="glyph-text">L</span></div>
+            <div class="houdini-glyph" data-index="9" data-char="D"><span class="glyph-text">D</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Matematiksel Parametre Kontrolleri -->
+      <div class="math-param-bar" aria-label="Typed OM Matematik Parametreleri">
+        <div class="param-control">
+          <span class="param-label">Genlik (CSS.px):</span>
+          <input type="range" class="param-slider" id="slider-amp" min="10" max="60" value="28">
+          <span class="param-val" id="val-amp">28px</span>
+        </div>
+        <div class="param-control">
+          <span class="param-label">Açı (CSS.deg):</span>
+          <input type="range" class="param-slider" id="slider-angle" min="0" max="36" value="14">
+          <span class="param-val" id="val-angle">14°</span>
+        </div>
+        <div class="param-control">
+          <span class="param-label">Hız Çarpanı:</span>
+          <input type="range" class="param-slider" id="slider-speed" min="1" max="5" value="2">
+          <span class="param-val" id="val-speed">2.0x</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sağ Panel: Typed OM AST Ağacı ve Telemetri -->
+    <aside class="sidebar-column" aria-label="Typed OM Telemetri Paneli">
+
+      <!-- AST Ağacı İnceleyicisi -->
+      <div class="sidebar-card">
+        <div class="card-title">
+          <span>Canlı CSSTransformValue AST</span>
+          <span id="active-glyph-label" style="font-size: 0.65rem; color: var(--pink-plasma);">GLİF: #0 (H)</span>
+        </div>
+        <div class="ast-tree-box" id="ast-viewer">
+          <!-- JS ile doldurulacak -->
+        </div>
+      </div>
+
+      <!-- Metrikler -->
+      <div class="sidebar-card">
+        <div class="card-title">
+          <span>Houdini Performans ve Durum</span>
+          <span style="font-size: 0.65rem; color: var(--emerald-ok);">attributeStyleMap</span>
+        </div>
+        <div class="stat-tiles-grid">
+          <div class="stat-box">
+            <div class="stat-lbl">Hesaplanan Font Boyutu</div>
+            <div class="stat-num" id="stat-font-size">64px</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-lbl">Dizi Birleştirme</div>
+            <div class="stat-num" style="color: var(--emerald-ok);">0 (SIFIR)</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-lbl">Aktif Glif Sayısı</div>
+            <div class="stat-num">10 / 10</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-lbl">Tip Denetimi</div>
+            <div class="stat-num" style="font-size: 0.95rem; color: var(--cyan-vector);">C++ NATIVE</div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Alt Durum Çubuğu -->
+  <footer class="houdini-footer">
+    <div class="telemetry-row">
+      <span class="led-ring" aria-hidden="true"></span>
+      <span id="status-engine-text">HOUDINI TYPED OM ENGINE: AKTİF (attributeStyleMap.set)</span>
+    </div>
+    <div>
+      <span>HELLO WORLD LAB &bull; TIP GÜVENLİ HOUDINI MOTORU</span>
+    </div>
+  </footer>
+
+  <script>
+    // ==========================================================================
+    // 6. CSS TYPED OM 60 FPS HOUDINI KİNETİK MOTORU
+    // ==========================================================================
+    (function initHoudiniEngine() {
+      const glyphs = Array.from(document.querySelectorAll(".houdini-glyph"));
+      const astViewer = document.getElementById("ast-viewer");
+      const activeGlyphLabel = document.getElementById("active-glyph-label");
+      const statFontSize = document.getElementById("stat-font-size");
+      const statusEngineText = document.getElementById("status-engine-text");
+
+      const sliderAmp = document.getElementById("slider-amp");
+      const sliderAngle = document.getElementById("slider-angle");
+      const sliderSpeed = document.getElementById("slider-speed");
+
+      const valAmp = document.getElementById("val-amp");
+      const valAngle = document.getElementById("val-angle");
+      const valSpeed = document.getElementById("val-speed");
+
+      const modeBtns = Array.from(document.querySelectorAll(".mode-btn"));
+
+      let currentMode = "wave";
+      let amplitude = 28;
+      let maxAngle = 14;
+      let speedFactor = 2;
+      let activeInspectIndex = 0;
+      let tick = 0;
+
+      // 1. computedStyleMap() ile İlk Hesaplanan Değeri Oku
+      if (document.body.computedStyleMap) {
+        const computed = glyphs[0].querySelector(".glyph-text").computedStyleMap();
+        const fSize = computed.get("font-size");
+        if (fSize) {
+          statFontSize.textContent = Math.round(fSize.value) + fSize.unit;
+        }
+      }
+
+      // 2. Mod Değişim Dinleyicileri
+      modeBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          modeBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentMode = btn.getAttribute("data-mode");
+        });
+      });
+
+      // 3. Slider Dinleyicileri
+      sliderAmp.addEventListener("input", (e) => {
+        amplitude = Number(e.target.value);
+        valAmp.textContent = amplitude + "px";
+      });
+
+      sliderAngle.addEventListener("input", (e) => {
+        maxAngle = Number(e.target.value);
+        valAngle.textContent = maxAngle + "°";
+      });
+
+      sliderSpeed.addEventListener("input", (e) => {
+        speedFactor = Number(e.target.value);
+        valSpeed.textContent = speedFactor.toFixed(1) + "x";
+      });
+
+      // 4. Glife Tıklanınca İnceleme Hedefini Değiştir
+      glyphs.forEach((gl, idx) => {
+        gl.addEventListener("click", () => {
+          activeInspectIndex = idx;
+          activeGlyphLabel.textContent = `GLİF: #${idx} (${gl.getAttribute("data-char")})`;
+        });
+      });
+
+      // 5. AST Ağacı Metin Temsili Oluşturucu
+      function formatAST(transY, rotDeg, scaleVal) {
+        return `
+<span class="ast-node-type">CSSTransformValue</span> (3 components):
+├─ <span class="ast-node-type">CSSTranslate</span>:
+│   ├─ x: <span class="ast-unit-type">CSSUnitValue</span>(<span class="ast-num-val">0px</span>)
+│   └─ y: <span class="ast-unit-type">CSSUnitValue</span>(<span class="ast-num-val">${transY.toFixed(1)}px</span>)
+├─ <span class="ast-node-type">CSSRotate</span>:
+│   └─ angle: <span class="ast-unit-type">CSSUnitValue</span>(<span class="ast-num-val">${rotDeg.toFixed(1)}deg</span>)
+└─ <span class="ast-node-type">CSSScale</span>:
+    ├─ x: <span class="ast-unit-type">CSSUnitValue</span>(<span class="ast-num-val">${scaleVal.toFixed(2)}</span>)
+    └─ y: <span class="ast-unit-type">CSSUnitValue</span>(<span class="ast-num-val">${scaleVal.toFixed(2)}</span>)
+        `.trim();
+      }
+
+      // 6. 60 FPS CSS Typed OM Güncelleme Döngüsü
+      function animateHoudini() {
+        tick += 0.03 * speedFactor;
+
+        glyphs.forEach((glyph, i) => {
+          let transY = 0;
+          let rotZ = 0;
+          let scale = 1.0;
+          let opacity = 1.0;
+
+          if (currentMode === "wave") {
+            // Sinüzoidal Faz Farklı Dalga
+            const phase = tick + (i * 0.45);
+            transY = Math.sin(phase) * amplitude;
+            rotZ = Math.cos(phase) * maxAngle;
+            scale = 0.95 + (Math.sin(phase) * 0.12);
+            opacity = 0.85 + (Math.cos(phase) * 0.15);
+          } else if (currentMode === "vortex") {
+            // Kuantum Girdap Döngüsü
+            const angleRad = tick * 1.5 + (i * (Math.PI * 2 / glyphs.length));
+            transY = Math.sin(angleRad) * (amplitude * 0.8);
+            rotZ = Math.sin(tick + i) * (maxAngle * 1.8);
+            scale = 0.9 + (Math.cos(angleRad) * 0.2);
+            opacity = 0.8 + (Math.sin(angleRad) * 0.2);
+          } else if (currentMode === "skew") {
+            // İzometrik Matris Eğimi
+            const skewPhase = tick + (i * 0.2);
+            transY = Math.sin(skewPhase) * (amplitude * 0.5);
+            rotZ = (i - 4.5) * (maxAngle * 0.25);
+            scale = 1.0 + Math.abs(i - 4.5) * 0.03;
+            opacity = 0.9;
+          }
+
+          // CSS TYPED OM İLE DÖNÜŞÜM: SIFIR DİZGİ BİRLEŞTİRME!
+          if (glyph.attributeStyleMap) {
+            const transformVal = new CSSTransformValue([
+              new CSSTranslate(CSS.px(0), CSS.px(transY)),
+              new CSSRotate(CSS.deg(rotZ)),
+              new CSSScale(CSS.number(scale), CSS.number(scale))
+            ]);
+
+            glyph.attributeStyleMap.set("transform", transformVal);
+            glyph.attributeStyleMap.set("opacity", CSS.number(opacity));
+
+            // Aktif incelenen glif için AST görselleştiricisini güncelle
+            if (i === activeInspectIndex) {
+              astViewer.innerHTML = formatAST(transY, rotZ, scale);
+            }
+          }
+        });
+
+        requestAnimationFrame(animateHoudini);
+      }
+
+      // Motoru Başlat
+      requestAnimationFrame(animateHoudini);
+
+      statusEngineText.textContent = "HOUDINI TYPED OM ENGINE: AKTİF (attributeStyleMap.set 60 FPS)";
+    })();
+  </script>
+</body>
+</html>

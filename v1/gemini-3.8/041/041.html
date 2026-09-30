@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 041: CSS Anchor Positioning API &amp; Kuantum Aviyonik Telemetri Ağı</title>
+  <style>
+    /* ==========================================================================
+       1. KÖK DEĞİŞKENLER VE TEMEL AYARLAR
+       ========================================================================== */
+    :root {
+      --bg-base: #07090e;
+      --bg-panel: rgba(14, 18, 28, 0.85);
+      --bg-panel-border: rgba(45, 65, 100, 0.45);
+      --bg-card: rgba(22, 30, 48, 0.7);
+
+      --color-cyan: #00f0ff;
+      --color-gold: #ffd043;
+      --color-emerald: #05ffa1;
+      --color-ruby: #ff2a6d;
+      --color-text-main: #f0f4fc;
+      --color-text-muted: #8394b2;
+
+      --active-anchor: --anchor-w;
+
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-base);
+      color: var(--color-text-main);
+      font-family: var(--font-sans);
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Arka plan ızgarası */
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       2. ÜST BAŞLIK VE DECADE 5 ROZETİ (HEADER)
+       ========================================================================== */
+    .header-hud {
+      position: absolute;
+      top: 18px;
+      left: 24px;
+      pointer-events: none;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .badge-milestone {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      color: var(--color-cyan);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      width: fit-content;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.2);
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-cyan);
+      box-shadow: 0 0 8px var(--color-cyan);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 0.4; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .title-block h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-block p {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* ==========================================================================
+       3. ÇAPA SAHNESİ VE TİPOGRAFİK MONOLİT
+       ========================================================================== */
+    .anchor-stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .typography-monolith {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+      transition: transform 0.2s ease-out;
+    }
+
+    .word-cluster {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* ÇAPA KAYNAKLARI (ANCHOR ELEMENTS) */
+    .glyph-anchor {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 76px;
+      height: 94px;
+      font-size: 54px;
+      font-weight: 900;
+      color: #ffffff;
+      background: rgba(20, 26, 42, 0.6);
+      border: 1px solid rgba(70, 95, 140, 0.4);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .glyph-anchor:hover {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--color-cyan);
+      box-shadow: 0 0 24px rgba(0, 240, 255, 0.4);
+      transform: translateY(-4px);
+    }
+
+    .glyph-anchor.active {
+      background: rgba(0, 240, 255, 0.22);
+      border-color: var(--color-cyan);
+      box-shadow: 0 0 32px rgba(0, 240, 255, 0.55), inset 0 0 12px rgba(0, 240, 255, 0.3);
+      color: var(--color-cyan);
+    }
+
+    /* Kinetik dalga modunda harflerin hareketi */
+    .kinetic-wave .glyph-anchor {
+      animation: glyphFloat 3.2s infinite ease-in-out;
+    }
+
+    @keyframes glyphFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-16px); }
+    }
+
+    /* Her glife bağımsız CSS Anchor Adı */
+    #anchorH  { anchor-name: --anchor-h;  animation-delay: 0.0s; }
+    #anchorE  { anchor-name: --anchor-e;  animation-delay: 0.2s; }
+    #anchorL1 { anchor-name: --anchor-l1; animation-delay: 0.4s; }
+    #anchorL2 { anchor-name: --anchor-l2; animation-delay: 0.6s; }
+    #anchorO1 { anchor-name: --anchor-o1; animation-delay: 0.8s; }
+
+    #anchorW  { anchor-name: --anchor-w;  animation-delay: 1.0s; }
+    #anchorO2 { anchor-name: --anchor-o2; animation-delay: 1.2s; }
+    #anchorR  { anchor-name: --anchor-r;  animation-delay: 1.4s; }
+    #anchorL3 { anchor-name: --anchor-l3; animation-delay: 1.6s; }
+    #anchorD  { anchor-name: --anchor-d;  animation-delay: 1.8s; }
+
+    /* ==========================================================================
+       4. ÇAPALANMIŞ HEDEF ELEMANLAR (ANCHOR POSITIONED HUD ELEMENTS)
+       ========================================================================== */
+
+    /* Üst Mikro-Rozetler (@position-try fallbacks ile) */
+    @position-try --flip-top-to-bottom {
+      top: anchor(bottom);
+      bottom: unset;
+      margin-top: 10px;
+      margin-bottom: 0;
+    }
+
+    .badge-top {
+      position: absolute;
+      position-area: top center;
+      margin-bottom: 8px;
+      padding: 3px 8px;
+      background: rgba(10, 14, 22, 0.9);
+      border: 1px solid rgba(0, 240, 255, 0.5);
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--color-cyan);
+      white-space: nowrap;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+      position-try-fallbacks: --flip-top-to-bottom;
+      transition: opacity 0.2s;
+    }
+
+    /* Alt Telemetri Kapsülleri (@position-try fallbacks ile) */
+    @position-try --flip-bottom-to-top {
+      bottom: anchor(top);
+      top: unset;
+      margin-bottom: 10px;
+      margin-top: 0;
+    }
+
+    .badge-bottom {
+      position: absolute;
+      position-area: bottom center;
+      margin-top: 8px;
+      padding: 3px 8px;
+      background: rgba(10, 14, 22, 0.9);
+      border: 1px solid rgba(5, 255, 161, 0.5);
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--color-emerald);
+      white-space: nowrap;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+      position-try-fallbacks: --flip-bottom-to-top;
+    }
+
+    /* Her bir rozetin pozisyon çapası */
+    #badgeTopH  { position-anchor: --anchor-h;  }
+    #badgeTopE  { position-anchor: --anchor-e;  }
+    #badgeTopL1 { position-anchor: --anchor-l1; }
+    #badgeTopL2 { position-anchor: --anchor-l2; }
+    #badgeTopO1 { position-anchor: --anchor-o1; }
+    #badgeTopW  { position-anchor: --anchor-w;  }
+    #badgeTopO2 { position-anchor: --anchor-o2; }
+    #badgeTopR  { position-anchor: --anchor-r;  }
+    #badgeTopL3 { position-anchor: --anchor-l3; }
+    #badgeTopD  { position-anchor: --anchor-d;  }
+
+    #badgeBotH  { position-anchor: --anchor-h;  }
+    #badgeBotE  { position-anchor: --anchor-e;  }
+    #badgeBotL1 { position-anchor: --anchor-l1; }
+    #badgeBotL2 { position-anchor: --anchor-l2; }
+    #badgeBotO1 { position-anchor: --anchor-o1; }
+    #badgeBotW  { position-anchor: --anchor-w;  }
+    #badgeBotO2 { position-anchor: --anchor-o2; }
+    #badgeBotR  { position-anchor: --anchor-r;  }
+    #badgeBotL3 { position-anchor: --anchor-l3; }
+    #badgeBotD  { position-anchor: --anchor-d;  }
+
+    /* DİNAMİK ANA VİZÖR (MASTER TARGET VISOR) */
+    @position-try --visor-flip-left {
+      right: anchor(left);
+      left: unset;
+      margin-right: 14px;
+      margin-left: 0;
+    }
+
+    @position-try --visor-flip-top {
+      bottom: anchor(top);
+      top: unset;
+      left: anchor(center);
+      transform: translateX(-50%);
+      margin-bottom: 14px;
+      margin-left: 0;
+    }
+
+    .master-visor {
+      position: absolute;
+      position-anchor: var(--active-anchor);
+      top: anchor(center);
+      left: anchor(right);
+      transform: translateY(-50%);
+      margin-left: 14px;
+      width: 220px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--color-cyan);
+      border-radius: 8px;
+      padding: 12px;
+      z-index: 50;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 240, 255, 0.3);
+      position-try-fallbacks: --visor-flip-left, --visor-flip-top;
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .visor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-cyan);
+    }
+
+    .visor-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+
+    .visor-val {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       5. SAĞ KONTROL DOKU VE PARAMETRELER (RIGHT DOCK)
+       ========================================================================== */
+    .controls-dock {
+      position: absolute;
+      top: 18px;
+      right: 24px;
+      width: 300px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 100;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+    }
+
+    .panel-section-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-cyan);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(45, 65, 100, 0.3);
+      padding-bottom: 4px;
+    }
+
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--color-text-muted);
+    }
+
+    .control-val {
+      color: var(--color-text-main);
+      font-weight: 600;
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 5px;
+      background: #182030;
+      border-radius: 3px;
+      outline: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--color-cyan);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--color-cyan);
+    }
+
+    /* Glif Seçim Butonları */
+    .glyph-btn-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+    }
+
+    .btn-glyph {
+      background: var(--bg-card);
+      border: 1px solid rgba(45, 65, 100, 0.5);
+      color: var(--color-text-muted);
+      padding: 6px 0;
+      text-align: center;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-glyph:hover {
+      background: rgba(35, 48, 72, 0.8);
+      color: #ffffff;
+      border-color: var(--color-cyan);
+    }
+
+    .btn-glyph.active {
+      background: rgba(0, 240, 255, 0.16);
+      color: var(--color-cyan);
+      border-color: var(--color-cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+    }
+
+    .btn-action {
+      background: #162238;
+      border: 1px solid var(--color-cyan);
+      color: var(--color-cyan);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      width: 100%;
+    }
+
+    .btn-action:hover {
+      background: var(--color-cyan);
+      color: #07090e;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+    }
+
+    /* ==========================================================================
+       6. ALT TELEMETRİ ÇUBUĞU (BOTTOM HUD)
+       ========================================================================== */
+    .telemetry-bar {
+      position: absolute;
+      bottom: 18px;
+      left: 24px;
+      right: 24px;
+      height: 48px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 100;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .telemetry-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .telemetry-metric {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .metric-label {
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      font-size: 10px;
+    }
+
+    .metric-val {
+      color: var(--color-emerald);
+      font-weight: 700;
+    }
+
+    .telemetry-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--color-text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+
+  <!-- Üst Başlık ve Rozet -->
+  <header class="header-hud">
+    <div class="badge-milestone">
+      <span class="badge-dot"></span>
+      <span>Decade 5 Premier • Deney 041</span>
+    </div>
+    <div class="title-block">
+      <h1>HELLO WORLD • CSS ANCHOR POSITIONING HUD</h1>
+      <p>W3C CSS Anchor Positioning Module Level 1 • @position-try Declarative Fallbacks</p>
+    </div>
+  </header>
+
+  <!-- Çapa Sahnesi -->
+  <main class="anchor-stage" id="anchorStage">
+    <h2 class="typography-monolith kinetic-wave" id="monolith" aria-label="Hello World">
+      <!-- 1. Kelime: HELLO -->
+      <div class="word-cluster">
+        <div class="glyph-anchor" id="anchorH" data-char="H">H</div>
+        <div class="glyph-anchor" id="anchorE" data-char="E">E</div>
+        <div class="glyph-anchor" id="anchorL1" data-char="L1">L</div>
+        <div class="glyph-anchor" id="anchorL2" data-char="L2">L</div>
+        <div class="glyph-anchor" id="anchorO1" data-char="O1">O</div>
+      </div>
+
+      <!-- 2. Kelime: WORLD -->
+      <div class="word-cluster">
+        <div class="glyph-anchor active" id="anchorW" data-char="W">W</div>
+        <div class="glyph-anchor" id="anchorO2" data-char="O2">O</div>
+        <div class="glyph-anchor" id="anchorR" data-char="R">R</div>
+        <div class="glyph-anchor" id="anchorL3" data-char="L3">L</div>
+        <div class="glyph-anchor" id="anchorD" data-char="D">D</div>
+      </div>
+    </h2>
+
+    <!-- Üst Mikro-Rozetler (Declarative CSS Anchor Target) -->
+    <div class="badge-top" id="badgeTopH">GLYPH 0x48</div>
+    <div class="badge-top" id="badgeTopE">GLYPH 0x45</div>
+    <div class="badge-top" id="badgeTopL1">GLYPH 0x4C</div>
+    <div class="badge-top" id="badgeTopL2">GLYPH 0x4C</div>
+    <div class="badge-top" id="badgeTopO1">GLYPH 0x4F</div>
+    <div class="badge-top" id="badgeTopW">GLYPH 0x57</div>
+    <div class="badge-top" id="badgeTopO2">GLYPH 0x4F</div>
+    <div class="badge-top" id="badgeTopR">GLYPH 0x52</div>
+    <div class="badge-top" id="badgeTopL3">GLYPH 0x4C</div>
+    <div class="badge-top" id="badgeTopD">GLYPH 0x44</div>
+
+    <!-- Alt Telemetri Kapsülleri (Declarative CSS Anchor Target) -->
+    <div class="badge-bottom" id="badgeBotH">CH-1: 142.0 MHz</div>
+    <div class="badge-bottom" id="badgeBotE">CH-2: 144.2 MHz</div>
+    <div class="badge-bottom" id="badgeBotL1">CH-3: 146.4 MHz</div>
+    <div class="badge-bottom" id="badgeBotL2">CH-4: 148.6 MHz</div>
+    <div class="badge-bottom" id="badgeBotO1">CH-5: 150.8 MHz</div>
+    <div class="badge-bottom" id="badgeBotW">CH-6: 153.0 MHz</div>
+    <div class="badge-bottom" id="badgeBotO2">CH-7: 155.2 MHz</div>
+    <div class="badge-bottom" id="badgeBotR">CH-8: 157.4 MHz</div>
+    <div class="badge-bottom" id="badgeBotL3">CH-9: 159.6 MHz</div>
+    <div class="badge-bottom" id="badgeBotD">CH-10: 161.8 MHz</div>
+
+    <!-- Aktif Seçili Harfe Bağlı Master Vizör -->
+    <div class="master-visor" id="masterVisor">
+      <div class="visor-header">
+        <span>ÇAPA VİZÖRÜ</span>
+        <span id="txtVisorAnchor">--anchor-w</span>
+      </div>
+      <div class="visor-row">
+        <span>Glif Karakteri:</span>
+        <span class="visor-val" id="txtVisorChar">W</span>
+      </div>
+      <div class="visor-row">
+        <span>Konumlandırma:</span>
+        <span class="visor-val">CSS Anchor API</span>
+      </div>
+      <div class="visor-row">
+        <span>Fallback Kuralı:</span>
+        <span class="visor-val">@position-try</span>
+      </div>
+      <div class="visor-row">
+        <span>JS Koordinat Hesabı:</span>
+        <span class="visor-val" style="color:var(--color-emerald)">SIFIR (0 JS)</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sağ Kontrol Paneli -->
+  <aside class="controls-dock">
+    <div class="panel-section-title">
+      <span>Aktif Çapa Seçici</span>
+      <span id="txtActiveChar">W</span>
+    </div>
+
+    <div class="glyph-btn-grid">
+      <button type="button" class="btn-glyph" data-target="anchorH" data-anchor="--anchor-h">H</button>
+      <button type="button" class="btn-glyph" data-target="anchorE" data-anchor="--anchor-e">E</button>
+      <button type="button" class="btn-glyph" data-target="anchorL1" data-anchor="--anchor-l1">L</button>
+      <button type="button" class="btn-glyph" data-target="anchorL2" data-anchor="--anchor-l2">L</button>
+      <button type="button" class="btn-glyph" data-target="anchorO1" data-anchor="--anchor-o1">O</button>
+      <button type="button" class="btn-glyph active" data-target="anchorW" data-anchor="--anchor-w">W</button>
+      <button type="button" class="btn-glyph" data-target="anchorO2" data-anchor="--anchor-o2">O</button>
+      <button type="button" class="btn-glyph" data-target="anchorR" data-anchor="--anchor-r">R</button>
+      <button type="button" class="btn-glyph" data-target="anchorL3" data-anchor="--anchor-l3">L</button>
+      <button type="button" class="btn-glyph" data-target="anchorD" data-anchor="--anchor-d">D</button>
+    </div>
+
+    <div class="panel-section-title">
+      <span>Kinetik Simülasyon</span>
+      <span>60 FPS</span>
+    </div>
+
+    <button type="button" class="btn-action" id="btnToggleWave">Kinetik Dalga: AÇIK</button>
+
+    <div class="control-row">
+      <div class="control-label">
+        <span>X Ekseni Kaydırma (Fallback Testi)</span>
+        <span class="control-val" id="valShiftX">0 px</span>
+      </div>
+      <input type="range" class="slider" id="rngShiftX" min="-300" max="300" step="5" value="0">
+    </div>
+
+    <div class="control-row">
+      <div class="control-label">
+        <span>Y Ekseni Kaydırma</span>
+        <span class="control-val" id="valShiftY">0 px</span>
+      </div>
+      <input type="range" class="slider" id="rngShiftY" min="-180" max="180" step="5" value="0">
+    </div>
+
+    <button type="button" class="btn-action" id="btnResetShift">Merkeze Sıfırla</button>
+  </aside>
+
+  <!-- Alt Telemetri Çubuğu -->
+  <footer class="telemetry-bar">
+    <div class="telemetry-left">
+      <div class="telemetry-metric">
+        <span class="metric-label">API:</span>
+        <span class="metric-val" id="metricAPI">CSS Anchor Positioning</span>
+      </div>
+      <div class="telemetry-metric">
+        <span class="metric-label">Aktif Çapa:</span>
+        <span class="metric-val" id="metricActiveAnchor">--anchor-w</span>
+      </div>
+      <div class="telemetry-metric">
+        <span class="metric-label">Çapa Hedefleri:</span>
+        <span class="metric-val">21 ELEMAN</span>
+      </div>
+      <div class="telemetry-metric">
+        <span class="metric-label">C++ Yerleşim Takibi:</span>
+        <span class="metric-val">DONANIM DESTEKLİ</span>
+      </div>
+    </div>
+    <div class="telemetry-right">
+      <span>Harflere tıklayarak vizörü kenetleyin</span>
+    </div>
+  </footer>
+
+  <script>
+    /**
+     * ============================================================================
+     * DENEY 041: CSS ANCHOR POSITIONING ÇALIŞMA ZAMANI
+     * ============================================================================
+     * Hiçbir harici JavaScript kütüphanesi kullanılmaz.
+     * Konumlandırma ve fallback'ler tamamen tarayıcının yerel W3C CSS Anchor Positioning
+     * motoru tarafından gerçekleştirilir.
+     */
+
+    let currentAnchor = "--anchor-w";
+    let isWaveActive = true;
+    let shiftX = 0;
+    let shiftY = 0;
+
+    function selectAnchor(elementId, anchorVarName, charLabel) {
+      currentAnchor = anchorVarName;
+
+      // Kök değişkene ata: master visor bunu deklaratif olarak izler
+      document.documentElement.style.setProperty("--active-anchor", anchorVarName);
+
+      // Aktif harf stilini güncelle
+      document.querySelectorAll(".glyph-anchor").forEach(el => el.classList.remove("active"));
+      const targetEl = document.getElementById(elementId);
+      if (targetEl) targetEl.classList.add("active");
+
+      // Butonları güncelle
+      document.querySelectorAll(".btn-glyph").forEach(btn => {
+        if (btn.getAttribute("data-target") === elementId) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+
+      // HUD metinlerini güncelle
+      document.getElementById("txtActiveChar").textContent = charLabel;
+      document.getElementById("txtVisorAnchor").textContent = anchorVarName;
+      document.getElementById("txtVisorChar").textContent = charLabel;
+      document.getElementById("metricActiveAnchor").textContent = anchorVarName;
+    }
+
+    function updateMonolithTransform() {
+      const monolith = document.getElementById("monolith");
+      monolith.style.transform = `translate(${shiftX}px, ${shiftY}px)`;
+    }
+
+    function setupEventListeners() {
+      // Harflere tıklama
+      document.querySelectorAll(".glyph-anchor").forEach(el => {
+        el.addEventListener("click", () => {
+          const id = el.id;
+          const char = el.textContent.trim();
+          const anchorName = el.style.anchorName || getComputedStyle(el).anchorName;
+          selectAnchor(id, anchorName, char);
+        });
+      });
+
+      // Kontrol panelindeki butonlara tıklama
+      document.querySelectorAll(".btn-glyph").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.getAttribute("data-target");
+          const anchorVar = btn.getAttribute("data-anchor");
+          const char = btn.textContent.trim();
+          selectAnchor(targetId, anchorVar, char);
+        });
+      });
+
+      // Kinetik Dalga Butonu
+      const btnToggleWave = document.getElementById("btnToggleWave");
+      const monolith = document.getElementById("monolith");
+      btnToggleWave.addEventListener("click", () => {
+        isWaveActive = !isWaveActive;
+        if (isWaveActive) {
+          monolith.classList.add("kinetic-wave");
+          btnToggleWave.textContent = "Kinetik Dalga: AÇIK";
+        } else {
+          monolith.classList.remove("kinetic-wave");
+          btnToggleWave.textContent = "Kinetik Dalga: KAPALI";
+        }
+      });
+
+      // Kaydırıcılar (Viewport Fallback Testi)
+      const rngShiftX = document.getElementById("rngShiftX");
+      rngShiftX.addEventListener("input", (e) => {
+        shiftX = parseInt(e.target.value, 10);
+        document.getElementById("valShiftX").textContent = `${shiftX} px`;
+        updateMonolithTransform();
+      });
+
+      const rngShiftY = document.getElementById("rngShiftY");
+      rngShiftY.addEventListener("input", (e) => {
+        shiftY = parseInt(e.target.value, 10);
+        document.getElementById("valShiftY").textContent = `${shiftY} px`;
+        updateMonolithTransform();
+      });
+
+      // Sıfırlama Butonu
+      const btnResetShift = document.getElementById("btnResetShift");
+      btnResetShift.addEventListener("click", () => {
+        shiftX = 0;
+        shiftY = 0;
+        rngShiftX.value = 0;
+        rngShiftY.value = 0;
+        document.getElementById("valShiftX").textContent = "0 px";
+        document.getElementById("valShiftY").textContent = "0 px";
+        updateMonolithTransform();
+      });
+    }
+
+    // Başlatıcı ve Doğrulama
+    window.addEventListener("DOMContentLoaded", () => {
+      setupEventListeners();
+
+      // CSS Anchor Positioning Çalışma Zamanı Kanıtı
+      const hasAnchorName = CSS.supports("anchor-name: --test-anchor");
+      const hasPositionAnchor = CSS.supports("position-anchor: --test-anchor");
+      const hasAnchorFunc = CSS.supports("top: anchor(bottom)");
+      const hasPositionTry = CSS.supports("position-try-fallbacks: --flip");
+
+      window.__E041_VERIFIED = {
+        anchorPositioningSupported: hasAnchorName && hasPositionAnchor,
+        anchorFunctionSupported: hasAnchorFunc,
+        positionTrySupported: hasPositionTry,
+        activeAnchor: currentAnchor,
+        targetGlyphCount: 10
+      };
+    });
+  </script>
+</body>
+</html>

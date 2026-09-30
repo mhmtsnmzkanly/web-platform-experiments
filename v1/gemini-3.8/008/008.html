@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World - Deney 008 (Web Components & Shadow DOM)</title>
+  <style>
+    /*
+     * Ana Sayfa (Light DOM) Temel Stilleri
+     * Shadow DOM içinde tanımlanan stiller buradaki stillerden tamamen izoledir.
+     */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #070810;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .page-container {
+      position: relative;
+      width: 100vw;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .hud-header {
+      position: absolute;
+      top: 2rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    /*
+     * Bileşen Dış Tema Seçici Paneli
+     * Bu kontroller doğrudan <hello-world> etiketinin özniteliklerini (attributes)
+     * değiştirerek Web Components yaşam döngüsü reaktivitesini tetikler.
+     */
+    .controls-bar {
+      position: absolute;
+      bottom: 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 20;
+    }
+
+    .control-label {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-right: 0.25rem;
+      font-weight: 600;
+    }
+
+    .theme-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .theme-btn.active {
+      background: #38bdf8;
+      border-color: #38bdf8;
+      color: #041019;
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+    }
+
+    .glow-toggle-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-left: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .glow-toggle-btn.active {
+      background: #a855f7;
+      border-color: #a855f7;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <!--
+    HTML Şablonu (HTML5 <template> Elementi)
+    Bu şablon doğrudan DOM'a basılmaz; JavaScript ile klonlanarak Shadow DOM içine iliştirilir.
+  -->
+  <template id="hello-world-template">
+    <style>
+      /*
+       * Shadow DOM İç Stilleri
+       * Bu CSS kuralları kapsüllenmiştir; ana sayfayı etkilemez ve ana sayfa stillerinden etkilenmez.
+       */
+      :host {
+        display: block;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        --accent: #38bdf8;
+        --accent-glow: rgba(56, 189, 248, 0.45);
+        --card-bg: rgba(12, 18, 34, 0.7);
+        --card-border: rgba(56, 189, 248, 0.25);
+      }
+
+      /* :host([variant="..."]) Öznitelik Bazlı Kapsüllenmiş Temalandırma */
+      :host([variant="cyber"]) {
+        --accent: #00f0ff;
+        --accent-glow: rgba(0, 240, 255, 0.5);
+        --card-bg: rgba(6, 22, 38, 0.75);
+        --card-border: rgba(0, 240, 255, 0.3);
+      }
+
+      :host([variant="zen"]) {
+        --accent: #10b981;
+        --accent-glow: rgba(16, 185, 129, 0.45);
+        --card-bg: rgba(6, 28, 20, 0.75);
+        --card-border: rgba(16, 185, 129, 0.3);
+      }
+
+      :host([variant="retro"]) {
+        --accent: #f59e0b;
+        --accent-glow: rgba(245, 158, 11, 0.45);
+        --card-bg: rgba(35, 22, 8, 0.75);
+        --card-border: rgba(245, 158, 11, 0.3);
+      }
+
+      :host([variant="prism"]) {
+        --accent: #ec4899;
+        --accent-glow: rgba(236, 72, 153, 0.5);
+        --card-bg: rgba(35, 10, 26, 0.75);
+        --card-border: rgba(236, 72, 153, 0.3);
+      }
+
+      :host([glow="false"]) {
+        --accent-glow: transparent;
+      }
+
+      .card {
+        position: relative;
+        padding: 3rem 4.5rem;
+        border-radius: 2rem;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 50px var(--accent-glow);
+        text-align: center;
+        transition: all 0.4s ease;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: ui-monospace, monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: rgba(255, 255, 255, 0.05);
+        padding: 0.4rem 1.1rem;
+        border-radius: 9999px;
+        border: 1px solid var(--card-border);
+        margin-bottom: 1.5rem;
+      }
+
+      .title {
+        font-size: clamp(3rem, 9vw, 6.5rem);
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+        color: #ffffff;
+        text-shadow: 0 0 35px var(--accent-glow);
+        margin-bottom: 1rem;
+      }
+
+      /* ::slotted ile Ana Sayfadan Enjekte Edilen İçeriği Biçimlendirme */
+      ::slotted([slot="subtitle"]) {
+        display: block;
+        font-size: 1.05rem;
+        color: #94a3b8;
+        letter-spacing: 0.04em;
+        font-weight: 400;
+      }
+
+      .telemetry {
+        margin-top: 2rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        font-family: ui-monospace, monospace;
+        font-size: 0.75rem;
+        color: #64748b;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: var(--accent);
+      }
+
+      .pulse-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: currentColor;
+        box-shadow: 0 0 8px currentColor;
+      }
+    </style>
+
+    <div class="card">
+      <div class="badge" id="badgeText">&lt;hello-world&gt; :: CYBER</div>
+      <h1 class="title">Hello World</h1>
+      <!-- Slot ile dışarıdan enjekte edilen altyazı alanı -->
+      <slot name="subtitle"></slot>
+      <div class="telemetry">
+        <span class="status-pill"><span class="pulse-dot"></span> Shadow Root: OPEN</span>
+        <span id="attrDisplay">Öznitelikler: variant="cyber" glow="true"</span>
+      </div>
+    </div>
+  </template>
+
+  <main class="page-container">
+    <div class="hud-header">Deney 008 // Web Components & Shadow DOM</div>
+
+    <!--
+      Özel Web Bileşeni (Custom Element)
+      Kapsüllenmiş DOM yapısı ve reaktif öznitelikleriyle çağrılır.
+    -->
+    <hello-world id="hwComp" variant="cyber" glow="true">
+      <span slot="subtitle">W3C Standartlarında Saf Kapsüllenmiş Gölge Ağaç (Shadow Tree)</span>
+    </hello-world>
+
+    <!-- Ana Sayfa Kontrol Çubuğu -->
+    <nav class="controls-bar" aria-label="Bileşen Öznitelik Yönetimi">
+      <span class="control-label">Tema:</span>
+      <button type="button" class="theme-btn active" data-variant="cyber">Cyber</button>
+      <button type="button" class="theme-btn" data-variant="zen">Zen</button>
+      <button type="button" class="theme-btn" data-variant="retro">Retro</button>
+      <button type="button" class="theme-btn" data-variant="prism">Prism</button>
+      <button type="button" class="glow-toggle-btn active" id="glowToggle">Işıma: Açık</button>
+    </nav>
+  </main>
+
+  <script>
+    /**
+     * Hello World Lab - Deney 008: Web Components & Shadow DOM
+     *
+     * Çalışma Mantığı:
+     * 1. HTMLElement sınıfından miras alan HelloWorldElement sınıfı oluşturulur.
+     * 2. attachShadow({ mode: 'open' }) ile bileşene özel yalıtılmış gölge kök (shadow root) bağlanır.
+     * 3. <template> elemanının içeriği klonlanarak shadow root içine enjekte edilir.
+     * 4. static get observedAttributes() ile 'variant' ve 'glow' öznitelikleri izlemeye alınır.
+     * 5. attributeChangedCallback() yaşam döngüsü kancası, bu özniteliklerin her değişiminde
+     *    bileşenin iç metinlerini ve stil parametrelerini anında günceller.
+     * 6. customElements.define('hello-world', HelloWorldElement) ile tarayıcıya yerel etiket kaydedilir.
+     */
+
+    (function() {
+      'use strict';
+
+      class HelloWorldElement extends HTMLElement {
+        constructor() {
+          super();
+          // Açık modda Shadow Root iliştir (dışarıdan inspection ve erişim mümkündür)
+          const shadow = this.attachShadow({ mode: 'open' });
+          const template = document.getElementById('hello-world-template');
+          shadow.appendChild(template.content.cloneNode(true));
+        }
+
+        /**
+         * Reaktif olarak takip edilecek HTML özniteliklerinin listesi
+         */
+        static get observedAttributes() {
+          return ['variant', 'glow'];
+        }
+
+        /**
+         * Bileşen DOM ağacına başarıyla bağlandığında tetiklenen yaşam döngüsü kancası
+         */
+        connectedCallback() {
+          this.updateDisplay();
+        }
+
+        /**
+         * İzlenen özniteliklerden biri değiştiğinde otomatik çalışan reaktif kanca
+         */
+        attributeChangedCallback(name, oldValue, newValue) {
+          if (oldValue !== newValue) {
+            this.updateDisplay();
+          }
+        }
+
+        /**
+         * Bileşenin iç görsel durumunu ve telemetri metinlerini güncelleme
+         */
+        updateDisplay() {
+          if (!this.shadowRoot) return;
+
+          const variant = (this.getAttribute('variant') || 'cyber').toUpperCase();
+          const glow = this.getAttribute('glow') !== 'false';
+
+          const badgeEl = this.shadowRoot.getElementById('badgeText');
+          const attrDisplayEl = this.shadowRoot.getElementById('attrDisplay');
+
+          if (badgeEl) {
+            badgeEl.textContent = `<hello-world> :: ${variant}`;
+          }
+
+          if (attrDisplayEl) {
+            attrDisplayEl.textContent = `Öznitelikler: variant="${variant.toLowerCase()}" glow="${glow}"`;
+          }
+        }
+      }
+
+      // Tarayıcının yerel Custom Element Registry kütüğüne özel bileşeni kaydet
+      customElements.define('hello-world', HelloWorldElement);
+
+      // Ana Sayfa Etkileşim Dinleyicileri (Reaktiviteyi Test Etme)
+      const hwComp = document.getElementById('hwComp');
+      const themeBtns = document.querySelectorAll('.theme-btn');
+      const glowToggle = document.getElementById('glowToggle');
+
+      themeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          themeBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const variant = btn.getAttribute('data-variant');
+          // Custom Element üzerindeki özniteliği değiştir; bu işlem attributeChangedCallback tetikler
+          hwComp.setAttribute('variant', variant);
+        });
+      });
+
+      glowToggle.addEventListener('click', () => {
+        const currentGlow = hwComp.getAttribute('glow') !== 'false';
+        const newGlow = !currentGlow;
+        hwComp.setAttribute('glow', newGlow ? 'true' : 'false');
+
+        glowToggle.classList.toggle('active', newGlow);
+        glowToggle.textContent = newGlow ? 'Işıma: Açık' : 'Işıma: Kapalı';
+      });
+
+    })();
+  </script>
+</body>
+</html>

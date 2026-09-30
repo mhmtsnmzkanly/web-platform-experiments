@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Shader Field</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #060712;
+      color: #f6f4ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      background: #060712;
+    }
+
+    main {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .veil {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(6, 7, 18, 0.4), transparent 50%, rgba(6, 7, 18, 0.32));
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: min(1120px, calc(100vw - 64px));
+      height: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 24px;
+      padding: 34px 0 28px;
+    }
+
+    header,
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      color: rgba(215, 217, 255, 0.72);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    header {
+      border-top: 1px solid rgba(215, 217, 255, 0.36);
+      padding-top: 12px;
+    }
+
+    header span:first-child,
+    footer span:last-child {
+      color: #ff8fb8;
+    }
+
+    header span:last-child,
+    footer span:first-child {
+      color: #82e8e0;
+      text-align: right;
+    }
+
+    .hero {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(215, 217, 255, 0.22);
+      background: rgba(6, 7, 18, 0.18);
+      box-shadow: inset 0 0 80px rgba(130, 84, 255, 0.12);
+    }
+
+    h1 {
+      margin: 0;
+      color: #fbfaff;
+      font-size: clamp(62px, 13.8vw, 186px);
+      font-weight: 800;
+      letter-spacing: -0.09em;
+      line-height: 0.86;
+      text-align: center;
+      text-shadow:
+        0 0 18px rgba(255, 143, 184, 0.46),
+        0 0 54px rgba(130, 232, 224, 0.3);
+    }
+
+    .marker {
+      position: absolute;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ff8fb8;
+      box-shadow: 0 0 20px #ff8fb8;
+      transform: translateY(-50%);
+    }
+
+    .marker.left {
+      left: 26px;
+    }
+
+    .marker.right {
+      right: 26px;
+      background: #82e8e0;
+      box-shadow: 0 0 20px #82e8e0;
+    }
+
+    @media (max-width: 640px) {
+      .content {
+        width: calc(100vw - 28px);
+        padding-top: 22px;
+      }
+
+      header,
+      footer {
+        font-size: 9px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <canvas id="shader-field" aria-hidden="true"></canvas>
+    <div class="veil" aria-hidden="true"></div>
+    <div class="content">
+      <header>
+        <span>006 / SHADER FIELD</span>
+        <span>WEBGL / FRAGMENT PIPELINE</span>
+      </header>
+
+      <section class="hero" aria-label="Hello World rendered over a WebGL shader field">
+        <span class="marker left" aria-hidden="true"></span>
+        <h1>Hello World</h1>
+        <span class="marker right" aria-hidden="true"></span>
+      </section>
+
+      <footer>
+        <span>GPU LIGHT, HUMAN WORD</span>
+        <span>LIVE / <strong>UNIFORM 00:00</strong></span>
+      </footer>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById("shader-field");
+      const gl = canvas.getContext("webgl", { antialias: true, alpha: false });
+      if (!gl) {
+        throw new Error("WebGL context is unavailable.");
+      }
+
+      const vertexSource = `
+        attribute vec2 a_position;
+        void main() {
+          gl_Position = vec4(a_position, 0.0, 1.0);
+        }
+      `;
+      const fragmentSource = `
+        precision mediump float;
+        uniform float u_time;
+        uniform vec2 u_resolution;
+
+        void main() {
+          vec2 uv = gl_FragCoord.xy / u_resolution;
+          vec2 p = uv * 2.0 - 1.0;
+          p.x *= u_resolution.x / u_resolution.y;
+          float radius = length(p);
+          float angle = atan(p.y, p.x);
+          float wave = sin(radius * 18.0 - u_time * 1.1 + sin(angle * 4.0) * 1.5);
+          float pulse = 0.5 + 0.5 * sin(u_time * 0.7 + radius * 9.0);
+          vec3 violet = vec3(0.18, 0.08, 0.46);
+          vec3 cyan = vec3(0.04, 0.48, 0.55);
+          vec3 pink = vec3(0.72, 0.08, 0.32);
+          vec3 field = mix(violet, cyan, 0.5 + 0.5 * sin(angle + u_time * 0.2));
+          field = mix(field, pink, smoothstep(0.35, 0.95, radius) * 0.42);
+          field += vec3(0.12) * wave * pulse;
+          float vignette = smoothstep(1.8, 0.15, radius);
+          gl_FragColor = vec4(field * vignette, 1.0);
+        }
+      `;
+
+      function compile(type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          const message = gl.getShaderInfoLog(shader);
+          gl.deleteShader(shader);
+          throw new Error(message || "Shader compilation failed.");
+        }
+        return shader;
+      }
+
+      const program = gl.createProgram();
+      gl.attachShader(program, compile(gl.VERTEX_SHADER, vertexSource));
+      gl.attachShader(program, compile(gl.FRAGMENT_SHADER, fragmentSource));
+      gl.linkProgram(program);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        throw new Error(gl.getProgramInfoLog(program) || "Shader program link failed.");
+      }
+      gl.useProgram(program);
+
+      const buffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        -1, -1, 1, -1, -1, 1,
+        -1, 1, 1, -1, 1, 1
+      ]), gl.STATIC_DRAW);
+
+      const position = gl.getAttribLocation(program, "a_position");
+      const time = gl.getUniformLocation(program, "u_time");
+      const resolution = gl.getUniformLocation(program, "u_resolution");
+      gl.enableVertexAttribArray(position);
+      gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+      function resize() {
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.max(1, Math.floor(window.innerWidth * ratio));
+        canvas.height = Math.max(1, Math.floor(window.innerHeight * ratio));
+        gl.viewport(0, 0, canvas.width, canvas.height);
+      }
+
+      function draw(now) {
+        resize();
+        gl.uniform1f(time, now * 0.001);
+        gl.uniform2f(resolution, canvas.width, canvas.height);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        requestAnimationFrame(draw);
+      }
+
+      window.addEventListener("resize", resize);
+      resize();
+      requestAnimationFrame(draw);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World Lab — Deney 036: OffscreenCanvas & createImageBitmap API</title>
+  <style>
+    /* ==========================================================================
+       1. KÖK DEĞİŞKENLER VE TEMEL RENK PALETİ
+       ========================================================================== */
+    :root {
+      --bg-base: #030712;
+      --bg-surface: #090d1a;
+      --bg-card: rgba(15, 23, 42, 0.85);
+      --bg-card-hover: rgba(30, 41, 59, 0.9);
+      
+      --neon-cyan: #06b6d4;
+      --neon-cyan-glow: rgba(6, 182, 212, 0.35);
+      --neon-amber: #f59e0b;
+      --neon-amber-glow: rgba(245, 158, 11, 0.35);
+      --neon-green: #10b981;
+      --neon-green-glow: rgba(16, 185, 129, 0.35);
+      --neon-ruby: #f43f5e;
+      --neon-ruby-glow: rgba(244, 63, 94, 0.35);
+      --neon-violet: #8b5cf6;
+      --neon-violet-glow: rgba(139, 92, 246, 0.35);
+
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --text-muted: #64748b;
+      --border-subtle: rgba(56, 189, 248, 0.16);
+      --border-active: rgba(6, 182, 212, 0.5);
+
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       2. BAŞLIK VE KONTROL ŞERİDİ (Header HUD)
+       ========================================================================== */
+    header {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(3, 7, 18, 0.95));
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .badge-experiment {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2));
+      color: var(--neon-cyan);
+      border: 1px solid var(--border-active);
+      padding: 0.3rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      font-family: var(--font-mono);
+      box-shadow: 0 0 12px var(--neon-cyan-glow);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    .header-telemetry {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .telemetry-chip {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      min-width: 95px;
+    }
+
+    .telemetry-label {
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .telemetry-value {
+      font-size: 0.88rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--neon-cyan);
+    }
+
+    .telemetry-value.green { color: var(--neon-green); }
+    .telemetry-value.amber { color: var(--neon-amber); }
+    .telemetry-value.violet { color: var(--neon-violet); }
+
+    /* ==========================================================================
+       3. ANA ÇALIŞMA ALANI (Master Layout)
+       ========================================================================== */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.25rem;
+      padding: 1.25rem 1.75rem;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1080px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Sol Panel: Master Render Sahnesi */
+    .viewport-stage {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .stage-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--neon-green);
+      box-shadow: 0 0 8px var(--neon-green);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Master Kompozitör Tuvali */
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000000;
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(6, 182, 212, 0.1);
+    }
+
+    #masterCanvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      image-rendering: auto;
+    }
+
+    /* Tipografi Başlık Bandı (DOM Tabanlı Odak) */
+    .typography-banner {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.7));
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.45rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .banner-heading {
+      font-size: 1.65rem;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ffffff 0%, var(--neon-cyan) 50%, var(--neon-violet) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 12px var(--neon-cyan-glow));
+      margin-bottom: 0.1rem;
+      line-height: 1.1;
+    }
+
+    .banner-desc {
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      letter-spacing: 0.05em;
+    }
+
+    /* Üç Bağımsız Offscreen Tamponu Önizleme Panelleri */
+    .buffer-inspectors-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem;
+      width: 100%;
+    }
+
+    .buffer-box {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .buffer-box-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.62rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--text-dim);
+    }
+
+    .buffer-box-tag {
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      font-size: 0.55rem;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .buffer-preview-canvas {
+      width: 100%;
+      height: 54px;
+      background: #02040a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* ==========================================================================
+       4. YAN KONTROL VE TELEMETRİ MASASI (Controls Sidebar)
+       ========================================================================== */
+    .controls-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .panel-section-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* Katman Seçici Anahtarlar */
+    .layer-toggle-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .layer-toggle-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .layer-toggle-item:hover {
+      border-color: var(--border-active);
+      background: rgba(30, 41, 59, 0.8);
+    }
+
+    .layer-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .layer-color-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    .layer-name {
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .layer-sub {
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    .custom-switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+    }
+
+    .custom-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #334155;
+      transition: 0.25s;
+      border-radius: 20px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.25s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--neon-cyan);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(16px);
+    }
+
+    /* Çözünürlük ve Render Kontrolleri */
+    .btn-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .opt-btn {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+      padding: 0.45rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .opt-btn:hover {
+      border-color: var(--neon-cyan);
+      color: #ffffff;
+    }
+
+    .opt-btn.active {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(139, 92, 246, 0.25));
+      border-color: var(--neon-cyan);
+      color: #ffffff;
+      box-shadow: 0 0 10px var(--neon-cyan-glow);
+    }
+
+    /* Sürgü Kontrolleri */
+    .slider-control {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+    }
+
+    .range-input {
+      width: 100%;
+      height: 5px;
+      background: #334155;
+      border-radius: 5px;
+      outline: none;
+      accent-color: var(--neon-cyan);
+      cursor: pointer;
+    }
+
+    /* Aksiyon Butonları */
+    .action-btn {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(16, 185, 129, 0.15));
+      border: 1px solid var(--neon-cyan);
+      color: #ffffff;
+      padding: 0.65rem 1rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 12px var(--neon-cyan-glow);
+    }
+
+    .action-btn:hover {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(16, 185, 129, 0.3));
+      box-shadow: 0 0 20px var(--neon-cyan-glow);
+      transform: translateY(-1px);
+    }
+
+    /* Blob Dışa Aktarma Önizleme Bölgesi */
+    .blob-preview-deck {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px dashed var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .blob-thumb {
+      width: 60px;
+      height: 38px;
+      background: #000000;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .blob-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-dim);
+    }
+
+    /* Olay Telemetri Akışı */
+    .telemetry-log {
+      background: #020612;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 0.5rem;
+      height: 110px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .log-row {
+      display: flex;
+      gap: 0.4rem;
+      line-height: 1.3;
+    }
+
+    .log-time { color: var(--text-muted); }
+    .log-tag { font-weight: 700; color: var(--neon-cyan); }
+    .log-tag.bmp { color: var(--neon-violet); }
+    .log-tag.blob { color: var(--neon-green); }
+    .log-text { color: var(--text-dim); }
+
+    /* ==========================================================================
+       5. ALT BİLGİ ŞERİDİ (Footer)
+       ========================================================================== */
+    footer {
+      background: rgba(3, 7, 18, 0.95);
+      border-top: 1px solid var(--border-subtle);
+      padding: 0.75rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+    }
+
+    .footer-stat {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Bilgi ve Telemetri Şeridi -->
+  <header>
+    <div class="brand-section">
+      <span class="badge-experiment">DENEY 036</span>
+      <div>
+        <h1 class="brand-title">
+          <span>OffscreenCanvas & createImageBitmap API</span>
+        </h1>
+        <p class="brand-subtitle">Çok Katmanlı Asenkron Piksel Render Motoru ve Çift Tamponlu Sentezleyici</p>
+      </div>
+    </div>
+
+    <div class="header-telemetry">
+      <div class="telemetry-chip">
+        <span class="telemetry-label">KARE HIZI</span>
+        <span class="telemetry-value green" id="valFps">60 FPS</span>
+      </div>
+      <div class="telemetry-chip">
+        <span class="telemetry-label">BITMAP TRANSFER</span>
+        <span class="telemetry-value" id="valTransferTime">0.32 ms</span>
+      </div>
+      <div class="telemetry-chip">
+        <span class="telemetry-label">TAMPON BELLEK</span>
+        <span class="telemetry-value amber" id="valMemoryEst">4.95 MB</span>
+      </div>
+      <div class="telemetry-chip">
+        <span class="telemetry-label">RENDER DÖNGÜSÜ</span>
+        <span class="telemetry-value violet" id="valFrameCount">#0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ana Sahne ve Kontroller -->
+  <main>
+    <!-- Sol Panel: Master Render Sahnesi ve Önizleme Masası -->
+    <section class="viewport-stage" aria-label="Master Render Sahnesi">
+      
+      <div class="stage-header">
+        <div class="stage-title">
+          <span class="live-dot"></span>
+          <span>MASTER KOMPOZİTÖR EKRANI (60 FPS ÇİFT TAMPONLAMA)</span>
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-dim);">
+          ÇÖZÜNÜRLÜK: <strong id="lblResolution" style="color: var(--neon-cyan);">860 × 480 px</strong>
+        </div>
+      </div>
+
+      <!-- Master Canvas -->
+      <div class="canvas-container">
+        <canvas id="masterCanvas" width="860" height="480" aria-label="OffscreenCanvas Kompozitör Görsel Sahnesi"></canvas>
+      </div>
+
+      <!-- Tipografi Odak Başlığı (DOM Seviyesi) -->
+      <div class="typography-banner" id="typoBanner">
+        <div class="banner-heading">HELLO WORLD</div>
+        <div class="banner-desc">W3C OffscreenCanvas & ImageBitmap Donanım Hızlandırmalı Çift Tamponlu Piksel Sentezi</div>
+      </div>
+
+      <!-- Üç Bağımsız Offscreen Tamponu Önizleme Pencereleri -->
+      <div class="buffer-inspectors-grid">
+        
+        <!-- Tampon A: Tipografi -->
+        <div class="buffer-box">
+          <div class="buffer-box-header">
+            <span style="color: var(--neon-cyan);">TAMPON A: TİPOGRAFİ</span>
+            <span class="buffer-box-tag">Offscreen 2D</span>
+          </div>
+          <canvas class="buffer-preview-canvas" id="prevTypo" width="280" height="150"></canvas>
+          <div style="font-size: 0.58rem; font-family: var(--font-mono); color: var(--text-dim); display: flex; justify-content: space-between;">
+            <span>Lazer Glif Katmanı</span>
+            <span id="txtTypoTime">0.15 ms</span>
+          </div>
+        </div>
+
+        <!-- Tampon B: Kuantum Izgara & Parçacıklar -->
+        <div class="buffer-box">
+          <div class="buffer-box-header">
+            <span style="color: var(--neon-violet);">TAMPON B: IZGARA & SPARK</span>
+            <span class="buffer-box-tag">Offscreen 2D</span>
+          </div>
+          <canvas class="buffer-preview-canvas" id="prevGrid" width="280" height="150"></canvas>
+          <div style="font-size: 0.58rem; font-family: var(--font-mono); color: var(--text-dim); display: flex; justify-content: space-between;">
+            <span>Perspektif Matrisi</span>
+            <span id="txtGridTime">0.12 ms</span>
+          </div>
+        </div>
+
+        <!-- Tampon C: CRT Fosfor ve Tarama -->
+        <div class="buffer-box">
+          <div class="buffer-box-header">
+            <span style="color: var(--neon-amber);">TAMPON C: CRT SCANLINE</span>
+            <span class="buffer-box-tag">Offscreen 2D</span>
+          </div>
+          <canvas class="buffer-preview-canvas" id="prevScanline" width="280" height="150"></canvas>
+          <div style="font-size: 0.58rem; font-family: var(--font-mono); color: var(--text-dim); display: flex; justify-content: space-between;">
+            <span>Raster Tarama Filtresi</span>
+            <span id="txtScanlineTime">0.08 ms</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Yan Kontrol ve Telemetri Masası -->
+    <aside class="controls-panel" aria-label="Piksel Motoru Kontrol Paneli">
+      
+      <!-- Katman Kompozisyon Anahtarları -->
+      <div>
+        <div class="panel-section-title">
+          <span>Katman Kompozitörü (Layers)</span>
+          <span style="font-size: 0.65rem; color: var(--neon-cyan);">3 TAMPON</span>
+        </div>
+        <div class="layer-toggle-group" style="margin-top: 0.75rem;">
+          
+          <label class="layer-toggle-item">
+            <div class="layer-info">
+              <span class="layer-color-indicator" style="background: var(--neon-cyan);"></span>
+              <div>
+                <div class="layer-name">Tampon A: Tipografi</div>
+                <div class="layer-sub">HELLO WORLD Vektörel Glif</div>
+              </div>
+            </div>
+            <div class="custom-switch">
+              <input type="checkbox" id="chkLayerTypo" checked>
+              <span class="slider"></span>
+            </div>
+          </label>
+
+          <label class="layer-toggle-item">
+            <div class="layer-info">
+              <span class="layer-color-indicator" style="background: var(--neon-violet);"></span>
+              <div>
+                <div class="layer-name">Tampon B: Kuantum Izgara</div>
+                <div class="layer-sub">3D Ufuk ve Parçacıklar</div>
+              </div>
+            </div>
+            <div class="custom-switch">
+              <input type="checkbox" id="chkLayerGrid" checked>
+              <span class="slider"></span>
+            </div>
+          </label>
+
+          <label class="layer-toggle-item">
+            <div class="layer-info">
+              <span class="layer-color-indicator" style="background: var(--neon-amber);"></span>
+              <div>
+                <div class="layer-name">Tampon C: CRT Fosfor</div>
+                <div class="layer-sub">Raster Scanline ve Vignette</div>
+              </div>
+            </div>
+            <div class="custom-switch">
+              <input type="checkbox" id="chkLayerScanline" checked>
+              <span class="slider"></span>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+      <!-- Çözünürlük Çarpanı -->
+      <div>
+        <div class="panel-section-title">
+          <span>Çözünürlük Ölçeği</span>
+          <span style="font-size: 0.65rem; color: var(--neon-amber);">SCALE</span>
+        </div>
+        <div class="btn-group" style="margin-top: 0.75rem;">
+          <button type="button" class="opt-btn active" data-scale="1.0">1.0x (SD)</button>
+          <button type="button" class="opt-btn" data-scale="1.5">1.5x (HD)</button>
+          <button type="button" class="opt-btn" data-scale="2.0">2.0x (HiDPI)</button>
+        </div>
+      </div>
+
+      <!-- Görsel Modülasyon Parametreleri -->
+      <div>
+        <div class="panel-section-title">
+          <span>Görsel Modülasyon</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-top: 0.75rem;">
+          
+          <div class="slider-control">
+            <div class="slider-header">
+              <span>Kromatik Sapma (Aberration):</span>
+              <strong id="lblAberration">4 px</strong>
+            </div>
+            <input type="range" class="range-input" id="rngAberration" min="0" max="15" value="4">
+          </div>
+
+          <div class="slider-control">
+            <div class="slider-header">
+              <span>Izgara Hızı (Velocity):</span>
+              <strong id="lblGridSpeed">1.0x</strong>
+            </div>
+            <input type="range" class="range-input" id="rngGridSpeed" min="0.2" max="3.0" step="0.1" value="1.0">
+          </div>
+
+          <div class="slider-control">
+            <div class="slider-header">
+              <span>Scanline Yoğunluğu:</span>
+              <strong id="lblScanDensity">50%</strong>
+            </div>
+            <input type="range" class="range-input" id="rngScanDensity" min="10" max="100" value="50">
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Asenkron convertToBlob() Entegrasyonu -->
+      <div>
+        <div class="panel-section-title">
+          <span>Asenkron Blob Dışa Aktarma</span>
+          <span style="font-size: 0.65rem; color: var(--neon-green);">PNG</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.75rem;">
+          <button type="button" class="action-btn" id="btnExportBlob">
+            <span>📷</span>
+            <span>convertToBlob() GÖRÜNTÜ AL</span>
+          </button>
+          
+          <div class="blob-preview-deck" id="blobDeck">
+            <img class="blob-thumb" id="blobThumb" alt="Offscreen Blob Thumbnail" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='38' viewBox='0 0 60 38'%3E%3Crect width='60' height='38' fill='%230f172a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%2364748b' font-size='8'%3EBekleniyor%3C/text%3E%3C/svg%3E">
+            <div class="blob-meta">
+              <div>DURUM: <span id="blobStatus" style="color: var(--text-dim);">Hazır</span></div>
+              <div>BOYUT: <span id="blobSize" style="color: var(--neon-green);">-</span></div>
+              <div>MIME: <span style="color: var(--text-main);">image/png</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Olay ve Performans Günlüğü -->
+      <div>
+        <div class="panel-section-title">
+          <span>Asenkron Render Telemetrisi</span>
+        </div>
+        <div class="telemetry-log" id="telemetryLog" style="margin-top: 0.5rem;">
+          <!-- Canlı satırlar -->
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- Alt Bilgi Şeridi -->
+  <footer>
+    <div>
+      <span>STANDART: </span>
+      <span class="footer-stat">W3C OffscreenCanvas Level 1 & HTML ImageBitmap</span>
+    </div>
+    <div>
+      <span>RENDER YÖNTEMİ: </span>
+      <span class="footer-stat">Asynchronous Triple Offscreen Double-Buffering</span>
+    </div>
+    <div>
+      <span>DONANIM DESTEĞİ: </span>
+      <span class="footer-stat" id="hwSupport">OffscreenCanvas + ImageBitmap %100 Uyumlu</span>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       6. JAVASCRIPT ÇALIŞMA ZAMANI MOTORU (Tekil Script Bloğu)
+       ========================================================================== -->
+  <script>
+    (function initOffscreenCanvasEngine() {
+      // 1. STANDART DESTEK KONTROLÜ
+      const hasOffscreen = typeof window.OffscreenCanvas === "function";
+      const hasBitmap = typeof window.createImageBitmap === "function";
+
+      const hwSupportEl = document.getElementById("hwSupport");
+      if (!hasOffscreen || !hasBitmap) {
+        if (hwSupportEl) hwSupportEl.textContent = "Tarayıcıda OffscreenCanvas veya createImageBitmap eksik!";
+        console.error("OffscreenCanvas veya createImageBitmap desteklenmiyor!");
+        return;
+      }
+
+      // 2. DOM ELEMANLARI
+      const masterCanvas = document.getElementById("masterCanvas");
+      const masterCtx = masterCanvas.getContext("2d", { alpha: false });
+
+      const prevTypo = document.getElementById("prevTypo");
+      const ctxPrevTypo = prevTypo.getContext("2d");
+      const prevGrid = document.getElementById("prevGrid");
+      const ctxPrevGrid = prevGrid.getContext("2d");
+      const prevScanline = document.getElementById("prevScanline");
+      const ctxPrevScanline = prevScanline.getContext("2d");
+
+      const valFps = document.getElementById("valFps");
+      const valTransferTime = document.getElementById("valTransferTime");
+      const valMemoryEst = document.getElementById("valMemoryEst");
+      const valFrameCount = document.getElementById("valFrameCount");
+      const lblResolution = document.getElementById("lblResolution");
+
+      const txtTypoTime = document.getElementById("txtTypoTime");
+      const txtGridTime = document.getElementById("txtGridTime");
+      const txtScanlineTime = document.getElementById("txtScanlineTime");
+
+      const chkLayerTypo = document.getElementById("chkLayerTypo");
+      const chkLayerGrid = document.getElementById("chkLayerGrid");
+      const chkLayerScanline = document.getElementById("chkLayerScanline");
+
+      const rngAberration = document.getElementById("rngAberration");
+      const lblAberration = document.getElementById("lblAberration");
+      const rngGridSpeed = document.getElementById("rngGridSpeed");
+      const lblGridSpeed = document.getElementById("lblGridSpeed");
+      const rngScanDensity = document.getElementById("rngScanDensity");
+      const lblScanDensity = document.getElementById("lblScanDensity");
+
+      const btnExportBlob = document.getElementById("btnExportBlob");
+      const blobThumb = document.getElementById("blobThumb");
+      const blobStatus = document.getElementById("blobStatus");
+      const blobSize = document.getElementById("blobSize");
+      const telemetryLog = document.getElementById("telemetryLog");
+
+      // 3. BOYUTLANDIRMA VE TAMPON YAPISI
+      let baseWidth = 860;
+      let baseHeight = 480;
+      let currentScale = 1.0;
+      let renderWidth = baseWidth;
+      let renderHeight = baseHeight;
+
+      // Üç Bağımsız OffscreenCanvas Örneği
+      let offTypo = new OffscreenCanvas(renderWidth, renderHeight);
+      let ctxOffTypo = offTypo.getContext("2d");
+
+      let offGrid = new OffscreenCanvas(renderWidth, renderHeight);
+      let ctxOffGrid = offGrid.getContext("2d");
+
+      let offScanline = new OffscreenCanvas(renderWidth, renderHeight);
+      let ctxOffScanline = offScanline.getContext("2d");
+
+      function updateCanvasSizes() {
+        renderWidth = Math.round(baseWidth * currentScale);
+        renderHeight = Math.round(baseHeight * currentScale);
+
+        masterCanvas.width = renderWidth;
+        masterCanvas.height = renderHeight;
+
+        offTypo.width = renderWidth;
+        offTypo.height = renderHeight;
+
+        offGrid.width = renderWidth;
+        offGrid.height = renderHeight;
+
+        offScanline.width = renderWidth;
+        offScanline.height = renderHeight;
+
+        lblResolution.textContent = `${renderWidth} × ${renderHeight} px`;
+
+        // Tahmini Bellek (3 adet 32-bit RGBA tamponu + master framebuffer)
+        const bytes = renderWidth * renderHeight * 4 * 4;
+        const mb = (bytes / (1024 * 1024)).toFixed(2);
+        valMemoryEst.textContent = `${mb} MB`;
+
+        logTelemetry("RESIZE", `Tamponlar ${renderWidth}x${renderHeight} (${currentScale}x) boyutuna güncellendi.`, "bmp");
+      }
+
+      // Telemetri Günlüğüne Ekleme
+      function logTelemetry(tag, msg, cls = "") {
+        if (!telemetryLog) return;
+        const now = new Date();
+        const timeStr = now.toTimeString().split(" ")[0] + "." + String(now.getMilliseconds()).padStart(3, "0");
+        const row = document.createElement("div");
+        row.className = "log-row";
+        row.innerHTML = `<span class="log-time">${timeStr}</span><span class="log-tag ${cls}">[${tag}]</span><span class="log-text">${msg}</span>`;
+        telemetryLog.prepend(row);
+        while (telemetryLog.children.length > 25) {
+          telemetryLog.removeChild(telemetryLog.lastChild);
+        }
+      }
+
+      // 4. SİMÜLASYON DURUM DEĞİŞKENLERİ
+      let frameCount = 0;
+      let lastTime = performance.now();
+      let fpsHistory = [];
+      let gridOffset = 0;
+      let sparkParticles = [];
+
+      // 100 Adet Kinetik Parçacık Başlatma
+      for (let i = 0; i < 90; i++) {
+        sparkParticles.push({
+          x: Math.random() * baseWidth,
+          y: Math.random() * baseHeight,
+          vx: (Math.random() - 0.5) * 1.5,
+          vy: -Math.random() * 2.2 - 0.5,
+          size: Math.random() * 2.5 + 1,
+          alpha: Math.random() * 0.7 + 0.3,
+          hue: Math.random() > 0.5 ? 188 : 265
+        });
+      }
+
+      // 5. TAMPON ÇİZİM YORDAMLARI (Offscreen Render Passages)
+
+      // A. Tampon A: Tipografik Lazer ve Hacimsel HELLO WORLD
+      function renderOffscreenTypography(time) {
+        const t0 = performance.now();
+        const w = offTypo.width;
+        const h = offTypo.height;
+
+        ctxOffTypo.clearRect(0, 0, w, h);
+
+        const text = "HELLO WORLD";
+        const fontSize = Math.round(w * 0.11);
+        ctxOffTypo.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`;
+        ctxOffTypo.textAlign = "center";
+        ctxOffTypo.textBaseline = "middle";
+
+        const centerX = w / 2;
+        const centerY = h * 0.42;
+
+        const aberration = parseFloat(rngAberration.value) * currentScale;
+
+        // 1. Zemin Işıma Enerji Küresi
+        const radialGrad = ctxOffTypo.createRadialGradient(
+          centerX, centerY, fontSize * 0.2,
+          centerX, centerY, fontSize * 2.8
+        );
+        radialGrad.addColorStop(0, "rgba(6, 182, 212, 0.22)");
+        radialGrad.addColorStop(0.5, "rgba(139, 92, 246, 0.12)");
+        radialGrad.addColorStop(1, "rgba(3, 7, 18, 0)");
+        ctxOffTypo.fillStyle = radialGrad;
+        ctxOffTypo.fillRect(0, 0, w, h);
+
+        // 2. Kromatik Sapma Katmanları (RGB Channel Split)
+        if (aberration > 0.5) {
+          // Kırmızı/Yakut Kanalı (+X, -Y)
+          ctxOffTypo.save();
+          ctxOffTypo.fillStyle = "rgba(244, 63, 94, 0.65)";
+          ctxOffTypo.fillText(text, centerX + aberration, centerY - aberration * 0.5);
+          ctxOffTypo.restore();
+
+          // Siyan Kanalı (-X, +Y)
+          ctxOffTypo.save();
+          ctxOffTypo.fillStyle = "rgba(6, 182, 212, 0.75)";
+          ctxOffTypo.fillText(text, centerX - aberration, centerY + aberration * 0.5);
+          ctxOffTypo.restore();
+        }
+
+        // 3. Ana Glif Gövdesi (Metalik / Neon Gradyan)
+        const textGrad = ctxOffTypo.createLinearGradient(
+          centerX - fontSize * 2.5, centerY - fontSize * 0.5,
+          centerX + fontSize * 2.5, centerY + fontSize * 0.5
+        );
+        textGrad.addColorStop(0, "#ffffff");
+        textGrad.addColorStop(0.4, "#a5f3fc");
+        textGrad.addColorStop(0.7, "#38bdf8");
+        textGrad.addColorStop(1, "#c084fc");
+
+        ctxOffTypo.fillStyle = textGrad;
+        ctxOffTypo.shadowColor = "rgba(6, 182, 212, 0.8)";
+        ctxOffTypo.shadowBlur = 18 * currentScale;
+        ctxOffTypo.fillText(text, centerX, centerY);
+
+        // 4. İnce Neon Kontur Hattı
+        ctxOffTypo.lineWidth = 1.5 * currentScale;
+        ctxOffTypo.strokeStyle = "rgba(255, 255, 255, 0.9)";
+        ctxOffTypo.shadowBlur = 0;
+        ctxOffTypo.strokeText(text, centerX, centerY);
+
+        // 5. Alt İkili Alt Yazı Telemetrisi
+        const subFontSize = Math.round(fontSize * 0.16);
+        ctxOffTypo.font = `700 ${subFontSize}px ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace`;
+        ctxOffTypo.fillStyle = "rgba(248, 250, 252, 0.75)";
+        ctxOffTypo.fillText("[ W3C ASYNCHRONOUS PIXEL SYNTHESIS MATRIX ]", centerX, centerY + fontSize * 0.75);
+
+        return performance.now() - t0;
+      }
+
+      // B. Tampon B: Kuantum Izgara ve Parçacıklar
+      function renderOffscreenGrid(time) {
+        const t0 = performance.now();
+        const w = offGrid.width;
+        const h = offGrid.height;
+
+        ctxOffGrid.clearRect(0, 0, w, h);
+
+        const speed = parseFloat(rngGridSpeed.value);
+        gridOffset = (gridOffset + speed * 1.2) % 40;
+
+        const horizonY = h * 0.58;
+
+        // 1. Perspektif Zemin Izgarası
+        ctxOffGrid.save();
+        ctxOffGrid.lineWidth = 1 * currentScale;
+        ctxOffGrid.strokeStyle = "rgba(139, 92, 246, 0.28)";
+
+        // Dikey perspektif çizgileri (vanishing point at center horizon)
+        const vpX = w / 2;
+        const vpY = horizonY;
+        const numVLines = 24;
+
+        for (let i = -numVLines / 2; i <= numVLines / 2; i++) {
+          const bottomX = vpX + (i * (w / 12));
+          ctxOffGrid.beginPath();
+          ctxOffGrid.moveTo(vpX, vpY);
+          ctxOffGrid.lineTo(bottomX, h);
+          ctxOffGrid.stroke();
+        }
+
+        // Yatay perspektif çizgileri (logaritmik derinlik)
+        for (let y = horizonY + 8; y < h; y += 14 * currentScale) {
+          const factor = (y - horizonY) / (h - horizonY);
+          ctxOffGrid.strokeStyle = `rgba(6, 182, 212, ${0.1 + factor * 0.35})`;
+          ctxOffGrid.beginPath();
+          ctxOffGrid.moveTo(0, y);
+          ctxOffGrid.lineTo(w, y);
+          ctxOffGrid.stroke();
+        }
+
+        // Ufuk Çizgisi Lazer Parıltısı
+        const horizGrad = ctxOffGrid.createLinearGradient(0, horizonY, w, horizonY);
+        horizGrad.addColorStop(0, "rgba(6, 182, 212, 0)");
+        horizGrad.addColorStop(0.5, "rgba(6, 182, 212, 0.85)");
+        horizGrad.addColorStop(1, "rgba(6, 182, 212, 0)");
+        ctxOffGrid.fillStyle = horizGrad;
+        ctxOffGrid.fillRect(0, horizonY - 1.5 * currentScale, w, 3 * currentScale);
+
+        ctxOffGrid.restore();
+
+        // 2. Parçacık Sürü Simülasyonu
+        const scaleW = w / baseWidth;
+        const scaleH = h / baseHeight;
+
+        sparkParticles.forEach((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.y < 0) {
+            p.y = baseHeight;
+            p.x = Math.random() * baseWidth;
+          }
+          if (p.x < 0) p.x = baseWidth;
+          if (p.x > baseWidth) p.x = 0;
+
+          const px = p.x * scaleW;
+          const py = p.y * scaleH;
+          const pSize = p.size * currentScale;
+
+          ctxOffGrid.fillStyle = p.hue === 188
+            ? `rgba(6, 182, 212, ${p.alpha})`
+            : `rgba(168, 85, 247, ${p.alpha})`;
+
+          ctxOffGrid.beginPath();
+          ctxOffGrid.arc(px, py, pSize, 0, Math.PI * 2);
+          ctxOffGrid.fill();
+        });
+
+        return performance.now() - t0;
+      }
+
+      // C. Tampon C: CRT Fosfor ve Scanline
+      function renderOffscreenScanline(time) {
+        const t0 = performance.now();
+        const w = offScanline.width;
+        const h = offScanline.height;
+
+        ctxOffScanline.clearRect(0, 0, w, h);
+
+        const density = parseFloat(rngScanDensity.value) / 100;
+        const step = Math.max(3, Math.round(4 * currentScale));
+        const alpha = 0.15 * density;
+
+        ctxOffScanline.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+        for (let y = 0; y < h; y += step) {
+          ctxOffScanline.fillRect(0, y, w, 1.5 * currentScale);
+        }
+
+        // CRT Vignette ve Kenar Karartması
+        const radialVignette = ctxOffScanline.createRadialGradient(
+          w / 2, h / 2, Math.min(w, h) * 0.35,
+          w / 2, h / 2, Math.max(w, h) * 0.72
+        );
+        radialVignette.addColorStop(0, "rgba(0, 0, 0, 0)");
+        radialVignette.addColorStop(1, "rgba(2, 6, 23, 0.75)");
+        ctxOffScanline.fillStyle = radialVignette;
+        ctxOffScanline.fillRect(0, 0, w, h);
+
+        // Dinamik Tarama Çizgisi (Laser Bar)
+        const scanY = ((time * 0.12) % (h + 80)) - 40;
+        const barGrad = ctxOffScanline.createLinearGradient(0, scanY - 15, 0, scanY + 15);
+        barGrad.addColorStop(0, "rgba(6, 182, 212, 0)");
+        barGrad.addColorStop(0.5, "rgba(6, 182, 212, 0.08)");
+        barGrad.addColorStop(1, "rgba(6, 182, 212, 0)");
+        ctxOffScanline.fillStyle = barGrad;
+        ctxOffScanline.fillRect(0, scanY - 15, w, 30);
+
+        return performance.now() - t0;
+      }
+
+      // 6. ASENKRON ANA KOMPOZİSYON DÖNGÜSÜ (Master Render Loop)
+      let isRendering = false;
+
+      async function renderFrame(time) {
+        if (isRendering) {
+          requestAnimationFrame(renderFrame);
+          return;
+        }
+        isRendering = true;
+
+        try {
+          // 1. Offscreen Tamponlarında Çizim Gerçekleştir
+          const timeGrid = renderOffscreenGrid(time);
+          const timeTypo = renderOffscreenTypography(time);
+          const timeScan = renderOffscreenScanline(time);
+
+          txtGridTime.textContent = `${timeGrid.toFixed(2)} ms`;
+          txtTypoTime.textContent = `${timeTypo.toFixed(2)} ms`;
+          txtScanlineTime.textContent = `${timeScan.toFixed(2)} ms`;
+
+          // 2. createImageBitmap ile Asenkron GPU Dokusu Oluştur (Double Buffering)
+          const transferStart = performance.now();
+
+          const bitmapPromises = [];
+          if (chkLayerGrid.checked) {
+            bitmapPromises.push(createImageBitmap(offGrid));
+          } else {
+            bitmapPromises.push(Promise.resolve(null));
+          }
+
+          if (chkLayerTypo.checked) {
+            bitmapPromises.push(createImageBitmap(offTypo));
+          } else {
+            bitmapPromises.push(Promise.resolve(null));
+          }
+
+          if (chkLayerScanline.checked) {
+            bitmapPromises.push(createImageBitmap(offScanline));
+          } else {
+            bitmapPromises.push(Promise.resolve(null));
+          }
+
+          const [bmpGrid, bmpTypo, bmpScan] = await Promise.all(bitmapPromises);
+          const transferDuration = performance.now() - transferStart;
+
+          valTransferTime.textContent = `${transferDuration.toFixed(2)} ms`;
+
+          // 3. Master Canvas Üzerine Tek Seferde Kompozitleme
+          masterCtx.fillStyle = "#020617";
+          masterCtx.fillRect(0, 0, renderWidth, renderHeight);
+
+          if (bmpGrid) {
+            masterCtx.drawImage(bmpGrid, 0, 0);
+            bmpGrid.close(); // Bellek sızıntısını önlemek için kapat
+          }
+
+          if (bmpTypo) {
+            masterCtx.drawImage(bmpTypo, 0, 0);
+            bmpTypo.close();
+          }
+
+          if (bmpScan) {
+            masterCtx.drawImage(bmpScan, 0, 0);
+            bmpScan.close();
+          }
+
+          // 4. Küçük Önizleme Pencerelerini Periyodik Güncelle (Her 4 karede bir)
+          if (frameCount % 4 === 0) {
+            ctxPrevTypo.clearRect(0, 0, prevTypo.width, prevTypo.height);
+            ctxPrevTypo.drawImage(offTypo, 0, 0, prevTypo.width, prevTypo.height);
+
+            ctxPrevGrid.clearRect(0, 0, prevGrid.width, prevGrid.height);
+            ctxPrevGrid.drawImage(offGrid, 0, 0, prevGrid.width, prevGrid.height);
+
+            ctxPrevScanline.clearRect(0, 0, prevScanline.width, prevScanline.height);
+            ctxPrevScanline.drawImage(offScanline, 0, 0, prevScanline.width, prevScanline.height);
+          }
+
+          // 5. FPS ve Çerçeve Sayacı Hesabı
+          frameCount++;
+          valFrameCount.textContent = `#${frameCount}`;
+
+          const now = performance.now();
+          const delta = now - lastTime;
+          lastTime = now;
+
+          if (delta > 0) {
+            const currentFps = 1000 / delta;
+            fpsHistory.push(currentFps);
+            if (fpsHistory.length > 20) fpsHistory.shift();
+            const avgFps = Math.round(fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length);
+            valFps.textContent = `${avgFps} FPS`;
+          }
+
+        } catch (err) {
+          console.error("Render hatası:", err);
+        } finally {
+          isRendering = false;
+        }
+
+        requestAnimationFrame(renderFrame);
+      }
+
+      // 7. KULLANICI ETKİLEŞİMİ VE KONTROLLER
+
+      // Çözünürlük Ölçeği Değişimi
+      const optBtns = document.querySelectorAll(".opt-btn");
+      optBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          optBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentScale = parseFloat(btn.getAttribute("data-scale"));
+          updateCanvasSizes();
+        });
+      });
+
+      // Sürgü Dinleyicileri
+      rngAberration.addEventListener("input", () => {
+        lblAberration.textContent = `${rngAberration.value} px`;
+      });
+
+      rngGridSpeed.addEventListener("input", () => {
+        lblGridSpeed.textContent = `${parseFloat(rngGridSpeed.value).toFixed(1)}x`;
+      });
+
+      rngScanDensity.addEventListener("input", () => {
+        lblScanDensity.textContent = `${rngScanDensity.value}%`;
+      });
+
+      // Asenkron convertToBlob() Entegrasyonu
+      btnExportBlob.addEventListener("click", async () => {
+        try {
+          blobStatus.textContent = "Dönüştürülüyor...";
+          const t0 = performance.now();
+
+          // OffscreenCanvas üzerinden doğrudan sıkıştırılmış PNG Blob oluşturma
+          const blob = await offTypo.convertToBlob({ type: "image/png" });
+          const dur = (performance.now() - t0).toFixed(2);
+
+          const url = URL.createObjectURL(blob);
+          blobThumb.src = url;
+          const kb = (blob.size / 1024).toFixed(1);
+          blobSize.textContent = `${kb} KB`;
+          blobStatus.textContent = "Tamamlandı";
+
+          logTelemetry("CONVERT_TO_BLOB", `OffscreenCanvas → PNG Blob (${kb} KB, ${dur} ms)`, "blob");
+        } catch (err) {
+          console.error("convertToBlob hatası:", err);
+          blobStatus.textContent = "Hata!";
+        }
+      });
+
+      // 8. BAŞLATMA
+      updateCanvasSizes();
+      logTelemetry("INIT", "OffscreenCanvas ve ImageBitmap motoru 60 FPS başlatıldı.", "bmp");
+
+      // İlk kareyi tetikle
+      requestAnimationFrame(renderFrame);
+    })();
+  </script>
+</body>
+</html>

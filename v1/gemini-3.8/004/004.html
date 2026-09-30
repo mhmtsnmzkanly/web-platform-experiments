@@ -1,0 +1,156 @@
+<!--
+  HELLO WORLD LAB — DENEY 004
+  Hedef: CSS Keyframe Animasyonları ve Kinetik Tipografi
+  Yeni Teknoloji: CSS Keyframe Animasyon Motoru (@keyframes, animation, transform: translate3d/scale, filter: hue-rotate, cubic-bezier)
+  Önemli Önceki Teknolojiler: 001 Semantik HTML (main, h1), 002 CSS Flexbox (display: flex, clamp), 003 CSS Değişkenleri & OKLCH (background-clip: text)
+  Çalıştırma Adresi: http://localhost:7373/004.html (Geliştirme: http://localhost:7373/004.dev.html)
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 004 — Hello World (CSS Keyframe Animasyonları)</title>
+  <style>
+    /*
+      CSS CUSTOM PROPERTIES (Önceki Deney 003'ten miras):
+      Temel renk açısı ve OKLCH renk tanımları merkezi değişkenlerde tutulur.
+    */
+    :root {
+      --base-hue: 285;
+      --chroma: 0.25;
+      --lightness: 0.80;
+
+      --color-primary: oklch(var(--lightness) var(--chroma) var(--base-hue));
+      --color-secondary: oklch(calc(var(--lightness) + 0.06) var(--chroma) calc(var(--base-hue) + 50));
+      --color-accent: oklch(calc(var(--lightness) + 0.12) calc(var(--chroma) - 0.05) calc(var(--base-hue) + 110));
+
+      --bg-deep: oklch(0.09 0.03 var(--base-hue));
+      --glow-ambient: oklch(0.70 var(--chroma) var(--base-hue) / 0.40);
+      --badge-border: oklch(var(--lightness) var(--chroma) var(--base-hue) / 0.3);
+      --badge-bg: oklch(0.16 0.05 var(--base-hue) / 0.7);
+
+      --title-size: clamp(2.5rem, 8vw, 6.8rem);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-deep);
+      color: var(--color-primary);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /*
+      Flex Sahnesi (Önceki Deney 002'den miras):
+      Görsel ve kavramsal odak noktasını kuran esnek kutu sahnesi.
+    */
+    .stage {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+      padding: 2rem;
+      gap: 1.75rem;
+      text-align: center;
+      position: relative;
+    }
+
+    /*
+      ========================================================================
+      CSS KEYFRAME ANİMASYONLARI:
+      Bu deneyin yeni teknolojisidir. İki bağımsız zamanlama döngüsü işletilir:
+      1. 'float-pulse': 5.5 saniyelik çift yönlü (alternate) süzülme ve nefes alma.
+      2. 'spectrum-rotate': 10 saniyelik kesintisiz (infinite linear) renk çarkı rotasyonu.
+      ========================================================================
+    */
+    @keyframes float-pulse {
+      0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        filter: drop-shadow(0 0 25px var(--glow-ambient));
+      }
+      50% {
+        transform: translate3d(0, -12px, 0) scale(1.03);
+        filter: drop-shadow(0 0 50px var(--glow-ambient));
+      }
+      100% {
+        transform: translate3d(0, 0, 0) scale(1);
+        filter: drop-shadow(0 0 25px var(--glow-ambient));
+      }
+    }
+
+    @keyframes spectrum-rotate {
+      0% {
+        filter: hue-rotate(0deg) drop-shadow(0 0 35px var(--glow-ambient));
+      }
+      50% {
+        filter: hue-rotate(180deg) drop-shadow(0 0 55px var(--glow-ambient));
+      }
+      100% {
+        filter: hue-rotate(360deg) drop-shadow(0 0 35px var(--glow-ambient));
+      }
+    }
+
+    @keyframes badge-pulse {
+      0%, 100% {
+        opacity: 0.85;
+        border-color: var(--badge-border);
+      }
+      50% {
+        opacity: 1;
+        border-color: var(--color-accent);
+        box-shadow: 0 0 15px oklch(var(--lightness) var(--chroma) var(--base-hue) / 0.2);
+      }
+    }
+
+    /*
+      Odak Noktası — Canlı Kinetik Hello World:
+      - 'will-change: transform, filter': Tarayıcıya bu öğenin GPU kompozitör katmanında
+        işleneceğini bildirerek ana iş parçacığı (main thread) kasılmalarını önler.
+      - Animasyon bileşimi: translate3d donanım hızlandırmalı eksen hareketi sunar.
+    */
+    .title {
+      font-size: var(--title-size);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      background-image: linear-gradient(135deg, var(--color-primary), var(--color-secondary), var(--color-accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      will-change: transform, filter;
+      animation:
+        float-pulse 5.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite,
+        spectrum-rotate 10s linear infinite;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.45rem 1.25rem;
+      border-radius: 9999px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      color: var(--color-accent);
+      font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      animation: badge-pulse 4s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <div class="badge">CSS Keyframe Animations &amp; Kinetics</div>
+    <h1 class="title">Hello World</h1>
+  </main>
+</body>
+</html>

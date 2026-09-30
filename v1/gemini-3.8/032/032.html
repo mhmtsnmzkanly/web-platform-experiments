@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 032: Compression Streams API — Kuantum Entropi ve Biyoinformatik Veri Yoğunlaştırma Odası</title>
+  <style>
+    /* ==========================================================================
+       1. KÖK DEĞİŞKENLER VE TEMEL AYARLAR
+       ========================================================================== */
+    :root {
+      --bg-lab: #060911;
+      --panel-bg: rgba(10, 16, 30, 0.82);
+      --panel-border: rgba(56, 189, 248, 0.22);
+      --quantum-cyan: #38bdf8;
+      --quantum-cyan-glow: rgba(56, 189, 248, 0.35);
+      --emerald-byte: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.3);
+      --amber-hdr: #f59e0b;
+      --violet-entropy: #a855f7;
+      --ruby-raw: #f43f5e;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-lab);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 65%),
+        repeating-linear-gradient(0deg, rgba(56, 189, 248, 0.015) 0px, rgba(56, 189, 248, 0.015) 1px, transparent 1px, transparent 32px);
+    }
+
+    /* ==========================================================================
+       2. ÜST TELEMETRİ BAŞLIĞI
+       ========================================================================== */
+    header {
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .badge-milestone {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid var(--quantum-cyan);
+      color: var(--quantum-cyan);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      letter-spacing: 0.08em;
+      box-shadow: 0 0 10px var(--quantum-cyan-glow);
+    }
+
+    .header-title-block h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+
+    .header-title-block p {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    .telemetry-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-chip {
+      background: rgba(56, 189, 248, 0.05);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      min-width: 95px;
+    }
+
+    .stat-chip-label {
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-chip-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--quantum-cyan);
+    }
+
+    .stat-chip-val.green { color: var(--emerald-byte); }
+    .stat-chip-val.amber { color: var(--amber-hdr); }
+    .stat-chip-val.violet { color: var(--violet-entropy); }
+
+    /* ==========================================================================
+       3. ANA DÜZEN (SIKIŞTIRMA ODASI & KONTROL MASASI)
+       ========================================================================== */
+    main {
+      flex: 1;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.5rem;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Sıkıştırma Odası Sahnesi */
+    .chamber-card {
+      background: #030712;
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), inset 0 0 50px rgba(56, 189, 248, 0.04);
+      min-height: 480px;
+      transition: all 0.4s ease;
+    }
+
+    .chamber-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--quantum-cyan), var(--emerald-byte), transparent);
+    }
+
+    /* Kuantum Odak Başlığı ve Sıkıştırma Retikülü */
+    .chamber-typography-wrap {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 1.5rem 0;
+      transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    /* HELLO WORLD Odak Başlığı */
+    #hw-compression-heading {
+      font-size: clamp(2.4rem, 5.5vw, 4.4rem);
+      font-weight: 900;
+      font-family: var(--font-mono);
+      letter-spacing: 0.15em;
+      color: #ffffff;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25em;
+      user-select: none;
+      transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+      filter: drop-shadow(0 0 16px var(--quantum-cyan-glow));
+    }
+
+    .glyph-box {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.4s ease;
+    }
+
+    .glyph-char {
+      background: linear-gradient(135deg, #ffffff 0%, var(--quantum-cyan) 60%, var(--emerald-byte) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: all 0.4s ease;
+    }
+
+    .glyph-hex {
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+      letter-spacing: 0;
+      transition: all 0.3s ease;
+    }
+
+    /* Sıkıştırılmış Durum Kinetiği (Compressed Crystal Mode) */
+    .chamber-card.state-compressed .chamber-typography-wrap {
+      transform: scaleX(0.85);
+    }
+
+    .chamber-card.state-compressed #hw-compression-heading {
+      letter-spacing: 0.04em;
+      filter: drop-shadow(0 0 24px var(--emerald-glow));
+    }
+
+    .chamber-card.state-compressed .glyph-char {
+      background: linear-gradient(135deg, #ffffff 0%, var(--emerald-byte) 70%, var(--quantum-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transform: scale(0.95);
+    }
+
+    .chamber-card.state-compressed .glyph-hex {
+      color: var(--emerald-byte);
+      font-weight: 700;
+    }
+
+    /* Durum ve Bütünlük Rozeti */
+    .chamber-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.3rem 0.8rem;
+      border-radius: 4px;
+      border: 1px solid var(--quantum-cyan);
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--quantum-cyan);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 0 0 12px var(--quantum-cyan-glow);
+      transition: all 0.3s ease;
+    }
+
+    .chamber-badge.verified {
+      border-color: var(--emerald-byte);
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--emerald-byte);
+      box-shadow: 0 0 16px var(--emerald-glow);
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    /* Canlı Hex Matrisi (Binary Payload Viewer) */
+    .hex-matrix-container {
+      width: 100%;
+      max-width: 720px;
+      margin-top: 1.5rem;
+      background: #02050a;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .hex-matrix-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.4rem;
+    }
+
+    .hex-grid {
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      gap: 0.3rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-align: center;
+    }
+
+    .hex-byte {
+      padding: 0.25rem 0.1rem;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.03);
+      color: #cbd5e1;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .hex-byte.header {
+      color: var(--amber-hdr);
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.3);
+      font-weight: 700;
+    }
+
+    .hex-byte.data {
+      color: var(--quantum-cyan);
+      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.25);
+    }
+
+    .hex-byte.crc {
+      color: var(--emerald-byte);
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.3);
+      font-weight: 700;
+    }
+
+    /* Boyut Kıyaslama Çubukları */
+    .ratio-comparison-wrap {
+      width: 100%;
+      max-width: 720px;
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+    }
+
+    .bar-label {
+      width: 110px;
+      color: var(--text-dim);
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .bar-fill.orig { background: linear-gradient(90deg, #64748b, #94a3b8); }
+    .bar-fill.comp { background: linear-gradient(90deg, var(--quantum-cyan), var(--emerald-byte)); }
+
+    .bar-val {
+      width: 70px;
+      text-align: right;
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       4. SAĞ KONTROL PANELİ
+       ========================================================================== */
+    .controls-panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .panel-section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 6px;
+      padding: 0.65rem 0.75rem;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: var(--quantum-cyan);
+      box-shadow: 0 0 12px var(--quantum-cyan-glow);
+    }
+
+    .ctrl-btn.active {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--quantum-cyan);
+      box-shadow: 0 0 16px var(--quantum-cyan-glow);
+      color: var(--quantum-cyan);
+      font-weight: 800;
+    }
+
+    .ctrl-btn.btn-compress {
+      border-color: var(--emerald-byte);
+      color: var(--emerald-byte);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .ctrl-btn.btn-compress:hover {
+      background: rgba(16, 185, 129, 0.18);
+      box-shadow: 0 0 16px var(--emerald-glow);
+    }
+
+    .ctrl-btn-full {
+      grid-column: 1 / -1;
+    }
+
+    /* Olay Akış Listesi */
+    .stream-event-log {
+      background: #02050a;
+      border: 1px solid rgba(56, 189, 248, 0.15);
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      max-height: 140px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .event-line {
+      display: flex;
+      gap: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .event-time { color: var(--text-dim); }
+    .event-tag { color: var(--amber-hdr); font-weight: 700; }
+    .event-tag.comp { color: var(--emerald-byte); }
+    .event-tag.decomp { color: var(--quantum-cyan); }
+    .event-desc { color: #e2e8f0; }
+
+    /* ==========================================================================
+       5. ALT BİLGİ ŞERİDİ
+       ========================================================================== */
+    footer {
+      background: var(--panel-bg);
+      border-top: 1px solid var(--panel-border);
+      padding: 0.85rem 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .footer-stat {
+      color: var(--quantum-cyan);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Kokpit Başlığı & Sıkıştırma Telemetrisi -->
+  <header>
+    <div class="header-branding">
+      <span class="badge-milestone">DENEY 032</span>
+      <div class="header-title-block">
+        <h2>Kuantum Entropi ve Veri Yoğunlaştırma Odası</h2>
+        <p>W3C Compression Streams API (CompressionStream & DecompressionStream)</p>
+      </div>
+    </div>
+
+    <div class="telemetry-badges">
+      <div class="stat-chip">
+        <span class="stat-chip-label">Algoritma</span>
+        <span class="stat-chip-val" id="valAlgorithm">gzip</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Sıkıştırılmış</span>
+        <span class="stat-chip-val green" id="valCompSize">31 B</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Shannon Entropisi</span>
+        <span class="stat-chip-val violet" id="valEntropy">2.84 bit</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Bütünlük Sağlaması</span>
+        <span class="stat-chip-val amber" id="valChecksum">EŞLEŞTİ</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ana Düzen -->
+  <main>
+    <!-- Sıkıştırma Odası Sahnesi -->
+    <section class="chamber-card" id="chamberCard" aria-label="Kuantum Sıkıştırma Sahnesi">
+      
+      <div class="chamber-badge" id="chamberBadge">
+        <span class="pulse-dot"></span>
+        <span id="txtChamberState">HAM VERİ AKIŞI (ORİJİNAL)</span>
+      </div>
+
+      <!-- HELLO WORLD Odak Başlığı ve Glif Blokları -->
+      <div class="chamber-typography-wrap" id="typographyWrap">
+        <h1 id="hw-compression-heading" aria-label="Hello World">
+          <span class="glyph-box"><span class="glyph-char">H</span><span class="glyph-hex">48</span></span>
+          <span class="glyph-box"><span class="glyph-char">E</span><span class="glyph-hex">45</span></span>
+          <span class="glyph-box"><span class="glyph-char">L</span><span class="glyph-hex">4C</span></span>
+          <span class="glyph-box"><span class="glyph-char">L</span><span class="glyph-hex">4C</span></span>
+          <span class="glyph-box"><span class="glyph-char">O</span><span class="glyph-hex">4F</span></span>
+          <span style="width: 1rem;"></span>
+          <span class="glyph-box"><span class="glyph-char">W</span><span class="glyph-hex">57</span></span>
+          <span class="glyph-box"><span class="glyph-char">O</span><span class="glyph-hex">4F</span></span>
+          <span class="glyph-box"><span class="glyph-char">R</span><span class="glyph-hex">52</span></span>
+          <span class="glyph-box"><span class="glyph-char">L</span><span class="glyph-hex">4C</span></span>
+          <span class="glyph-box"><span class="glyph-char">D</span><span class="glyph-hex">44</span></span>
+        </h1>
+      </div>
+
+      <!-- Canlı Hex Matrisi (Compressed Stream Payload) -->
+      <div class="hex-matrix-container">
+        <div class="hex-matrix-header">
+          <span>CANLI AKIŞ BAYT HARİTASI (İLK 32 BAYT)</span>
+          <span id="txtPayloadMeta">GZIP HEADER + DEFLATE + CRC32</span>
+        </div>
+        <div class="hex-grid" id="hexGrid">
+          <!-- Dinamik baytlar yerleşecek -->
+        </div>
+      </div>
+
+      <!-- Boyut Kıyaslama Çubukları -->
+      <div class="ratio-comparison-wrap">
+        <div class="bar-row">
+          <span class="bar-label">Orijinal Boyut</span>
+          <div class="bar-track">
+            <div class="bar-fill orig" id="barOrig" style="width: 100%;"></div>
+          </div>
+          <span class="bar-val" id="lblOrigBytes">11 B</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Sıkıştırılmış</span>
+          <div class="bar-track">
+            <div class="bar-fill comp" id="barComp" style="width: 100%;"></div>
+          </div>
+          <span class="bar-val" id="lblCompBytes">31 B</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Yan Kontrol Masası -->
+    <aside class="controls-panel" aria-label="Sıkıştırma Kontrol Masası">
+      
+      <!-- Sıkıştırma ve Açma Düğmeleri -->
+      <div>
+        <div class="panel-section-title">
+          <span>Akış İşlemleri (Stream Pipeline)</span>
+        </div>
+        <div class="btn-grid" style="margin-top: 0.75rem;">
+          <button class="ctrl-btn ctrl-btn-full btn-compress" id="btnCompress" type="button">
+            <strong style="font-size: 0.85rem;">⚡ SIKIŞTIR (COMPRESS STREAM)</strong>
+            <span style="font-size: 0.65rem;">new CompressionStream(format)</span>
+          </button>
+          <button class="ctrl-btn ctrl-btn-full" id="btnDecompress" type="button" style="border-color: var(--quantum-cyan); color: var(--quantum-cyan);">
+            <strong style="font-size: 0.85rem;">⟲ GERİ AÇ (DECOMPRESS STREAM)</strong>
+            <span style="font-size: 0.65rem;">new DecompressionStream(format)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Algoritma Seçimi -->
+      <div>
+        <div class="panel-section-title">
+          <span>Algoritma Formatı</span>
+          <span style="color: var(--quantum-cyan); font-size: 0.72rem;">W3C</span>
+        </div>
+        <div class="btn-grid" style="margin-top: 0.75rem;">
+          <button class="ctrl-btn active" id="btnFmtGzip" type="button">
+            <strong>GZIP</strong>
+            <span style="font-size: 0.65rem;">RFC 1952</span>
+          </button>
+          <button class="ctrl-btn" id="btnFmtDeflate" type="button">
+            <strong>DEFLATE</strong>
+            <span style="font-size: 0.65rem;">RFC 1950 (ZLIB)</span>
+          </button>
+          <button class="ctrl-btn ctrl-btn-full" id="btnFmtRaw" type="button">
+            <strong>DEFLATE-RAW</strong>
+            <span style="font-size: 0.65rem;">RFC 1951 (Saf LZ77+Huffman)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Veri Tekrarı / Entropi Çoğaltıcı -->
+      <div>
+        <div class="panel-section-title">
+          <span>Kuantum Veri Hacmi (Tekrar)</span>
+        </div>
+        <div class="btn-grid" style="margin-top: 0.75rem;">
+          <button class="ctrl-btn active" id="btnRep1" type="button">
+            <strong>1x</strong>
+            <span style="font-size: 0.65rem;">11 Bayt</span>
+          </button>
+          <button class="ctrl-btn" id="btnRep16" type="button">
+            <strong>16x</strong>
+            <span style="font-size: 0.65rem;">176 Bayt</span>
+          </button>
+          <button class="ctrl-btn" id="btnRep64" type="button">
+            <strong>64x</strong>
+            <span style="font-size: 0.65rem;">704 Bayt</span>
+          </button>
+          <button class="ctrl-btn" id="btnRep256" type="button">
+            <strong>256x</strong>
+            <span style="font-size: 0.65rem;">2.81 KB</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Olay Akış Listesi -->
+      <div>
+        <div class="panel-section-title">
+          <span>Akış Olay Günlüğü</span>
+        </div>
+        <div class="stream-event-log" id="eventLog" style="margin-top: 0.5rem;">
+          <!-- Canlı akış logları -->
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- Alt Bilgi Şeridi -->
+  <footer>
+    <div>
+      <span>AKIM MOTORU: </span>
+      <span class="footer-stat">W3C Compression Streams API Level 1</span>
+    </div>
+    <div>
+      <span>İŞLEM GECİKMESİ: </span>
+      <span class="footer-stat" id="lblLatency">0.42 ms</span>
+    </div>
+    <div>
+      <span>DÖNGÜ: </span>
+      <span class="footer-stat">4. Onluk Döngü (Decade 4)</span>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       6. JAVASCRIPT ÇALIŞMA ZAMANI MOTORU (Tekil Script Bloğu)
+       ========================================================================== -->
+  <script>
+    (function initCompressionChamber() {
+      // DOM Elemanları
+      const chamberCard = document.getElementById("chamberCard");
+      const chamberBadge = document.getElementById("chamberBadge");
+      const txtChamberState = document.getElementById("txtChamberState");
+      const hexGrid = document.getElementById("hexGrid");
+      const txtPayloadMeta = document.getElementById("txtPayloadMeta");
+      const barOrig = document.getElementById("barOrig");
+      const barComp = document.getElementById("barComp");
+      const lblOrigBytes = document.getElementById("lblOrigBytes");
+      const lblCompBytes = document.getElementById("lblCompBytes");
+      const lblLatency = document.getElementById("lblLatency");
+      const valAlgorithm = document.getElementById("valAlgorithm");
+      const valCompSize = document.getElementById("valCompSize");
+      const valEntropy = document.getElementById("valEntropy");
+      const valChecksum = document.getElementById("valChecksum");
+      const btnCompress = document.getElementById("btnCompress");
+      const btnDecompress = document.getElementById("btnDecompress");
+      const eventLog = document.getElementById("eventLog");
+
+      const formatButtons = {
+        "gzip": document.getElementById("btnFmtGzip"),
+        "deflate": document.getElementById("btnFmtDeflate"),
+        "deflate-raw": document.getElementById("btnFmtRaw")
+      };
+
+      const repButtons = {
+        1: document.getElementById("btnRep1"),
+        16: document.getElementById("btnRep16"),
+        64: document.getElementById("btnRep64"),
+        256: document.getElementById("btnRep256")
+      };
+
+      // Durum Değişkenleri
+      let currentFormat = "gzip";
+      let repeatCount = 1;
+      let lastCompressedBuffer = null;
+      let baseString = "HELLO WORLD";
+
+      // Olay Günlüğüne Ekleme
+      function logEvent(tag, desc, cls = "") {
+        if (!eventLog) return;
+        const now = new Date();
+        const timeStr = now.toTimeString().split(" ")[0] + "." + String(now.getMilliseconds()).padStart(3, "0");
+        const row = document.createElement("div");
+        row.className = "event-line";
+        row.innerHTML = `<span class="event-time">${timeStr}</span><span class="event-tag ${cls}">[${tag}]</span><span class="event-desc">${desc}</span>`;
+        eventLog.prepend(row);
+        while (eventLog.children.length > 25) {
+          eventLog.removeChild(eventLog.lastChild);
+        }
+      }
+
+      // Shannon Entropisi Hesabı
+      function calculateEntropy(str) {
+        const len = str.length;
+        if (len === 0) return 0;
+        const freq = {};
+        for (let i = 0; i < len; i++) {
+          const ch = str[i];
+          freq[ch] = (freq[ch] || 0) + 1;
+        }
+        let entropy = 0;
+        for (const ch in freq) {
+          const p = freq[ch] / len;
+          entropy -= p * Math.log2(p);
+        }
+        return entropy.toFixed(2);
+      }
+
+      // Girdi Metnini Oluştur
+      function getPayloadString() {
+        if (repeatCount === 1) return baseString;
+        return Array(repeatCount).fill(baseString).join(" ");
+      }
+
+      // Sıkıştırma Akışı (Compression Stream)
+      async function runCompression() {
+        const t0 = performance.now();
+        const text = getPayloadString();
+        const rawBytes = new TextEncoder().encode(text);
+
+        try {
+          const stream = new Blob([rawBytes]).stream();
+          const compressionStream = new CompressionStream(currentFormat);
+          const compressedStream = stream.pipeThrough(compressionStream);
+          const compressedBuffer = await new Response(compressedStream).arrayBuffer();
+          const t1 = performance.now();
+
+          lastCompressedBuffer = compressedBuffer;
+          const origSize = rawBytes.byteLength;
+          const compSize = compressedBuffer.byteLength;
+          const latencyMs = (t1 - t0).toFixed(2);
+
+          // Görsel Sahneyi Güncelle
+          chamberCard.classList.add("state-compressed");
+          chamberBadge.className = "chamber-badge verified";
+          txtChamberState.textContent = `SIKIŞTIRILDI (${currentFormat.toUpperCase()})`;
+          lblLatency.textContent = `${latencyMs} ms`;
+          valCompSize.textContent = `${compSize} B`;
+          valAlgorithm.textContent = currentFormat;
+          valEntropy.textContent = `${calculateEntropy(text)} bit`;
+
+          lblOrigBytes.textContent = `${origSize} B`;
+          lblCompBytes.textContent = `${compSize} B`;
+
+          const maxScale = Math.max(origSize, compSize);
+          barOrig.style.width = `${(origSize / maxScale) * 100}%`;
+          barComp.style.width = `${(compSize / maxScale) * 100}%`;
+
+          // Hex Matrisini Güncelle
+          renderHexMatrix(new Uint8Array(compressedBuffer));
+
+          logEvent("COMPRESS", `${currentFormat.toUpperCase()} ile ${origSize}B → ${compSize}B (%${((compSize/origSize)*100).toFixed(1)}) sıkıştırıldı (${latencyMs}ms)`, "comp");
+        } catch (err) {
+          logEvent("COMP_ERR", `Sıkıştırma hatası: ${err.message}`, "ruby");
+        }
+      }
+
+      // Geri Açma Akışı (Decompression Stream)
+      async function runDecompression() {
+        if (!lastCompressedBuffer) {
+          await runCompression();
+        }
+
+        const t0 = performance.now();
+        try {
+          const decompStream = new Response(lastCompressedBuffer).body.pipeThrough(
+            new DecompressionStream(currentFormat)
+          );
+          const decompText = await new Response(decompStream).text();
+          const t1 = performance.now();
+          const latencyMs = (t1 - t0).toFixed(2);
+
+          const expectedText = getPayloadString();
+          const isMatch = decompText === expectedText;
+
+          chamberCard.classList.remove("state-compressed");
+          chamberBadge.className = "chamber-badge verified";
+          txtChamberState.textContent = isMatch ? "DOĞRULANDI: %100 BÜTÜNLÜK" : "BÜTÜNLÜK UYUŞMAZLIĞI";
+          valChecksum.textContent = isMatch ? "EŞLEŞTİ" : "HATA";
+          lblLatency.textContent = `${latencyMs} ms`;
+
+          logEvent("DECOMPRESS", `${currentFormat.toUpperCase()} açıldı: ${decompText.length} karakter doğrulandı (${latencyMs}ms)`, "decomp");
+        } catch (err) {
+          logEvent("DECOMP_ERR", `Geri açma hatası: ${err.message}`, "ruby");
+        }
+      }
+
+      // Hex Matrisi Görselleştirme
+      function renderHexMatrix(uint8Arr) {
+        hexGrid.innerHTML = "";
+        const limit = Math.min(uint8Arr.length, 32);
+
+        for (let i = 0; i < limit; i++) {
+          const byteVal = uint8Arr[i];
+          const hexStr = byteVal.toString(16).padStart(2, "0").toUpperCase();
+          const span = document.createElement("span");
+          span.className = "hex-byte";
+          span.textContent = hexStr;
+
+          // Bayt Sınıflandırması
+          if (currentFormat === "gzip" && i < 10) {
+            span.classList.add("header");
+          } else if (currentFormat === "deflate" && i < 2) {
+            span.classList.add("header");
+          } else if (i >= limit - 4) {
+            span.classList.add("crc");
+          } else {
+            span.classList.add("data");
+          }
+
+          hexGrid.appendChild(span);
+        }
+
+        if (currentFormat === "gzip") {
+          txtPayloadMeta.textContent = "1F 8B (GZIP MAGIC) + COMPRESSED BLOCKS + CRC32";
+        } else if (currentFormat === "deflate") {
+          txtPayloadMeta.textContent = "78 9C (ZLIB HEADER) + DEFLATE + ADLER32";
+        } else {
+          txtPayloadMeta.textContent = "SAF RAW DEFLATE VERİ BAYTLARI";
+        }
+      }
+
+      // Olay Dinleyicileri
+      btnCompress.addEventListener("click", runCompression);
+      btnDecompress.addEventListener("click", runDecompression);
+
+      // Format Seçimi
+      Object.keys(formatButtons).forEach(fmt => {
+        formatButtons[fmt].addEventListener("click", () => {
+          currentFormat = fmt;
+          Object.values(formatButtons).forEach(b => b.classList.remove("active"));
+          formatButtons[fmt].classList.add("active");
+          logEvent("FORMAT", `Format değiştirildi: ${fmt.toUpperCase()}`, "comp");
+          runCompression();
+        });
+      });
+
+      // Tekrar Seçimi
+      Object.keys(repButtons).forEach(rep => {
+        repButtons[rep].addEventListener("click", () => {
+          repeatCount = parseInt(rep, 10);
+          Object.values(repButtons).forEach(b => b.classList.remove("active"));
+          repButtons[rep].classList.add("active");
+          logEvent("REPEAT", `Veri boyutu tekrarlandı: ${rep}x (${getPayloadString().length}B)`, "comp");
+          runCompression();
+        });
+      });
+
+      // Başlangıç Çalıştırması
+      runCompression();
+      logEvent("INIT", "Compression Streams Odası hazırlandı.", "comp");
+    })();
+  </script>
+</body>
+</html>

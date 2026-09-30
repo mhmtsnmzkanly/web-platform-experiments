@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 025: PerformanceObserver API & Yüksek Çözünürlüklü Tipografik Profilleme Kokpiti</title>
+  <style>
+    :root {
+      --bg-color: #060911;
+      --panel-bg: rgba(13, 20, 36, 0.75);
+      --panel-border: rgba(0, 240, 255, 0.25);
+      --cyan: #00f0ff;
+      --neon-green: #00ff88;
+      --amber: #ffaa00;
+      --magenta: #ff0077;
+      --violet: #8a2be2;
+      --text-main: #e2e8f0;
+      --text-dim: #64748b;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 60%),
+        linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+    }
+
+    /* Üst Başlık ve Telemetri Çubuğu */
+    header {
+      padding: 1rem 1.5rem;
+      background: rgba(8, 14, 26, 0.85);
+      border-bottom: 1px solid var(--panel-border);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      z-index: 10;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .badge-milestone {
+      background: linear-gradient(135deg, var(--magenta), var(--violet));
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 0 12px rgba(255, 0, 119, 0.4);
+    }
+
+    .header-heading {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .header-sub {
+      font-size: 0.8rem;
+      color: var(--cyan);
+      font-family: var(--font-mono);
+    }
+
+    /* Canlı İbreler Barı */
+    .telemetry-gauges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .gauge-card {
+      background: rgba(0, 240, 255, 0.05);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+      display: flex;
+      flex-direction: column;
+      min-width: 90px;
+    }
+
+    .gauge-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .gauge-val {
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--cyan);
+    }
+
+    .gauge-val.green { color: var(--neon-green); }
+    .gauge-val.amber { color: var(--amber); }
+
+    /* Ana Gövde / Grid Mizanpaj */
+    main {
+      flex: 1;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      grid-template-rows: auto 1fr;
+      gap: 1.5rem;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Tipografik Merkez Sahnesi */
+    .stage-container {
+      grid-column: 1 / 2;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 2.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      min-height: 280px;
+    }
+
+    .stage-container::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--violet), transparent);
+    }
+
+    .stage-meta {
+      position: absolute;
+      top: 1rem;
+      left: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .stage-scope {
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--neon-green);
+      box-shadow: 0 0 8px var(--neon-green);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    /* HELLO WORLD Başlığı */
+    .hw-title-wrapper {
+      position: relative;
+      margin: 1.5rem 0;
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    h1#hw-heading {
+      font-size: clamp(2.5rem, 6vw, 4.8rem);
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      line-height: 1.1;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ffffff 0%, var(--cyan) 50%, var(--violet) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.4rem;
+      user-select: none;
+      filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.25));
+    }
+
+    .glyph {
+      display: inline-block;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s ease;
+      cursor: pointer;
+    }
+
+    .glyph:hover {
+      transform: translateY(-8px) scale(1.15);
+      filter: drop-shadow(0 0 12px var(--cyan));
+    }
+
+    .glyph-space {
+      width: 1.2rem;
+    }
+
+    /* Farklı Tipografik Durumlar */
+    .hw-title-wrapper.state-expanded h1#hw-heading {
+      letter-spacing: 0.35em;
+      filter: drop-shadow(0 0 30px rgba(0, 255, 136, 0.4));
+    }
+    .hw-title-wrapper.state-expanded .glyph {
+      transform: scale(1.05);
+    }
+
+    .hw-title-wrapper.state-skewed h1#hw-heading {
+      transform: perspective(600px) rotateX(15deg) skewX(-8deg);
+      filter: drop-shadow(0 0 30px rgba(255, 0, 119, 0.4));
+    }
+
+    .hw-title-wrapper.state-condensed h1#hw-heading {
+      letter-spacing: -0.02em;
+      transform: scaleY(1.2);
+    }
+
+    /* Sahne Alt Bilgi İpuçları */
+    .stage-foot {
+      position: absolute;
+      bottom: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    /* Kontrol Paneli (Sağ Kolon) */
+    .controls-panel {
+      grid-column: 2 / 3;
+      grid-row: 1 / 3;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    @media (max-width: 1024px) {
+      .controls-panel {
+        grid-column: 1 / 2;
+        grid-row: auto;
+      }
+    }
+
+    .panel-section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    button.ctrl-btn {
+      background: rgba(0, 240, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 6px;
+      padding: 0.65rem 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    button.ctrl-btn:hover {
+      background: rgba(0, 240, 255, 0.2);
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+      transform: translateX(2px);
+    }
+
+    button.ctrl-btn:active {
+      transform: scale(0.98);
+    }
+
+    button.ctrl-btn .btn-key {
+      font-size: 0.7rem;
+      color: var(--cyan);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+    }
+
+    /* Desteklenen Gözlemciler Listesi */
+    .support-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .support-tag {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+    }
+
+    .support-tag.active {
+      background: rgba(0, 255, 136, 0.1);
+      border-color: rgba(0, 255, 136, 0.4);
+      color: var(--neon-green);
+    }
+
+    /* Şelale ve Canlı Çizelge Paneli */
+    .telemetry-dashboard {
+      grid-column: 1 / 2;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dash-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--cyan);
+      font-family: var(--font-mono);
+    }
+
+    /* Canvas Görselleştirme */
+    .waterfall-canvas-wrap {
+      width: 100%;
+      height: 160px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(0, 240, 255, 0.15);
+      border-radius: 6px;
+      position: relative;
+    }
+
+    canvas#waterfallCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Olay Akış Listesi */
+    .events-stream {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .event-row {
+      display: grid;
+      grid-template-columns: 80px 180px 100px 1fr;
+      padding: 0.35rem 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      align-items: center;
+    }
+
+    .event-row:last-child {
+      border-bottom: none;
+    }
+
+    .event-type {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.68rem;
+    }
+
+    .event-type.mark { color: var(--cyan); }
+    .event-type.measure { color: var(--neon-green); }
+    .event-type.paint { color: var(--magenta); }
+    .event-type.layout-shift { color: var(--amber); }
+
+    .event-name {
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .event-dur {
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    .event-start {
+      color: var(--text-dim);
+      font-size: 0.7rem;
+    }
+
+    /* Alt Durum Çubuğu */
+    footer {
+      padding: 0.75rem 1.5rem;
+      background: rgba(8, 14, 26, 0.85);
+      border-top: 1px solid var(--panel-border);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .stat-badge {
+      color: var(--cyan);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Kokpit Başlığı & Canlı İbreler -->
+  <header>
+    <div class="header-title">
+      <span class="badge-milestone">KİLOMETRE TAŞI 025</span>
+      <div>
+        <h2 class="header-heading">Kuantum Profilleme Kokpiti</h2>
+        <div class="header-sub">W3C PerformanceObserver & User Timing Level 3</div>
+      </div>
+    </div>
+
+    <div class="telemetry-gauges">
+      <div class="gauge-card">
+        <span class="gauge-label">First Paint (FP)</span>
+        <span class="gauge-val" id="valFP">-- ms</span>
+      </div>
+      <div class="gauge-card">
+        <span class="gauge-label">First Contentful (FCP)</span>
+        <span class="gauge-val" id="valFCP">-- ms</span>
+      </div>
+      <div class="gauge-card">
+        <span class="gauge-label">Kümülatif Kayma (CLS)</span>
+        <span class="gauge-val green" id="valCLS">0.000</span>
+      </div>
+      <div class="gauge-card">
+        <span class="gauge-label">Ölçüm (Measure) Adedi</span>
+        <span class="gauge-val" id="valMeasures">0</span>
+      </div>
+      <div class="gauge-card">
+        <span class="gauge-label">Frame Render Bütçesi</span>
+        <span class="gauge-val green" id="valBudget">0.00 ms</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ana İçerik Grid -->
+  <main>
+    <!-- Merkez Tipografi Sahnesi (Hello World Odak) -->
+    <section class="stage-container" aria-label="Tipografik Gözlem Sahnesi">
+      <div class="stage-meta">
+        <span class="stage-scope">
+          <span class="pulse-dot"></span> CANLI GÖZLEMCİ AKTİF (OBSERVING)
+        </span>
+        <span id="observerStatus">Buffer Havuzu: Senkronize</span>
+      </div>
+
+      <div class="hw-title-wrapper" id="hwWrapper">
+        <h1 id="hw-heading" aria-label="Hello World">
+          <span class="glyph" data-char="H">H</span>
+          <span class="glyph" data-char="E">E</span>
+          <span class="glyph" data-char="L">L</span>
+          <span class="glyph" data-char="L">L</span>
+          <span class="glyph" data-char="O">O</span>
+          <span class="glyph-space"></span>
+          <span class="glyph" data-char="W">W</span>
+          <span class="glyph" data-char="O">O</span>
+          <span class="glyph" data-char="R">R</span>
+          <span class="glyph" data-char="L">L</span>
+          <span class="glyph" data-char="D">D</span>
+        </h1>
+      </div>
+
+      <div class="stage-foot">
+        Tipografik Deformasyon & Reflow Gözlem Hedefi: <code>#hw-heading .glyph</code>
+      </div>
+    </section>
+
+    <!-- Yan Kontrol Paneli -->
+    <aside class="controls-panel" aria-label="Profilleme Kontrolleri">
+      <div>
+        <div class="panel-section-title">
+          <span>Performans Tetikleyicileri</span>
+          <span style="color: var(--cyan); font-size: 0.75rem;">UserTiming</span>
+        </div>
+        <div class="btn-grid" style="margin-top: 0.75rem;">
+          <button class="ctrl-btn" id="btnMorph" type="button">
+            <span>Tipografik Morfoloji</span>
+            <span class="btn-key">[MORPH]</span>
+          </button>
+          <button class="ctrl-btn" id="btnReflow" type="button">
+            <span>Dinamik Reflow Testi</span>
+            <span class="btn-key">[REFLOW]</span>
+          </button>
+          <button class="ctrl-btn" id="btnStress" type="button">
+            <span>Yoğun Döngü Stres Testi</span>
+            <span class="btn-key">[STRESS]</span>
+          </button>
+          <button class="ctrl-btn" id="btnSpectral" type="button">
+            <span>Spektral Parçacık Nabzı</span>
+            <span class="btn-key">[PULSE]</span>
+          </button>
+          <button class="ctrl-btn" id="btnClear" type="button" style="border-color: rgba(255,255,255,0.2);">
+            <span>Kuyruğu Temizle</span>
+            <span class="btn-key">[RESET]</span>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel-section-title">
+          <span>Gözlenen Giriş Tipleri</span>
+          <span id="entryTypeCount" style="color: var(--neon-green); font-size: 0.75rem;">5 Aktif</span>
+        </div>
+        <div class="support-list" id="supportContainer" style="margin-top: 0.75rem;">
+          <!-- Dinamik doldurulacak -->
+        </div>
+      </div>
+
+      <div style="margin-top: auto; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+        <div style="font-size: 0.7rem; color: var(--text-dim); font-family: var(--font-mono);">
+          <div>Hassasiyet: <code>performance.now()</code> (µs)</div>
+          <div style="margin-top: 0.25rem;">Frame Hedefi: <code>16.67 ms (60 FPS)</code></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Alt Telemetri Şelalesi ve Olay Akışı -->
+    <section class="telemetry-dashboard" aria-label="Telemetri Şelalesi">
+      <div class="dash-header">
+        <span class="dash-title">CANLI GÖZLEMCİ ŞELALESİ (WATERFALL TIMELINE)</span>
+        <span style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-dim);">Son 30 Gözlem Spreading</span>
+      </div>
+
+      <div class="waterfall-canvas-wrap">
+        <canvas id="waterfallCanvas" width="900" height="160"></canvas>
+      </div>
+
+      <div class="dash-header" style="margin-top: 0.5rem;">
+        <span class="dash-title" style="font-size: 0.8rem; color: var(--text-main);">SON PERFORMANS OLAYLARI (ENTRY STREAM)</span>
+        <span style="font-size: 0.7rem; font-family: var(--font-mono); color: var(--cyan);">Canlı Akış</span>
+      </div>
+
+      <div class="events-stream" id="eventsStream">
+        <!-- Dinamik giriş kayıtları -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Alt Bilgi Çubuğu -->
+  <footer>
+    <div class="footer-left">
+      <span>Standart: <strong class="stat-badge">W3C Performance Timeline Level 2</strong></span>
+      <span>Mimari: <strong class="stat-badge">Kuantum Profilleme Kokpiti</strong></span>
+    </div>
+    <div>
+      <span>Durum: <strong class="stat-badge" id="telemetryStatus">NOMINAL</strong></span>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      'use strict';
+
+      // DOM Elemanları
+      const valFP = document.getElementById('valFP');
+      const valFCP = document.getElementById('valFCP');
+      const valCLS = document.getElementById('valCLS');
+      const valMeasures = document.getElementById('valMeasures');
+      const valBudget = document.getElementById('valBudget');
+      const hwWrapper = document.getElementById('hwWrapper');
+      const eventsStream = document.getElementById('eventsStream');
+      const supportContainer = document.getElementById('supportContainer');
+      const waterfallCanvas = document.getElementById('waterfallCanvas');
+      const ctx = waterfallCanvas.getContext('2d');
+
+      // Butonlar
+      const btnMorph = document.getElementById('btnMorph');
+      const btnReflow = document.getElementById('btnReflow');
+      const btnStress = document.getElementById('btnStress');
+      const btnSpectral = document.getElementById('btnSpectral');
+      const btnClear = document.getElementById('btnClear');
+
+      // Telemetri Durumu
+      let cumulativeLayoutShift = 0;
+      let measureCounter = 0;
+      const recentEntries = [];
+      const MAX_ENTRIES = 40;
+
+      // Desteklenen Giriş Tiplerini Listeleme
+      const supportedTypes = (typeof PerformanceObserver !== 'undefined' && PerformanceObserver.supportedEntryTypes) 
+        ? PerformanceObserver.supportedEntryTypes 
+        : ['mark', 'measure', 'paint'];
+
+      const targetTypes = ['paint', 'mark', 'measure', 'layout-shift', 'longtask'];
+
+      targetTypes.forEach(t => {
+        const isSupported = supportedTypes.includes(t);
+        const tag = document.createElement('span');
+        tag.className = 'support-tag' + (isSupported ? ' active' : '');
+        tag.textContent = t + (isSupported ? ' ✓' : ' ✗');
+        supportContainer.appendChild(tag);
+      });
+
+      // Olay Akışına Ekleme Yardımcısı
+      function logEntryToStream(type, name, duration, startTime) {
+        const row = document.createElement('div');
+        row.className = 'event-row';
+
+        const durText = duration > 0 ? duration.toFixed(2) + ' ms' : '<0.01 ms';
+        const startText = startTime.toFixed(1) + ' ms';
+
+        row.innerHTML = `
+          <span class="event-type ${type}">${type}</span>
+          <span class="event-name" title="${name}">${name}</span>
+          <span class="event-dur">${durText}</span>
+          <span class="event-start">@${startText}</span>
+        `;
+
+        eventsStream.insertBefore(row, eventsStream.firstChild);
+        if (eventsStream.children.length > 25) {
+          eventsStream.removeChild(eventsStream.lastChild);
+        }
+
+        recentEntries.push({
+          type,
+          name,
+          duration: Math.max(duration, 0.5),
+          startTime
+        });
+
+        if (recentEntries.length > MAX_ENTRIES) {
+          recentEntries.shift();
+        }
+
+        renderWaterfall();
+      }
+
+      // Canlı Şelale Çizimi
+      function renderWaterfall() {
+        const w = waterfallCanvas.width;
+        const h = waterfallCanvas.height;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Arka plan ızgarası
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.08)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < w; x += 60) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, h);
+          ctx.stroke();
+        }
+
+        // 16.67ms Bütçe Çizgisi
+        const budgetX = Math.min(w * 0.5, 300);
+        ctx.strokeStyle = 'rgba(255, 170, 0, 0.4)';
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(budgetX, 0);
+        ctx.lineTo(budgetX, h);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = 'rgba(255, 170, 0, 0.7)';
+        ctx.font = '10px monospace';
+        ctx.fillText('16.67ms BÜTÇE', budgetX + 4, 14);
+
+        if (recentEntries.length === 0) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+          ctx.font = '12px monospace';
+          ctx.fillText('Gözlemlenen olaylar burada şelale olarak akar...', 20, h / 2);
+          return;
+        }
+
+        const barHeight = Math.max(3, Math.min(8, (h - 20) / recentEntries.length));
+        const spacing = 2;
+
+        recentEntries.forEach((entry, idx) => {
+          const y = 20 + idx * (barHeight + spacing);
+          if (y > h - 5) return;
+
+          let color = '#00f0ff';
+          if (entry.type === 'measure') color = '#00ff88';
+          if (entry.type === 'paint') color = '#ff0077';
+          if (entry.type === 'layout-shift') color = '#ffaa00';
+          if (entry.type === 'longtask') color = '#ff4444';
+
+          // Süre genişliği (ölçeklenmiş)
+          const barWidth = Math.min(w - 150, Math.max(4, entry.duration * 8));
+
+          ctx.fillStyle = color;
+          ctx.fillRect(20, y, barWidth, barHeight);
+
+          // İsim ve süre etiketi
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+          ctx.font = '9px monospace';
+          const label = entry.name.length > 28 ? entry.name.substring(0, 26) + '..' : entry.name;
+          ctx.fillText(`${label} (${entry.duration.toFixed(1)}ms)`, 26 + barWidth, y + barHeight - 1);
+        });
+      }
+
+      // 1. PerformanceObserver Kurulumu
+      if (typeof PerformanceObserver !== 'undefined') {
+        try {
+          // Paint Observer
+          if (supportedTypes.includes('paint')) {
+            const paintObserver = new PerformanceObserver((entryList) => {
+              for (const entry of entryList.getEntries()) {
+                if (entry.name === 'first-paint') {
+                  valFP.textContent = entry.startTime.toFixed(1) + ' ms';
+                } else if (entry.name === 'first-contentful-paint') {
+                  valFCP.textContent = entry.startTime.toFixed(1) + ' ms';
+                }
+                logEntryToStream('paint', entry.name, entry.duration, entry.startTime);
+              }
+            });
+            paintObserver.observe({ type: 'paint', buffered: true });
+          }
+
+          // Mark & Measure Observer
+          const timingObserver = new PerformanceObserver((entryList) => {
+            for (const entry of entryList.getEntries()) {
+              if (entry.entryType === 'measure') {
+                measureCounter++;
+                valMeasures.textContent = measureCounter;
+                valBudget.textContent = entry.duration.toFixed(2) + ' ms';
+                if (entry.duration > 16.67) {
+                  valBudget.className = 'gauge-val amber';
+                } else {
+                  valBudget.className = 'gauge-val green';
+                }
+              }
+              logEntryToStream(entry.entryType, entry.name, entry.duration, entry.startTime);
+            }
+          });
+
+          // Mark ve Measure ayrı veya birlikte observe edilebilir
+          const observeTypes = [];
+          if (supportedTypes.includes('measure')) observeTypes.push('measure');
+          if (supportedTypes.includes('mark')) observeTypes.push('mark');
+
+          if (observeTypes.length > 0) {
+            timingObserver.observe({ entryTypes: observeTypes });
+          }
+
+          // Layout Shift Observer
+          if (supportedTypes.includes('layout-shift')) {
+            const layoutObserver = new PerformanceObserver((entryList) => {
+              for (const entry of entryList.getEntries()) {
+                if (!entry.hadRecentInput) {
+                  cumulativeLayoutShift += entry.value;
+                  valCLS.textContent = cumulativeLayoutShift.toFixed(4);
+                  logEntryToStream('layout-shift', 'CLS_SHIFT_' + entry.value.toFixed(4), 0, entry.startTime);
+                }
+              }
+            });
+            layoutObserver.observe({ type: 'layout-shift', buffered: true });
+          }
+
+          // Long Task Observer
+          if (supportedTypes.includes('longtask')) {
+            const longTaskObserver = new PerformanceObserver((entryList) => {
+              for (const entry of entryList.getEntries()) {
+                logEntryToStream('longtask', 'LONG_TASK_STALL', entry.duration, entry.startTime);
+              }
+            });
+            longTaskObserver.observe({ type: 'longtask', buffered: true });
+          }
+
+        } catch (err) {
+          // İlgili observer türü tarayıcıda kısıtlıysa sessizce devam edilir
+        }
+      }
+
+      // Canlı Tipografik Ölçüm Yardımcısı
+      function trackTypographicOperation(operationName, operationFn) {
+        const startMark = `${operationName}-start`;
+        const endMark = `${operationName}-end`;
+        const measureName = `hw-measure:${operationName}`;
+
+        performance.mark(startMark);
+        operationFn();
+        performance.mark(endMark);
+
+        try {
+          performance.measure(measureName, startMark, endMark);
+        } catch (e) {
+          // Desteklenmeyen ortamlarda manuel fallback
+          const dur = performance.now();
+          logEntryToStream('measure', measureName, 1.0, dur);
+        }
+      }
+
+      // Buton İşleyicileri
+      let morphIndex = 0;
+      const morphStates = ['state-expanded', 'state-skewed', 'state-condensed', ''];
+
+      btnMorph.addEventListener('click', () => {
+        trackTypographicOperation('glyph-morph', () => {
+          morphStates.forEach(cls => { if (cls) hwWrapper.classList.remove(cls); });
+          const nextState = morphStates[morphIndex % morphStates.length];
+          if (nextState) hwWrapper.classList.add(nextState);
+          morphIndex++;
+        });
+      });
+
+      btnReflow.addEventListener('click', () => {
+        trackTypographicOperation('dom-reflow', () => {
+          // Kasitli layout reflow tetikleme
+          const glyphs = document.querySelectorAll('.glyph');
+          glyphs.forEach((g, i) => {
+            g.style.letterSpacing = (Math.sin(Date.now() / 100 + i) * 8 + 4) + 'px';
+            // Reflow zorla
+            void g.offsetWidth;
+          });
+        });
+      });
+
+      btnStress.addEventListener('click', () => {
+        trackTypographicOperation('stress-loop-5000', () => {
+          let acc = 0;
+          for (let i = 0; i < 50000; i++) {
+            acc += Math.sqrt(i) * Math.sin(i);
+          }
+          const glyphs = document.querySelectorAll('.glyph');
+          glyphs.forEach(g => {
+            g.style.filter = `drop-shadow(0 0 ${Math.abs(acc % 15)}px var(--magenta))`;
+          });
+        });
+      });
+
+      btnSpectral.addEventListener('click', () => {
+        trackTypographicOperation('spectral-pulse', () => {
+          const glyphs = document.querySelectorAll('.glyph');
+          glyphs.forEach((g, i) => {
+            const hue = (Date.now() / 10 + i * 36) % 360;
+            g.style.transform = `translateY(${Math.sin(i) * 12}px) rotate(${Math.cos(i) * 10}deg)`;
+            g.style.color = `hsl(${hue}, 100%, 70%)`;
+          });
+        });
+      });
+
+      btnClear.addEventListener('click', () => {
+        eventsStream.innerHTML = '';
+        recentEntries.length = 0;
+        measureCounter = 0;
+        valMeasures.textContent = '0';
+        renderWaterfall();
+        try {
+          performance.clearMarks();
+          performance.clearMeasures();
+        } catch (e) {}
+      });
+
+      // Tıklanabilir Glifler
+      document.querySelectorAll('.glyph').forEach(glyph => {
+        glyph.addEventListener('click', () => {
+          const char = glyph.getAttribute('data-char');
+          trackTypographicOperation(`glyph-tap-${char}`, () => {
+            glyph.style.transform = 'scale(1.4) rotate(15deg)';
+            setTimeout(() => {
+              glyph.style.transform = '';
+            }, 300);
+          });
+        });
+      });
+
+      // Başlangıç Bootstrap Ölçümleri (Sayfa açıldığında hazır veri üretimi)
+      window.addEventListener('load', () => {
+        trackTypographicOperation('init-typographic-scene', () => {
+          renderWaterfall();
+        });
+
+        // Periyodik Hafif Nabız (Canlı Telemetri Devriyesi)
+        let tickCount = 0;
+        const patrolInterval = setInterval(() => {
+          tickCount++;
+          trackTypographicOperation(`auto-tick-${tickCount}`, () => {
+            const h = document.getElementById('hw-heading');
+            if (h) void h.clientHeight;
+          });
+
+          if (tickCount >= 6) {
+            clearInterval(patrolInterval);
+          }
+        }, 600);
+      });
+
+    })();
+  </script>
+</body>
+</html>

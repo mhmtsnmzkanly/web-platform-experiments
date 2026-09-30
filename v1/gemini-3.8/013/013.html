@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 013: CSS 3D Transforms ve Uzamsal İzometrik Tipografi</title>
+  <style>
+    /* ==========================================================================
+       1. CSS DEĞİŞKENLERİ VE KÖK AYARLAR (CSS CUSTOM PROPERTIES)
+       ========================================================================== */
+    :root {
+      /* Uzamsal Kamera Parametreleri */
+      --cam-rx: 32deg;
+      --cam-ry: -38deg;
+      --cam-rz: 0deg;
+      --cam-zoom: 0px;
+      --cam-perspective: 1200px;
+      
+      /* 3D Dilim ve Katman Geometrisi */
+      --slice-spacing: 5px;
+      --slice-count: 14;
+      
+      /* Algısal Renk Paleti (OKLCH) */
+      --bg-deep: oklch(0.12 0.02 260);
+      --bg-surface: oklch(0.16 0.03 260 / 0.85);
+      --accent-cyan: oklch(0.85 0.18 195);
+      --accent-purple: oklch(0.75 0.22 310);
+      --accent-gold: oklch(0.88 0.16 85);
+      --text-muted: oklch(0.7 0.04 250);
+      --border-line: oklch(0.3 0.05 260 / 0.6);
+      --glow-core: oklch(0.85 0.2 200 / 0.45);
+      --grid-line: oklch(0.25 0.04 260 / 0.5);
+    }
+
+    /* ==========================================================================
+       2. EVRENSEL SIFIRLAMA VE YERLEŞİM (LAYOUT RESET)
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-deep);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #ffffff;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       3. 3D VİEWPORT VE UZAMSAL SAHNE (CSS 3D PERSPECTIVE ENGINE)
+       ========================================================================== */
+    .viewport {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: var(--cam-perspective);
+      perspective-origin: 50% 48%;
+      overflow: hidden;
+      position: relative;
+      touch-action: none;
+      cursor: grab;
+      background: radial-gradient(circle at 50% 40%, oklch(0.18 0.04 260) 0%, var(--bg-deep) 85%);
+    }
+
+    .viewport:active {
+      cursor: grabbing;
+    }
+
+    .stage {
+      position: relative;
+      width: 1px;
+      height: 1px;
+      transform-style: preserve-3d;
+      transform: translateZ(var(--cam-zoom))
+                 rotateX(var(--cam-rx))
+                 rotateY(var(--cam-ry))
+                 rotateZ(var(--cam-rz));
+      will-change: transform;
+    }
+
+    /* ==========================================================================
+       4. 3D İZOMETRİK VE KARTOPOGRAFİK ZEMİN IZGARASI (SPATIAL GRID)
+       ========================================================================== */
+    .floor-grid {
+      position: absolute;
+      width: 1200px;
+      height: 1200px;
+      top: -600px;
+      left: -600px;
+      transform-style: preserve-3d;
+      transform: rotateX(90deg) translateZ(-140px);
+      pointer-events: none;
+      background-image: 
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      background-size: 50px 50px;
+      border-radius: 50%;
+      mask-image: radial-gradient(circle at center, black 25%, transparent 75%);
+      -webkit-mask-image: radial-gradient(circle at center, black 25%, transparent 75%);
+    }
+
+    .floor-axis-x {
+      position: absolute;
+      width: 800px;
+      height: 2px;
+      top: 50%;
+      left: calc(50% - 400px);
+      background: linear-gradient(to right, transparent, oklch(0.7 0.2 25 / 0.8), transparent);
+    }
+
+    .floor-axis-y {
+      position: absolute;
+      width: 2px;
+      height: 800px;
+      top: calc(50% - 400px);
+      left: 50%;
+      background: linear-gradient(to bottom, transparent, oklch(0.7 0.2 145 / 0.8), transparent);
+    }
+
+    /* ==========================================================================
+       5. 3D MONOLİT VE KATMANLANMIŞ TİPOGRAFİ (Z-AXIS SLICED TYPOGRAPHY)
+       ========================================================================== */
+    .monolith {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-style: preserve-3d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hw-slice {
+      position: absolute;
+      display: block;
+      font-size: clamp(3.2rem, 9.5vw, 7.8rem);
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: translate(-50%, -50%) translateZ(calc(var(--slice-index) * var(--slice-spacing)));
+      transform-style: preserve-3d;
+      pointer-events: none;
+      transition: transform 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    /* Ön Yüzey (Primary Visible Heading) */
+    .hw-slice.hw-front {
+      color: transparent;
+      background: linear-gradient(135deg, 
+        oklch(0.98 0.12 185) 0%, 
+        oklch(0.88 0.22 230) 45%, 
+        oklch(0.82 0.26 315) 100%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      filter: drop-shadow(0 0 16px var(--glow-core));
+      z-index: 20;
+    }
+
+    /* İç ve Arka Ekstrüzyon Dilimleri (Extruded Depth Slices) */
+    .hw-slice.hw-layer {
+      color: oklch(
+        calc(0.20 + (var(--slice-index) / var(--slice-count)) * 0.35)
+        calc(0.12 + (var(--slice-index) / var(--slice-count)) * 0.08)
+        calc(240 + (var(--slice-index) / var(--slice-count)) * 50) /
+        calc(0.85 + (var(--slice-index) / var(--slice-count)) * 0.15)
+      );
+      text-shadow: 
+        0 1px 0 oklch(0.15 0.05 260 / 0.5),
+        -1px 0 0 oklch(0.15 0.05 260 / 0.5);
+    }
+
+    /* Taban Kontak Gölgesi (Floor Contact Shadow) */
+    .monolith-shadow {
+      position: absolute;
+      display: block;
+      font-size: clamp(3.2rem, 9.5vw, 7.8rem);
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: translate(-50%, -50%) translateZ(-90px) scale(0.95);
+      color: transparent;
+      text-shadow: 0 0 35px oklch(0.05 0.02 260 / 0.95);
+      filter: blur(14px);
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       6. TELEMETRİ VE BİLGİ PANELİ (HEADS-UP DISPLAY - HUD)
+       ========================================================================== */
+    .hud-top {
+      position: absolute;
+      top: 18px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .badge-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-primary {
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: oklch(0.22 0.05 260 / 0.85);
+      border: 1px solid var(--border-line);
+      padding: 6px 12px;
+      border-radius: 6px;
+      backdrop-filter: blur(8px);
+      color: var(--accent-cyan);
+    }
+
+    .badge-mode {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: oklch(0.18 0.03 260 / 0.75);
+      border: 1px solid var(--border-line);
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: var(--text-muted);
+    }
+
+    .telemetry {
+      display: flex;
+      gap: 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      background: oklch(0.18 0.03 260 / 0.75);
+      border: 1px solid var(--border-line);
+      padding: 6px 14px;
+      border-radius: 6px;
+      backdrop-filter: blur(8px);
+    }
+
+    .telemetry span b {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       7. KULLANICI ARAYÜZÜ VE KONTROL DOKU (BOTTOM DOCK)
+       ========================================================================== */
+    .dock-container {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      z-index: 50;
+      max-width: 95vw;
+    }
+
+    .controls-dock {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-line);
+      padding: 8px 12px;
+      border-radius: 12px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 32px oklch(0.08 0.02 260 / 0.6);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border-line);
+      background: oklch(0.22 0.04 260 / 0.8);
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn:hover {
+      background: oklch(0.28 0.06 260);
+      border-color: var(--accent-cyan);
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn.active {
+      background: var(--accent-cyan);
+      color: oklch(0.12 0.04 260);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 14px oklch(0.85 0.18 195 / 0.4);
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--accent-cyan);
+      outline-offset: 2px;
+    }
+
+    /* Kaydırıcı Parametre Paneli */
+    .slider-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-line);
+      padding: 6px 16px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .slider-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slider-item input[type="range"] {
+      appearance: none;
+      width: 90px;
+      height: 4px;
+      background: oklch(0.28 0.04 260);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .slider-item input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 6px var(--accent-cyan);
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       8. ERİŞİLEBİLİRLİK VE AZALTILMIŞ HAREKET
+       ========================================================================== */
+    @media (prefers-reduced-motion: reduce) {
+      .stage {
+        transition: none !important;
+      }
+      .hw-slice {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       ANA SAHNE (MAIN SCENE VIEWPORT)
+       ========================================================================== -->
+  <main class="viewport" id="viewport" role="region" aria-label="Hello World CSS 3D Uzamsal Sahnesi">
+    
+    <!-- 3D DÖNÜŞÜM KOORDİNAT MERKEZİ (STAGE) -->
+    <div class="stage" id="stage">
+      
+      <!-- 3D ZEMİN IZGARASI VE KOORDİNAT EKSENLERİ -->
+      <div class="floor-grid" aria-hidden="true">
+        <div class="floor-axis-x"></div>
+        <div class="floor-axis-y"></div>
+      </div>
+
+      <!-- 3D HEDEF MONOLİT (SLICED HELLO WORLD ARŞİTEKTÜRÜ) -->
+      <div class="monolith" id="monolith">
+        
+        <!-- Taban Kontak Gölgesi -->
+        <span class="monolith-shadow" aria-hidden="true">Hello World</span>
+
+        <!-- 
+          Z Ekseninde Katmanlanmış Dilimler (13 Ara Katman + 1 Ön Katman):
+          Derinlik sıralaması: translateZ(k * spacing)
+        -->
+        <span class="hw-slice hw-layer" style="--slice-index: -6;" aria-hidden="true">Hello World</span>
+        <span class="hw-slice hw-layer" style="--slice-index: -5;" aria-hidden="true">Hello World</span>
+        <span class="hw-slice hw-layer" style="--slice-index: -4;" aria-hidden="true">Hello World</span>
+        <span class="hw-slice hw-layer" style="--slice-index: -3;" aria-hidden="true">Hello World</span>
+        <span class="hw-slice hw-layer" style="--slice-index: -2;" aria-hidden="true">Hello World</span>
+        <span class="hw-slice hw-layer" style="--slice-index: -1;" aria-hidden="true">Hello World</span>
+        <span class="hw-slice hw-layer" style="--slice-index: 0;" aria-hidden="true">Hello World</span>
+        <span class="hw-slice hw-layer" style="--slice-index: 1;" aria-hidden="true">Hello World</span>
+        <span class="hw-slice hw-layer" style="--slice-index: 2;" aria-hidden="true">Hello World</span>
+        <span class="hw-slice hw-layer" style="--slice-index: 3;" aria-hidden="true">Hello World</span>
+        <span class="hw-slice hw-layer" style="--slice-index: 4;" aria-hidden="true">Hello World</span>
+        <span class="hw-slice hw-layer" style="--slice-index: 5;" aria-hidden="true">Hello World</span>
+        <span class="hw-slice hw-layer" style="--slice-index: 6;" aria-hidden="true">Hello World</span>
+
+        <!-- Birincil Anlamsal Başlık (Front Face / Semantic Heading) -->
+        <h1 class="hw-slice hw-front" id="hw-heading" style="--slice-index: 7;">Hello World</h1>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ==========================================================================
+       ÜST TELEMETRİ VE BAŞLIK HUD'I
+       ========================================================================== -->
+  <header class="hud-top">
+    <div class="badge-group">
+      <div class="badge-primary">EXP 013 // CSS 3D SPATIAL ENGINE</div>
+      <div class="badge-mode" id="badge-mode">GÖRÜNÜM: İZOMETRİK</div>
+    </div>
+    <div class="telemetry" id="telemetry-bar" aria-live="polite">
+      <span>PITCH: <b id="val-pitch">32.0°</b></span>
+      <span>YAW: <b id="val-yaw">-38.0°</b></span>
+      <span>DİLİMLER: <b>14 ADET</b></span>
+      <span>MOD: <b>PRESERVE-3D</b></span>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       ALT ETKİLEŞİM DOKU VE BUTONLAR (CONTROLS DOCK)
+       ========================================================================== -->
+  <div class="dock-container">
+    <div class="controls-dock" role="toolbar" aria-label="3D Kamera ve Katman Kontrolleri">
+      <button type="button" class="btn active" id="btn-isometric">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        İzometrik
+      </button>
+      <button type="button" class="btn" id="btn-perspective">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l18 18M3 21l18-18"/></svg>
+        Perspektif
+      </button>
+      <button type="button" class="btn" id="btn-front">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        Ön Cephe
+      </button>
+      <button type="button" class="btn" id="btn-explode">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        Katmanları Patlat
+      </button>
+      <button type="button" class="btn" id="btn-orbit">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 12a4 4 0 1 1-8 0"/></svg>
+        Yörüngede Dön
+      </button>
+      <button type="button" class="btn" id="btn-reset">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Sıfırla
+      </button>
+    </div>
+
+    <!-- İNCE AYAR KAYDIRICILARI -->
+    <div class="slider-group">
+      <div class="slider-item">
+        <label for="range-depth">Derinlik Aralığı:</label>
+        <input type="range" id="range-depth" min="2" max="22" value="5" step="1">
+      </div>
+      <div class="slider-item">
+        <label for="range-fov">Perspektif (FOV):</label>
+        <input type="range" id="range-fov" min="600" max="2400" value="1200" step="50">
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       9. ETKİLEŞİM VE YÖRÜNGE KAMERA MOTORU (SPATIAL CAMERA CONTROLLER)
+       ========================================================================== */ -->
+  <script>
+    (function () {
+      'use strict';
+
+      // DOM Elemanları
+      const viewport = document.getElementById('viewport');
+      const stage = document.getElementById('stage');
+      const valPitch = document.getElementById('val-pitch');
+      const valYaw = document.getElementById('val-yaw');
+      const badgeMode = document.getElementById('badge-mode');
+      
+      const btnIsometric = document.getElementById('btn-isometric');
+      const btnPerspective = document.getElementById('btn-perspective');
+      const btnFront = document.getElementById('btn-front');
+      const btnExplode = document.getElementById('btn-explode');
+      const btnOrbit = document.getElementById('btn-orbit');
+      const btnReset = document.getElementById('btn-reset');
+      
+      const rangeDepth = document.getElementById('range-depth');
+      const rangeFov = document.getElementById('range-fov');
+
+      // Kamera Durum Vektörleri
+      let targetRx = 32.0;
+      let targetRy = -38.0;
+      let targetRz = 0.0;
+      let targetZoom = 0;
+      
+      let currentRx = 32.0;
+      let currentRy = -38.0;
+      let currentRz = 0.0;
+      let currentZoom = 0;
+
+      let isDragging = false;
+      let startPointerX = 0;
+      let startPointerY = 0;
+      let baseRx = 32.0;
+      let baseRy = -38.0;
+
+      let isExploded = false;
+      let isAutoOrbiting = false;
+      let orbitTime = 0;
+
+      // HUD Telemetri Güncellemesi
+      function updateTelemetry() {
+        if (valPitch) valPitch.textContent = currentRx.toFixed(1) + '°';
+        if (valYaw) valYaw.textContent = currentRy.toFixed(1) + '°';
+      }
+
+      // 3D Sahne Matrisini Uygula
+      function applyTransform() {
+        stage.style.transform = 
+          `translateZ(${currentZoom}px) ` +
+          `rotateX(${currentRx}deg) ` +
+          `rotateY(${currentRy}deg) ` +
+          `rotateZ(${currentRz}deg)`;
+        updateTelemetry();
+      }
+
+      // Yumuşak İnertial Animasyon Döngüsü (Smooth Damping Render Loop)
+      function renderLoop() {
+        if (isAutoOrbiting) {
+          orbitTime += 0.015;
+          targetRy = (targetRy + 0.4) % 360;
+          targetRx = 24.0 + Math.sin(orbitTime * 0.7) * 10.0;
+        }
+
+        // Lerp (Linear Interpolation) ile sönümlü kamera hareketi
+        const ease = 0.14;
+        currentRx += (targetRx - currentRx) * ease;
+        currentRy += (targetRy - currentRy) * ease;
+        currentRz += (targetRz - currentRz) * ease;
+        currentZoom += (targetZoom - currentZoom) * ease;
+
+        applyTransform();
+        requestAnimationFrame(renderLoop);
+      }
+      requestAnimationFrame(renderLoop);
+
+      // Pointer (İmleç / Dokunmatik) Etkileşimi
+      viewport.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        startPointerX = e.clientX;
+        startPointerY = e.clientY;
+        baseRx = targetRx;
+        baseRy = targetRy;
+        viewport.setPointerCapture(e.pointerId);
+        if (isAutoOrbiting) {
+          isAutoOrbiting = false;
+          btnOrbit.classList.remove('active');
+        }
+      });
+
+      viewport.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startPointerX;
+        const dy = e.clientY - startPointerY;
+        
+        // Hassasiyet katsayısı
+        const sensitivity = 0.35;
+        targetRy = baseRy + dx * sensitivity;
+        targetRx = Math.max(-85, Math.min(85, baseRx - dy * sensitivity));
+        
+        setActiveButton(null);
+        if (badgeMode) badgeMode.textContent = 'GÖRÜNÜM: SERBEST YÖRÜNGE';
+      });
+
+      function stopDragging(e) {
+        if (isDragging) {
+          isDragging = false;
+          try {
+            viewport.releasePointerCapture(e.pointerId);
+          } catch (_) {}
+        }
+      }
+
+      viewport.addEventListener('pointerup', stopDragging);
+      viewport.addEventListener('pointercancel', stopDragging);
+
+      // Fare Tekerleği ile Zoom (Yakınlaşma / Uzaklaşma)
+      viewport.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        targetZoom -= e.deltaY * 0.6;
+        targetZoom = Math.max(-600, Math.min(400, targetZoom));
+      }, { passive: false });
+
+      // Aktif Buton Görsel Durumunu Ayarla
+      function setActiveButton(btn) {
+        [btnIsometric, btnPerspective, btnFront].forEach(b => {
+          if (b) b.classList.remove('active');
+        });
+        if (btn) btn.classList.add('active');
+      }
+
+      // Önceden Tanımlı Kamera Modları
+      btnIsometric.addEventListener('click', () => {
+        isAutoOrbiting = false;
+        btnOrbit.classList.remove('active');
+        targetRx = 35.264;
+        targetRy = -45.0;
+        targetRz = 0.0;
+        setActiveButton(btnIsometric);
+        if (badgeMode) badgeMode.textContent = 'GÖRÜNÜM: İZOMETRİK (35.26°, -45°)';
+      });
+
+      btnPerspective.addEventListener('click', () => {
+        isAutoOrbiting = false;
+        btnOrbit.classList.remove('active');
+        targetRx = 26.0;
+        targetRy = -32.0;
+        targetRz = 0.0;
+        setActiveButton(btnPerspective);
+        if (badgeMode) badgeMode.textContent = 'GÖRÜNÜM: PERSPEKTİF 3D';
+      });
+
+      btnFront.addEventListener('click', () => {
+        isAutoOrbiting = false;
+        btnOrbit.classList.remove('active');
+        targetRx = 0.0;
+        targetRy = 0.0;
+        targetRz = 0.0;
+        setActiveButton(btnFront);
+        if (badgeMode) badgeMode.textContent = 'GÖRÜNÜM: ÖN CEPHE (ORTOGRAFİK)';
+      });
+
+      // Katmanları Patlatma (Explode Slices)
+      btnExplode.addEventListener('click', () => {
+        isExploded = !isExploded;
+        btnExplode.classList.toggle('active', isExploded);
+        const spacing = isExploded ? 18 : 5;
+        document.documentElement.style.setProperty('--slice-spacing', spacing + 'px');
+        rangeDepth.value = spacing;
+      });
+
+      // Otomatik Yörünge Dönüşü (Auto Orbit)
+      btnOrbit.addEventListener('click', () => {
+        isAutoOrbiting = !isAutoOrbiting;
+        btnOrbit.classList.toggle('active', isAutoOrbiting);
+        if (isAutoOrbiting) {
+          setActiveButton(null);
+          if (badgeMode) badgeMode.textContent = 'GÖRÜNÜM: OTOMATİK YÖRÜNGE';
+        }
+      });
+
+      // Sıfırla
+      btnReset.addEventListener('click', () => {
+        isAutoOrbiting = false;
+        btnOrbit.classList.remove('active');
+        isExploded = false;
+        btnExplode.classList.remove('active');
+        document.documentElement.style.setProperty('--slice-spacing', '5px');
+        document.documentElement.style.setProperty('--cam-perspective', '1200px');
+        rangeDepth.value = 5;
+        rangeFov.value = 1200;
+        targetRx = 32.0;
+        targetRy = -38.0;
+        targetRz = 0.0;
+        targetZoom = 0;
+        setActiveButton(btnIsometric);
+        if (badgeMode) badgeMode.textContent = 'GÖRÜNÜM: İZOMETRİK';
+      });
+
+      // Kaydırıcı Girdi Olayları
+      rangeDepth.addEventListener('input', (e) => {
+        const val = e.target.value;
+        document.documentElement.style.setProperty('--slice-spacing', val + 'px');
+        isExploded = (parseInt(val, 10) > 12);
+        btnExplode.classList.toggle('active', isExploded);
+      });
+
+      rangeFov.addEventListener('input', (e) => {
+        const val = e.target.value;
+        document.documentElement.style.setProperty('--cam-perspective', val + 'px');
+      });
+
+      // Klavye Kısayolları (Erişilebilirlik ve Hızlı Kontrol)
+      window.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT') return;
+        switch (e.key) {
+          case 'ArrowLeft':
+            targetRy -= 10;
+            break;
+          case 'ArrowRight':
+            targetRy += 10;
+            break;
+          case 'ArrowUp':
+            targetRx = Math.min(85, targetRx + 10);
+            break;
+          case 'ArrowDown':
+            targetRx = Math.max(-85, targetRx - 10);
+            break;
+          case ' ':
+            e.preventDefault();
+            btnOrbit.click();
+            break;
+          case 'e':
+          case 'E':
+            btnExplode.click();
+            break;
+          case 'i':
+          case 'I':
+            btnIsometric.click();
+            break;
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>

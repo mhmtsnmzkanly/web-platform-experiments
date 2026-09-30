@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 042: Web Cryptography API &amp; Asimetrik ECDSA Dijital İmza Monoliti</title>
+  <style>
+    /* ==========================================================================
+       1. KÖK DEĞİŞKENLER VE TEMEL AYARLAR
+       ========================================================================== */
+    :root {
+      --bg-base: #06080d;
+      --bg-panel: rgba(13, 17, 26, 0.85);
+      --bg-panel-border: rgba(45, 65, 100, 0.4);
+      --bg-card: rgba(20, 26, 42, 0.7);
+
+      --color-emerald: #05ffa1;
+      --color-ruby: #ff2a6d;
+      --color-cyan: #00f0ff;
+      --color-gold: #ffd043;
+      --color-text-main: #f0f4fc;
+      --color-text-muted: #8292b0;
+
+      --theme-status: var(--color-emerald);
+      --theme-glow: rgba(5, 255, 161, 0.4);
+
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body.tampered {
+      --theme-status: var(--color-ruby);
+      --theme-glow: rgba(255, 42, 109, 0.4);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-base);
+      color: var(--color-text-main);
+      font-family: var(--font-sans);
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.4s ease;
+    }
+
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       2. ÜST BAŞLIK VE DECADE 5 ROZETİ (HEADER)
+       ========================================================================== */
+    .header-hud {
+      position: absolute;
+      top: 18px;
+      left: 24px;
+      pointer-events: none;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .badge-milestone {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: rgba(5, 255, 161, 0.12);
+      border: 1px solid var(--theme-status);
+      color: var(--theme-status);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      width: fit-content;
+      box-shadow: 0 0 16px var(--theme-glow);
+      transition: all 0.3s;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--theme-status);
+      box-shadow: 0 0 8px var(--theme-status);
+      animation: pulseDot 1.8s infinite ease-in-out;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 0.4; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .title-block h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-block p {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* ==========================================================================
+       3. KRİPTOGRAFİK KASA VE ANA TİPOGRAFİK MONOLİT
+       ========================================================================== */
+    .vault-stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 60px 340px 80px 24px;
+      overflow: hidden;
+    }
+
+    /* Kriptografik Mühür Rozeti */
+    .seal-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 18px;
+      border-radius: 8px;
+      background: rgba(13, 17, 26, 0.9);
+      border: 1px solid var(--theme-status);
+      color: var(--theme-status);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: 0 0 24px var(--theme-glow);
+      transition: all 0.3s;
+    }
+
+    .seal-icon {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--theme-status);
+      box-shadow: 0 0 10px var(--theme-status);
+    }
+
+    /* Tipografik Monolit Kartı */
+    .monolith-card {
+      background: var(--bg-panel);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--theme-status);
+      border-radius: 16px;
+      padding: 32px 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px var(--theme-glow);
+      transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+      width: 100%;
+      max-width: 780px;
+      position: relative;
+    }
+
+    .hw-monolith-text {
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: #ffffff;
+      text-shadow: 0 0 30px var(--theme-glow);
+      outline: none;
+      border-bottom: 2px dashed rgba(255, 255, 255, 0.2);
+      padding: 0 12px 4px 12px;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: text;
+    }
+
+    .hw-monolith-text:focus {
+      border-bottom-color: var(--theme-status);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .payload-tip {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Kriptografik Telemetri Matrisi */
+    .crypto-matrix {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      max-width: 780px;
+    }
+
+    .matrix-row {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .matrix-label {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--color-cyan);
+    }
+
+    .matrix-val {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-text-main);
+      word-break: break-all;
+      line-height: 1.4;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 6px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* ==========================================================================
+       4. SAĞ KONTROL DOKU (RIGHT DOCK)
+       ========================================================================== */
+    .controls-dock {
+      position: absolute;
+      top: 18px;
+      right: 24px;
+      width: 300px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 100;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+    }
+
+    .panel-section-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-cyan);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(45, 65, 100, 0.3);
+      padding-bottom: 4px;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .preset-btn {
+      background: var(--bg-card);
+      border: 1px solid rgba(45, 65, 100, 0.5);
+      color: var(--color-text-muted);
+      padding: 7px 4px;
+      text-align: center;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .preset-btn:hover {
+      background: rgba(35, 48, 72, 0.8);
+      color: #ffffff;
+      border-color: var(--color-cyan);
+    }
+
+    .preset-btn.active {
+      background: rgba(0, 240, 255, 0.16);
+      color: var(--color-cyan);
+      border-color: var(--color-cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+    }
+
+    .btn-action {
+      background: #162238;
+      border: 1px solid var(--color-cyan);
+      color: var(--color-cyan);
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      width: 100%;
+    }
+
+    .btn-action:hover {
+      background: var(--color-cyan);
+      color: #06080d;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+    }
+
+    .btn-tamper {
+      background: rgba(255, 42, 109, 0.15);
+      border: 1px solid var(--color-ruby);
+      color: var(--color-ruby);
+    }
+
+    .btn-tamper:hover {
+      background: var(--color-ruby);
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(255, 42, 109, 0.4);
+    }
+
+    .btn-restore {
+      background: rgba(5, 255, 161, 0.15);
+      border: 1px solid var(--color-emerald);
+      color: var(--color-emerald);
+    }
+
+    .btn-restore:hover {
+      background: var(--color-emerald);
+      color: #06080d;
+      box-shadow: 0 0 16px rgba(5, 255, 161, 0.4);
+    }
+
+    /* ==========================================================================
+       5. ALT TELEMETRİ ÇUBUĞU (BOTTOM HUD)
+       ========================================================================== */
+    .telemetry-bar {
+      position: absolute;
+      bottom: 18px;
+      left: 24px;
+      right: 24px;
+      height: 48px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 100;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .telemetry-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .telemetry-metric {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .metric-label {
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      font-size: 10px;
+    }
+
+    .metric-val {
+      color: var(--theme-status);
+      font-weight: 700;
+      transition: color 0.3s;
+    }
+
+    .telemetry-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--color-text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+
+  <!-- Üst Başlık ve Rozet -->
+  <header class="header-hud">
+    <div class="badge-milestone">
+      <span class="badge-dot"></span>
+      <span id="txtBadgeStatus">Decade 5 • Deney 042 • Mühürlü</span>
+    </div>
+    <div class="title-block">
+      <h1>HELLO WORLD • ASİMETRİK ECDSA KRİPTOGRAFİK MÜHÜR</h1>
+      <p>NIST P-256 Elliptic Curve Digital Signature Algorithm • W3C Web Cryptography API</p>
+    </div>
+  </header>
+
+  <!-- Kasa Sahnesi -->
+  <main class="vault-stage">
+    <!-- Mühür Doğrulama Durum Rozeti -->
+    <div class="seal-status-badge" id="sealBadge">
+      <span class="seal-icon"></span>
+      <span id="txtSealStatus">DİJİTAL İMZA DOĞRULANDI (%100 ORİJİNAL)</span>
+    </div>
+
+    <!-- Tipografik Monolit -->
+    <div class="monolith-card" id="monolithCard">
+      <h2 class="hw-monolith-text" id="hwPayload" contenteditable="true" spellcheck="false" aria-label="Hello World">HELLO WORLD</h2>
+      <div class="payload-tip">
+        <span>Kriptografik Veri Yükü (Metni doğrudan düzenleyerek tahrifat testi yapabilirsiniz)</span>
+      </div>
+    </div>
+
+    <!-- Kriptografik Telemetri Matrisi -->
+    <div class="crypto-matrix">
+      <div class="matrix-row">
+        <div class="matrix-label">
+          <span>1. SHA-256 Mesaj Özeti (Message Digest)</span>
+          <span id="txtHashLen">256 BIT / 32 B</span>
+        </div>
+        <div class="matrix-val" id="valHash">HESAPLANIYOR...</div>
+      </div>
+
+      <div class="matrix-row">
+        <div class="matrix-label">
+          <span>2. ECDSA Dijital İmzası (r, s Bileşenleri)</span>
+          <span id="txtSigLen">512 BIT / 64 B</span>
+        </div>
+        <div class="matrix-val" id="valSignature">İMZALANIYOR...</div>
+      </div>
+
+      <div class="matrix-row">
+        <div class="matrix-label">
+          <span>3. SPKI Açık Anahtar Parmak İzi (Public Key Fingerprint)</span>
+          <span id="txtKeyAlgo">ECDSA P-256</span>
+        </div>
+        <div class="matrix-val" id="valPublicKey">ÜRETİLİYOR...</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sağ Kontrol Paneli -->
+  <aside class="controls-dock">
+    <div class="panel-section-title">
+      <span>Eliptik Eğri Standardı</span>
+      <span id="txtNamedCurve">P-256</span>
+    </div>
+
+    <div class="btn-grid">
+      <button type="button" class="preset-btn active" data-curve="P-256">P-256</button>
+      <button type="button" class="preset-btn" data-curve="P-384">P-384</button>
+      <button type="button" class="preset-btn" data-curve="P-521">P-521</button>
+    </div>
+
+    <div class="panel-section-title">
+      <span>Anahtar &amp; İmza Operasyonları</span>
+      <span>CSPRNG</span>
+    </div>
+
+    <button type="button" class="btn-action" id="btnGenKey">Yeni Anahtar Çifti Üret</button>
+    <button type="button" class="btn-action" id="btnResign">Mevcut Metni Yeniden İmzala</button>
+
+    <div class="panel-section-title">
+      <span>Güvenlik Simülasyonu</span>
+      <span>TAHRİFAT</span>
+    </div>
+
+    <button type="button" class="btn-action btn-tamper" id="btnTamperPayload">Metni Tahrif Et (Fake Text)</button>
+    <button type="button" class="btn-action btn-tamper" id="btnTamperSig">İmza Baytını Boz (Bad Sig)</button>
+    <button type="button" class="btn-action btn-restore" id="btnRestoreOriginal">Orijinal 'HELLO WORLD'e Dön</button>
+  </aside>
+
+  <!-- Alt Telemetri Çubuğu -->
+  <footer class="telemetry-bar">
+    <div class="telemetry-left">
+      <div class="telemetry-metric">
+        <span class="metric-label">Algoritma:</span>
+        <span class="metric-val" id="metricAlgo">ECDSA / SHA-256</span>
+      </div>
+      <div class="telemetry-metric">
+        <span class="metric-label">İmza Bütünlüğü:</span>
+        <span class="metric-val" id="metricIntegrity">GEÇERLİ</span>
+      </div>
+      <div class="telemetry-metric">
+        <span class="metric-label">Doğrulama Süresi:</span>
+        <span class="metric-val" id="metricTime">0.35 ms</span>
+      </div>
+      <div class="telemetry-metric">
+        <span class="metric-label">Donanım Hızlandırma:</span>
+        <span class="metric-val">WebCrypto / C++</span>
+      </div>
+    </div>
+    <div class="telemetry-right">
+      <span>Metni tahrif ederek anlık doğrulama çöküşünü izleyin</span>
+    </div>
+  </footer>
+
+  <script>
+    /**
+     * ============================================================================
+     * DENEY 042: ASİMETRİK ECDSA KRİPTOGRAFİ MOTORU
+     * ============================================================================
+     * Sıfır harici kütüphane.
+     * W3C Web Cryptography API (crypto.subtle) ile yerel asimetrik eliptik eğri
+     * anahtar üretimi, SHA-256 özetleme, ECDSA imzalama ve doğrulama.
+     */
+
+    let currentCurve = "P-256";
+    let keyPair = null;
+    let storedSignature = null;
+    let originalText = "HELLO WORLD";
+
+    // Yardımcı: ArrayBuffer -> Hex String
+    function bufToHex(buffer) {
+      const bytes = new Uint8Array(buffer);
+      let hex = "";
+      for (let i = 0; i < bytes.length; i++) {
+        hex += bytes[i].toString(16).padStart(2, "0");
+      }
+      return hex;
+    }
+
+    // Yardımcı: Metin -> SHA-256 Özeti
+    async function computeHash(text) {
+      const data = new TextEncoder().encode(text);
+      const hashBuf = await crypto.subtle.digest("SHA-256", data);
+      return { hashBuf, hex: bufToHex(hashBuf) };
+    }
+
+    // Anahtar Çifti Üret
+    async function generateECDSAKey(curve) {
+      const t0 = performance.now();
+      keyPair = await crypto.subtle.generateKey(
+        { name: "ECDSA", namedCurve: curve },
+        true,
+        ["sign", "verify"]
+      );
+      const spki = await crypto.subtle.exportKey("spki", keyPair.publicKey);
+      const keyHex = bufToHex(spki);
+      document.getElementById("valPublicKey").textContent = keyHex;
+      document.getElementById("txtKeyAlgo").textContent = `ECDSA ${curve} (${spki.byteLength} B SPKI)`;
+      return keyPair;
+    }
+
+    // İmzala
+    async function signPayload(text) {
+      const data = new TextEncoder().encode(text);
+      storedSignature = await crypto.subtle.sign(
+        { name: "ECDSA", hash: "SHA-256" },
+        keyPair.privateKey,
+        data
+      );
+      const sigHex = bufToHex(storedSignature);
+      document.getElementById("valSignature").textContent = sigHex;
+      document.getElementById("txtSigLen").textContent = `${storedSignature.byteLength * 8} BIT / ${storedSignature.byteLength} B`;
+      return storedSignature;
+    }
+
+    // Doğrula ve Durumu Yansıt
+    async function verifyIntegrity() {
+      const t0 = performance.now();
+      const currentText = document.getElementById("hwPayload").textContent.trim();
+
+      // SHA-256 Özeti Hesapla
+      const { hex: hashHex } = await computeHash(currentText);
+      document.getElementById("valHash").textContent = hashHex;
+
+      // İmzayı Doğrula
+      const data = new TextEncoder().encode(currentText);
+      let isValid = false;
+
+      try {
+        isValid = await crypto.subtle.verify(
+          { name: "ECDSA", hash: "SHA-256" },
+          keyPair.publicKey,
+          storedSignature,
+          data
+        );
+      } catch (err) {
+        isValid = false;
+      }
+
+      const elapsed = performance.now() - t0;
+      document.getElementById("metricTime").textContent = `${elapsed.toFixed(2)} ms`;
+
+      // Görsel UI Durum Güncellemesi
+      const body = document.body;
+      const sealBadge = document.getElementById("sealBadge");
+      const txtSealStatus = document.getElementById("txtSealStatus");
+      const metricIntegrity = document.getElementById("metricIntegrity");
+
+      if (isValid) {
+        body.classList.remove("tampered");
+        txtSealStatus.textContent = "DİJİTAL İMZA DOĞRULANDI (%100 ORİJİNAL)";
+        metricIntegrity.textContent = "GEÇERLİ";
+      } else {
+        body.classList.add("tampered");
+        txtSealStatus.textContent = "KRİPTOGRAFİK TAHRİFAT TESPİT EDİLDİ (SAHTE VERİ)";
+        metricIntegrity.textContent = "TAHRİFAT (GEÇERSİZ)";
+      }
+
+      // Çalışma Zamanı Kanıtı
+      window.__E042_VERIFIED = {
+        ecdsaSupported: true,
+        curve: currentCurve,
+        isValidSignature: isValid,
+        payload: currentText,
+        sigLength: storedSignature ? storedSignature.byteLength : 0
+      };
+
+      return isValid;
+    }
+
+    async function initCryptoSession(curve) {
+      currentCurve = curve;
+      document.getElementById("txtNamedCurve").textContent = curve;
+      await generateECDSAKey(curve);
+      await signPayload(originalText);
+      await verifyIntegrity();
+    }
+
+    function setupEventListeners() {
+      const hwPayload = document.getElementById("hwPayload");
+
+      // Kullanıcı metni düzenlediğinde anlık doğrulama
+      hwPayload.addEventListener("input", () => {
+        verifyIntegrity();
+      });
+
+      // Eğri Seçici Butonlar
+      document.querySelectorAll(".preset-btn[data-curve]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          document.querySelectorAll(".preset-btn[data-curve]").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const c = btn.getAttribute("data-curve");
+          await initCryptoSession(c);
+        });
+      });
+
+      // Yeni Anahtar Üret
+      document.getElementById("btnGenKey").addEventListener("click", async () => {
+        await initCryptoSession(currentCurve);
+      });
+
+      // Yeniden İmzala
+      document.getElementById("btnResign").addEventListener("click", async () => {
+        const text = hwPayload.textContent.trim();
+        await signPayload(text);
+        await verifyIntegrity();
+      });
+
+      // Tahrifat: Sahte Metin
+      document.getElementById("btnTamperPayload").addEventListener("click", async () => {
+        hwPayload.textContent = "HELLO HACKED WORLD";
+        await verifyIntegrity();
+      });
+
+      // Tahrifat: Bozuk İmza Baytı
+      document.getElementById("btnTamperSig").addEventListener("click", async () => {
+        const bytes = new Uint8Array(storedSignature);
+        bytes[0] ^= 0xFF; // İlk baytı ters çevir
+        const sigHex = bufToHex(storedSignature);
+        document.getElementById("valSignature").textContent = sigHex;
+        await verifyIntegrity();
+      });
+
+      // Orijinale Geri Dön
+      document.getElementById("btnRestoreOriginal").addEventListener("click", async () => {
+        hwPayload.textContent = originalText;
+        await signPayload(originalText);
+        await verifyIntegrity();
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      setupEventListeners();
+      try {
+        await initCryptoSession("P-256");
+      } catch (err) {
+        console.error("Kripto başlatma hatası:", err);
+      }
+    });
+  </script>
+</body>
+</html>

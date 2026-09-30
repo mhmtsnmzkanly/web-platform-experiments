@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Kinetic Index</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f1eee6;
+      --ink: #161719;
+      --blue: #22499b;
+      --red: #d85243;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, transparent 0, transparent calc(50% - 1px), rgba(34, 73, 155, 0.12) 50%, transparent calc(50% + 1px)),
+        var(--paper);
+    }
+
+    main {
+      width: min(1160px, calc(100vw - 64px));
+      height: 100vh;
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 26px;
+      padding: 34px 0 28px;
+    }
+
+    header,
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    header {
+      border-top: 3px solid var(--ink);
+      padding-top: 12px;
+    }
+
+    header strong,
+    footer strong {
+      color: var(--red);
+    }
+
+    header span:last-child,
+    footer span:last-child {
+      color: var(--blue);
+      text-align: right;
+    }
+
+    .index {
+      position: relative;
+      min-height: 0;
+      display: grid;
+      align-items: center;
+      border-top: 1px solid rgba(22, 23, 25, 0.45);
+      border-bottom: 1px solid rgba(22, 23, 25, 0.45);
+    }
+
+    .index::before,
+    .index::after {
+      position: absolute;
+      top: 50%;
+      width: 42px;
+      height: 42px;
+      border: 2px solid var(--blue);
+      content: "";
+      transform: translateY(-50%);
+    }
+
+    .index::before {
+      left: 0;
+      border-right: 0;
+    }
+
+    .index::after {
+      right: 0;
+      border-left: 0;
+    }
+
+    .word {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      gap: 0.02em;
+      padding: 56px 60px;
+      color: var(--ink);
+      font-size: clamp(64px, 13.3vw, 178px);
+      font-weight: 900;
+      letter-spacing: -0.09em;
+      line-height: 0.88;
+      white-space: nowrap;
+    }
+
+    .letter {
+      display: inline-block;
+      transform: translateY(var(--lift));
+      text-shadow:
+        0 0 0 var(--ink),
+        10px 10px 0 rgba(34, 73, 155, 0.18);
+      will-change: transform;
+    }
+
+    .space {
+      width: 0.28em;
+    }
+
+    .measure {
+      position: absolute;
+      top: 16px;
+      right: 70px;
+      left: 70px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--blue);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .measure::before,
+    .measure::after {
+      position: absolute;
+      top: 18px;
+      width: 1px;
+      height: calc(100vh - 230px);
+      background: rgba(34, 73, 155, 0.25);
+      content: "";
+    }
+
+    .measure::before {
+      left: 0;
+    }
+
+    .measure::after {
+      right: 0;
+    }
+
+    footer {
+      align-items: end;
+      color: rgba(22, 23, 25, 0.72);
+    }
+
+    @media (max-width: 640px) {
+      main {
+        width: calc(100vw - 28px);
+        padding-top: 22px;
+      }
+
+      header,
+      footer {
+        font-size: 9px;
+      }
+
+      .word {
+        padding: 38px 24px;
+        font-size: clamp(48px, 13vw, 92px);
+      }
+
+      .measure {
+        right: 30px;
+        left: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span><strong>004</strong> / KINETIC INDEX</span>
+      <span>WAAPI + CSS PROPERTY</span>
+    </header>
+
+    <section class="index" aria-label="Kinetic Hello World index">
+      <div class="measure">
+        <span>BASELINE 00</span>
+        <span>RHYTHM / 120 BPM</span>
+      </div>
+      <h1 class="word" aria-label="Hello World">
+        <span class="letter">H</span>
+        <span class="letter">e</span>
+        <span class="letter">l</span>
+        <span class="letter">l</span>
+        <span class="letter">o</span>
+        <span class="space" aria-hidden="true"></span>
+        <span class="letter">W</span>
+        <span class="letter">o</span>
+        <span class="letter">r</span>
+        <span class="letter">l</span>
+        <span class="letter">d</span>
+      </h1>
+    </section>
+
+    <footer>
+      <span>EVERY LETTER HAS A PULSE</span>
+      <span><strong>LIVE</strong> / TYPED MOTION</span>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      const letters = document.querySelectorAll(".letter");
+      const registered = typeof CSS !== "undefined" && CSS.registerProperty;
+
+      if (registered) {
+        try {
+          CSS.registerProperty({
+            name: "--lift",
+            syntax: "<length>",
+            inherits: false,
+            initialValue: "0px"
+          });
+        } catch (error) {
+          if (!String(error).includes("already registered")) {
+            throw error;
+          }
+        }
+      }
+
+      letters.forEach((letter, index) => {
+        letter.animate(
+          [
+            { "--lift": "0px" },
+            { "--lift": `${index % 2 ? -16 : -24}px` },
+            { "--lift": "0px" }
+          ],
+          {
+            delay: index * 85,
+            duration: 1800,
+            easing: "cubic-bezier(0.22, 0.8, 0.32, 1)",
+            iterations: Infinity
+          }
+        );
+      });
+    })();
+  </script>
+</body>
+</html>

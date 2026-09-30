@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 018: Canvas Path2D ve Fourier Epicycles ile Harmonik Tipografi</title>
+  <style>
+    :root {
+      --bg-space: #07090e;
+      --bg-surface: #0e131d;
+      --bg-card: rgba(18, 24, 38, 0.75);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(56, 189, 248, 0.35);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      /* Varsayılan Fosfor Yeşili Teması */
+      --laser-color: #34d399;
+      --laser-glow: rgba(52, 211, 153, 0.6);
+      --arm-color: rgba(168, 85, 247, 0.65);
+      --circle-color: rgba(56, 189, 248, 0.22);
+      --pen-color: #ffffff;
+      
+      --font-stack: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    /* Siber Neon Teması */
+    body[data-theme="cyber"] {
+      --laser-color: #38bdf8;
+      --laser-glow: rgba(56, 189, 248, 0.75);
+      --arm-color: rgba(244, 63, 94, 0.65);
+      --circle-color: rgba(192, 132, 252, 0.25);
+      --pen-color: #f0f9ff;
+    }
+
+    /* Plazma Altın Teması */
+    body[data-theme="amber"] {
+      --laser-color: #fbbf24;
+      --laser-glow: rgba(251, 191, 36, 0.75);
+      --arm-color: rgba(239, 68, 68, 0.65);
+      --circle-color: rgba(245, 158, 11, 0.22);
+      --pen-color: #fffbeb;
+    }
+
+    /* Morötesi Teması */
+    body[data-theme="violet"] {
+      --laser-color: #c084fc;
+      --laser-glow: rgba(192, 132, 252, 0.75);
+      --arm-color: rgba(6, 182, 212, 0.65);
+      --circle-color: rgba(168, 85, 247, 0.25);
+      --pen-color: #faf5ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-space);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.18) 0%, transparent 60%),
+        linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.7));
+      color: var(--text-main);
+      font-family: var(--font-stack);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1180px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Üst Başlık ve Semantik */
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .badge-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .badge-sub {
+      background: rgba(168, 85, 247, 0.12);
+      color: #c084fc;
+      border-color: rgba(168, 85, 247, 0.3);
+    }
+
+    h1 {
+      font-size: clamp(1.4rem, 2.8vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 780px;
+    }
+
+    /* Ana Çalışma Alanı */
+    main {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Çizim Sahnesi */
+    .viewport-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+    }
+
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      background: #04060a;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      aspect-ratio: 880 / 420;
+    }
+
+    canvas#fourierCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      outline: none;
+    }
+
+    canvas#fourierCanvas:focus-visible {
+      box-shadow: inset 0 0 0 2px var(--laser-color);
+    }
+
+    /* Telemetri Göstergesi */
+    .telemetry-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 0.5rem;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 0.6rem 0.8rem;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .tel-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .tel-label {
+      color: var(--text-dim);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tel-value {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    /* Sağ Kontrol Paneli */
+    .controls-panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .panel-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .section-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      padding-bottom: 0.4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+    }
+
+    .control-label {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .control-value {
+      font-family: var(--font-mono);
+      color: var(--laser-color);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--laser-color);
+      box-shadow: 0 0 10px var(--laser-glow);
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      transition: transform 0.1s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    /* On/Off Switch Grubu */
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      cursor: pointer;
+      padding: 0.2rem 0;
+    }
+
+    .checkbox-styled {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      transition: background 0.2s ease;
+      cursor: pointer;
+    }
+
+    .checkbox-styled input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .checkbox-styled .slider-pill {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #ffffff;
+      border-radius: 50%;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .checkbox-styled input:checked + .slider-pill {
+      transform: translateX(16px);
+      background: var(--laser-color);
+      box-shadow: 0 0 8px var(--laser-glow);
+    }
+
+    /* Renk Seçici Butonları */
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.4rem;
+    }
+
+    .theme-btn {
+      padding: 0.4rem 0.2rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(0, 0, 0, 0.25);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .theme-btn .color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .theme-btn[data-theme-choice="green"] .color-dot { background: #34d399; box-shadow: 0 0 6px #34d399; }
+    .theme-btn[data-theme-choice="cyber"] .color-dot { background: #38bdf8; box-shadow: 0 0 6px #38bdf8; }
+    .theme-btn[data-theme-choice="amber"] .color-dot { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; }
+    .theme-btn[data-theme-choice="violet"] .color-dot { background: #c084fc; box-shadow: 0 0 6px #c084fc; }
+
+    .theme-btn.active {
+      border-color: var(--laser-color);
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Oynatıcı Butonları */
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+    }
+
+    .btn-primary:hover {
+      background: rgba(56, 189, 248, 0.25);
+    }
+
+    /* Spektrum Kanvası */
+    .spectrum-container {
+      background: #04060a;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      padding: 0.4rem;
+      position: relative;
+    }
+
+    canvas#spectrumCanvas {
+      display: block;
+      width: 100%;
+      height: 60px;
+    }
+
+    /* Alt Bilgi */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 1.25rem;
+      margin-top: 1rem;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .tech-specs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body data-theme="green">
+
+  <div class="container">
+    <!-- Başlık ve Meta Bilgiler -->
+    <header>
+      <div class="badge-row">
+        <span class="badge">Deney 018</span>
+        <span class="badge badge-sub">Canvas Path2D API</span>
+        <span class="badge">Ayrık Fourier Dönüşümü (DFT)</span>
+      </div>
+      <h1>Hello World — Harmonik Fourier Epicycles</h1>
+      <p class="header-desc">
+        Joseph Fourier'in harmonik analiz teoremi ile "HELLO WORLD" parametrik konturu frekans bileşenlerine ayrıştırılmıştır.
+        Uç uca eklenmiş dönen çemberler (epicycles) zinciri, tarayıcının yerleşik <code>Path2D</code> motoru ile yörüngeyi gerçek zamanlı parıldayan bir lazer çizgisi olarak çizer.
+      </p>
+    </header>
+
+    <!-- Ana Çalışma Alanı -->
+    <main>
+      <!-- Görsel Çizim Sahnesi ve Telemetri -->
+      <section class="viewport-card" aria-label="Fourier Çizim Sahnesi">
+        <div class="canvas-container">
+          <canvas id="fourierCanvas" width="880" height="420" role="img" aria-label="Fourier Epicycles ile çizilen Hello World tipografisi" tabindex="0"></canvas>
+        </div>
+
+        <div class="telemetry-bar">
+          <div class="tel-item">
+            <span class="tel-label">Faz Açısı (&theta;)</span>
+            <span class="tel-value" id="valPhase">0.0&deg;</span>
+          </div>
+          <div class="tel-item">
+            <span class="tel-label">Harmonik / Toplam</span>
+            <span class="tel-value" id="valHarmonicsCount">64 / 360</span>
+          </div>
+          <div class="tel-item">
+            <span class="tel-label">Enerji Uyumu</span>
+            <span class="tel-value" id="valEnergy">98.4%</span>
+          </div>
+          <div class="tel-item">
+            <span class="tel-label">Lazer Ucu (X, Y)</span>
+            <span class="tel-value" id="valTipCoord">0, 0</span>
+          </div>
+          <div class="tel-item">
+            <span class="tel-label">Kare Hızı (FPS)</span>
+            <span class="tel-value" id="valFps">60.0</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sağ Kontrol ve Spektrum Paneli -->
+      <aside class="controls-panel" aria-label="Harmonik Kontroller">
+        <!-- Harmonik Modülasyonu -->
+        <div class="panel-section">
+          <div class="section-title">
+            <span>Harmonik Filtreleme</span>
+            <span id="labelHarmonicsValue" style="color: var(--laser-color); font-family: var(--font-mono);">64 Terim</span>
+          </div>
+          
+          <div class="control-group">
+            <div class="control-header">
+              <label for="sliderHarmonics" class="control-label">Aktif Terim Sayısı</label>
+              <span class="control-value" id="valTerms">64</span>
+            </div>
+            <input type="range" id="sliderHarmonics" min="4" max="120" value="64" aria-label="Aktif Harmonik Terim Sayısı" aria-valuemin="4" aria-valuemax="120" aria-valuenow="64">
+          </div>
+
+          <div class="control-group">
+            <div class="control-header">
+              <label for="sliderSpeed" class="control-label">Çizim Hızı</label>
+              <span class="control-value" id="valSpeed">1.0&times;</span>
+            </div>
+            <input type="range" id="sliderSpeed" min="0.2" max="2.5" step="0.1" value="1.0" aria-label="Çizim Hızı">
+          </div>
+        </div>
+
+        <!-- Görsel Katman Seçenekleri -->
+        <div class="panel-section">
+          <div class="section-title">Görsel Katmanlar</div>
+
+          <label class="switch-row">
+            <span class="control-label">Epicycle Çemberleri</span>
+            <div class="checkbox-styled">
+              <input type="checkbox" id="checkCircles" checked aria-label="Epicycle Çemberlerini Göster">
+              <div class="slider-pill"></div>
+            </div>
+          </label>
+
+          <label class="switch-row">
+            <span class="control-label">Vektör Kolları</span>
+            <div class="checkbox-styled">
+              <input type="checkbox" id="checkArms" checked aria-label="Vektör Kollarını Göster">
+              <div class="slider-pill"></div>
+            </div>
+          </label>
+
+          <label class="switch-row">
+            <span class="control-label">Kılavuz Kontur (Path2D SVG)</span>
+            <div class="checkbox-styled">
+              <input type="checkbox" id="checkGuides" checked aria-label="Kılavuz Konturu Göster">
+              <div class="slider-pill"></div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Renk Temaları -->
+        <div class="panel-section">
+          <div class="section-title">Spektral Renk Teması</div>
+          <div class="theme-grid">
+            <button type="button" class="theme-btn active" data-theme-choice="green" aria-label="Fosfor Yeşili Teması">
+              <span class="color-dot"></span>
+              <span>Fosfor</span>
+            </button>
+            <button type="button" class="theme-btn" data-theme-choice="cyber" aria-label="Siber Mavi Teması">
+              <span class="color-dot"></span>
+              <span>Siber</span>
+            </button>
+            <button type="button" class="theme-btn" data-theme-choice="amber" aria-label="Plazma Altın Teması">
+              <span class="color-dot"></span>
+              <span>Plazma</span>
+            </button>
+            <button type="button" class="theme-btn" data-theme-choice="violet" aria-label="Morötesi Teması">
+              <span class="color-dot"></span>
+              <span>Moröte</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Canlı Fourier Spektrum Analizörü -->
+        <div class="panel-section">
+          <div class="section-title">
+            <span>Frekans Spektrumu (|X_k|)</span>
+            <span style="font-size: 0.68rem; color: var(--text-dim);">DFT Genlik Dağılımı</span>
+          </div>
+          <div class="spectrum-container">
+            <canvas id="spectrumCanvas" width="300" height="70" role="img" aria-label="Harmonik Frekans Spektrumu"></canvas>
+          </div>
+        </div>
+
+        <!-- Oynatıcı Kontrolleri -->
+        <div class="panel-section">
+          <div class="button-row">
+            <button type="button" class="btn btn-primary" id="btnTogglePlay" aria-label="Çizimi Duraklat veya Sürdür">
+              <span id="playIcon">&#9646;&#9646;</span>
+              <span id="playText">Duraklat</span>
+            </button>
+            <button type="button" class="btn" id="btnReset" aria-label="Yörüngeyi Başa Sar">
+              <span>&#8634;</span>
+              <span>Başa Sar</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Alt Bilgi ve Standartlar -->
+    <footer>
+      <p>
+        <strong>Mekanik Matematik Modeli:</strong> 
+        $X_k = \frac{1}{N} \sum_{n=0}^{N-1} (x_n + i y_n) e^{-i 2\pi k n / N}$ formülü ile hesaplanan karmaşık Fourier serisi, $k$ frekanslarına göre dönen vektörlerin uç uca eklenmesiyle "HELLO WORLD" konturunu kusursuz bir analitik yörünge olarak yeniden inşa eder.
+      </p>
+      <div class="tech-specs">
+        <span>&bull; Standart: W3C HTML5 Canvas Path2D API</span>
+        <span>&bull; Algoritma: Complex Discrete Fourier Transform (DFT)</span>
+        <span>&bull; Bağımlılık: 0 (Saf Satır İçi JavaScript ve CSS)</span>
+        <span>&bull; Güvenli Çalışma: Sıfır Kullanıcı İzni</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function() {
+      "use strict";
+
+      // 1. "HELLO WORLD" Parametrik SVG Yolu
+      // Bütün harfler tek bir sürekli, kapalı döngü konturu olarak parametrize edilmiştir.
+      const SVG_PATH_DATA = "M 140 140 L 140 260 L 140 200 L 185 200 L 185 140 L 185 260 L 245 260 L 203 260 L 203 200 L 239 200 L 203 200 L 203 140 L 245 140 L 263 140 L 263 260 L 301 260 L 319 140 L 319 260 L 357 260 L 397 260 C 423 260 423 140 397 140 C 371 140 371 260 397 260 L 451 140 L 464 260 L 476 210 L 488 260 L 501 140 L 541 260 C 567 260 567 140 541 140 C 515 140 515 260 541 260 L 581 260 L 581 140 L 621 140 C 631 140 631 200 621 200 L 581 200 L 621 260 L 639 140 L 639 260 L 677 260 L 695 260 L 695 140 C 745 140 745 260 715 260 L 695 260 Z";
+
+      // 2. DOM Elemanları ve Bağlamlar
+      const canvas = document.getElementById("fourierCanvas");
+      const ctx = canvas.getContext("2d");
+      const spectrumCanvas = document.getElementById("spectrumCanvas");
+      const sCtx = spectrumCanvas.getContext("2d");
+
+      // Arayüz Elemanları
+      const sliderHarmonics = document.getElementById("sliderHarmonics");
+      const sliderSpeed = document.getElementById("sliderSpeed");
+      const checkCircles = document.getElementById("checkCircles");
+      const checkArms = document.getElementById("checkArms");
+      const checkGuides = document.getElementById("checkGuides");
+      const btnTogglePlay = document.getElementById("btnTogglePlay");
+      const btnReset = document.getElementById("btnReset");
+      const playIcon = document.getElementById("playIcon");
+      const playText = document.getElementById("playText");
+      const themeButtons = document.querySelectorAll(".theme-btn");
+
+      // Telemetri Elemanları
+      const valPhase = document.getElementById("valPhase");
+      const valHarmonicsCount = document.getElementById("valHarmonicsCount");
+      const valEnergy = document.getElementById("valEnergy");
+      const valTipCoord = document.getElementById("valTipCoord");
+      const valFps = document.getElementById("valFps");
+      const valTerms = document.getElementById("valTerms");
+      const labelHarmonicsValue = document.getElementById("labelHarmonicsValue");
+      const valSpeed = document.getElementById("valSpeed");
+
+      // 3. Yerleşik Path2D Nesneleri
+      // SVG dizesini doğrudan Canvas Path2D nesnesine ayrıştırır (W3C Standart Yeteneği)
+      const guidePath2D = new Path2D(SVG_PATH_DATA);
+
+      // 4. Nokta Örnekleme (SVG getPointAtLength)
+      const SAMPLE_COUNT = 360;
+      const sampledPoints = [];
+      const svgNS = "http://www.w3.org/2000/svg";
+      const virtualPath = document.createElementNS(svgNS, "path");
+      virtualPath.setAttribute("d", SVG_PATH_DATA);
+      const totalCurveLength = virtualPath.getTotalLength();
+
+      for (let i = 0; i < SAMPLE_COUNT; i++) {
+        const pt = virtualPath.getPointAtLength((i / SAMPLE_COUNT) * totalCurveLength);
+        sampledPoints.push({ x: pt.x, y: pt.y });
+      }
+
+      // 5. Ayrık Fourier Dönüşümü (Discrete Fourier Transform - DFT)
+      function computeDFT(points) {
+        const N = points.length;
+        const fourier = [];
+        let totalPower = 0;
+
+        for (let k = 0; k < N; k++) {
+          let re = 0;
+          let im = 0;
+          // Frekans sarmalaması (pozitif ve negatif frekans dengesi)
+          const freq = (k <= N / 2) ? k : k - N;
+
+          for (let n = 0; n < N; n++) {
+            const phi = (2 * Math.PI * freq * n) / N;
+            const cosPhi = Math.cos(phi);
+            const sinPhi = Math.sin(phi);
+            re += points[n].x * cosPhi + points[n].y * sinPhi;
+            im += points[n].y * cosPhi - points[n].x * sinPhi;
+          }
+
+          re /= N;
+          im /= N;
+
+          const amp = Math.hypot(re, im);
+          const phase = Math.atan2(im, re);
+
+          if (freq !== 0) {
+            totalPower += amp * amp;
+          }
+
+          fourier.push({ re, im, freq, amp, phase });
+        }
+
+        // Genliklerine göre azalan sırada sırala (büyük çemberler önce gelir)
+        fourier.sort((a, b) => b.amp - a.amp);
+
+        return { fourier, totalPower };
+      }
+
+      const { fourier: allHarmonics, totalPower } = computeDFT(sampledPoints);
+
+      // 6. Simülasyon Durum Değişkenleri
+      let isPlaying = true;
+      let timeProgress = 0; // 0 ile 2*PI arasında
+      let speedMultiplier = 1.0;
+      let activeHarmonicsCount = 64;
+      let showCircles = true;
+      let showArms = true;
+      let showGuides = true;
+
+      // Çizilen lazer izi geçmişi: [{x, y, progress}]
+      const laserTrail = [];
+      const MAX_TRAIL_LENGTH = SAMPLE_COUNT * 2;
+
+      // Performans Telemetrisi
+      let lastFrameTime = performance.now();
+      let frameCount = 0;
+      let lastFpsUpdate = performance.now();
+      let currentFps = 60.0;
+
+      // 7. Spektrum Çizimi (Mini Spektrum Analizörü)
+      function renderSpectrum() {
+        sCtx.clearRect(0, 0, spectrumCanvas.width, spectrumCanvas.height);
+        const w = spectrumCanvas.width;
+        const h = spectrumCanvas.height;
+        const barCount = 60;
+        const barWidth = w / barCount;
+
+        // En büyük 60 harmonik bileşenin genlikleri
+        const maxAmp = allHarmonics[1] ? allHarmonics[1].amp : 1; // DC hariç
+
+        for (let i = 0; i < barCount; i++) {
+          const comp = allHarmonics[i + 1] || { amp: 0 };
+          const normalizedHeight = Math.min((comp.amp / maxAmp) * (h - 10), h - 4);
+          const x = i * barWidth;
+          const y = h - normalizedHeight;
+
+          // Aktif harmonik sınırına göre renklendirme
+          const isActive = (i + 1) <= activeHarmonicsCount;
+          
+          if (isActive) {
+            sCtx.fillStyle = getComputedStyle(document.body).getPropertyValue("--laser-color").trim() || "#34d399";
+          } else {
+            sCtx.fillStyle = "rgba(255, 255, 255, 0.12)";
+          }
+
+          sCtx.fillRect(x + 1, y, barWidth - 2, normalizedHeight);
+        }
+
+        // Kesim eşiği çizgisi
+        const cutoffX = (activeHarmonicsCount / barCount) * w;
+        sCtx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+        sCtx.lineWidth = 1;
+        sCtx.setLineDash([2, 2]);
+        sCtx.beginPath();
+        sCtx.moveTo(cutoffX, 0);
+        sCtx.lineTo(cutoffX, h);
+        sCtx.stroke();
+        sCtx.setLineDash([]);
+      }
+
+      // 8. Epicycles Pozisyon Hesaplaması ve Path2D Render Döngüsü
+      function drawFrame(now) {
+        // FPS Hesaplama
+        frameCount++;
+        if (now - lastFpsUpdate >= 500) {
+          currentFps = (frameCount * 1000) / (now - lastFpsUpdate);
+          valFps.textContent = currentFps.toFixed(1);
+          frameCount = 0;
+          lastFpsUpdate = now;
+        }
+
+        const dt = (now - lastFrameTime) / 1000;
+        lastFrameTime = now;
+
+        // Zaman İlerlemesi
+        if (isPlaying) {
+          const timeStep = (2 * Math.PI / SAMPLE_COUNT) * speedMultiplier * (dt * 60);
+          timeProgress += timeStep;
+          if (timeProgress >= 2 * Math.PI) {
+            timeProgress -= 2 * Math.PI;
+          }
+        }
+
+        // Tuvali Temizle
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Arka Plan İnce Koordinat Izgarası
+        ctx.save();
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.03)";
+        ctx.lineWidth = 1;
+        for (let x = 40; x < canvas.width; x += 40) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+          ctx.stroke();
+        }
+        for (let y = 40; y < canvas.height; y += 40) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Kılavuz Hedef Konturu (W3C Path2D Nesnesi)
+        if (showGuides) {
+          ctx.save();
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.07)";
+          ctx.lineWidth = 1.2;
+          ctx.setLineDash([4, 6]);
+          ctx.stroke(guidePath2D);
+          ctx.restore();
+        }
+
+        // Epicycles Zincirini Hesapla
+        const computedEpicycles = [];
+        let currentX = 0;
+        let currentY = 0;
+
+        // DC Bileşeni (İlk Merkez Noktası)
+        const dc = allHarmonics[0];
+        currentX = dc.re;
+        currentY = dc.im;
+
+        let activePower = 0;
+
+        for (let i = 1; i <= activeHarmonicsCount; i++) {
+          const h = allHarmonics[i];
+          if (!h) break;
+
+          activePower += h.amp * h.amp;
+
+          const prevX = currentX;
+          const prevY = currentY;
+          const angle = h.freq * timeProgress + h.phase;
+          const nextX = prevX + h.amp * Math.cos(angle);
+          const nextY = prevY + h.amp * Math.sin(angle);
+
+          computedEpicycles.push({
+            prevX,
+            prevY,
+            x: nextX,
+            y: nextY,
+            radius: h.amp
+          });
+
+          currentX = nextX;
+          currentY = nextY;
+        }
+
+        // 1. Epicycle Çemberleri Render (Toplu Path2D)
+        if (showCircles && computedEpicycles.length > 0) {
+          const circlePath = new Path2D();
+          for (let i = 0; i < computedEpicycles.length; i++) {
+            const ep = computedEpicycles[i];
+            if (ep.radius > 0.8) {
+              circlePath.moveTo(ep.prevX + ep.radius, ep.prevY);
+              circlePath.arc(ep.prevX, ep.prevY, ep.radius, 0, Math.PI * 2);
+            }
+          }
+          ctx.save();
+          const circleColor = getComputedStyle(document.body).getPropertyValue("--circle-color").trim() || "rgba(56, 189, 248, 0.22)";
+          ctx.strokeStyle = circleColor;
+          ctx.lineWidth = 1;
+          ctx.stroke(circlePath);
+          ctx.restore();
+        }
+
+        // 2. Vektör Kolları Render (Toplu Path2D)
+        if (showArms && computedEpicycles.length > 0) {
+          const armPath = new Path2D();
+          for (let i = 0; i < computedEpicycles.length; i++) {
+            const ep = computedEpicycles[i];
+            armPath.moveTo(ep.prevX, ep.prevY);
+            armPath.lineTo(ep.x, ep.y);
+          }
+          ctx.save();
+          const armColor = getComputedStyle(document.body).getPropertyValue("--arm-color").trim() || "rgba(168, 85, 247, 0.65)";
+          ctx.strokeStyle = armColor;
+          ctx.lineWidth = 1.2;
+          ctx.stroke(armPath);
+          ctx.restore();
+        }
+
+        // Lazer İzi Geçmişine Yeni Nokta Ekle
+        if (isPlaying) {
+          laserTrail.unshift({ x: currentX, y: currentY });
+          if (laserTrail.length > MAX_TRAIL_LENGTH) {
+            laserTrail.pop();
+          }
+        }
+
+        // 3. Lazer İzi Render (Dinamik Birleşik Path2D)
+        if (laserTrail.length > 1) {
+          const trailPath = new Path2D();
+          trailPath.moveTo(laserTrail[0].x, laserTrail[0].y);
+          for (let i = 1; i < laserTrail.length; i++) {
+            trailPath.lineTo(laserTrail[i].x, laserTrail[i].y);
+          }
+
+          ctx.save();
+          const laserColor = getComputedStyle(document.body).getPropertyValue("--laser-color").trim() || "#34d399";
+          const laserGlow = getComputedStyle(document.body).getPropertyValue("--laser-glow").trim() || "rgba(52, 211, 153, 0.6)";
+
+          // Dış Parıltı Katmanı
+          ctx.strokeStyle = laserColor;
+          ctx.lineWidth = 2.4;
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          ctx.shadowColor = laserGlow;
+          ctx.shadowBlur = 14;
+          ctx.stroke(trailPath);
+
+          // İç Keskin Çizgi Katmanı
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 1.0;
+          ctx.stroke(trailPath);
+          ctx.restore();
+        }
+
+        // 4. Çizici İğne Ucu (Lazer Kalem Parlaması)
+        ctx.save();
+        const laserColor = getComputedStyle(document.body).getPropertyValue("--laser-color").trim() || "#34d399";
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = laserColor;
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.arc(currentX, currentY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // İğne Ucu Dış Halka
+        ctx.strokeStyle = laserColor;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(currentX, currentY, 7, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        // Telemetri Değerlerini Güncelle
+        const phaseDeg = ((timeProgress * 180) / Math.PI) % 360;
+        valPhase.textContent = phaseDeg.toFixed(1) + "\u00B0";
+        valTipCoord.textContent = Math.round(currentX) + ", " + Math.round(currentY);
+        const energyRatio = totalPower > 0 ? Math.min((activePower / totalPower) * 100, 99.9) : 100;
+        valEnergy.textContent = energyRatio.toFixed(1) + "%";
+
+        requestAnimationFrame(drawFrame);
+      }
+
+      // 9. Olay Dinleyicileri ve Etkileşimler
+      sliderHarmonics.addEventListener("input", function(e) {
+        activeHarmonicsCount = parseInt(e.target.value, 10);
+        valTerms.textContent = activeHarmonicsCount;
+        labelHarmonicsValue.textContent = activeHarmonicsCount + " Terim";
+        valHarmonicsCount.textContent = activeHarmonicsCount + " / " + SAMPLE_COUNT;
+        sliderHarmonics.setAttribute("aria-valuenow", activeHarmonicsCount);
+        renderSpectrum();
+      });
+
+      sliderSpeed.addEventListener("input", function(e) {
+        speedMultiplier = parseFloat(e.target.value);
+        valSpeed.innerHTML = speedMultiplier.toFixed(1) + "&times;";
+      });
+
+      checkCircles.addEventListener("change", function(e) {
+        showCircles = e.target.checked;
+      });
+
+      checkArms.addEventListener("change", function(e) {
+        showArms = e.target.checked;
+      });
+
+      checkGuides.addEventListener("change", function(e) {
+        showGuides = e.target.checked;
+      });
+
+      btnTogglePlay.addEventListener("click", function() {
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+          playIcon.innerHTML = "&#9646;&#9646;";
+          playText.textContent = "Duraklat";
+          btnTogglePlay.classList.add("btn-primary");
+        } else {
+          playIcon.innerHTML = "&#9654;";
+          playText.textContent = "Sürdür";
+          btnTogglePlay.classList.remove("btn-primary");
+        }
+      });
+
+      btnReset.addEventListener("click", function() {
+        timeProgress = 0;
+        laserTrail.length = 0;
+      });
+
+      // Tema Değiştirici
+      themeButtons.forEach(btn => {
+        btn.addEventListener("click", function() {
+          themeButtons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const themeChoice = btn.getAttribute("data-theme-choice");
+          document.body.setAttribute("data-theme", themeChoice);
+          renderSpectrum();
+        });
+      });
+
+      // Klavye Kısayolları (Boşluk: Durdur/Oynat, R: Sıfırla)
+      window.addEventListener("keydown", function(e) {
+        if (e.target.tagName === "INPUT") return;
+        if (e.code === "Space") {
+          e.preventDefault();
+          btnTogglePlay.click();
+        } else if (e.code === "KeyR") {
+          btnReset.click();
+        }
+      });
+
+      // Başlangıç Çağrıları
+      valHarmonicsCount.textContent = activeHarmonicsCount + " / " + SAMPLE_COUNT;
+      renderSpectrum();
+      requestAnimationFrame(drawFrame);
+
+    })();
+  </script>
+</body>
+</html>

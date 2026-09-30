@@ -1,0 +1,140 @@
+<!--
+  HELLO WORLD LAB — DENEY 005
+  Hedef: SVG Vektörel Kontur Çizimi ve Geometrik Tipografi
+  Yeni Teknoloji: SVG 2 Vektörel Çizim Mimarisi (<svg viewBox>, <defs>, <linearGradient>, <text>, stroke-dasharray, stroke-dashoffset)
+  Önemli Önceki Teknolojiler: 001 Semantik HTML (main), 002 CSS Flexbox (display: flex, 100dvh), 003 CSS Değişkenleri, 004 Keyframe Animasyonları
+  Çalıştırma Adresi: http://localhost:7373/005.html (Geliştirme: http://localhost:7373/005.dev.html)
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 005 — Hello World (SVG Vektörel Kontur Çizimi)</title>
+  <style>
+    :root {
+      --bg-color: #08080a;
+      --badge-border: rgba(99, 102, 241, 0.3);
+      --badge-bg: rgba(99, 102, 241, 0.08);
+      --badge-color: #a5b4fc;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /*
+      Flex Sahnesi (Önceki deneylerden miras):
+      SVG elemanını dikey ve yatay eksende mükemmel hizalar.
+    */
+    .stage {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+      padding: 2rem;
+      gap: 2rem;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.45rem 1.25rem;
+      border-radius: 9999px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      color: var(--badge-color);
+      font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /*
+      SVG Kapsayıcı ve Vektör Çizim Alanı:
+      'viewBox' özelliği sayesinde iç koordinat sistemi (1000x260) korunurken
+      vektör her ekran çözünürlüğünde sıfır pikselleşme ile akışkan ölçeklenir.
+    */
+    .vector-stage {
+      width: 100%;
+      max-width: 960px;
+      height: auto;
+      overflow: visible;
+      filter: drop-shadow(0 0 25px rgba(99, 102, 241, 0.35));
+    }
+
+    /*
+      ========================================================================
+      SVG KONTUR ÇİZİMİ (STROKE-DASHARRAY VE STROKE-DASHOFFSET):
+      Harflerin dış hatları matematiksel kontur çizgisi (stroke) olarak ele alınır.
+      - stroke-dasharray: Çizgi ve boşluk uzunluklarını tanımlar (burada 700px).
+      - stroke-dashoffset: Çizginin başlangıç ofsetini kaydırır.
+      Animasyon ofseti 700'den 0'a indirerek harflerin bir neon kalemle
+      çiziliyormuş gibi akmasını sağlar; ardından iç dolgu (fill) yumuşakça belirir.
+      ========================================================================
+    */
+    @keyframes draw-contour {
+      0% {
+        stroke-dashoffset: 700;
+        fill: rgba(255, 255, 255, 0);
+      }
+      70% {
+        stroke-dashoffset: 0;
+        fill: rgba(255, 255, 255, 0.05);
+      }
+      100% {
+        stroke-dashoffset: 0;
+        fill: rgba(255, 255, 255, 0.92);
+      }
+    }
+
+    .svg-hello-world {
+      font-size: 130px;
+      font-weight: 900;
+      letter-spacing: -2px;
+      font-family: system-ui, -apple-system, sans-serif;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      stroke: url(#neon-gradient);
+      stroke-width: 3.5px;
+      stroke-dasharray: 700;
+      stroke-dashoffset: 700;
+      animation: draw-contour 4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <div class="badge">SVG Vector Graphics &amp; Stroke Animation</div>
+
+    <!--
+      SVG 2D Vektör Sahnesi:
+      - viewBox="0 0 1000 260": 1000 birim genişlik ve 260 birim yükseklikte bağımsız vektör uzayı.
+      - <defs>: Tekrar kullanılabilir vektörel gradyan tanımı.
+      - <text>: Erişilebilir ve taranabilir vektörel metin düğümü.
+    -->
+    <svg class="vector-stage" viewBox="0 0 1000 260" xmlns="http://www.w3.org/2000/svg" aria-label="Hello World">
+      <defs>
+        <linearGradient id="neon-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#38bdf8" />
+          <stop offset="50%" stop-color="#818cf8" />
+          <stop offset="100%" stop-color="#c084fc" />
+        </linearGradient>
+      </defs>
+      <text x="500" y="130" class="svg-hello-world">Hello World</text>
+    </svg>
+  </main>
+</body>
+</html>

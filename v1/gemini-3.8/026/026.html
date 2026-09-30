@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 026: BroadcastChannel API & Çok Düğümlü Kuantum Dolanık Tipografi</title>
+  <style>
+    :root {
+      --bg-color: #070a13;
+      --panel-bg: rgba(14, 21, 38, 0.7);
+      --panel-border: rgba(6, 182, 212, 0.25);
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.4);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.4);
+      --amber: #f59e0b;
+      --magenta: #ec4899;
+      --violet: #8b5cf6;
+      --text-main: #f1f5f9;
+      --text-muted: #64748b;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 28px 28px, 28px 28px;
+    }
+
+    /* Üst Kokpit Başlığı & İletişim Veri Yolu Durumu */
+    header {
+      padding: 1rem 1.5rem;
+      background: rgba(9, 14, 26, 0.85);
+      border-bottom: 1px solid var(--panel-border);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      z-index: 20;
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .badge-exp {
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    .header-title-block h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .header-title-block p {
+      font-size: 0.8rem;
+      color: var(--cyan);
+      font-family: var(--font-mono);
+    }
+
+    /* Veri Yolu İstatistik Rozetleri */
+    .bus-stats-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .stat-chip {
+      background: rgba(6, 182, 212, 0.06);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      min-width: 95px;
+    }
+
+    .stat-chip-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+    }
+
+    .stat-chip-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--cyan);
+    }
+
+    .stat-chip-val.green { color: var(--emerald); }
+    .stat-chip-val.amber { color: var(--amber); }
+
+    /* Ana Düzen (Grid Mizanpaj) */
+    main {
+      flex: 1;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 1.5rem;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Düğüm Kartı Taban Stili */
+    .node-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .node-card.alpha::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+
+    .node-card.beta::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--emerald), transparent);
+    }
+
+    .node-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.75rem;
+    }
+
+    .node-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .node-tag {
+      font-size: 0.7rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .node-tag.alpha {
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+    }
+
+    .node-tag.beta {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--emerald);
+      color: var(--emerald);
+    }
+
+    .node-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .pulse-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+      animation: pulseAnim 1.8s infinite;
+    }
+
+    @keyframes pulseAnim {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.7); opacity: 0.4; }
+    }
+
+    /* Tipografik Sahneleyici (Hello World Odak) */
+    .typographic-viewport {
+      background: rgba(4, 8, 18, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      position: relative;
+    }
+
+    h1.hw-display {
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.25rem;
+      user-select: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hw-display.alpha-heading {
+      background: linear-gradient(135deg, #ffffff 0%, var(--cyan) 60%, var(--violet) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 16px var(--cyan-glow));
+    }
+
+    .hw-glyph {
+      display: inline-block;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .hw-glyph:hover, .hw-glyph.remote-hover {
+      transform: translateY(-8px) scale(1.2);
+      filter: drop-shadow(0 0 12px var(--amber));
+    }
+
+    .hw-glyph-gap {
+      width: 0.9rem;
+    }
+
+    /* İnteraktif Düğüm Kontrolleri */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+    }
+
+    button.bus-btn {
+      background: rgba(6, 182, 212, 0.08);
+      color: #fff;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 6px;
+      padding: 0.6rem 0.8rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.2s ease;
+    }
+
+    button.bus-btn:hover {
+      background: rgba(6, 182, 212, 0.2);
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+      transform: translateY(-1px);
+    }
+
+    button.bus-btn:active {
+      transform: scale(0.97);
+    }
+
+    button.bus-btn.amber {
+      border-color: rgba(245, 158, 11, 0.3);
+      background: rgba(245, 158, 11, 0.08);
+    }
+    button.bus-btn.amber:hover {
+      border-color: var(--amber);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+    }
+
+    /* Sürgüler */
+    .sliders-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 6px;
+    }
+
+    .slider-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+    }
+
+    .slider-item label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+    }
+
+    input[type="range"] {
+      accent-color: var(--cyan);
+      width: 100%;
+      cursor: pointer;
+    }
+
+    /* Düğüm Beta İframe Alanı */
+    .beta-iframe-container {
+      flex: 1;
+      width: 100%;
+      min-height: 280px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 8px;
+      background: rgba(4, 8, 18, 0.9);
+    }
+
+    /* Veri Yolu Telemetrisi ve Paket Denetleyicisi */
+    .bus-monitor-card {
+      grid-column: 1 / 3;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    @media (max-width: 1024px) {
+      .bus-monitor-card {
+        grid-column: 1 / 2;
+      }
+    }
+
+    .monitor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .monitor-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--cyan);
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .packet-stream {
+      background: rgba(3, 7, 18, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .packet-row {
+      display: grid;
+      grid-template-columns: 80px 70px 140px 1fr 90px;
+      padding: 0.4rem 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      align-items: center;
+    }
+
+    .packet-row:last-child {
+      border-bottom: none;
+    }
+
+    .packet-dir {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .packet-dir.tx { color: var(--cyan); }
+    .packet-dir.rx { color: var(--emerald); }
+
+    .packet-node {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .packet-action {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .packet-payload {
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .packet-latency {
+      color: var(--amber);
+      text-align: right;
+      font-size: 0.7rem;
+    }
+
+    /* Alt Bilgi Çubuğu */
+    footer {
+      padding: 0.75rem 1.5rem;
+      background: rgba(9, 14, 26, 0.85);
+      border-top: 1px solid var(--panel-border);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .footer-metric {
+      color: var(--cyan);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Kokpit Başlığı & Veri Yolu Durumu -->
+  <header>
+    <div class="header-branding">
+      <span class="badge-exp">DENEY 026</span>
+      <div class="header-title-block">
+        <h2>Kuantum Dolanıklık İstasyonu</h2>
+        <p>W3C BroadcastChannel API & Çok Pencereli Durum Senkronizasyonu</p>
+      </div>
+    </div>
+
+    <div class="bus-stats-bar">
+      <div class="stat-chip">
+        <span class="stat-chip-label">Veri Yolu Kanalı</span>
+        <span class="stat-chip-val" style="font-size: 0.8rem;">hw_entangle</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Toplam İletim (TX)</span>
+        <span class="stat-chip-val" id="txCount">0</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Toplam Alım (RX)</span>
+        <span class="stat-chip-val green" id="rxCount">0</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Gecikme (Latency)</span>
+        <span class="stat-chip-val amber" id="latencyVal">&lt; 0.5 ms</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ana Sahne Mizanpajı -->
+  <main>
+    <!-- DÜĞÜM ALFA (Master Transmitter) -->
+    <section class="node-card alpha" aria-label="Düğüm Alfa Master Terminali">
+      <div class="node-header">
+        <div class="node-title-group">
+          <span class="node-tag alpha">DÜĞÜM ALFA</span>
+          <span class="node-name">Ana İletim Kokpiti</span>
+        </div>
+        <span style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--cyan);">
+          <span class="pulse-indicator"></span> VERİ YOLUNA BAĞLI
+        </span>
+      </div>
+
+      <!-- Hello World Odak -->
+      <div class="typographic-viewport">
+        <h1 class="hw-display alpha-heading" id="alphaHeading" aria-label="Hello World">
+          <span class="hw-glyph" data-index="0" data-char="H">H</span>
+          <span class="hw-glyph" data-index="1" data-char="E">E</span>
+          <span class="hw-glyph" data-index="2" data-char="L">L</span>
+          <span class="hw-glyph" data-index="3" data-char="L">L</span>
+          <span class="hw-glyph" data-index="4" data-char="O">O</span>
+          <span class="hw-glyph-gap"></span>
+          <span class="hw-glyph" data-index="5" data-char="W">W</span>
+          <span class="hw-glyph" data-index="6" data-char="O">O</span>
+          <span class="hw-glyph" data-index="7" data-char="R">R</span>
+          <span class="hw-glyph" data-index="8" data-char="L">L</span>
+          <span class="hw-glyph" data-index="9" data-char="D">D</span>
+        </h1>
+      </div>
+
+      <!-- Sürgüler -->
+      <div class="sliders-panel">
+        <div class="slider-item">
+          <label>
+            <span>Harf Aralığı (Tracking)</span>
+            <span id="lblTracking">0.12em</span>
+          </label>
+          <input type="range" id="rangeTracking" min="0" max="0.5" step="0.02" value="0.12">
+        </div>
+        <div class="slider-item">
+          <label>
+            <span>Perspektif Açısı</span>
+            <span id="lblSkew">0 deg</span>
+          </label>
+          <input type="range" id="rangeSkew" min="-25" max="25" step="1" value="0">
+        </div>
+      </div>
+
+      <!-- Butonlar -->
+      <div class="controls-grid">
+        <button class="bus-btn" id="btnWave" type="button">
+          <strong>Kinetik Dalga</strong>
+          <span style="font-size: 0.65rem; color: var(--cyan);">[BROADCAST WAVE]</span>
+        </button>
+        <button class="bus-btn" id="btnColor" type="button">
+          <strong>Spektral Renk</strong>
+          <span style="font-size: 0.65rem; color: var(--cyan);">[CYCLE HUE]</span>
+        </button>
+        <button class="bus-btn amber" id="btnBeacon" type="button">
+          <strong>Nabız Sinyali</strong>
+          <span style="font-size: 0.65rem; color: var(--amber);">[PING BEACON]</span>
+        </button>
+        <button class="bus-btn" id="btnOpenTab" type="button" style="border-color: rgba(255,255,255,0.2);">
+          <strong>Yeni Sekme Aç</strong>
+          <span style="font-size: 0.65rem; color: #fff;">[MULTI-WINDOW]</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- DÜĞÜM BETA (Dolanık Uydu Frame) -->
+    <section class="node-card beta" aria-label="Düğüm Beta Uydu Alıcısı">
+      <div class="node-header">
+        <div class="node-title-group">
+          <span class="node-tag beta">DÜĞÜM BETA</span>
+          <span class="node-name">Dolanık Uydu Alıcısı (Sandbox Frame)</span>
+        </div>
+        <span style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--emerald);">
+          <span class="pulse-indicator" style="background: var(--emerald); box-shadow: 0 0 8px var(--emerald);"></span> DİNLEMEDE
+        </span>
+      </div>
+
+      <!-- Embedded Iframe dynamically populated to maintain clean single script syntax -->
+      <iframe class="beta-iframe-container" id="betaFrame" title="Düğüm Beta Alıcı Çerçevesi"></iframe>
+    </section>
+
+    <!-- VERİ YOLU TELEMETRİSİ VE PAKET DENETLEYİCİSİ -->
+    <section class="bus-monitor-card" aria-label="Veri Yolu Telemetrisi">
+      <div class="monitor-header">
+        <div class="monitor-title">
+          <span>CANLI VERİ YOLU PAKET DENETLEYİCİSİ (BROADCAST BUS INSPECTOR)</span>
+        </div>
+        <span style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted);">
+          Kanal: <code>hw_entangle</code> | Şifresiz Tarayıcı İçi IPC
+        </span>
+      </div>
+
+      <div class="packet-stream" id="packetStream">
+        <!-- Paket akışı dinamik eklenecek -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Alt Bilgi Çubuğu -->
+  <footer>
+    <div>
+      <span>Standart: <strong class="footer-metric">W3C HTML Living Standard (BroadcastChannel API)</strong></span>
+    </div>
+    <div>
+      <span>IPC Tipi: <strong class="footer-metric">Same-Origin Peer-to-Peer Bus</strong></span>
+    </div>
+    <div>
+      <span>Durum: <strong class="footer-metric" id="busHealth">NOMINAL_SYNCHRONIZED</strong></span>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const CHANNEL_NAME = 'hw_entangle';
+
+      // 1. Düğüm Alfa (Ana Pencere) BroadcastChannel Başlatma
+      let alphaBus;
+      try {
+        alphaBus = new window.BroadcastChannel(CHANNEL_NAME);
+      } catch (err) {
+        alphaBus = { postMessage: () => {}, close: () => {} };
+      }
+
+      // DOM Elemanları (Alfa)
+      const txCountEl = document.getElementById('txCount');
+      const rxCountEl = document.getElementById('rxCount');
+      const latencyValEl = document.getElementById('latencyVal');
+      const alphaHeading = document.getElementById('alphaHeading');
+      const alphaGlyphs = document.querySelectorAll('.hw-glyph');
+      const packetStream = document.getElementById('packetStream');
+      const betaFrame = document.getElementById('betaFrame');
+
+      // Sürgüler & Butonlar
+      const rangeTracking = document.getElementById('rangeTracking');
+      const rangeSkew = document.getElementById('rangeSkew');
+      const lblTracking = document.getElementById('lblTracking');
+      const lblSkew = document.getElementById('lblSkew');
+      const btnWave = document.getElementById('btnWave');
+      const btnColor = document.getElementById('btnColor');
+      const btnBeacon = document.getElementById('btnBeacon');
+      const btnOpenTab = document.getElementById('btnOpenTab');
+
+      // Sayaçlar
+      let totalTx = 0;
+      let totalRx = 0;
+      let packetSeq = 100;
+      let currentHue = 0;
+
+      // Telemetri Loglama Yardımcısı
+      function logPacket(direction, node, action, payload, latencyMs = null) {
+        const row = document.createElement('div');
+        row.className = 'packet-row';
+
+        const dirClass = direction === 'TX' ? 'tx' : 'rx';
+        const dirSymbol = direction === 'TX' ? 'TX \u2794' : 'RX \u2B05';
+        const latText = latencyMs !== null ? `${latencyMs.toFixed(2)} ms` : '<0.2 ms';
+
+        row.innerHTML = `
+          <span class="packet-dir ${dirClass}">${dirSymbol}</span>
+          <span class="packet-node">${node}</span>
+          <span class="packet-action">${action}</span>
+          <span class="packet-payload" title='${JSON.stringify(payload)}'>${JSON.stringify(payload)}</span>
+          <span class="packet-latency">${latText}</span>
+        `;
+
+        packetStream.insertBefore(row, packetStream.firstChild);
+        if (packetStream.children.length > 30) {
+          packetStream.removeChild(packetStream.lastChild);
+        }
+      }
+
+      // Veri Yoluna Paket Gönderme
+      function broadcast(action, payload = {}) {
+        packetSeq++;
+        totalTx++;
+        txCountEl.textContent = totalTx;
+
+        const packet = {
+          sender: 'ALPHA',
+          id: packetSeq,
+          action: action,
+          sentAt: performance.now(),
+          ...payload
+        };
+
+        try {
+          alphaBus.postMessage(packet);
+        } catch (e) {}
+
+        logPacket('TX', 'ALPHA', action, payload);
+      }
+
+      // Alfa Veri Yolundan Paket Karşılama
+      alphaBus.onmessage = (event) => {
+        const msg = event.data;
+        if (!msg || msg.sender === 'ALPHA') return;
+
+        totalRx++;
+        rxCountEl.textContent = totalRx;
+
+        const now = performance.now();
+        const latency = msg.sentAt ? (now - msg.sentAt) : 0.2;
+        latencyValEl.textContent = `${latency.toFixed(2)} ms`;
+
+        logPacket('RX', msg.sender || 'UNKNOWN', msg.action, msg, latency);
+
+        if (msg.action === 'PONG_ECHO') {
+          alphaHeading.style.transform = 'scale(1.08)';
+          setTimeout(() => { alphaHeading.style.transform = ''; }, 250);
+        } else if (msg.action === 'GLYPH_CLICK') {
+          const g = alphaGlyphs[parseInt(msg.index, 10)];
+          if (g) {
+            g.style.transform = 'scale(1.4) translateY(-10px)';
+            g.style.color = 'var(--emerald)';
+            setTimeout(() => {
+              g.style.transform = '';
+              g.style.color = '';
+            }, 300);
+          }
+        }
+      };
+
+      // Sürgü Olayları
+      function updateSliders() {
+        const tracking = rangeTracking.value;
+        const skew = rangeSkew.value;
+
+        lblTracking.textContent = `${tracking}em`;
+        lblSkew.textContent = `${skew} deg`;
+
+        alphaHeading.style.letterSpacing = `${tracking}em`;
+        alphaHeading.style.transform = `perspective(500px) skewX(${skew}deg)`;
+
+        broadcast('SYNC_SLIDERS', { tracking, skew });
+      }
+
+      rangeTracking.addEventListener('input', updateSliders);
+      rangeSkew.addEventListener('input', updateSliders);
+
+      // Buton Dinleyicileri
+      btnWave.addEventListener('click', () => {
+        broadcast('SYNC_WAVE');
+        alphaGlyphs.forEach((g, i) => {
+          setTimeout(() => {
+            g.style.transform = 'translateY(-12px) scale(1.15)';
+            g.style.filter = 'drop-shadow(0 0 12px var(--cyan))';
+            setTimeout(() => {
+              g.style.transform = '';
+              g.style.filter = '';
+            }, 350);
+          }, i * 45);
+        });
+      });
+
+      btnColor.addEventListener('click', () => {
+        currentHue = (currentHue + 45) % 360;
+        alphaHeading.style.filter = `hue-rotate(${currentHue}deg) drop-shadow(0 0 16px var(--cyan-glow))`;
+        broadcast('SYNC_COLOR', { hue: currentHue });
+      });
+
+      btnBeacon.addEventListener('click', () => {
+        broadcast('BEACON_PING', { timestamp: Date.now() });
+        alphaHeading.style.transform = 'scale(1.06)';
+        setTimeout(() => { alphaHeading.style.transform = ''; }, 200);
+      });
+
+      btnOpenTab.addEventListener('click', () => {
+        window.open(window.location.href, '_blank');
+      });
+
+      // Glif Fare Gezinimi
+      alphaGlyphs.forEach(g => {
+        g.addEventListener('mouseenter', () => {
+          const idx = g.getAttribute('data-index');
+          broadcast('GLYPH_HOVER', { index: idx, hover: true });
+        });
+        g.addEventListener('mouseleave', () => {
+          const idx = g.getAttribute('data-index');
+          broadcast('GLYPH_HOVER', { index: idx, hover: false });
+        });
+        g.addEventListener('click', () => {
+          const idx = g.getAttribute('data-index');
+          broadcast('GLYPH_CLICK', { index: idx });
+        });
+      });
+
+      // 2. Düğüm Beta İframe İçeriği ve Bağımsız BroadcastChannel Kurulumu
+      function initBetaNode() {
+        const betaDoc = betaFrame.contentDocument || betaFrame.contentWindow.document;
+        if (!betaDoc) return;
+
+        betaDoc.open();
+        betaDoc.write(`
+          <!DOCTYPE html>
+          <html lang="tr">
+          <head>
+            <meta charset="UTF-8">
+            <style>
+              * { box-sizing: border-box; margin: 0; padding: 0; }
+              body {
+                background: #040812;
+                color: #f1f5f9;
+                font-family: system-ui, sans-serif;
+                padding: 1.25rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                min-height: 250px;
+              }
+              .beta-meta {
+                display: flex;
+                justify-content: space-between;
+                font-family: monospace;
+                font-size: 0.75rem;
+                color: #10b981;
+                border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+                padding-bottom: 0.5rem;
+              }
+              .beta-stage {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 1.5rem 0;
+              }
+              h1#betaHeading {
+                font-size: clamp(1.8rem, 4vw, 2.8rem);
+                font-weight: 900;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                background: linear-gradient(135deg, #ffffff 0%, #10b981 60%, #06b6d4 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                filter: drop-shadow(0 0 16px rgba(16, 185, 129, 0.4));
+                display: flex;
+                gap: 0.25rem;
+                transition: all 0.3s ease;
+              }
+              .bglyph {
+                display: inline-block;
+                transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+                cursor: pointer;
+              }
+              .bglyph:hover, .bglyph.active-hover {
+                transform: translateY(-8px) scale(1.2);
+                filter: drop-shadow(0 0 12px #f59e0b);
+              }
+              .bglyph-gap { width: 0.8rem; }
+              .beta-foot {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-family: monospace;
+                font-size: 0.75rem;
+                color: #64748b;
+              }
+              button.echo-btn {
+                background: rgba(16, 185, 129, 0.15);
+                color: #10b981;
+                border: 1px solid rgba(16, 185, 129, 0.4);
+                padding: 0.4rem 0.8rem;
+                border-radius: 4px;
+                cursor: pointer;
+                font-family: monospace;
+                font-size: 0.75rem;
+              }
+              button.echo-btn:hover {
+                background: rgba(16, 185, 129, 0.3);
+                color: #fff;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="beta-meta">
+              <span>DÜĞÜM BETA: EŞZAMANLI ALICI</span>
+              <span id="packetStatus">Bekleniyor...</span>
+            </div>
+            <div class="beta-stage">
+              <h1 id="betaHeading">
+                <span class="bglyph" data-idx="0">H</span>
+                <span class="bglyph" data-idx="1">E</span>
+                <span class="bglyph" data-idx="2">L</span>
+                <span class="bglyph" data-idx="3">L</span>
+                <span class="bglyph" data-idx="4">O</span>
+                <span class="bglyph-gap"></span>
+                <span class="bglyph" data-idx="5">W</span>
+                <span class="bglyph" data-idx="6">O</span>
+                <span class="bglyph" data-idx="7">R</span>
+                <span class="bglyph" data-idx="8">L</span>
+                <span class="bglyph" data-idx="9">D</span>
+              </h1>
+            </div>
+            <div class="beta-foot">
+              <span id="lastMsgDetails">Son Paket: Henüz yok</span>
+              <button class="echo-btn" id="btnEcho" type="button">Cevap Yankıla (Echo)</button>
+            </div>
+          </body>
+          </html>
+        `);
+        betaDoc.close();
+
+        // Düğüm Beta için pencere düzeyinde bağımsız BroadcastChannel
+        let betaBus;
+        try {
+          betaBus = new betaFrame.contentWindow.BroadcastChannel(CHANNEL_NAME);
+        } catch (e) {
+          betaBus = { postMessage: () => {}, close: () => {} };
+        }
+
+        const bHeading = betaDoc.getElementById('betaHeading');
+        const bPacketStatus = betaDoc.getElementById('packetStatus');
+        const bLastMsg = betaDoc.getElementById('lastMsgDetails');
+        const bGlyphs = betaDoc.querySelectorAll('.bglyph');
+        const bEcho = betaDoc.getElementById('btnEcho');
+
+        betaBus.onmessage = (e) => {
+          const msg = e.data;
+          if (!msg || msg.sender === 'BETA') return;
+
+          const now = performance.now();
+          const latency = (now - msg.sentAt).toFixed(2);
+          if (bPacketStatus) bPacketStatus.textContent = `RX: ${msg.action} (${latency} ms)`;
+          if (bLastMsg) bLastMsg.textContent = `Paket: ${msg.action} #${msg.id}`;
+
+          if (msg.action === 'SYNC_SLIDERS') {
+            bHeading.style.letterSpacing = msg.tracking + 'em';
+            bHeading.style.transform = `perspective(500px) skewX(${msg.skew}deg)`;
+          } else if (msg.action === 'SYNC_WAVE') {
+            bGlyphs.forEach((g, i) => {
+              setTimeout(() => {
+                g.style.transform = 'translateY(-12px) scale(1.15)';
+                g.style.filter = 'drop-shadow(0 0 12px #10b981)';
+                setTimeout(() => {
+                  g.style.transform = '';
+                  g.style.filter = '';
+                }, 350);
+              }, i * 45);
+            });
+          } else if (msg.action === 'SYNC_COLOR') {
+            bHeading.style.filter = `hue-rotate(${msg.hue}deg) drop-shadow(0 0 18px #10b981)`;
+          } else if (msg.action === 'GLYPH_HOVER') {
+            bGlyphs.forEach(g => {
+              if (g.getAttribute('data-idx') === String(msg.index)) {
+                if (msg.hover) g.classList.add('active-hover');
+                else g.classList.remove('active-hover');
+              }
+            });
+          } else if (msg.action === 'BEACON_PING') {
+            bHeading.style.transform = 'scale(1.08)';
+            setTimeout(() => { bHeading.style.transform = ''; }, 200);
+          }
+        };
+
+        if (bEcho) {
+          bEcho.addEventListener('click', () => {
+            betaBus.postMessage({
+              sender: 'BETA',
+              action: 'PONG_ECHO',
+              id: Math.floor(Math.random() * 10000),
+              sentAt: performance.now(),
+              payload: { note: 'Düğüm Beta yanıtı' }
+            });
+          });
+        }
+
+        bGlyphs.forEach(g => {
+          g.addEventListener('click', () => {
+            const idx = g.getAttribute('data-idx');
+            betaBus.postMessage({
+              sender: 'BETA',
+              action: 'GLYPH_CLICK',
+              index: idx,
+              id: Math.floor(Math.random() * 10000),
+              sentAt: performance.now()
+            });
+          });
+        });
+      }
+
+      // Sayfa Yüklendiğinde Başlatma
+      window.addEventListener('load', () => {
+        initBetaNode();
+        broadcast('NODE_HELLO', { client: 'AlphaMaster', version: '1.0' });
+
+        // Otomatik Devriye Nabzı (3 sinyal)
+        let pingCount = 0;
+        const pingInterval = setInterval(() => {
+          pingCount++;
+          broadcast('AUTO_BEACON_PULSE', { seq: pingCount });
+          if (pingCount >= 3) {
+            clearInterval(pingInterval);
+          }
+        }, 600);
+      });
+
+    })();
+  </script>
+</body>
+</html>

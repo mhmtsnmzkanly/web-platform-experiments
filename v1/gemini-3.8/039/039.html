@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World Lab — Deney 039: Canvas ImageData & Konvolüsyon Matrisi Çekirdeği</title>
+  <style>
+    /* ==========================================================================
+       1. KÖK DEĞİŞKENLER VE TEMA KURALLARI
+       ========================================================================== */
+    :root {
+      --bg-base: #030712;
+      --bg-surface: #070c1b;
+      --bg-card: rgba(15, 23, 42, 0.85);
+      --bg-card-hover: rgba(30, 41, 59, 0.9);
+
+      --neon-cyan: #06b6d4;
+      --neon-cyan-glow: rgba(6, 182, 212, 0.35);
+      --neon-amber: #f59e0b;
+      --neon-amber-glow: rgba(245, 158, 11, 0.35);
+      --neon-green: #10b981;
+      --neon-green-glow: rgba(16, 185, 129, 0.35);
+      --neon-ruby: #f43f5e;
+      --neon-ruby-glow: rgba(244, 63, 94, 0.35);
+      --neon-violet: #8b5cf6;
+      --neon-violet-glow: rgba(139, 92, 246, 0.35);
+
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --text-muted: #64748b;
+      --border-subtle: rgba(56, 189, 248, 0.18);
+      --border-active: rgba(6, 182, 212, 0.55);
+
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       2. BAŞLIK VE KONTROL ŞERİDİ (Header HUD)
+       ========================================================================== */
+    header {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(3, 7, 18, 0.95));
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .badge-experiment {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(16, 185, 129, 0.2));
+      color: var(--neon-cyan);
+      border: 1px solid var(--border-active);
+      padding: 0.3rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      font-family: var(--font-mono);
+      box-shadow: 0 0 12px var(--neon-cyan-glow);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    .header-telemetry {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .telemetry-chip {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      min-width: 105px;
+    }
+
+    .telemetry-label {
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .telemetry-value {
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--neon-cyan);
+    }
+
+    .telemetry-value.green { color: var(--neon-green); }
+    .telemetry-value.amber { color: var(--neon-amber); }
+    .telemetry-value.violet { color: var(--neon-violet); }
+
+    /* ==========================================================================
+       3. ANA ÇALIŞMA ALANI (Master Layout)
+       ========================================================================== */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.25rem;
+      padding: 1.25rem 1.75rem;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1080px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Sol Panel: Görüntü İşleme Sahnesi ve Split-Screen */
+    .processing-stage {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
+      position: relative;
+      box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.75);
+    }
+
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .stage-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--neon-cyan);
+      box-shadow: 0 0 8px var(--neon-cyan);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Canvas Konteyneri ve Split-Screen Kumpası */
+    .canvas-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #020617;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(6, 182, 212, 0.1);
+      cursor: col-resize;
+      user-select: none;
+    }
+
+    #convolutionCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    /* Split-Screen Bölücü Lazer Çizgisi */
+    .split-divider-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #ffffff;
+      box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+      pointer-events: none;
+      left: 50%;
+      z-index: 10;
+    }
+
+    .split-badge-left {
+      position: absolute;
+      top: 0.75rem;
+      left: 0.75rem;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--neon-cyan);
+      pointer-events: none;
+      z-index: 12;
+    }
+
+    .split-badge-right {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--neon-amber);
+      pointer-events: none;
+      z-index: 12;
+    }
+
+    /* Tipografi Odak Bandı (DOM Tabanlı) */
+    .typography-banner {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.7));
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .banner-heading {
+      font-size: 1.85rem;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ffffff 0%, var(--neon-cyan) 50%, var(--neon-green) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 14px var(--neon-cyan-glow));
+      line-height: 1.1;
+      margin-bottom: 0.15rem;
+    }
+
+    .banner-subtext {
+      font-size: 0.68rem;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+
+    /* ==========================================================================
+       4. YAN KONTROL VE TELEMETRİ MASASI (Sidebar)
+       ========================================================================== */
+    .controls-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+
+    .panel-section-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* Ön Tanımlı Filtre Butonları */
+    .filter-presets-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.45rem;
+      margin-top: 0.5rem;
+    }
+
+    .filter-btn {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 0.45rem 0.3rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--neon-cyan);
+      color: #ffffff;
+    }
+
+    .filter-btn.active {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(16, 185, 129, 0.2));
+      border-color: var(--neon-cyan);
+      color: #ffffff;
+      box-shadow: 0 0 10px var(--neon-cyan-glow);
+    }
+
+    /* 3x3 İnteraktif Kernel Matris Editörü */
+    .matrix-editor-card {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .kernel-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.35rem;
+    }
+
+    .kernel-cell {
+      width: 100%;
+      height: 32px;
+      background: #0f172a;
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      color: var(--neon-cyan);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .kernel-cell:focus {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 8px var(--neon-green-glow);
+    }
+
+    .matrix-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.68rem;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+    }
+
+    .meta-input {
+      width: 50px;
+      height: 24px;
+      background: #0f172a;
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-align: center;
+    }
+
+    /* Sürgü Kontrolleri */
+    .slider-control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .ctrl-slider-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .ctrl-slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+    }
+
+    .range-input {
+      width: 100%;
+      height: 5px;
+      background: #334155;
+      border-radius: 5px;
+      outline: none;
+      accent-color: var(--neon-cyan);
+      cursor: pointer;
+    }
+
+    /* Olay Telemetri Günlüğü */
+    .telemetry-log {
+      background: #020612;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 0.5rem;
+      height: 105px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .log-line {
+      display: flex;
+      gap: 0.4rem;
+      line-height: 1.3;
+    }
+
+    .log-time { color: var(--text-muted); }
+    .log-tag { font-weight: 700; color: var(--neon-cyan); }
+    .log-tag.sobel { color: var(--neon-green); }
+    .log-tag.laplace { color: var(--neon-amber); }
+    .log-tag.emboss { color: var(--neon-violet); }
+    .log-desc { color: var(--text-dim); }
+
+    /* ==========================================================================
+       5. ALT BİLGİ ŞERİDİ (Footer)
+       ========================================================================== */
+    footer {
+      background: rgba(3, 7, 18, 0.95);
+      border-top: 1px solid var(--border-subtle);
+      padding: 0.75rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+    }
+
+    .footer-stat {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Bilgi ve Telemetri Şeridi -->
+  <header>
+    <div class="brand-section">
+      <span class="badge-experiment">DENEY 039</span>
+      <div>
+        <h1 class="brand-title">
+          <span>Canvas ImageData & Konvolüsyon Matrisi Çekirdeği</span>
+        </h1>
+        <p class="brand-subtitle">Sobel Kenar Algılama, Laplace & Görüntü İşleme Odası</p>
+      </div>
+    </div>
+
+    <div class="header-telemetry">
+      <div class="telemetry-chip">
+        <span class="telemetry-label">AKTİF FİLTRE</span>
+        <span class="telemetry-value green" id="valActiveFilter">SOBEL</span>
+      </div>
+      <div class="telemetry-chip">
+        <span class="telemetry-label">KONVOLÜSYON SÜRESİ</span>
+        <span class="telemetry-value" id="valProcessDuration">2.84 ms</span>
+      </div>
+      <div class="telemetry-chip">
+        <span class="telemetry-label">PİKSEL HACMİ</span>
+        <span class="telemetry-value amber" id="valPixelCount">307.2K PX</span>
+      </div>
+      <div class="telemetry-chip">
+        <span class="telemetry-label">KARE HIZI</span>
+        <span class="telemetry-value violet" id="valFps">60 FPS</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ana Çalışma Alanı -->
+  <main>
+    <!-- Sol Panel: Görüntü İşleme Sahnesi ve Split-Screen Kumpası -->
+    <section class="processing-stage" aria-label="Görüntü İşleme ve Konvolüsyon Sahnesi">
+      
+      <div class="stage-header">
+        <div class="stage-title">
+          <span class="live-dot"></span>
+          <span>BÖLÜNMÜŞ EKRAN GÖRÜNTÜ İŞLEME KUMPASI (SPLIT-SCREEN)</span>
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-dim);">
+          ÇÖZÜNÜRLÜK: <strong style="color: var(--neon-cyan);">768 × 400 px (307.200 Piksel)</strong>
+        </div>
+      </div>
+
+      <!-- Master Canvas & Bölücü -->
+      <div class="canvas-wrapper" id="canvasWrapper">
+        <span class="split-badge-left">ORİJİNAL TİPOGRAFİ (RAW)</span>
+        <span class="split-badge-right" id="badgeRightFilter">SOBEL KENARLARI</span>
+        <div class="split-divider-line" id="splitDivider"></div>
+        <canvas id="convolutionCanvas" width="768" height="400" aria-label="Konvolüsyon Piksel İşleme Tuvali"></canvas>
+      </div>
+
+      <!-- Tipografi Odak Bandı (DOM Seviyesi) -->
+      <div class="typography-banner" id="typoBanner">
+        <div class="banner-heading">HELLO WORLD</div>
+        <div class="banner-subtext">W3C Canvas 2D ImageData • 3×3 Konvolüsyon Matrisi • Doğrudan CPU Piksel Manipülasyonu</div>
+      </div>
+
+    </section>
+
+    <!-- Yan Kontrol ve Matris Editörü Masası -->
+    <aside class="controls-panel" aria-label="Matris Editörü ve Filtre Kontrolleri">
+      
+      <!-- Ön Tanımlı Kernel Filtreleri -->
+      <div>
+        <div class="panel-section-title">
+          <span>Konvolüsyon Çekirdekleri</span>
+          <span style="color: var(--neon-cyan); font-size: 0.68rem;">3×3 KERNEL</span>
+        </div>
+        <div class="filter-presets-grid" style="margin-top: 0.6rem;">
+          <button type="button" class="filter-btn active" data-preset="sobel">Sobel Kenar</button>
+          <button type="button" class="filter-btn" data-preset="laplace">Laplacian</button>
+          <button type="button" class="filter-btn" data-preset="emboss">Kabartma</button>
+          <button type="button" class="filter-btn" data-preset="sharpen">Keskinleştir</button>
+          <button type="button" class="filter-btn" data-preset="gaussian">Gaussian Blur</button>
+          <button type="button" class="filter-btn" data-preset="identity">Filtresiz</button>
+        </div>
+      </div>
+
+      <!-- 3x3 İnteraktif Matris Editörü -->
+      <div>
+        <div class="panel-section-title">
+          <span>3×3 Matris Katsayıları</span>
+          <span style="color: var(--neon-amber); font-size: 0.68rem;">INTERACTIVE</span>
+        </div>
+        <div class="matrix-editor-card" style="margin-top: 0.6rem;">
+          <div class="kernel-grid">
+            <input type="number" class="kernel-cell" id="k0" value="-1" step="0.5">
+            <input type="number" class="kernel-cell" id="k1" value="0" step="0.5">
+            <input type="number" class="kernel-cell" id="k2" value="1" step="0.5">
+            <input type="number" class="kernel-cell" id="k3" value="-2" step="0.5">
+            <input type="number" class="kernel-cell" id="k4" value="0" step="0.5">
+            <input type="number" class="kernel-cell" id="k5" value="2" step="0.5">
+            <input type="number" class="kernel-cell" id="k6" value="-1" step="0.5">
+            <input type="number" class="kernel-cell" id="k7" value="0" step="0.5">
+            <input type="number" class="kernel-cell" id="k8" value="1" step="0.5">
+          </div>
+          <div class="matrix-meta-row">
+            <div>
+              <span>Bölen (Div):</span>
+              <input type="number" class="meta-input" id="kernelDivisor" value="1" step="1">
+            </div>
+            <div>
+              <span>Ofset (Bias):</span>
+              <input type="number" class="meta-input" id="kernelBias" value="0" step="5">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Parametre Sürgüleri -->
+      <div>
+        <div class="panel-section-title">
+          <span>İşlem Parametreleri</span>
+        </div>
+        <div class="slider-control-group">
+          
+          <div class="ctrl-slider-item">
+            <div class="ctrl-slider-header">
+              <span>Bölünmüş Ekran Sınırı (Split):</span>
+              <strong id="lblSplitPct">50%</strong>
+            </div>
+            <input type="range" class="range-input" id="rngSplit" min="0" max="100" value="50">
+          </div>
+
+          <div class="ctrl-slider-item">
+            <div class="ctrl-slider-header">
+              <span>Kenar Algılama Eşiği (Threshold):</span>
+              <strong id="lblThreshold">35</strong>
+            </div>
+            <input type="range" class="range-input" id="rngThreshold" min="5" max="120" value="35">
+          </div>
+
+          <div class="ctrl-slider-item">
+            <div class="ctrl-slider-header">
+              <span>Kaynak Parçacık Sayısı:</span>
+              <strong id="lblParticles">60</strong>
+            </div>
+            <input type="range" class="range-input" id="rngParticles" min="10" max="120" value="60">
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Olay Telemetri Günlüğü -->
+      <div>
+        <div class="panel-section-title">
+          <span>Görüntü İşleme Telemetrisi</span>
+        </div>
+        <div class="telemetry-log" id="telemetryLog" style="margin-top: 0.5rem;">
+          <!-- Canlı satırlar -->
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- Alt Bilgi Şeridi -->
+  <footer>
+    <div>
+      <span>STANDART: </span>
+      <span class="footer-stat">W3C HTML Canvas 2D Context Level 2 (ImageData Interface)</span>
+    </div>
+    <div>
+      <span>İŞLEM MOTORU: </span>
+      <span class="footer-stat">Direct 3x3 Spatial Convolution Filter Kernel</span>
+    </div>
+    <div>
+      <span>PİKSEL TAMPONU: </span>
+      <span class="footer-stat">1.228.800 Bayt Uint8ClampedArray</span>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       6. JAVASCRIPT ÇALIŞMA ZAMANI MOTORU (Tekil Script Bloğu)
+       ========================================================================== -->
+  <script>
+    (function initConvolutionMatrixLab() {
+      // 1. DOM ELEMANLARI
+      const canvasWrapper = document.getElementById("canvasWrapper");
+      const splitDivider = document.getElementById("splitDivider");
+      const badgeRightFilter = document.getElementById("badgeRightFilter");
+      const convCanvas = document.getElementById("convolutionCanvas");
+      const ctx = convCanvas.getContext("2d", { willReadFrequently: true });
+
+      // Arka plan bellek içi kaynak canvası (Orijinal çizim için)
+      const srcCanvas = document.createElement("canvas");
+      srcCanvas.width = convCanvas.width;
+      srcCanvas.height = convCanvas.height;
+      const srcCtx = srcCanvas.getContext("2d");
+
+      const valActiveFilter = document.getElementById("valActiveFilter");
+      const valProcessDuration = document.getElementById("valProcessDuration");
+      const valPixelCount = document.getElementById("valPixelCount");
+      const valFps = document.getElementById("valFps");
+
+      const rngSplit = document.getElementById("rngSplit");
+      const lblSplitPct = document.getElementById("lblSplitPct");
+      const rngThreshold = document.getElementById("rngThreshold");
+      const lblThreshold = document.getElementById("lblThreshold");
+      const rngParticles = document.getElementById("rngParticles");
+      const lblParticles = document.getElementById("lblParticles");
+
+      const kInputs = [
+        document.getElementById("k0"), document.getElementById("k1"), document.getElementById("k2"),
+        document.getElementById("k3"), document.getElementById("k4"), document.getElementById("k5"),
+        document.getElementById("k6"), document.getElementById("k7"), document.getElementById("k8")
+      ];
+      const kernelDivisor = document.getElementById("kernelDivisor");
+      const kernelBias = document.getElementById("kernelBias");
+
+      const presetBtns = document.querySelectorAll(".filter-btn");
+      const telemetryLog = document.getElementById("telemetryLog");
+
+      // 2. KERNEL ÖN TANIMLARI
+      const PRESETS = {
+        sobel: {
+          name: "Sobel Kenar",
+          weights: [-1, 0, 1, -2, 0, 2, -1, 0, 1],
+          div: 1, bias: 0, tag: "sobel"
+        },
+        laplace: {
+          name: "Laplacian",
+          weights: [-1, -1, -1, -1, 8, -1, -1, -1, -1],
+          div: 1, bias: 0, tag: "laplace"
+        },
+        emboss: {
+          name: "Kabartma",
+          weights: [-2, -1, 0, -1, 1, 1, 0, 1, 2],
+          div: 1, bias: 128, tag: "emboss"
+        },
+        sharpen: {
+          name: "Keskinleştir",
+          weights: [0, -1, 0, -1, 5, -1, 0, -1, 0],
+          div: 1, bias: 0, tag: "sharpen"
+        },
+        gaussian: {
+          name: "Gaussian Blur",
+          weights: [1, 2, 1, 2, 4, 2, 1, 2, 1],
+          div: 16, bias: 0, tag: "blur"
+        },
+        identity: {
+          name: "Filtresiz",
+          weights: [0, 0, 0, 0, 1, 0, 0, 0, 0],
+          div: 1, bias: 0, tag: "ident"
+        }
+      };
+
+      let activePresetKey = "sobel";
+      let splitRatio = 0.50; // %50 bölünmüş
+
+      function logEvent(tag, desc, cls = "") {
+        if (!telemetryLog) return;
+        const now = new Date();
+        const timeStr = now.toTimeString().split(" ")[0] + "." + String(now.getMilliseconds()).padStart(3, "0");
+        const row = document.createElement("div");
+        row.className = "log-line";
+        row.innerHTML = `<span class="log-time">${timeStr}</span><span class="log-tag ${cls}">[${tag}]</span><span class="log-desc">${desc}</span>`;
+        telemetryLog.prepend(row);
+        while (telemetryLog.children.length > 25) {
+          telemetryLog.removeChild(telemetryLog.lastChild);
+        }
+      }
+
+      function loadPresetToInputs(preset) {
+        preset.weights.forEach((w, i) => {
+          kInputs[i].value = w;
+        });
+        kernelDivisor.value = preset.div;
+        kernelBias.value = preset.bias;
+      }
+
+      loadPresetToInputs(PRESETS.sobel);
+
+      // 3. PARÇACIKLAR VE ORİJİNAL ÇİZİM
+      const particles = [];
+      function initParticles() {
+        particles.length = 0;
+        const count = parseInt(rngParticles.value, 10);
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: Math.random() * convCanvas.width,
+            y: Math.random() * convCanvas.height,
+            vx: (Math.random() - 0.5) * 2,
+            vy: (Math.random() - 0.5) * 2,
+            size: Math.random() * 4 + 2,
+            hue: Math.random() > 0.5 ? 188 : 155
+          });
+        }
+      }
+      initParticles();
+
+      // Kaynak Çizim Yordamı (Orijinal Sahne)
+      function renderSourceScene(time) {
+        const w = srcCanvas.width;
+        const h = srcCanvas.height;
+
+        // Koyu Zemin ve Radyal Işıma
+        srcCtx.fillStyle = "#030712";
+        srcCtx.fillRect(0, 0, w, h);
+
+        const radGrad = srcCtx.createRadialGradient(w / 2, h / 2, 40, w / 2, h / 2, 350);
+        radGrad.addColorStop(0, "rgba(6, 182, 212, 0.25)");
+        radGrad.addColorStop(0.5, "rgba(16, 185, 129, 0.12)");
+        radGrad.addColorStop(1, "rgba(3, 7, 18, 0)");
+        srcCtx.fillStyle = radGrad;
+        srcCtx.fillRect(0, 0, w, h);
+
+        // Kinetik Parçacıklar
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0) p.x = w;
+          if (p.x > w) p.x = 0;
+          if (p.y < 0) p.y = h;
+          if (p.y > h) p.y = 0;
+
+          srcCtx.fillStyle = p.hue === 188 ? "#06b6d4" : "#10b981";
+          srcCtx.beginPath();
+          srcCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          srcCtx.fill();
+        });
+
+        // "HELLO WORLD" Ana Glif Gövdesi
+        const text = "HELLO WORLD";
+        const fontSize = 84;
+        srcCtx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`;
+        srcCtx.textAlign = "center";
+        srcCtx.textBaseline = "middle";
+
+        const textGrad = srcCtx.createLinearGradient(w / 2 - 250, h / 2 - 40, w / 2 + 250, h / 2 + 40);
+        textGrad.addColorStop(0, "#ffffff");
+        textGrad.addColorStop(0.35, "#38bdf8");
+        textGrad.addColorStop(0.7, "#10b981");
+        textGrad.addColorStop(1, "#f59e0b");
+
+        srcCtx.fillStyle = textGrad;
+        srcCtx.shadowColor = "rgba(6, 182, 212, 0.85)";
+        srcCtx.shadowBlur = 18;
+        srcCtx.fillText(text, w / 2, h / 2 - 12);
+
+        // İnce Kontur
+        srcCtx.lineWidth = 2;
+        srcCtx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+        srcCtx.shadowBlur = 0;
+        srcCtx.strokeText(text, w / 2, h / 2 - 12);
+
+        // Alt Metin
+        srcCtx.font = `700 14px ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace`;
+        srcCtx.fillStyle = "rgba(148, 163, 184, 0.8)";
+        srcCtx.fillText("DIGITAL IMAGE PROCESSING & CONVOLUTION KERNEL LAB", w / 2, h / 2 + 45);
+
+        // Dinamik Lazer Tarama Çizgisi
+        const scanY = (time * 0.15) % h;
+        srcCtx.strokeStyle = "rgba(6, 182, 212, 0.45)";
+        srcCtx.lineWidth = 1;
+        srcCtx.beginPath();
+        srcCtx.moveTo(0, scanY);
+        srcCtx.lineTo(w, scanY);
+        srcCtx.stroke();
+      }
+
+      // 4. 3x3 KONVOLÜSYON VE SOBEL PİKSEL MOTORU
+      function applyConvolutionPass(srcData, dstData, weights, divisor, bias, startX, endX, w, h, isSobel, threshold) {
+        const src = srcData.data;
+        const dst = dstData.data;
+
+        // Sobel Kenar Algılama Özel Hızlı Yolu
+        if (isSobel) {
+          // Gx ve Gy Sobel çekirdekleri
+          // Gx = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
+          // Gy = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]]
+          for (let y = 1; y < h - 1; y++) {
+            const rowOffset = y * w;
+            for (let x = startX; x < endX; x++) {
+              let gx = 0;
+              let gy = 0;
+
+              // 3x3 komşuluk luminansı
+              for (let ky = -1; ky <= 1; ky++) {
+                const kRow = (y + ky) * w;
+                for (let kx = -1; kx <= 1; kx++) {
+                  const idx = (kRow + (x + kx)) * 4;
+                  // Algısal Luminans = 0.299R + 0.587G + 0.114B
+                  const lum = src[idx] * 0.299 + src[idx + 1] * 0.587 + src[idx + 2] * 0.114;
+
+                  // Gx ağırlığı
+                  if (kx !== 0) {
+                    const wx = kx * (ky === 0 ? 2 : 1);
+                    gx += lum * wx;
+                  }
+                  // Gy ağırlığı
+                  if (ky !== 0) {
+                    const wy = ky * (kx === 0 ? 2 : 1);
+                    gy += lum * wy;
+                  }
+                }
+              }
+
+              const mag = Math.sqrt(gx * gx + gy * gy);
+              const outIdx = (rowOffset + x) * 4;
+
+              if (mag > threshold) {
+                // Kenar: Parlak Elektrik Siyanı / Neon Yeşil Işıma
+                dst[outIdx] = Math.min(255, mag * 0.8);
+                dst[outIdx + 1] = Math.min(255, mag * 1.2);
+                dst[outIdx + 2] = 255;
+                dst[outIdx + 3] = 255;
+              } else {
+                // Zemin: Koyu Uzay Arka Planı
+                dst[outIdx] = 3;
+                dst[outIdx + 1] = 7;
+                dst[outIdx + 2] = 18;
+                dst[outIdx + 3] = 255;
+              }
+            }
+          }
+          return;
+        }
+
+        // Genel 3x3 Konvolüsyon Matrisi
+        for (let y = 1; y < h - 1; y++) {
+          const rowOffset = y * w;
+          for (let x = startX; x < endX; x++) {
+            let r = 0, g = 0, b = 0;
+
+            for (let ky = -1; ky <= 1; ky++) {
+              const kRow = (y + ky) * w;
+              for (let kx = -1; kx <= 1; kx++) {
+                const idx = (kRow + (x + kx)) * 4;
+                const weight = weights[(ky + 1) * 3 + (kx + 1)];
+                r += src[idx] * weight;
+                g += src[idx + 1] * weight;
+                b += src[idx + 2] * weight;
+              }
+            }
+
+            const outIdx = (rowOffset + x) * 4;
+            dst[outIdx] = Math.min(255, Math.max(0, (r / divisor) + bias));
+            dst[outIdx + 1] = Math.min(255, Math.max(0, (g / divisor) + bias));
+            dst[outIdx + 2] = Math.min(255, Math.max(0, (b / divisor) + bias));
+            dst[outIdx + 3] = 255;
+          }
+        }
+      }
+
+      // 5. 60 FPS RENDER VE GÖRÜNTÜ İŞLEME DÖNGÜSÜ
+      let lastLoopTime = performance.now();
+      let fpsHistory = [];
+
+      function processFrame(time) {
+        // 1. Kaynak Sahneyi Çiz
+        renderSourceScene(time);
+
+        const w = convCanvas.width;
+        const h = convCanvas.height;
+
+        // 2. ImageData Alımı
+        const srcImgData = srcCtx.getImageData(0, 0, w, h);
+        const dstImgData = ctx.createImageData(w, h);
+
+        const splitX = Math.round(w * splitRatio);
+
+        // Sol taraf: Orijinal pikselleri doğrudan kopyala
+        const srcData = srcImgData.data;
+        const dstData = dstImgData.data;
+
+        for (let y = 0; y < h; y++) {
+          const rowOffset = y * w * 4;
+          const endOffset = rowOffset + splitX * 4;
+          for (let i = rowOffset; i < endOffset; i += 4) {
+            dstData[i] = srcData[i];
+            dstData[i + 1] = srcData[i + 1];
+            dstData[i + 2] = srcData[i + 2];
+            dstData[i + 3] = srcData[i + 3];
+          }
+        }
+
+        // Sağ taraf: 3x3 Konvolüsyon Filtresi Uygula
+        const weights = kInputs.map(inp => parseFloat(inp.value) || 0);
+        const div = parseFloat(kernelDivisor.value) || 1;
+        const bias = parseFloat(kernelBias.value) || 0;
+        const isSobel = activePresetKey === "sobel";
+        const threshold = parseFloat(rngThreshold.value);
+
+        const t0 = performance.now();
+        applyConvolutionPass(srcImgData, dstImgData, weights, div, bias, Math.max(1, splitX), w - 1, w, h, isSobel, threshold);
+        const procDuration = performance.now() - t0;
+
+        valProcessDuration.textContent = `${procDuration.toFixed(2)} ms`;
+
+        // 3. İşlenmiş Piksel Verisini Tuvale Yaz
+        ctx.putImageData(dstImgData, 0, 0);
+
+        // 4. Split-Screen Kumpas Çizgisini Güncelle
+        splitDivider.style.left = `${(splitRatio * 100).toFixed(1)}%`;
+
+        // 5. FPS ve Telemetri Hesabı
+        const now = performance.now();
+        const delta = now - lastLoopTime;
+        lastLoopTime = now;
+        if (delta > 0) {
+          fpsHistory.push(1000 / delta);
+          if (fpsHistory.length > 20) fpsHistory.shift();
+          const avgFps = Math.round(fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length);
+          valFps.textContent = `${avgFps} FPS`;
+        }
+
+        requestAnimationFrame(processFrame);
+      }
+
+      // 6. ETKİLEŞİM VE KULLANICI KONTROLLERİ
+
+      // Split Sürgüsü
+      rngSplit.addEventListener("input", () => {
+        splitRatio = parseFloat(rngSplit.value) / 100;
+        lblSplitPct.textContent = `${rngSplit.value}%`;
+      });
+
+      // Canvas Üzerinde Sürükleme ile Split Değişimi
+      let isDraggingSplit = false;
+      canvasWrapper.addEventListener("pointerdown", (e) => {
+        isDraggingSplit = true;
+        canvasWrapper.setPointerCapture(e.pointerId);
+        updateSplitFromPointer(e.clientX);
+      });
+
+      canvasWrapper.addEventListener("pointermove", (e) => {
+        if (!isDraggingSplit) return;
+        updateSplitFromPointer(e.clientX);
+      });
+
+      const stopDrag = () => { isDraggingSplit = false; };
+      canvasWrapper.addEventListener("pointerup", stopDrag);
+      canvasWrapper.addEventListener("pointercancel", stopDrag);
+
+      function updateSplitFromPointer(clientX) {
+        const rect = canvasWrapper.getBoundingClientRect();
+        const rawX = clientX - rect.left;
+        const ratio = Math.max(0.05, Math.min(0.95, rawX / rect.width));
+        splitRatio = ratio;
+        const pct = Math.round(ratio * 100);
+        rngSplit.value = pct;
+        lblSplitPct.textContent = `${pct}%`;
+      }
+
+      // Eşik ve Parçacık Dinleyicileri
+      rngThreshold.addEventListener("input", () => {
+        lblThreshold.textContent = rngThreshold.value;
+      });
+
+      rngParticles.addEventListener("input", () => {
+        lblParticles.textContent = rngParticles.value;
+        initParticles();
+      });
+
+      // Preset Butonları
+      presetBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          presetBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const key = btn.getAttribute("data-preset");
+          activePresetKey = key;
+          const preset = PRESETS[key];
+          if (preset) {
+            loadPresetToInputs(preset);
+            valActiveFilter.textContent = preset.name.toUpperCase();
+            badgeRightFilter.textContent = `${preset.name.toUpperCase()} FİLTRESİ`;
+            logEvent("KERNEL_SELECT", `'${preset.name}' konvolüsyon matrisi yüklendi.`, preset.tag);
+          }
+        });
+      });
+
+      // Matris Hücreleri Değiştiğinde "Özel" Filtre Moduna Geç
+      kInputs.forEach(inp => {
+        inp.addEventListener("input", () => {
+          presetBtns.forEach(b => b.classList.remove("active"));
+          activePresetKey = "custom";
+          valActiveFilter.textContent = "ÖZEL KERNEL";
+          badgeRightFilter.textContent = "ÖZEL MATRİS FİLTRESİ";
+        });
+      });
+
+      // Başlat
+      requestAnimationFrame(processFrame);
+      logEvent("INIT", "Canvas ImageData 3x3 Konvolüsyon Motoru hazırlandı.", "sobel");
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 040: WebGL2 Instanced 3D Voksel Tipografisi &amp; Phong Işık Monoliti</title>
+  <style>
+    /* ==========================================================================
+       1. KÖK DEĞİŞKENLER VE TEMEL SİSTEM STİLLERİ
+       ========================================================================== */
+    :root {
+      --bg-base: #06070a;
+      --bg-panel: rgba(13, 16, 24, 0.82);
+      --bg-panel-border: rgba(45, 60, 90, 0.45);
+      --bg-card: rgba(22, 28, 42, 0.7);
+
+      --color-gold: #ffd043;
+      --color-cyan: #00f0ff;
+      --color-ruby: #ff2a6d;
+      --color-emerald: #05ffa1;
+      --color-text-main: #f0f4fc;
+      --color-text-muted: #8b99b5;
+
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-base);
+      color: var(--color-text-main);
+      font-family: var(--font-sans);
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       2. ANA SAHNE VE TUVAL YERLEŞİMİ (3D VIEWPORT)
+       ========================================================================== */
+    .viewport-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .viewport-container:active {
+      cursor: grabbing;
+    }
+
+    #glCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    /* ==========================================================================
+       3. SİBERNETİK BAŞLIK VE KİLOMETRE TAŞI ROZETİ (HEADER)
+       ========================================================================== */
+    .header-hud {
+      position: absolute;
+      top: 18px;
+      left: 24px;
+      pointer-events: none;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .badge-milestone {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: rgba(255, 208, 67, 0.12);
+      border: 1px solid rgba(255, 208, 67, 0.4);
+      color: var(--color-gold);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      width: fit-content;
+      box-shadow: 0 0 16px rgba(255, 208, 67, 0.2);
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-gold);
+      box-shadow: 0 0 8px var(--color-gold);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 0.4; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .title-block h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-block p {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* ==========================================================================
+       4. KONTROL DOKU VE PARAMETRE PANELİ (RIGHT DOCK)
+       ========================================================================== */
+    .controls-dock {
+      position: absolute;
+      top: 18px;
+      right: 24px;
+      width: 310px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 10;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+    }
+
+    .panel-section-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-cyan);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(45, 60, 90, 0.3);
+      padding-bottom: 4px;
+    }
+
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--color-text-muted);
+    }
+
+    .control-val {
+      color: var(--color-text-main);
+      font-weight: 600;
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 5px;
+      background: #182030;
+      border-radius: 3px;
+      outline: none;
+      transition: background 0.2s;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--color-cyan);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--color-cyan);
+      transition: transform 0.1s, background 0.2s;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Buton Grupları */
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .preset-btn {
+      background: var(--bg-card);
+      border: 1px solid rgba(45, 60, 90, 0.5);
+      color: var(--color-text-muted);
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .preset-btn:hover {
+      background: rgba(35, 48, 72, 0.8);
+      color: #ffffff;
+      border-color: var(--color-cyan);
+    }
+
+    .preset-btn.active {
+      background: rgba(0, 240, 255, 0.14);
+      color: var(--color-cyan);
+      border-color: var(--color-cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+    }
+
+    .preset-indicator {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .btn-action {
+      background: #162238;
+      border: 1px solid var(--color-cyan);
+      color: var(--color-cyan);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      width: 100%;
+    }
+
+    .btn-action:hover {
+      background: var(--color-cyan);
+      color: #06070a;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+    }
+
+    /* ==========================================================================
+       5. ALT TELEMETRİ KOKPİTİ (BOTTOM HUD)
+       ========================================================================== */
+    .telemetry-bar {
+      position: absolute;
+      bottom: 18px;
+      left: 24px;
+      right: 24px;
+      height: 48px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 10;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .telemetry-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .telemetry-metric {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .metric-label {
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      font-size: 10px;
+    }
+
+    .metric-val {
+      color: var(--color-emerald);
+      font-weight: 700;
+    }
+
+    .telemetry-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--color-text-muted);
+      font-size: 11px;
+    }
+
+    .key-hint {
+      display: inline-block;
+      padding: 2px 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 4px;
+      color: var(--color-text-main);
+      font-size: 10px;
+    }
+
+    /* ==========================================================================
+       6. 3D VİZÖR HEDEF İŞARETÇİSİ (RETICLE)
+       ========================================================================== */
+    .view-reticle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      pointer-events: none;
+      opacity: 0.25;
+      transition: opacity 0.3s;
+    }
+
+    .viewport-container:hover .view-reticle {
+      opacity: 0.55;
+    }
+
+    .view-reticle::before, .view-reticle::after {
+      content: "";
+      position: absolute;
+      background: var(--color-cyan);
+    }
+
+    .view-reticle::before {
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      transform: translateY(-50%);
+    }
+
+    .view-reticle::after {
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      transform: translateX(-50%);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ana 3D Viewport -->
+  <div class="viewport-container" id="viewport">
+    <canvas id="glCanvas"></canvas>
+    <div class="view-reticle"></div>
+  </div>
+
+  <!-- Üst Sol Başlık ve Kilometre Taşı Rozeti -->
+  <header class="header-hud">
+    <div class="badge-milestone">
+      <span class="badge-dot"></span>
+      <span>Decade 4 Milestone • Deney 040</span>
+    </div>
+    <div class="title-block">
+      <h1>HELLO WORLD 3D MONOLITH</h1>
+      <p>WebGL2 Instanced Mesh • Phong Lighting • Pure Matrix Algebra</p>
+    </div>
+  </header>
+
+  <!-- Sağ Kontrol Paneli -->
+  <aside class="controls-dock">
+    <div class="panel-section-title">
+      <span>Voksel Fiziği</span>
+      <span id="txtInstanceCount">544 VOKSEL</span>
+    </div>
+
+    <div class="control-row">
+      <div class="control-label">
+        <span>Kozmik Dağılma (Dispersion)</span>
+        <span class="control-val" id="valDispersion">0.00</span>
+      </div>
+      <input type="range" class="slider" id="rngDispersion" min="0" max="1" step="0.01" value="0.00">
+    </div>
+
+    <div class="control-row">
+      <div class="control-label">
+        <span>Yörünge Hızı (Orbit Speed)</span>
+        <span class="control-val" id="valOrbitSpeed">1.0x</span>
+      </div>
+      <input type="range" class="slider" id="rngOrbitSpeed" min="0" max="3" step="0.1" value="1.0">
+    </div>
+
+    <div class="panel-section-title">
+      <span>Malzeme &amp; Aydınlatma</span>
+      <span>PHONG</span>
+    </div>
+
+    <div class="btn-grid">
+      <button type="button" class="preset-btn active" data-material="gold">
+        <span class="preset-indicator" style="background:#ffd043"></span>
+        <span>Siber Altın</span>
+      </button>
+      <button type="button" class="preset-btn" data-material="cyan">
+        <span class="preset-indicator" style="background:#00f0ff"></span>
+        <span>Plazma Mavi</span>
+      </button>
+      <button type="button" class="preset-btn" data-material="ruby">
+        <span class="preset-indicator" style="background:#ff2a6d"></span>
+        <span>Yakut Lazer</span>
+      </button>
+      <button type="button" class="preset-btn" data-material="emerald">
+        <span class="preset-indicator" style="background:#05ffa1"></span>
+        <span>Kuantum Zümrüt</span>
+      </button>
+    </div>
+
+    <div class="panel-section-title">
+      <span>Görünüm Modu</span>
+      <span id="txtRenderMode">KATI</span>
+    </div>
+
+    <div class="btn-grid">
+      <button type="button" class="preset-btn active" data-mode="0">Phong Solid</button>
+      <button type="button" class="preset-btn" data-mode="1">Normaller</button>
+    </div>
+
+    <button type="button" class="btn-action" id="btnToggleAnim">Otomatik Döndürme: AÇIK</button>
+    <button type="button" class="btn-action" id="btnResetCamera">Kamerayı Sıfırla</button>
+  </aside>
+
+  <!-- Alt Telemetri Çubuğu -->
+  <footer class="telemetry-bar">
+    <div class="telemetry-left">
+      <div class="telemetry-metric">
+        <span class="metric-label">API:</span>
+        <span class="metric-val" id="metricAPI">WebGL 2.0</span>
+      </div>
+      <div class="telemetry-metric">
+        <span class="metric-label">Çizim Çağrısı:</span>
+        <span class="metric-val" id="metricDrawCalls">1 DRAW CALL</span>
+      </div>
+      <div class="telemetry-metric">
+        <span class="metric-label">Üçgen Hacmi:</span>
+        <span class="metric-val" id="metricTriangles">19.584 Δ</span>
+      </div>
+      <div class="telemetry-metric">
+        <span class="metric-label">Kare Hızı:</span>
+        <span class="metric-val" id="metricFPS">60.0 FPS</span>
+      </div>
+    </div>
+    <div class="telemetry-right">
+      <span><span class="key-hint">Sol Tık + Sürükle</span> Yörünge</span>
+      <span><span class="key-hint">Tekerlek</span> Yakınlaş</span>
+    </div>
+  </footer>
+
+  <script>
+    /**
+     * ============================================================================
+     * DENEY 040: SAF WEBGL2 VE LINEER CEBİR MOTORU
+     * ============================================================================
+     * Harici kütüphane (Three.js, gl-matrix vb.) KULLANILMAZ.
+     * Standart Float32Array üzerinde 4x4 matris dönüşümleri, tek bir draw call
+     * ile donanım instanced rendering ve klasik Phong aydınlatması uygulanır.
+     */
+
+    // --- 1. SAF MATRİS MATEMATİĞİ (PURE LINEAR ALGEBRA) ---
+    const Mat4 = {
+      create() {
+        const out = new Float32Array(16);
+        out[0] = 1; out[5] = 1; out[10] = 1; out[15] = 1;
+        return out;
+      },
+      identity(out) {
+        out.fill(0);
+        out[0] = 1; out[5] = 1; out[10] = 1; out[15] = 1;
+        return out;
+      },
+      perspective(out, fovy, aspect, near, far) {
+        const f = 1.0 / Math.tan(fovy / 2);
+        const nf = 1 / (near - far);
+        out.fill(0);
+        out[0] = f / aspect;
+        out[5] = f;
+        out[10] = (far + near) * nf;
+        out[11] = -1;
+        out[14] = 2 * far * near * nf;
+        return out;
+      },
+      lookAt(out, eye, center, up) {
+        const eyex = eye[0], eyey = eye[1], eyez = eye[2];
+        const upx = up[0], upy = up[1], upz = up[2];
+        const centerx = center[0], centery = center[1], centerz = center[2];
+
+        let z0 = eyex - centerx, z1 = eyey - centery, z2 = eyez - centerz;
+        let len = 1 / Math.hypot(z0, z1, z2);
+        z0 *= len; z1 *= len; z2 *= len;
+
+        let x0 = upy * z2 - upz * z1, x1 = upz * z0 - upx * z2, x2 = upx * z1 - upy * z0;
+        len = Math.hypot(x0, x1, x2);
+        if (!len) { x0 = 0; x1 = 0; x2 = 0; } else { len = 1 / len; x0 *= len; x1 *= len; x2 *= len; }
+
+        let y0 = z1 * x2 - z2 * x1, y1 = z2 * x0 - z0 * x2, y2 = z0 * x1 - z1 * x0;
+        len = Math.hypot(y0, y1, y2);
+        if (!len) { y0 = 0; y1 = 0; y2 = 0; } else { len = 1 / len; y0 *= len; y1 *= len; y2 *= len; }
+
+        out[0] = x0; out[1] = y0; out[2] = z0; out[3] = 0;
+        out[4] = x1; out[5] = y1; out[6] = z1; out[7] = 0;
+        out[8] = x2; out[9] = y2; out[10] = z2; out[11] = 0;
+        out[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+        out[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+        out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+        out[15] = 1;
+        return out;
+      },
+      rotateX(out, a, rad) {
+        const s = Math.sin(rad), c = Math.cos(rad);
+        const a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+        const a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+        if (a !== out) {
+          out[0] = a[0]; out[1] = a[1]; out[2] = a[2]; out[3] = a[3];
+          out[12] = a[12]; out[13] = a[13]; out[14] = a[14]; out[15] = a[15];
+        }
+        out[4] = a10 * c + a20 * s;
+        out[5] = a11 * c + a21 * s;
+        out[6] = a12 * c + a22 * s;
+        out[7] = a13 * c + a23 * s;
+        out[8] = a20 * c - a10 * s;
+        out[9] = a21 * c - a11 * s;
+        out[10] = a22 * c - a12 * s;
+        out[11] = a23 * c - a13 * s;
+        return out;
+      },
+      rotateY(out, a, rad) {
+        const s = Math.sin(rad), c = Math.cos(rad);
+        const a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+        const a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+        if (a !== out) {
+          out[4] = a[4]; out[5] = a[5]; out[6] = a[6]; out[7] = a[7];
+          out[12] = a[12]; out[13] = a[13]; out[14] = a[14]; out[15] = a[15];
+        }
+        out[0] = a00 * c - a20 * s;
+        out[1] = a01 * c - a21 * s;
+        out[2] = a02 * c - a22 * s;
+        out[3] = a03 * c - a23 * s;
+        out[8] = a00 * s + a20 * c;
+        out[9] = a01 * s + a21 * c;
+        out[10] = a02 * s + a22 * c;
+        out[11] = a03 * s + a23 * c;
+        return out;
+      }
+    };
+
+    // --- 2. GLSL ES 3.00 SHADER KAYNAK KODLARI ---
+    const VERTEX_SHADER_SOURCE = `#version 300 es
+    layout(location = 0) in vec3 a_position;
+    layout(location = 1) in vec3 a_normal;
+    layout(location = 2) in vec3 a_inst_pos;
+    layout(location = 3) in vec3 a_inst_disp;
+    layout(location = 4) in vec3 a_inst_color;
+
+    uniform mat4 u_projection;
+    uniform mat4 u_view;
+    uniform mat4 u_model;
+    uniform float u_dispersion;
+    uniform float u_time;
+
+    out vec3 v_normal;
+    out vec3 v_world_pos;
+    out vec3 v_color;
+
+    void main() {
+      // Voksel ölçeği (0.42 birim küp)
+      float voxel_scale = 0.42;
+      
+      // Kozmik dağılma hesabı
+      vec3 displaced_pos = a_inst_pos + a_inst_disp * (u_dispersion * 36.0);
+      
+      // Küp köşe noktasının model uzayındaki konumu
+      vec3 local_pos = displaced_pos + a_position * voxel_scale;
+      
+      vec4 world_pos = u_model * vec4(local_pos, 1.0);
+      gl_Position = u_projection * u_view * world_pos;
+      
+      v_world_pos = world_pos.xyz;
+      v_normal = mat3(u_model) * a_normal;
+      v_color = a_inst_color;
+    }`;
+
+    const FRAGMENT_SHADER_SOURCE = `#version 300 es
+    precision highp float;
+
+    in vec3 v_normal;
+    in vec3 v_world_pos;
+    in vec3 v_color;
+
+    uniform vec3 u_light_pos;
+    uniform vec3 u_view_pos;
+    uniform vec3 u_light_color;
+    uniform vec3 u_ambient_color;
+    uniform float u_shininess;
+    uniform float u_specular_strength;
+    uniform int u_render_mode;
+
+    out vec4 fragColor;
+
+    void main() {
+      vec3 N = normalize(v_normal);
+
+      if (u_render_mode == 1) {
+        // Yüzey normalleri görselleştirmesi
+        fragColor = vec4(N * 0.5 + 0.5, 1.0);
+        return;
+      }
+
+      // Standart Phong Yansıma Modeli
+      vec3 L = normalize(u_light_pos - v_world_pos);
+      vec3 V = normalize(u_view_pos - v_world_pos);
+      vec3 R = reflect(-L, N);
+
+      // Ortam (Ambient)
+      vec3 ambient = u_ambient_color * v_color;
+
+      // Dağınık (Diffuse)
+      float diff = max(dot(N, L), 0.0);
+      vec3 diffuse = diff * u_light_color * v_color;
+
+      // Aynasal (Specular)
+      float spec = pow(max(dot(R, V), 0.0), u_shininess);
+      vec3 specular = spec * u_specular_strength * u_light_color;
+
+      vec3 final_color = ambient + diffuse + specular;
+      fragColor = vec4(final_color, 1.0);
+    }`;
+
+    // --- 3. 3D KÜP GEOMETRİSİ (24 VERTEX, 36 INDICES - DÜZGÜN YÜZEY NORMALLERİ) ---
+    function createCubeData() {
+      // Her yüz için 4 köşe x 6 yüz = 24 vertex (Düzgün aydınlatma normalleri için)
+      const positions = [
+        // Ön yüz (+Z)
+        -1, -1,  1,   1, -1,  1,   1,  1,  1,  -1,  1,  1,
+        // Arka yüz (-Z)
+        -1, -1, -1,  -1,  1, -1,   1,  1, -1,   1, -1, -1,
+        // Üst yüz (+Y)
+        -1,  1, -1,  -1,  1,  1,   1,  1,  1,   1,  1, -1,
+        // Alt yüz (-Y)
+        -1, -1, -1,   1, -1, -1,   1, -1,  1,  -1, -1,  1,
+        // Sağ yüz (+X)
+         1, -1, -1,   1,  1, -1,   1,  1,  1,   1, -1,  1,
+        // Sol yüz (-X)
+        -1, -1, -1,  -1, -1,  1,  -1,  1,  1,  -1,  1, -1
+      ];
+
+      const normals = [
+        // Ön
+        0, 0, 1,  0, 0, 1,  0, 0, 1,  0, 0, 1,
+        // Arka
+        0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1,
+        // Üst
+        0, 1, 0,  0, 1, 0,  0, 1, 0,  0, 1, 0,
+        // Alt
+        0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0,
+        // Sağ
+        1, 0, 0,  1, 0, 0,  1, 0, 0,  1, 0, 0,
+        // Sol
+        -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0
+      ];
+
+      const indices = [
+        0,  1,  2,      0,  2,  3,    // Ön
+        4,  5,  6,      4,  6,  7,    // Arka
+        8,  9,  10,     8,  10, 11,   // Üst
+        12, 13, 14,     12, 14, 15,   // Alt
+        16, 17, 18,     16, 18, 19,   // Sağ
+        20, 21, 22,     20, 22, 23    // Sol
+      ];
+
+      return {
+        positions: new Float32Array(positions),
+        normals: new Float32Array(normals),
+        indices: new Uint16Array(indices)
+      };
+    }
+
+    // --- 4. "HELLO WORLD" 3D VOKSEL MATRİSİ JENERATÖRÜ ---
+    // Her glif 5 genişlik x 7 yükseklik bitmap ızgarasında tanımlanır.
+    const GLYPHS_5X7 = {
+      "H": [
+        "1...1",
+        "1...1",
+        "1...1",
+        "11111",
+        "1...1",
+        "1...1",
+        "1...1"
+      ],
+      "E": [
+        "11111",
+        "1....",
+        "1....",
+        "1111.",
+        "1....",
+        "1....",
+        "11111"
+      ],
+      "L": [
+        "1....",
+        "1....",
+        "1....",
+        "1....",
+        "1....",
+        "1....",
+        "11111"
+      ],
+      "O": [
+        ".111.",
+        "1...1",
+        "1...1",
+        "1...1",
+        "1...1",
+        "1...1",
+        ".111."
+      ],
+      "W": [
+        "1...1",
+        "1...1",
+        "1...1",
+        "1.1.1",
+        "1.1.1",
+        "11.11",
+        "1...1"
+      ],
+      "R": [
+        "1111.",
+        "1...1",
+        "1...1",
+        "1111.",
+        "1..1.",
+        "1...1",
+        "1...1"
+      ],
+      "D": [
+        "1111.",
+        "1...1",
+        "1...1",
+        "1...1",
+        "1...1",
+        "1...1",
+        "1111."
+      ],
+      " ": [
+        ".....",
+        ".....",
+        ".....",
+        ".....",
+        ".....",
+        ".....",
+        "....."
+      ]
+    };
+
+    function buildHelloWorldVoxels() {
+      const line1 = "HELLO";
+      const line2 = "WORLD";
+      const voxels = [];
+
+      function parseLine(text, yOffset) {
+        let cursorX = 0;
+        const spacing = 1.2;
+        const glyphWidth = 5 * spacing;
+        const totalWidth = text.length * (glyphWidth + 2.0);
+        const startX = -totalWidth / 2;
+
+        for (let i = 0; i < text.length; i++) {
+          const char = text[i];
+          const pattern = GLYPHS_5X7[char] || GLYPHS_5X7[" "];
+          const originX = startX + i * (glyphWidth + 2.4);
+
+          for (let row = 0; row < 7; row++) {
+            const line = pattern[row];
+            for (let col = 0; col < 5; col++) {
+              if (line[col] === "1") {
+                // 3D derinlik: Z ekseninde 2 katman (kalın mimari monolit)
+                for (let zLayer = -1; zLayer <= 1; zLayer += 2) {
+                  const x = originX + col * spacing;
+                  const y = yOffset - (row * spacing);
+                  const z = zLayer * 0.8;
+
+                  // Kozmik dispersiyon patlama vektörü
+                  const dist = Math.hypot(x, y, z) + 0.1;
+                  const randTheta = Math.random() * Math.PI * 2;
+                  const randPhi = Math.random() * Math.PI - Math.PI / 2;
+                  const dispX = Math.cos(randPhi) * Math.cos(randTheta) * (0.8 + Math.random() * 0.5);
+                  const dispY = Math.sin(randPhi) * (0.8 + Math.random() * 0.5);
+                  const dispZ = Math.cos(randPhi) * Math.sin(randTheta) * (0.8 + Math.random() * 0.5);
+
+                  voxels.push({
+                    x, y, z,
+                    dx: dispX, dy: dispY, dz: dispZ,
+                    charIndex: i,
+                    isLine2: yOffset < 0
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+
+      parseLine(line1, 5.5);
+      parseLine(line2, -5.5);
+      return voxels;
+    }
+
+    // --- 5. MALZEME RENK PALETLERİ ---
+    const MATERIALS = {
+      gold: {
+        baseColor: [1.0, 0.82, 0.26],
+        altColor: [1.0, 0.95, 0.6],
+        ambient: [0.22, 0.18, 0.08],
+        specularStrength: 1.4,
+        shininess: 64.0
+      },
+      cyan: {
+        baseColor: [0.0, 0.94, 1.0],
+        altColor: [0.4, 0.7, 1.0],
+        ambient: [0.06, 0.18, 0.22],
+        specularStrength: 1.6,
+        shininess: 96.0
+      },
+      ruby: {
+        baseColor: [1.0, 0.16, 0.42],
+        altColor: [1.0, 0.45, 0.65],
+        ambient: [0.22, 0.05, 0.1],
+        specularStrength: 1.2,
+        shininess: 48.0
+      },
+      emerald: {
+        baseColor: [0.02, 1.0, 0.63],
+        altColor: [0.4, 1.0, 0.85],
+        ambient: [0.05, 0.22, 0.14],
+        specularStrength: 1.5,
+        shininess: 72.0
+      }
+    };
+
+    // --- 6. UYGULAMA VE WEBGL2 ÇALIŞMA ZAMANI ---
+    let gl = null;
+    let program = null;
+    let vao = null;
+    let instanceCount = 0;
+    let instancePosBuffer = null;
+    let instanceDispBuffer = null;
+    let instanceColorBuffer = null;
+
+    // Durum Değişkenleri
+    let currentMaterial = "gold";
+    let renderMode = 0; // 0: Phong Solid, 1: Normals
+    let dispersion = 0.0;
+    let orbitSpeed = 1.0;
+    let autoRotate = true;
+
+    // Kamera ve Etkileşim
+    let cameraAzimuth = 0.0;
+    let cameraElevation = 0.25;
+    let cameraDistance = 34.0;
+    let isDragging = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+
+    // Matrisler
+    const projMatrix = Mat4.create();
+    const viewMatrix = Mat4.create();
+    const modelMatrix = Mat4.create();
+
+    // Uniform Konumları
+    let uProjectionLoc, uViewLoc, uModelLoc, uDispersionLoc, uTimeLoc;
+    let uLightPosLoc, uViewPosLoc, uLightColorLoc, uAmbientColorLoc;
+    let uShininessLoc, uSpecularStrengthLoc, uRenderModeLoc;
+
+    function initWebGL() {
+      const canvas = document.getElementById("glCanvas");
+      gl = canvas.getContext("webgl2", { antialias: true, alpha: false, depth: true });
+      if (!gl) {
+        throw new Error("WebGL 2.0 bu tarayıcıda desteklenmiyor.");
+      }
+
+      // Shader Derleme
+      function compileShader(source, type) {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, source);
+        gl.compileShader(s);
+        if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+          const info = gl.getShaderInfoLog(s);
+          gl.deleteShader(s);
+          throw new Error("Shader derleme hatası: " + info);
+        }
+        return s;
+      }
+
+      const vs = compileShader(VERTEX_SHADER_SOURCE, gl.VERTEX_SHADER);
+      const fs = compileShader(FRAGMENT_SHADER_SOURCE, gl.FRAGMENT_SHADER);
+      program = gl.createProgram();
+      gl.attachShader(program, vs);
+      gl.attachShader(program, fs);
+      gl.linkProgram(program);
+
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        throw new Error("Program bağlama hatası: " + gl.getProgramInfoLog(program));
+      }
+
+      // Uniform Konumlarını Al
+      uProjectionLoc = gl.getUniformLocation(program, "u_projection");
+      uViewLoc = gl.getUniformLocation(program, "u_view");
+      uModelLoc = gl.getUniformLocation(program, "u_model");
+      uDispersionLoc = gl.getUniformLocation(program, "u_dispersion");
+      uTimeLoc = gl.getUniformLocation(program, "u_time");
+      uLightPosLoc = gl.getUniformLocation(program, "u_light_pos");
+      uViewPosLoc = gl.getUniformLocation(program, "u_view_pos");
+      uLightColorLoc = gl.getUniformLocation(program, "u_light_color");
+      uAmbientColorLoc = gl.getUniformLocation(program, "u_ambient_color");
+      uShininessLoc = gl.getUniformLocation(program, "u_shininess");
+      uSpecularStrengthLoc = gl.getUniformLocation(program, "u_specular_strength");
+      uRenderModeLoc = gl.getUniformLocation(program, "u_render_mode");
+
+      // VAO ve Geometriyi Kur
+      vao = gl.createVertexArray();
+      gl.bindVertexArray(vao);
+
+      const cube = createCubeData();
+
+      // Vertex Positions (Location = 0)
+      const posBuf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+      gl.bufferData(gl.ARRAY_BUFFER, cube.positions, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+
+      // Vertex Normals (Location = 1)
+      const normBuf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, normBuf);
+      gl.bufferData(gl.ARRAY_BUFFER, cube.normals, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(1);
+      gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
+
+      // Index Buffer
+      const idxBuf = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idxBuf);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cube.indices, gl.STATIC_DRAW);
+
+      // Vokselleri Üret
+      const voxelList = buildHelloWorldVoxels();
+      instanceCount = voxelList.length;
+
+      const instPositions = new Float32Array(instanceCount * 3);
+      const instDispersions = new Float32Array(instanceCount * 3);
+      const instColors = new Float32Array(instanceCount * 3);
+
+      const mat = MATERIALS[currentMaterial];
+
+      for (let i = 0; i < instanceCount; i++) {
+        const v = voxelList[i];
+        instPositions[i * 3 + 0] = v.x;
+        instPositions[i * 3 + 1] = v.y;
+        instPositions[i * 3 + 2] = v.z;
+
+        instDispersions[i * 3 + 0] = v.dx;
+        instDispersions[i * 3 + 1] = v.dy;
+        instDispersions[i * 3 + 2] = v.dz;
+
+        const colorT = (v.charIndex / 5.0) % 1.0;
+        const r = mat.baseColor[0] * (1 - colorT) + mat.altColor[0] * colorT;
+        const g = mat.baseColor[1] * (1 - colorT) + mat.altColor[1] * colorT;
+        const b = mat.baseColor[2] * (1 - colorT) + mat.altColor[2] * colorT;
+
+        instColors[i * 3 + 0] = r;
+        instColors[i * 3 + 1] = g;
+        instColors[i * 3 + 2] = b;
+      }
+
+      // Instance Positions (Location = 2, Divisor = 1)
+      instancePosBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, instancePosBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, instPositions, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(2);
+      gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribDivisor(2, 1);
+
+      // Instance Dispersions (Location = 3, Divisor = 1)
+      instanceDispBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, instanceDispBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, instDispersions, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(3);
+      gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribDivisor(3, 1);
+
+      // Instance Colors (Location = 4, Divisor = 1)
+      instanceColorBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, instanceColorBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, instColors, gl.DYNAMIC_DRAW);
+      gl.enableVertexAttribArray(4);
+      gl.vertexAttribPointer(4, 3, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribDivisor(4, 1);
+
+      gl.bindVertexArray(null);
+
+      // WebGL Yapılandırması
+      gl.enable(gl.DEPTH_TEST);
+      gl.depthFunc(gl.LEQUAL);
+      gl.enable(gl.CULL_FACE);
+      gl.cullFace(gl.BACK);
+
+      // UI Metriklerini Güncelle
+      document.getElementById("txtInstanceCount").textContent = `${instanceCount} VOKSEL`;
+      document.getElementById("metricTriangles").textContent = `${(instanceCount * 12).toLocaleString()} Δ`;
+
+      // Çalışma Zamanı Kanıtı
+      window.__E040_VERIFIED = {
+        webgl2Supported: true,
+        instanceCount: instanceCount,
+        drawCalls: 1,
+        vaoValid: gl.isVertexArray(vao),
+        depthTestEnabled: gl.isEnabled(gl.DEPTH_TEST)
+      };
+    }
+
+    function updateMaterialColors() {
+      if (!gl || !instanceColorBuffer) return;
+      const voxelList = buildHelloWorldVoxels();
+      const instColors = new Float32Array(instanceCount * 3);
+      const mat = MATERIALS[currentMaterial];
+
+      for (let i = 0; i < instanceCount; i++) {
+        const v = voxelList[i];
+        const colorT = (v.charIndex / 5.0) % 1.0;
+        instColors[i * 3 + 0] = mat.baseColor[0] * (1 - colorT) + mat.altColor[0] * colorT;
+        instColors[i * 3 + 1] = mat.baseColor[1] * (1 - colorT) + mat.altColor[1] * colorT;
+        instColors[i * 3 + 2] = mat.baseColor[2] * (1 - colorT) + mat.altColor[2] * colorT;
+      }
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, instanceColorBuffer);
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, instColors);
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    }
+
+    // --- 7. RENDER DÖNGÜSÜ (60 FPS INSTANCED DRAW CALL) ---
+    let lastTime = performance.now();
+    let frameCount = 0;
+    let fpsTimer = performance.now();
+
+    function render(now) {
+      requestAnimationFrame(render);
+
+      const dt = (now - lastTime) * 0.001;
+      lastTime = now;
+
+      frameCount++;
+      if (now - fpsTimer >= 500) {
+        const currentFps = (frameCount * 1000) / (now - fpsTimer);
+        document.getElementById("metricFPS").textContent = `${currentFps.toFixed(1)} FPS`;
+        frameCount = 0;
+        fpsTimer = now;
+      }
+
+      const canvas = document.getElementById("glCanvas");
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+        gl.viewport(0, 0, width, height);
+      }
+
+      // Otomatik Yörünge Rotasyonu
+      if (autoRotate) {
+        cameraAzimuth += dt * 0.35 * orbitSpeed;
+      }
+
+      // Kamera Konumu (Kürevi Koordinatlar)
+      const eyeX = cameraDistance * Math.cos(cameraElevation) * Math.sin(cameraAzimuth);
+      const eyeY = cameraDistance * Math.sin(cameraElevation);
+      const eyeZ = cameraDistance * Math.cos(cameraElevation) * Math.cos(cameraAzimuth);
+
+      const eye = [eyeX, eyeY, eyeZ];
+      const target = [0, 0, 0];
+      const up = [0, 1, 0];
+
+      // Dinamik Yörünge Işık Kaynağı
+      const lightAngle = now * 0.0015 * orbitSpeed;
+      const lightX = Math.cos(lightAngle) * 26.0;
+      const lightY = 16.0 + Math.sin(lightAngle * 1.5) * 6.0;
+      const lightZ = Math.sin(lightAngle) * 26.0;
+
+      // Matris Güncellemeleri
+      const aspect = width / (height || 1);
+      Mat4.perspective(projMatrix, Math.PI / 3.6, aspect, 0.5, 200.0);
+      Mat4.lookAt(viewMatrix, eye, target, up);
+      Mat4.identity(modelMatrix);
+
+      // Hafif nefes alma dalgalanması
+      const subtleWobble = Math.sin(now * 0.001) * 0.03;
+      Mat4.rotateX(modelMatrix, modelMatrix, subtleWobble);
+
+      // Tuvali Temizle
+      gl.clearColor(0.024, 0.027, 0.039, 1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+      gl.useProgram(program);
+
+      // Uniform Değerlerini Yükle
+      gl.uniformMatrix4fv(uProjectionLoc, false, projMatrix);
+      gl.uniformMatrix4fv(uViewLoc, false, viewMatrix);
+      gl.uniformMatrix4fv(uModelLoc, false, modelMatrix);
+      gl.uniform1f(uDispersionLoc, dispersion);
+      gl.uniform1f(uTimeLoc, now * 0.001);
+
+      gl.uniform3f(uLightPosLoc, lightX, lightY, lightZ);
+      gl.uniform3f(uViewPosLoc, eyeX, eyeY, eyeZ);
+      gl.uniform3f(uLightColorLoc, 1.0, 0.98, 0.94);
+
+      const mat = MATERIALS[currentMaterial];
+      gl.uniform3fv(uAmbientColorLoc, mat.ambient);
+      gl.uniform1f(uShininessLoc, mat.shininess);
+      gl.uniform1f(uSpecularStrengthLoc, mat.specularStrength);
+      gl.uniform1i(uRenderModeLoc, renderMode);
+
+      // TEK BİR INSTANCED ÇİZİM ÇAĞRISI (SINGLE DRAW CALL)
+      gl.bindVertexArray(vao);
+      gl.drawElementsInstanced(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0, instanceCount);
+      gl.bindVertexArray(null);
+    }
+
+    // --- 8. ETKİLEŞİM VE ARAYÜZ BAĞLANTILARI ---
+    function setupInteractions() {
+      const viewport = document.getElementById("viewport");
+
+      viewport.addEventListener("pointerdown", (e) => {
+        isDragging = true;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        viewport.setPointerCapture(e.pointerId);
+      });
+
+      viewport.addEventListener("pointermove", (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - lastMouseX;
+        const dy = e.clientY - lastMouseY;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+
+        cameraAzimuth += dx * 0.008;
+        cameraElevation += dy * 0.008;
+        cameraElevation = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, cameraElevation));
+      });
+
+      viewport.addEventListener("pointerup", (e) => {
+        isDragging = false;
+        try { viewport.releasePointerCapture(e.pointerId); } catch (_) {}
+      });
+
+      viewport.addEventListener("pointercancel", () => {
+        isDragging = false;
+      });
+
+      viewport.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        cameraDistance += e.deltaY * 0.03;
+        cameraDistance = Math.max(12.0, Math.min(70.0, cameraDistance));
+      }, { passive: false });
+
+      // Kaydırıcılar
+      const rngDispersion = document.getElementById("rngDispersion");
+      rngDispersion.addEventListener("input", (e) => {
+        dispersion = parseFloat(e.target.value);
+        document.getElementById("valDispersion").textContent = dispersion.toFixed(2);
+      });
+
+      const rngOrbitSpeed = document.getElementById("rngOrbitSpeed");
+      rngOrbitSpeed.addEventListener("input", (e) => {
+        orbitSpeed = parseFloat(e.target.value);
+        document.getElementById("valOrbitSpeed").textContent = `${orbitSpeed.toFixed(1)}x`;
+      });
+
+      // Malzeme Butonları
+      document.querySelectorAll(".preset-btn[data-material]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".preset-btn[data-material]").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentMaterial = btn.getAttribute("data-material");
+          updateMaterialColors();
+        });
+      });
+
+      // Görünüm Modu Butonları
+      document.querySelectorAll(".preset-btn[data-mode]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".preset-btn[data-mode]").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          renderMode = parseInt(btn.getAttribute("data-mode"), 10);
+          document.getElementById("txtRenderMode").textContent = renderMode === 0 ? "KATI" : "NORMALLER";
+        });
+      });
+
+      // Buton Eylemleri
+      const btnToggleAnim = document.getElementById("btnToggleAnim");
+      btnToggleAnim.addEventListener("click", () => {
+        autoRotate = !autoRotate;
+        btnToggleAnim.textContent = `Otomatik Döndürme: ${autoRotate ? "AÇIK" : "KAPALI"}`;
+      });
+
+      const btnResetCamera = document.getElementById("btnResetCamera");
+      btnResetCamera.addEventListener("click", () => {
+        cameraAzimuth = 0.0;
+        cameraElevation = 0.25;
+        cameraDistance = 34.0;
+        dispersion = 0.0;
+        rngDispersion.value = 0.0;
+        document.getElementById("valDispersion").textContent = "0.00";
+      });
+    }
+
+    // Başlatıcı
+    window.addEventListener("DOMContentLoaded", () => {
+      try {
+        initWebGL();
+        setupInteractions();
+        requestAnimationFrame(render);
+      } catch (err) {
+        console.error("Başlatma hatası:", err);
+      }
+    });
+  </script>
+</body>
+</html>

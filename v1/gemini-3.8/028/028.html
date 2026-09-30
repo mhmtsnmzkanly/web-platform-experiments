@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 028: Web Speech API & Fonetik Akustik Vokal Tipografisi</title>
+  <style>
+    :root {
+      --bg-color: #060913;
+      --panel-bg: rgba(13, 20, 38, 0.75);
+      --panel-border: rgba(6, 182, 212, 0.25);
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.4);
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.4);
+      --magenta: #f43f5e;
+      --violet: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-dim: #64748b;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 15%, rgba(6, 182, 212, 0.08) 0%, transparent 60%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+    }
+
+    /* Üst Kokpit Başlığı & Sentezleme Durumu */
+    header {
+      padding: 1rem 1.5rem;
+      background: rgba(8, 14, 26, 0.85);
+      border-bottom: 1px solid var(--panel-border);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      z-index: 20;
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .badge-exp {
+      background: linear-gradient(135deg, var(--cyan), var(--emerald));
+      color: #000;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    .header-title-block h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .header-title-block p {
+      font-size: 0.8rem;
+      color: var(--cyan);
+      font-family: var(--font-mono);
+    }
+
+    /* Telemetri Rozetleri */
+    .telemetry-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .stat-chip {
+      background: rgba(6, 182, 212, 0.06);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      min-width: 90px;
+    }
+
+    .stat-chip-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+    }
+
+    .stat-chip-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--cyan);
+    }
+
+    .stat-chip-val.amber { color: var(--amber); }
+    .stat-chip-val.green { color: var(--emerald); }
+
+    /* Ana Düzen (Grid Mizanpaj) */
+    main {
+      flex: 1;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      grid-template-rows: auto 1fr;
+      gap: 1.5rem;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Fonetik Vokal Sahnesi */
+    .vocal-stage-card {
+      grid-column: 1 / 2;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      min-height: 380px;
+    }
+
+    .vocal-stage-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--amber), transparent);
+    }
+
+    .stage-top-bar {
+      position: absolute;
+      top: 1rem;
+      left: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .vocal-pulse-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--cyan);
+    }
+
+    .pulse-ring {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+      animation: pulseAnim 1.6s infinite;
+    }
+
+    @keyframes pulseAnim {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.7); opacity: 0.4; }
+    }
+
+    /* HELLO WORLD Odak ve Fonetik Glifler */
+    .phonetic-display-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 2.5rem 0;
+    }
+
+    h1#hw-vocal-heading {
+      font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      user-select: none;
+    }
+
+    .word-block {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .word-block.active-word {
+      background: rgba(6, 182, 212, 0.1);
+      box-shadow: 0 0 24px rgba(6, 182, 212, 0.2);
+    }
+
+    .phoneme-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      padding: 0.4rem 0.3rem;
+      border-radius: 6px;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .phoneme-cell:hover {
+      transform: translateY(-8px) scale(1.15);
+      background: rgba(245, 158, 11, 0.15);
+    }
+
+    .glyph-letter {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 16px rgba(255, 255, 255, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .phoneme-cell.active-phoneme .glyph-letter {
+      color: var(--amber);
+      text-shadow: 0 0 24px var(--amber-glow), 0 0 48px var(--amber);
+      transform: scale(1.2);
+    }
+
+    .ipa-badge {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--cyan);
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      margin-top: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .phoneme-cell.active-phoneme .ipa-badge {
+      color: #000;
+      background: var(--amber);
+      border-color: var(--amber);
+      box-shadow: 0 0 12px var(--amber-glow);
+    }
+
+    /* Vokal Formant Spektrumu Canvas */
+    .formant-canvas-wrap {
+      width: 100%;
+      height: 90px;
+      background: rgba(4, 8, 18, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+
+    canvas#formantCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Sağ Kontrol Paneli */
+    .controls-panel {
+      grid-column: 2 / 3;
+      grid-row: 1 / 3;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    @media (max-width: 1024px) {
+      .controls-panel {
+        grid-column: 1 / 2;
+        grid-row: auto;
+      }
+    }
+
+    .panel-section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    button.ctrl-btn {
+      background: rgba(6, 182, 212, 0.08);
+      color: #fff;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 6px;
+      padding: 0.65rem 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    button.ctrl-btn:hover {
+      background: rgba(6, 182, 212, 0.2);
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan-glow);
+      transform: translateX(2px);
+    }
+
+    button.ctrl-btn.active {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: var(--amber);
+      color: var(--amber);
+      box-shadow: 0 0 12px var(--amber-glow);
+    }
+
+    /* Sürgü Grupları */
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .slider-group label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-dim);
+    }
+
+    input[type="range"] {
+      accent-color: var(--cyan);
+      width: 100%;
+      cursor: pointer;
+    }
+
+    /* Alt Akustik Log / Olay Akışı */
+    .telemetry-card {
+      grid-column: 1 / 2;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .speech-event-log {
+      background: rgba(3, 7, 18, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      max-height: 140px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .event-entry {
+      display: grid;
+      grid-template-columns: 80px 140px 1fr 100px;
+      padding: 0.35rem 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      align-items: center;
+    }
+
+    .event-entry:last-child {
+      border-bottom: none;
+    }
+
+    .event-type {
+      font-weight: 700;
+      color: var(--cyan);
+    }
+
+    .event-boundary {
+      color: var(--amber);
+    }
+
+    /* Alt Bilgi Çubuğu */
+    footer {
+      padding: 0.75rem 1.5rem;
+      background: rgba(8, 14, 26, 0.85);
+      border-top: 1px solid var(--panel-border);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .footer-stat {
+      color: var(--cyan);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Kokpit Başlığı & Sentezleme Durumu -->
+  <header>
+    <div class="header-branding">
+      <span class="badge-exp">DENEY 028</span>
+      <div class="header-title-block">
+        <h2>Fonetik Vokal Rezonans Konsolu</h2>
+        <p>W3C Web Speech API (SpeechSynthesis & SpeechSynthesisUtterance)</p>
+      </div>
+    </div>
+
+    <div class="telemetry-badges">
+      <div class="stat-chip">
+        <span class="stat-chip-label">Sentez Motoru</span>
+        <span class="stat-chip-val" id="valEngine">Hazır</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Ses Perdesi (Pitch)</span>
+        <span class="stat-chip-val amber" id="valPitch">1.00</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Tempo (Rate)</span>
+        <span class="stat-chip-val green" id="valRate">1.00x</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Aktif Sınır (Boundary)</span>
+        <span class="stat-chip-val" id="valBoundary">IDLE</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ana Düzen -->
+  <main>
+    <!-- Fonetik Vokal Sahnesi -->
+    <section class="vocal-stage-card" aria-label="Fonetik Tipografi Sahnesi">
+      <div class="stage-top-bar">
+        <span class="vocal-pulse-status">
+          <span class="pulse-ring"></span> <span id="vocalStateLabel">VOKAL REZONANS: BEKLEMEDE</span>
+        </span>
+        <span style="font-family: var(--font-mono); color: var(--text-dim);">IPA Standard Phonetic Articulation</span>
+      </div>
+
+      <!-- HELLO WORLD Ana Başlığı -->
+      <div class="phonetic-display-wrap">
+        <h1 id="hw-vocal-heading" aria-label="Hello World">
+          <!-- HELLO KELİMESİ -->
+          <div class="word-block" id="wordHello" data-word="Hello">
+            <div class="phoneme-cell" data-idx="0" data-phoneme="/h/" data-desc="Voiceless glottal fricative">
+              <span class="glyph-letter">H</span>
+              <span class="ipa-badge">/h/</span>
+            </div>
+            <div class="phoneme-cell" data-idx="1" data-phoneme="/ɛ/" data-desc="Open-mid front unrounded vowel">
+              <span class="glyph-letter">E</span>
+              <span class="ipa-badge">/ɛ/</span>
+            </div>
+            <div class="phoneme-cell" data-idx="2" data-phoneme="/l/" data-desc="Alveolar lateral approximant">
+              <span class="glyph-letter">L</span>
+              <span class="ipa-badge">/l/</span>
+            </div>
+            <div class="phoneme-cell" data-idx="3" data-phoneme="/l/" data-desc="Geminate lateral liquid">
+              <span class="glyph-letter">L</span>
+              <span class="ipa-badge">/l/</span>
+            </div>
+            <div class="phoneme-cell" data-idx="4" data-phoneme="/oʊ/" data-desc="Diphthong back rounded">
+              <span class="glyph-letter">O</span>
+              <span class="ipa-badge">/oʊ/</span>
+            </div>
+          </div>
+
+          <!-- WORLD KELİMESİ -->
+          <div class="word-block" id="wordWorld" data-word="World">
+            <div class="phoneme-cell" data-idx="5" data-phoneme="/w/" data-desc="Voiced labial-velar approximant">
+              <span class="glyph-letter">W</span>
+              <span class="ipa-badge">/w/</span>
+            </div>
+            <div class="phoneme-cell" data-idx="6" data-phoneme="/ɜː/" data-desc="Open-mid central unrounded vowel">
+              <span class="glyph-letter">O</span>
+              <span class="ipa-badge">/ɜː/</span>
+            </div>
+            <div class="phoneme-cell" data-idx="7" data-phoneme="/r/" data-desc="Alveolar approximant glide">
+              <span class="glyph-letter">R</span>
+              <span class="ipa-badge">/r/</span>
+            </div>
+            <div class="phoneme-cell" data-idx="8" data-phoneme="/l/" data-desc="Velarized lateral alveolar">
+              <span class="glyph-letter">L</span>
+              <span class="ipa-badge">/l/</span>
+            </div>
+            <div class="phoneme-cell" data-idx="9" data-phoneme="/d/" data-desc="Voiced alveolar stop plosive">
+              <span class="glyph-letter">D</span>
+              <span class="ipa-badge">/d/</span>
+            </div>
+          </div>
+        </h1>
+      </div>
+
+      <!-- Akustik Formant Spektrum Çizgisi -->
+      <div class="formant-canvas-wrap">
+        <canvas id="formantCanvas" width="800" height="90"></canvas>
+      </div>
+    </section>
+
+    <!-- Yan Kontrol Paneli -->
+    <aside class="controls-panel" aria-label="Sentez Kontrol Masası">
+      <div>
+        <div class="panel-section-title">
+          <span>Vokal Sentez Kontrolü</span>
+          <span style="color: var(--cyan); font-size: 0.75rem;">speechSynthesis</span>
+        </div>
+        <div class="btn-grid" style="margin-top: 0.75rem;">
+          <button class="ctrl-btn active" id="btnSpeak" type="button">
+            <strong>Hello World Seslendir</strong>
+            <span style="font-size: 0.7rem; color: var(--amber);">[SPEAK]</span>
+          </button>
+          <button class="ctrl-btn" id="btnPause" type="button">
+            <span>Duraklat / Sürdür</span>
+            <span style="font-size: 0.7rem; color: var(--cyan);">[PAUSE]</span>
+          </button>
+          <button class="ctrl-btn" id="btnCancel" type="button" style="border-color: rgba(255,255,255,0.2);">
+            <span>Sentezi Durdur</span>
+            <span style="font-size: 0.7rem; color: var(--text-dim);">[CANCEL]</span>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel-section-title">
+          <span>Akustik Karakter Hazır Ayarları</span>
+        </div>
+        <div class="btn-grid" style="margin-top: 0.75rem;">
+          <button class="ctrl-btn" id="presetRobo" type="button">
+            <span>Sibernetik Sentetik</span>
+            <span style="font-size: 0.7rem; color: var(--cyan);">[ROBOT]</span>
+          </button>
+          <button class="ctrl-btn" id="presetBaritone" type="button">
+            <span>Derin Bariton</span>
+            <span style="font-size: 0.7rem; color: var(--amber);">[DEEP]</span>
+          </button>
+          <button class="ctrl-btn" id="presetNatural" type="button">
+            <span>Doğal Artikülasyon</span>
+            <span style="font-size: 0.7rem; color: var(--emerald);">[CLEAR]</span>
+          </button>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <div class="panel-section-title">
+          <span>Akustik Parametreler</span>
+        </div>
+        <div class="slider-group">
+          <label>
+            <span>Ses Perdesi (Pitch)</span>
+            <span id="lblPitch">1.0</span>
+          </label>
+          <input type="range" id="rangePitch" min="0.4" max="1.8" step="0.1" value="1.0">
+        </div>
+        <div class="slider-group">
+          <label>
+            <span>Konuşma Hızı (Rate)</span>
+            <span id="lblRate">1.0x</span>
+          </label>
+          <input type="range" id="rangeRate" min="0.5" max="1.8" step="0.1" value="1.0">
+        </div>
+      </div>
+    </aside>
+
+    <!-- Alt Akustik Olay Telemetrisi -->
+    <section class="telemetry-card" aria-label="Sentezleme Olay Akışı">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.85rem; font-weight: 700; color: var(--cyan); font-family: var(--font-mono);">
+          AKUSTİK KELİME VE HECE SINIRLARI TELEMETRİSİ (BOUNDARY STREAM)
+        </span>
+        <span style="font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-dim);">
+          W3C onboundary Events
+        </span>
+      </div>
+
+      <div class="speech-event-log" id="speechEventLog">
+        <!-- Olaylar dinamik eklenecek -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Alt Bilgi Çubuğu -->
+  <footer>
+    <div>
+      <span>Standart: <strong class="footer-stat">W3C Web Speech API (SpeechSynthesis)</strong></span>
+    </div>
+    <div>
+      <span>Transkripsiyon: <strong class="footer-stat">IPA Fonetik Eşleme</strong></span>
+    </div>
+    <div>
+      <span>Durum: <strong class="footer-stat" id="speechStatus">SYNTH_ONLINE</strong></span>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      'use strict';
+
+      // 1. Web Speech API Kontrolü
+      const synth = window.speechSynthesis;
+      const hasSpeech = typeof synth !== 'undefined';
+
+      // DOM Elemanları
+      const valEngine = document.getElementById('valEngine');
+      const valPitch = document.getElementById('valPitch');
+      const valRate = document.getElementById('valRate');
+      const valBoundary = document.getElementById('valBoundary');
+      const vocalStateLabel = document.getElementById('vocalStateLabel');
+      const speechEventLog = document.getElementById('speechEventLog');
+
+      // Kelimeler ve Fonemler
+      const wordHello = document.getElementById('wordHello');
+      const wordWorld = document.getElementById('wordWorld');
+      const phonemeCells = document.querySelectorAll('.phoneme-cell');
+
+      // Butonlar & Sürgüler
+      const btnSpeak = document.getElementById('btnSpeak');
+      const btnPause = document.getElementById('btnPause');
+      const btnCancel = document.getElementById('btnCancel');
+      const rangePitch = document.getElementById('rangePitch');
+      const rangeRate = document.getElementById('rangeRate');
+      const lblPitch = document.getElementById('lblPitch');
+      const lblRate = document.getElementById('lblRate');
+
+      const presetRobo = document.getElementById('presetRobo');
+      const presetBaritone = document.getElementById('presetBaritone');
+      const presetNatural = document.getElementById('presetNatural');
+
+      // Formant Canvas
+      const formantCanvas = document.getElementById('formantCanvas');
+      const ctx = formantCanvas.getContext('2d');
+
+      let currentUtterance = null;
+      let isFormantActive = false;
+      let formantPhase = 0;
+
+      if (!hasSpeech) {
+        valEngine.textContent = 'Desteklenmiyor (Mock)';
+      }
+
+      // Olay Günlüğüne Yazma
+      function logSpeechEvent(type, detail, text) {
+        const row = document.createElement('div');
+        row.className = 'event-entry';
+        const time = (performance.now() / 1000).toFixed(2) + 's';
+
+        row.innerHTML = `
+          <span class="event-type">${type}</span>
+          <span class="event-boundary">${detail}</span>
+          <span style="color: var(--text-main);">${text}</span>
+          <span style="color: var(--text-dim); text-align: right;">${time}</span>
+        `;
+
+        speechEventLog.insertBefore(row, speechEventLog.firstChild);
+        if (speechEventLog.children.length > 20) {
+          speechEventLog.removeChild(speechEventLog.lastChild);
+        }
+      }
+
+      // Formant Spektrumu Görselleştirme
+      function drawFormants() {
+        const w = formantCanvas.width;
+        const h = formantCanvas.height;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Akustik Izgara
+        ctx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < w; x += 40) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, h);
+          ctx.stroke();
+        }
+
+        const barCount = 36;
+        const barWidth = w / barCount - 4;
+
+        for (let i = 0; i < barCount; i++) {
+          const x = i * (barWidth + 4) + 2;
+          let amp = 0.15;
+
+          if (isFormantActive) {
+            amp = Math.abs(Math.sin(formantPhase + i * 0.3) * 0.7 + Math.cos(formantPhase * 1.5 + i * 0.5) * 0.3);
+          } else {
+            amp = 0.08 + Math.sin(formantPhase + i * 0.2) * 0.04;
+          }
+
+          const barHeight = Math.max(4, amp * (h - 10));
+          const y = h - barHeight;
+
+          const grad = ctx.createLinearGradient(0, y, 0, h);
+          grad.addColorStop(0, '#00f0ff');
+          grad.addColorStop(0.5, '#fbbf24');
+          grad.addColorStop(1, '#8b5cf6');
+
+          ctx.fillStyle = grad;
+          ctx.fillRect(x, y, barWidth, barHeight);
+        }
+
+        formantPhase += isFormantActive ? 0.2 : 0.03;
+        requestAnimationFrame(drawFormants);
+      }
+      requestAnimationFrame(drawFormants);
+
+      // Fonem ve Kelime Vurgulama
+      function highlightWord(wordName) {
+        wordHello.classList.toggle('active-word', wordName === 'Hello');
+        wordWorld.classList.toggle('active-word', wordName === 'World');
+      }
+
+      function highlightPhoneme(idx) {
+        phonemeCells.forEach(cell => {
+          const cellIdx = parseInt(cell.getAttribute('data-idx'), 10);
+          cell.classList.toggle('active-phoneme', cellIdx === idx);
+        });
+      }
+
+      function clearHighlights() {
+        wordHello.classList.remove('active-word');
+        wordWorld.classList.remove('active-word');
+        phonemeCells.forEach(cell => cell.classList.remove('active-phoneme'));
+      }
+
+      // Sentezleme Akışı
+      function speakText(text) {
+        if (!hasSpeech) {
+          runSimulation(text);
+          return;
+        }
+
+        synth.cancel();
+        clearHighlights();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        currentUtterance = utterance;
+
+        utterance.pitch = parseFloat(rangePitch.value);
+        utterance.rate = parseFloat(rangeRate.value);
+
+        utterance.onstart = () => {
+          isFormantActive = true;
+          vocalStateLabel.textContent = `VOKAL REZONANS: AKTİF ("${text}")`;
+          logSpeechEvent('ONSTART', 'Başlatıldı', text);
+        };
+
+        utterance.onboundary = (event) => {
+          const charIdx = event.charIndex;
+          valBoundary.textContent = `${event.name || 'char'}: ${charIdx}`;
+          logSpeechEvent('BOUNDARY', `${event.name || 'pos'}: ${charIdx}`, text.substr(charIdx, 5));
+
+          if (charIdx < 5) {
+            highlightWord('Hello');
+            highlightPhoneme(Math.min(charIdx, 4));
+          } else {
+            highlightWord('World');
+            highlightPhoneme(Math.min(charIdx - 1, 9));
+          }
+        };
+
+        utterance.onend = () => {
+          isFormantActive = false;
+          vocalStateLabel.textContent = 'VOKAL REZONANS: TAMAMLANDI';
+          valBoundary.textContent = 'IDLE';
+          clearHighlights();
+          logSpeechEvent('ONEND', 'Tamamlandı', text);
+        };
+
+        utterance.onerror = (e) => {
+          isFormantActive = false;
+          clearHighlights();
+          logSpeechEvent('ONERROR', e.error || 'Hata', text);
+        };
+
+        synth.speak(utterance);
+
+        // Headless tarayıcılar için görsel simülasyon garantisi
+        runSimulation(text);
+      }
+
+      // Görsel Simülasyon
+      function runSimulation(text) {
+        isFormantActive = true;
+        const rateVal = parseFloat(rangeRate.value);
+        const stepTime = 120 / rateVal;
+
+        if (text === 'Hello World') {
+          highlightWord('Hello');
+          for (let i = 0; i <= 4; i++) {
+            setTimeout(() => {
+              highlightPhoneme(i);
+              valBoundary.textContent = `H: ${i}`;
+            }, i * stepTime);
+          }
+
+          setTimeout(() => {
+            highlightWord('World');
+            for (let i = 5; i <= 9; i++) {
+              setTimeout(() => {
+                highlightPhoneme(i);
+                valBoundary.textContent = `W: ${i}`;
+              }, (i - 5) * stepTime);
+            }
+          }, 5 * stepTime + 80);
+
+          setTimeout(() => {
+            isFormantActive = false;
+            clearHighlights();
+            valBoundary.textContent = 'IDLE';
+          }, 11 * stepTime + 100);
+        } else {
+          // Tekil fonem
+          setTimeout(() => {
+            isFormantActive = false;
+            clearHighlights();
+          }, 400);
+        }
+      }
+
+      // Buton Dinleyicileri
+      btnSpeak.addEventListener('click', () => {
+        speakText('Hello World');
+      });
+
+      btnPause.addEventListener('click', () => {
+        if (!hasSpeech) return;
+        if (synth.speaking && !synth.paused) {
+          synth.pause();
+          isFormantActive = false;
+          vocalStateLabel.textContent = 'VOKAL REZONANS: DURAKLATILDI';
+          logSpeechEvent('PAUSE', 'Duraklatıldı', 'Hello World');
+        } else if (synth.paused) {
+          synth.resume();
+          isFormantActive = true;
+          vocalStateLabel.textContent = 'VOKAL REZONANS: SÜRDÜRÜLÜYOR';
+          logSpeechEvent('RESUME', 'Sürdürüldü', 'Hello World');
+        }
+      });
+
+      btnCancel.addEventListener('click', () => {
+        if (hasSpeech) synth.cancel();
+        isFormantActive = false;
+        clearHighlights();
+        vocalStateLabel.textContent = 'VOKAL REZONANS: İPTAL EDİLDİ';
+        logSpeechEvent('CANCEL', 'İptal', '');
+      });
+
+      // Sürgüler
+      rangePitch.addEventListener('input', () => {
+        const val = rangePitch.value;
+        lblPitch.textContent = val;
+        valPitch.textContent = val;
+      });
+
+      rangeRate.addEventListener('input', () => {
+        const val = rangeRate.value;
+        lblRate.textContent = `${val}x`;
+        valRate.textContent = `${val}x`;
+      });
+
+      // Hazır Ayarlar
+      presetRobo.addEventListener('click', () => {
+        rangePitch.value = '1.7';
+        rangeRate.value = '1.4';
+        rangePitch.dispatchEvent(new Event('input'));
+        rangeRate.dispatchEvent(new Event('input'));
+        speakText('Hello World');
+      });
+
+      presetBaritone.addEventListener('click', () => {
+        rangePitch.value = '0.5';
+        rangeRate.value = '0.8';
+        rangePitch.dispatchEvent(new Event('input'));
+        rangeRate.dispatchEvent(new Event('input'));
+        speakText('Hello World');
+      });
+
+      presetNatural.addEventListener('click', () => {
+        rangePitch.value = '1.0';
+        rangeRate.value = '1.0';
+        rangePitch.dispatchEvent(new Event('input'));
+        rangeRate.dispatchEvent(new Event('input'));
+        speakText('Hello World');
+      });
+
+      // Bireysel Glif Fonem Seslendirmesi
+      phonemeCells.forEach(cell => {
+        cell.addEventListener('click', () => {
+          const letter = cell.querySelector('.glyph-letter').textContent;
+          const phoneme = cell.getAttribute('data-phoneme');
+          const idx = parseInt(cell.getAttribute('data-idx'), 10);
+
+          highlightPhoneme(idx);
+          speakText(letter);
+          logSpeechEvent('PHONEME_TAP', phoneme, `Harf: ${letter}`);
+        });
+      });
+
+      // Başlangıç Bootstrap
+      window.addEventListener('load', () => {
+        logSpeechEvent('SYSTEM', 'Hazır', 'SpeechSynthesis Utterance Motoru');
+        
+        // Otomatik Devriye Nabzı
+        setTimeout(() => {
+          speakText('Hello World');
+        }, 300);
+      });
+
+    })();
+  </script>
+</body>
+</html>

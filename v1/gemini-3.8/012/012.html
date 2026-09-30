@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World - Deney 012 (WebGL GPU Shader)</title>
+  <style>
+    /*
+     * CSS Temel Sıfırlama ve Sahne Düzeni
+     * WebGL çizim tuvalinin tüm ekranı kaplamasını sağlar.
+     */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #04050a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .stage {
+      position: relative;
+      width: 100vw;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /*
+     * Ana WebGL Tuvali
+     * GPU gölgelendirici (fragment shader) çıktısı doğrudan bu tuvale basılır.
+     */
+    #glCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+
+    .hud-header {
+      position: absolute;
+      top: 2rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #64748b;
+      font-weight: 700;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /*
+     * İnteraktif Shader Kontrol Paneli (HUD)
+     */
+    .controls-bar {
+      position: absolute;
+      bottom: 2rem;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      padding: 0.85rem 1.75rem;
+      background: rgba(10, 15, 30, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      z-index: 20;
+    }
+
+    .mode-group {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .btn.active {
+      background: #06b6d4;
+      border-color: #06b6d4;
+      color: #041019;
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.6);
+    }
+
+    .telemetry-divider {
+      width: 1px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .telemetry-text {
+      font-family: ui-monospace, monospace;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .telemetry-val {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="stage">
+    <div class="hud-header">Deney 012 // WebGL GPU Shader Mimarisi</div>
+
+    <!--
+      WebGL Çizim Tuvali:
+      role="img" ve aria-label ile ekran okuyucular için tam semantik erişilebilirlik sağlanır.
+      Etiket içi yedek metin grafik desteği olmayan ortamlar için Hello World içeriğini korur.
+    -->
+    <canvas id="glCanvas" role="img" aria-label="Hello World WebGL 3D GPU Shader">
+      Hello World
+    </canvas>
+
+    <!-- İnteraktif Kontrol Paneli -->
+    <nav class="controls-bar" aria-label="Shader Efekt Kontrolleri">
+      <div class="mode-group">
+        <button type="button" class="btn active" data-mode="0">Kromatik Prizma</button>
+        <button type="button" class="btn" data-mode="1">Hacimsel Işıma</button>
+        <button type="button" class="btn" data-mode="2">Siber Dalga</button>
+        <button type="button" class="btn" data-mode="3">Eriyen Işık</button>
+      </div>
+
+      <div class="telemetry-divider"></div>
+
+      <div class="telemetry-text">
+        <span>GPU Donanımı: </span>
+        <span class="telemetry-val" id="glVersionText">WebGL</span>
+        <span> | Shader: </span>
+        <span class="telemetry-val">60 FPS Aktif</span>
+      </div>
+    </nav>
+  </main>
+
+  <script>
+    /**
+     * Hello World Lab - Deney 012: WebGL GPU Shader Mimarisi
+     *
+     * Çalışma Mantığı:
+     * 1. Saf WebGL (webgl2 / webgl) donanım bağlamı açılır.
+     * 2. Full-screen quad (iki üçgenden oluşan ekran kaplama geometrisi) oluşturulur.
+     * 3. Offscreen canvas üzerinde yüksek çözünürlüklü "Hello World" metni çizilip
+     *    GPU video belleğine 2D doku (gl.texImage2D) olarak yüklenir.
+     * 4. GLSL Fragment Shader içerisinde:
+     *    - RGB kanalları farklı koordinatlardan örneklenerek kromatik kırınım (chromatic aberration) üretilir.
+     *    - Çoklu doku örneklemesiyle (multi-tap sampling) GPU üzerinde hacimsel neon ışıma (bloom) hesaplanır.
+     *    - İmleç koordinatları (u_mouse) ve zaman (u_time) ile dinamik ışık dalgalanması sağlanır.
+     * 5. requestAnimationFrame ile ekran kartı her karede tam donanım hızlandırmalı render edilir.
+     */
+
+    (function() {
+      'use strict';
+
+      const canvas = document.getElementById('glCanvas');
+      const glVersionText = document.getElementById('glVersionText');
+      const modeButtons = document.querySelectorAll('.btn[data-mode]');
+
+      // 1. WebGL Bağlamı Başlatma
+      const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, powerPreference: 'high-performance' }) ||
+                 canvas.getContext('webgl', { alpha: false, antialias: false, powerPreference: 'high-performance' });
+
+      if (!gl) {
+        console.error('WebGL desteklenmiyor.');
+        return;
+      }
+
+      const isWebGL2 = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
+      glVersionText.textContent = isWebGL2 ? 'WebGL 2.0 (GPU)' : 'WebGL 1.0 (GPU)';
+
+      // 2. Vertex Shader (Full-screen quad)
+      const vsSource = `
+        attribute vec2 a_position;
+        varying vec2 v_uv;
+        void main() {
+          v_uv = (a_position + 1.0) * 0.5;
+          gl_Position = vec4(a_position, 0.0, 1.0);
+        }
+      `;
+
+      // 3. GLSL Fragment Shader
+      const fsSource = `
+        precision highp float;
+        varying vec2 v_uv;
+        uniform sampler2D u_textTexture;
+        uniform vec2 u_resolution;
+        uniform vec2 u_mouse;
+        uniform float u_time;
+        uniform int u_mode;
+
+        void main() {
+          vec2 uv = v_uv;
+
+          // İmleç koordinatları ve mesafe hesabı
+          vec2 mouseNorm = u_mouse / u_resolution;
+          vec2 toMouse = uv - mouseNorm;
+          float mouseDist = length(toMouse);
+
+          // Mod bazlı koordinat distorsiyonu
+          vec2 distortion = vec2(0.0);
+          if (u_mode == 2) {
+            // Siber Dalga: Yatay ve dikey sinüzoidal titreşim
+            distortion = vec2(sin(uv.y * 30.0 + u_time * 3.5) * 0.007, cos(uv.x * 25.0 + u_time * 3.0) * 0.005);
+          } else if (u_mode == 3) {
+            // Eriyen Işık: Organik düşük frekanslı sıvı dalgası
+            distortion = vec2(sin(uv.y * 10.0 + u_time * 1.8) * 0.012, cos(uv.x * 10.0 + u_time * 1.5) * 0.010);
+          }
+
+          // Kromatik Kırınım (Chromatic Aberration) Sapma Miktarı
+          float aberration = 0.006 + (1.0 - smoothstep(0.0, 0.4, mouseDist)) * 0.012;
+          if (u_mode == 0) {
+            aberration += 0.006 * sin(u_time * 2.0); // Prizma modunda dinamik nabız
+          }
+
+          vec2 rUv = uv + distortion + vec2(aberration, 0.0);
+          vec2 gUv = uv + distortion;
+          vec2 bUv = uv + distortion - vec2(aberration, 0.0);
+
+          // Metin Dokusunu Renk Kanallarına Göre Örnekleme
+          float r = texture2D(u_textTexture, rUv).r;
+          float g = texture2D(u_textTexture, gUv).g;
+          float b = texture2D(u_textTexture, bUv).b;
+          float baseAlpha = texture2D(u_textTexture, gUv).a;
+
+          // GPU Çok Noktalı Işıma (Multi-tap Volumetric Glow)
+          float glow = 0.0;
+          for (int i = 1; i <= 6; i++) {
+            float dist = float(i) * 0.0045;
+            glow += texture2D(u_textTexture, uv + vec2(dist, 0.0)).a;
+            glow += texture2D(u_textTexture, uv - vec2(dist, 0.0)).a;
+            glow += texture2D(u_textTexture, uv + vec2(0.0, dist)).a;
+            glow += texture2D(u_textTexture, uv - vec2(0.0, dist)).a;
+          }
+          glow /= 24.0;
+
+          // Renk Paleti ve Parlaklık Kompozisyonu
+          vec3 textRgb = vec3(r, g, b);
+          vec3 neonCyan = vec3(0.15, 0.75, 1.0);
+          vec3 neonMagenta = vec3(0.95, 0.25, 0.85);
+
+          float colorCycle = sin(u_time * 1.2) * 0.5 + 0.5;
+          vec3 glowRgb = mix(neonCyan, neonMagenta, colorCycle) * glow * (u_mode == 1 ? 3.0 : 1.8);
+
+          // Arka Plan Uzay Işıltısı ve Radyal Karartma (Vignette)
+          float vignette = 1.0 - length(uv - 0.5) * 0.95;
+          vec3 bg = vec3(0.015, 0.02, 0.04) * vignette;
+
+          // İmleç etrafında hafif dinamik aydınlanma
+          float mouseLight = (1.0 - smoothstep(0.0, 0.45, mouseDist)) * 0.12;
+          bg += neonCyan * mouseLight;
+
+          vec3 finalColor = bg + textRgb + glowRgb;
+          gl_FragColor = vec4(finalColor, 1.0);
+        }
+      `;
+
+      // Shader Derleme Yardımcısı
+      function compileShader(type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          const info = gl.getShaderInfoLog(shader);
+          gl.deleteShader(shader);
+          throw new Error('Shader derleme hatası: ' + info);
+        }
+        return shader;
+      }
+
+      const vertexShader = compileShader(gl.VERTEX_SHADER, vsSource);
+      const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fsSource);
+
+      const program = gl.createProgram();
+      gl.attachShader(program, vertexShader);
+      gl.attachShader(program, fragmentShader);
+      gl.linkProgram(program);
+
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        throw new Error('Program link hatası: ' + gl.getProgramInfoLog(program));
+      }
+
+      gl.useProgram(program);
+
+      // 4. Geometri Tamponu (Full-Screen Quad)
+      const positionBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      const positions = new Float32Array([
+        -1.0, -1.0,
+         1.0, -1.0,
+        -1.0,  1.0,
+        -1.0,  1.0,
+         1.0, -1.0,
+         1.0,  1.0,
+      ]);
+      gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+      const aPositionLocation = gl.getAttribLocation(program, 'a_position');
+      gl.enableVertexAttribArray(aPositionLocation);
+      gl.vertexAttribPointer(aPositionLocation, 2, gl.FLOAT, false, 0, 0);
+
+      // Uniform Konumları
+      const uTextTextureLoc = gl.getUniformLocation(program, 'u_textTexture');
+      const uResolutionLoc = gl.getUniformLocation(program, 'u_resolution');
+      const uMouseLoc = gl.getUniformLocation(program, 'u_mouse');
+      const uTimeLoc = gl.getUniformLocation(program, 'u_time');
+      const uModeLoc = gl.getUniformLocation(program, 'u_mode');
+
+      let currentMode = 0;
+      let mouseX = window.innerWidth / 2;
+      let mouseY = window.innerHeight / 2;
+
+      // 5. Metin Dokusu Oluşturma (Offscreen Canvas -> GPU Texture)
+      const textTexture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, textTexture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+      function updateTextTexture() {
+        const off = document.createElement('canvas');
+        off.width = canvas.width;
+        off.height = canvas.height;
+        const ctx = off.getContext('2d');
+
+        ctx.clearRect(0, 0, off.width, off.height);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        const fontSize = Math.min(Math.max(off.width * 0.11, 48), 125);
+        ctx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+
+        // Tam beyaz metin çizerek shader için opaklık maskesi oluştur
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText('Hello World', off.width / 2, off.height / 2);
+
+        gl.bindTexture(gl.TEXTURE_2D, textTexture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, off);
+      }
+
+      // 6. Boyutlandırma (Resize)
+      function handleResize() {
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = window.innerWidth * dpr;
+        canvas.height = window.innerHeight * dpr;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        updateTextTexture();
+        renderSingleFrame();
+      }
+
+      // 7. Render Döngüsü
+      let startTime = performance.now();
+
+      function renderSingleFrame() {
+        const elapsed = (performance.now() - startTime) * 0.001;
+
+        gl.uniform2f(uResolutionLoc, canvas.width, canvas.height);
+        gl.uniform2f(uMouseLoc, mouseX * (window.devicePixelRatio || 1), (window.innerHeight - mouseY) * (window.devicePixelRatio || 1));
+        gl.uniform1f(uTimeLoc, elapsed);
+        gl.uniform1i(uModeLoc, currentMode);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, textTexture);
+        gl.uniform1i(uTextTextureLoc, 0);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      }
+
+      function loop() {
+        renderSingleFrame();
+        requestAnimationFrame(loop);
+      }
+
+      // 8. Olay Dinleyicileri
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('pointermove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+      });
+
+      modeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          modeButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentMode = parseInt(btn.getAttribute('data-mode'), 10);
+        });
+      });
+
+      // İlk Başlatma
+      handleResize();
+      requestAnimationFrame(loop);
+
+    })();
+  </script>
+</body>
+</html>

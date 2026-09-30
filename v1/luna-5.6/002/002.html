@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Measured Light Field</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      background: #070a16;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      color: #f5f0e5;
+      background:
+        radial-gradient(circle at 50% 45%, #17254b 0, #0d1330 35%, #070a16 72%);
+    }
+
+    main {
+      width: min(1120px, calc(100vw - 64px));
+      height: 100vh;
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+      padding: 34px 0 26px;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: #8291b8;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    .meta strong {
+      color: #efb866;
+      font-weight: 700;
+    }
+
+    .stage {
+      position: relative;
+      min-height: 0;
+      border: 1px solid rgba(130, 145, 184, 0.22);
+      background: rgba(7, 10, 22, 0.38);
+      box-shadow:
+        0 24px 80px rgba(0, 0, 0, 0.35),
+        inset 0 0 48px rgba(94, 129, 255, 0.08);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .stage::before,
+    .stage::after {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-color: #efb866;
+      border-style: solid;
+      content: "";
+      pointer-events: none;
+    }
+
+    .stage::before {
+      top: -1px;
+      left: -1px;
+      border-width: 1px 0 0 1px;
+    }
+
+    .stage::after {
+      right: -1px;
+      bottom: -1px;
+      border-width: 0 1px 1px 0;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: #66749a;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        width: calc(100vw - 32px);
+        padding-top: 22px;
+      }
+
+      .meta,
+      .footer {
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="meta">
+      <span><strong>002</strong> / MEASURED LIGHT FIELD</span>
+      <span>CANVAS 2D + RESIZE OBSERVER</span>
+    </header>
+
+    <section class="stage" aria-label="Hello World light field">
+      <canvas id="hello-canvas" aria-label="Hello World"></canvas>
+    </section>
+
+    <footer class="footer">
+      <span>THE SURFACE MEASURES ITSELF</span>
+      <span id="render-state">LIVE / 0 PX</span>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById("hello-canvas");
+      const stage = canvas.parentElement;
+      const renderState = document.getElementById("render-state");
+      const ctx = canvas.getContext("2d");
+      const particles = Array.from({ length: 22 }, (_, index) => ({
+        phase: index * 0.57,
+        radius: 0.26 + (index % 5) * 0.065,
+        speed: 0.00022 + (index % 4) * 0.000055,
+        size: 1.4 + (index % 3) * 0.8
+      }));
+      let width = 1;
+      let height = 1;
+      let pixelRatio = 1;
+      let frame = 0;
+      let lastState = "";
+
+      function resizeCanvas() {
+        const rect = stage.getBoundingClientRect();
+        width = Math.max(1, rect.width);
+        height = Math.max(1, rect.height);
+        pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(width * pixelRatio);
+        canvas.height = Math.round(height * pixelRatio);
+        ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        renderState.textContent = `LIVE / ${canvas.width} × ${canvas.height} PX`;
+      }
+
+      function draw(now) {
+        const t = now || 0;
+        const centerX = width * 0.5;
+        const centerY = height * 0.5;
+        const scale = Math.min(width / 920, height / 430);
+        const textSize = Math.max(42, Math.min(142, 132 * scale));
+
+        ctx.clearRect(0, 0, width, height);
+
+        const wash = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height) * 0.64);
+        wash.addColorStop(0, "rgba(54, 75, 154, 0.34)");
+        wash.addColorStop(0.45, "rgba(21, 31, 78, 0.16)");
+        wash.addColorStop(1, "rgba(4, 7, 18, 0)");
+        ctx.fillStyle = wash;
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(-0.035);
+        ctx.strokeStyle = "rgba(134, 162, 255, 0.22)";
+        ctx.lineWidth = 1;
+        for (let ring = 1; ring < 5; ring += 1) {
+          ctx.beginPath();
+          ctx.ellipse(0, 0, width * (0.18 + ring * 0.055), height * (0.2 + ring * 0.07), 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        particles.forEach((particle, index) => {
+          const angle = particle.phase + t * particle.speed;
+          const x = centerX + Math.cos(angle) * width * particle.radius;
+          const y = centerY + Math.sin(angle * 1.21) * height * (particle.radius * 0.48);
+          const glow = ctx.createRadialGradient(x, y, 0, x, y, 22 * particle.size);
+          glow.addColorStop(0, index % 2 ? "rgba(239, 184, 102, 0.9)" : "rgba(105, 140, 255, 0.9)");
+          glow.addColorStop(1, "rgba(105, 140, 255, 0)");
+          ctx.fillStyle = glow;
+          ctx.fillRect(x - 24, y - 24, 48, 48);
+          ctx.fillStyle = index % 2 ? "#efb866" : "#90a8ff";
+          ctx.beginPath();
+          ctx.arc(x, y, particle.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = `700 ${textSize}px Arial, Helvetica, sans-serif`;
+        ctx.shadowColor = "rgba(239, 184, 102, 0.6)";
+        ctx.shadowBlur = 28 * scale;
+        const lettering = ctx.createLinearGradient(centerX - width * 0.27, centerY, centerX + width * 0.27, centerY);
+        lettering.addColorStop(0, "#f5d59a");
+        lettering.addColorStop(0.48, "#fff8e8");
+        lettering.addColorStop(1, "#8fa7ff");
+        ctx.fillStyle = lettering;
+        ctx.fillText("Hello World", centerX, centerY);
+        ctx.shadowBlur = 0;
+
+        ctx.strokeStyle = "rgba(245, 213, 154, 0.72)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(centerX - width * 0.22, centerY + textSize * 0.52);
+        ctx.lineTo(centerX + width * 0.22, centerY + textSize * 0.52);
+        ctx.stroke();
+
+        if (frame % 30 === 0) {
+          lastState = `${Math.round(width)}×${Math.round(height)}`;
+          stage.dataset.renderSize = lastState;
+        }
+        frame += 1;
+        requestAnimationFrame(draw);
+      }
+
+      const observer = new ResizeObserver(resizeCanvas);
+      observer.observe(stage);
+      resizeCanvas();
+      requestAnimationFrame(draw);
+    })();
+  </script>
+</body>
+</html>

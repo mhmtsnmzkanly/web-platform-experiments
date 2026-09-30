@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World - Deney 006 (Canvas 2D API)</title>
+  <style>
+    /*
+     * CSS Temel Sıfırlama ve Sahne Yerleşimi
+     * Canvas 2D çizim yüzeyinin ekranın tamamını (100dvh) kaplamasını sağlar.
+     */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #05060b;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .scene-container {
+      position: relative;
+      width: 100vw;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /*
+     * Ana Canvas Çizim Katmanı
+     * Tüm dinamik parçacıklar ve Hello World tipografisi bu tuval üzerinde işlenir.
+     */
+    #particleCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+
+    /*
+     * Bilgi ve Telemetri Başlığı (HUD)
+     * Deney durumunu, aktif parçacık sayısını ve etkileşim ipucunu gösterir.
+     */
+    .hud {
+      position: absolute;
+      bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      pointer-events: none;
+      z-index: 10;
+      text-align: center;
+      background: rgba(10, 15, 25, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .hud-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #38bdf8;
+    }
+
+    .hud-info {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      letter-spacing: 0.05em;
+    }
+
+    .hud-hint {
+      font-size: 0.7rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="scene-container">
+    <!--
+      HTML5 Canvas Bileşeni:
+      role="img" ve aria-label ile ekran okuyucular için semantik erişilebilirlik sağlanır.
+      Etiket içi yedek metin, Canvas desteklemeyen tarayıcılar için Hello World içeriğini korur.
+    -->
+    <canvas id="particleCanvas" role="img" aria-label="Hello World İnteraktif Parçacık Tipografisi">
+      Hello World
+    </canvas>
+
+    <!-- Bilgi Paneli -->
+    <div class="hud" aria-hidden="true">
+      <span class="hud-title">Deney 006 // Canvas 2D API</span>
+      <span class="hud-info" id="telemetry">Parçacık Motoru Başlatılıyor...</span>
+      <span class="hud-hint">İmleci yaklaştırarak parçacıkları dağıtın veya tıklayarak patlatın</span>
+    </div>
+  </main>
+
+  <script>
+    /**
+     * Hello World Lab - Deney 006: Canvas 2D API & Parçacık Tipografisi
+     *
+     * Çalışma Mantığı:
+     * 1. Görünmez (offscreen) bir canvas oluşturulur ve "Hello World" metni çizilir.
+     * 2. ctx.getImageData() ile metnin piksel alfa (şeffaflık) haritası taranır.
+     * 3. Opak pikseller, hedef koordinat (originX, originY) olarak parçacıklara dönüştürülür.
+     * 4. Her parçacık yaylanma (spring) ve sönümleme/sürtünme (friction) fiziği ile hedefine çekilir.
+     * 5. Fare/dokunmatik girdi ile itici kuvvet alanı (repulsion field) simüle edilir.
+     * 6. requestAnimationFrame döngüsü ile 60+ FPS hızında akıcı olarak render edilir.
+     */
+
+    (function() {
+      'use strict';
+
+      // 1. Temel Eleman ve Bağlam Referansları
+      const canvas = document.getElementById('particleCanvas');
+      const ctx = canvas.getContext('2d', { alpha: false });
+      const telemetryEl = document.getElementById('telemetry');
+
+      // 2. Ekran ve Boyutlandırma Parametreleri
+      let width = 0;
+      let height = 0;
+      let dpr = 1;
+      let particles = [];
+
+      // 3. Etkileşim Durumu (Fare & Dokunmatik)
+      const mouse = {
+        x: null,
+        y: null,
+        radius: 120, // İtme etki alanı yarıçapı (piksel)
+        isActive: false
+      };
+
+      /**
+       * Tekil Parçacık Nesne Modeli
+       * Her parçacık fiziksel bir kütleye, hıza ve geri dönüş direncine sahiptir.
+       */
+      class Particle {
+        constructor(originX, originY, color) {
+          this.originX = originX;
+          this.originY = originY;
+          // Başlangıçta doğrudan harf konumuna oturtarak Hello World metninin ilk andan itibaren net okunmasını sağlıyoruz
+          this.x = originX;
+          this.y = originY;
+          this.vx = 0;
+          this.vy = 0;
+          this.radius = Math.random() * 1.6 + 1.2;
+          this.color = color;
+          this.friction = 0.88; // Hareket sönümleme katsayısı
+          this.spring = 0.05;   // Orijinal harf formuna geri çekilme elastikiyeti
+          this.wobblePhase = Math.random() * Math.PI * 2; // Organik mikro salınım evresi
+          this.wobbleSpeed = 0.03 + Math.random() * 0.03;
+        }
+
+        update() {
+          this.wobblePhase += this.wobbleSpeed;
+          // Harf formu etrafında hafif organik mikro hareket (parıldama hissi)
+          const targetX = this.originX + Math.cos(this.wobblePhase) * 1.2;
+          const targetY = this.originY + Math.sin(this.wobblePhase) * 1.2;
+
+          // Hedefe doğru elastik yaylanma kuvveti
+          const dxOrigin = targetX - this.x;
+          const dyOrigin = targetY - this.y;
+          this.vx += dxOrigin * this.spring;
+          this.vy += dyOrigin * this.spring;
+
+          // Fare/İmleç itme kuvveti alanı
+          if (mouse.x !== null && mouse.y !== null) {
+            const dxMouse = this.x - mouse.x;
+            const dyMouse = this.y - mouse.y;
+            const distSq = dxMouse * dxMouse + dyMouse * dyMouse;
+            const maxDistSq = mouse.radius * mouse.radius;
+
+            if (distSq < maxDistSq && distSq > 0) {
+              const dist = Math.sqrt(distSq);
+              // Ters orantılı itme kuvveti: yaklaştıkça şiddetlenir
+              const force = (mouse.radius - dist) / mouse.radius;
+              const angle = Math.atan2(dyMouse, dxMouse);
+              const push = force * 12;
+              this.vx += Math.cos(angle) * push;
+              this.vy += Math.sin(angle) * push;
+            }
+          }
+
+          // Sürtünme uygulanarak hızın dengelenmesi
+          this.vx *= this.friction;
+          this.vy *= this.friction;
+
+          // Konum güncellemesi
+          this.x += this.vx;
+          this.y += this.vy;
+        }
+
+        draw(context) {
+          context.fillStyle = this.color;
+          context.beginPath();
+          context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          context.fill();
+        }
+      }
+
+      /**
+       * Offscreen Canvas Kullanarak "Hello World" Metnini Piksellere Ayırma
+       */
+      function sampleTextParticles() {
+        const offCanvas = document.createElement('canvas');
+        const offCtx = offCanvas.getContext('2d');
+
+        offCanvas.width = width;
+        offCanvas.height = height;
+
+        // Ekrana göre dinamik font boyutu hesabı
+        const fontSize = Math.min(Math.max(width * 0.11, 48), 130);
+        offCtx.textAlign = 'center';
+        offCtx.textBaseline = 'middle';
+        offCtx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+
+        // Metni görünmez tuvale çiz
+        offCtx.fillStyle = '#ffffff';
+        offCtx.fillText('Hello World', width / 2, height / 2);
+
+        // Piksel verisini oku (RGBA bayt dizisi)
+        const imgData = offCtx.getImageData(0, 0, width, height);
+        const data = imgData.data;
+
+        // Performans ve görsel yoğunluk için örnekleme adımı
+        // Harflerin net ve keskin okunabilmesi için 3px yoğunluk
+        const step = 3;
+        const newParticles = [];
+
+        for (let y = 0; y < height; y += step) {
+          for (let x = 0; x < width; x += step) {
+            const index = (y * width + x) * 4;
+            const alpha = data[index + 3];
+
+            // Yalnızca metnin opak kısımları parçacık oluşturur
+            if (alpha > 128) {
+              // Metnin yatay konumuna göre spektral OKLCH / HSL renk geçişi
+              const progress = x / width;
+              const hue = Math.floor(180 + progress * 140); // 180 (Camgöbeği) -> 320 (Macenta)
+              const lightness = Math.floor(65 + Math.random() * 25);
+              const color = `hsl(${hue}, 95%, ${lightness}%)`;
+
+              newParticles.push(new Particle(x, y, color));
+            }
+          }
+        }
+
+        particles = newParticles;
+        if (telemetryEl) {
+          telemetryEl.textContent = `Aktif Parçacık: ${particles.length.toLocaleString('tr-TR')} | 60 FPS Render Döngüsü`;
+        }
+      }
+
+      /**
+       * Ekran Boyutu Değişimi ve Yüksek Çözünürlük (Retina / DPR) Yönetimi
+       */
+      function handleResize() {
+        dpr = window.devicePixelRatio || 1;
+        width = window.innerWidth;
+        height = window.innerHeight;
+
+        // Fiziksel piksel boyutu ile mantıksal boyutun senkronizasyonu
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
+
+        // Yeni boyutlara göre parçacık hedef koordinatlarını yeniden örneklendir
+        sampleTextParticles();
+
+        // Boyutlandırma anında siyah ekran kalmaması için tek kare zorunlu çizim
+        renderFrame();
+      }
+
+      let isFirstFrame = true;
+
+      /**
+       * Ana Render ve Animasyon Döngüsü (requestAnimationFrame)
+       */
+      function renderFrame() {
+        if (isFirstFrame) {
+          // İlk karede tuval tam opak siyah ile temizlenir
+          ctx.fillStyle = '#05060b';
+          ctx.fillRect(0, 0, width, height);
+          isFirstFrame = false;
+        } else {
+          // Sonraki karelerde hafif alfa temizleme ile parçacıklara zarif kuyruk (motion blur) izi bırakılır
+          ctx.fillStyle = 'rgba(5, 6, 11, 0.28)';
+          ctx.fillRect(0, 0, width, height);
+        }
+
+        // Tüm parçacıkların fizik hesaplarını güncelle ve tuvale çiz
+        for (let i = 0; i < particles.length; i++) {
+          particles[i].update();
+          particles[i].draw(ctx);
+        }
+      }
+
+      function loop() {
+        renderFrame();
+        requestAnimationFrame(loop);
+      }
+
+      // 4. Etkileşim Olay Dinleyicileri (Fare ve Dokunmatik)
+      function onPointerMove(e) {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+        mouse.isActive = true;
+      }
+
+      function onPointerLeave() {
+        mouse.x = null;
+        mouse.y = null;
+        mouse.isActive = false;
+      }
+
+      function onClickBurst(e) {
+        const clickX = e.clientX || width / 2;
+        const clickY = e.clientY || height / 2;
+
+        // Tıklama noktasından dışa doğru patlama etkisi
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          const dx = p.x - clickX;
+          const dy = p.y - clickY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 250) {
+            const force = (250 - dist) / 10;
+            const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 0.5;
+            p.vx += Math.cos(angle) * force * 3;
+            p.vy += Math.sin(angle) * force * 3;
+          }
+        }
+      }
+
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointerleave', onPointerLeave);
+      window.addEventListener('click', onClickBurst);
+
+      // Başlatma Sırası
+      handleResize();
+      renderFrame();
+
+      // Sürekli animasyon döngüsünü başlat
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>

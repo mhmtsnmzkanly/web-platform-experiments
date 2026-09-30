@@ -1,0 +1,475 @@
+<!--
+  DENEY 019: Modern CSS Scroll-Driven Animations ve Kinetik Editoryal Tipografi
+  
+  Yenilik Türü: Yeni Teknoloji (CSS Scroll-Driven Animations API)
+  Kullanılan Web Standartları:
+    - animation-timeline: scroll(root)
+    - animation-timeline: view()
+    - animation-range: entry 0% cover 100%, entry 20% exit 80%
+    - @keyframes ile deklaratif donanım hızlandırmalı GPU zaman çizelgeleri
+    - CSS Custom Properties (:root) & clamp() akışkan tipografi
+  
+  Tasarım Yaklaşımı:
+    - İsviçre Modernizmi & Editoryal Dergi Tipografisi sentezi
+    - Fildişi/parşömen (#f9f7f2), derin mürekkep (#111827) ve pas turuncusu (#c2410c) renk dengesi
+    - Sıfır harici kütüphane, sıfır JavaScript kompozisyon gecikmesi
+-->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 019: Modern CSS Scroll-Driven Animations ve Kinetik Editoryal Tipografi</title>
+  <style>
+    /* ==========================================================================
+       1. TEMEL DEĞİŞKENLER VE EDİTORYAL MİZANPAJ
+       ========================================================================== */
+    :root {
+      --bg-canvas: #f9f7f2;
+      --bg-surface: #ffffff;
+      --bg-card: rgba(255, 255, 255, 0.85);
+      
+      --ink-primary: #111827;
+      --ink-secondary: #4b5563;
+      --ink-muted: #9ca3af;
+      --accent-terracotta: #c2410c;
+      --accent-cobalt: #1d4ed8;
+      
+      --border-subtle: rgba(17, 24, 39, 0.08);
+      --border-strong: rgba(17, 24, 39, 0.16);
+      
+      --font-serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg-canvas);
+      color: var(--ink-primary);
+      font-family: var(--font-sans);
+    }
+
+    body {
+      min-height: 400vh; /* Scroll-driven animasyonlar için yeterli dikey kaydırma derinliği */
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       2. SCROLL(ROOT) İLE KÖK KAYDIRMA İLERLEME ÇUBUĞU
+       ========================================================================== */
+    .scroll-progress-track {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: rgba(17, 24, 39, 0.05);
+      z-index: 1000;
+    }
+
+    .scroll-progress-bar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, var(--accent-terracotta), var(--accent-cobalt));
+      transform-origin: left center;
+      transform: scaleX(0);
+      /* Scroll-driven zaman çizelgesi bağlantısı */
+      animation: grow-progress linear both;
+      animation-timeline: scroll(root);
+    }
+
+    @keyframes grow-progress {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    /* ==========================================================================
+       3. EDİTORYAL SABİT BAŞLIK (NAVİGASYON VE METRİKLER)
+       ========================================================================== */
+    .editorial-header {
+      position: fixed;
+      top: 5px;
+      left: 0;
+      width: 100%;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(249, 247, 242, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      z-index: 900;
+    }
+
+    .editorial-masthead {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--ink-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .editorial-tag {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      background: var(--ink-primary);
+      color: var(--bg-canvas);
+      border-radius: 2px;
+      letter-spacing: 0.05em;
+    }
+
+    .scroll-metric {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--ink-secondary);
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    /* ==========================================================================
+       4. ANA SAHNE VE STICKY KİNETİK TİPOGRAFİ ODASI
+       ========================================================================== */
+    .hero-container {
+      position: relative;
+      width: 100%;
+      height: 180vh;
+      margin-top: 60px;
+    }
+
+    .sticky-stage {
+      position: sticky;
+      top: 80px;
+      width: 100%;
+      height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      overflow: hidden;
+    }
+
+    /* Ana Başlık Odak Noktası */
+    .main-typography-title {
+      font-family: var(--font-serif);
+      font-size: clamp(3.5rem, 11vw, 10rem);
+      font-weight: 900;
+      line-height: 0.95;
+      text-align: center;
+      letter-spacing: -0.04em;
+      color: var(--ink-primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      user-select: none;
+      
+      /* Scroll-driven genel transformasyon */
+      animation: hero-convergence linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0vh 120vh;
+    }
+
+    .word-hello {
+      display: inline-block;
+      color: var(--accent-terracotta);
+      transform-origin: center right;
+      will-change: transform, opacity;
+    }
+
+    .word-world {
+      display: inline-block;
+      color: var(--ink-primary);
+      transform-origin: center left;
+      will-change: transform, letter-spacing;
+    }
+
+    @keyframes hero-convergence {
+      0% {
+        transform: scale(0.85) translateY(40px);
+        opacity: 0.7;
+      }
+      50% {
+        transform: scale(1.05) translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0.9) translateY(-60px);
+        opacity: 0.9;
+      }
+    }
+
+    .stage-subtitle {
+      font-family: var(--font-mono);
+      font-size: clamp(0.75rem, 1.8vw, 0.95rem);
+      color: var(--ink-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      margin-top: 1.5rem;
+      text-align: center;
+      border-top: 1px solid var(--border-strong);
+      padding-top: 0.75rem;
+      max-width: 600px;
+    }
+
+    /* ==========================================================================
+       5. VIEW() TIMELINE İLE BAĞIMSIZ PARALAKS BÖLÜMLERİ
+       ========================================================================== */
+    .editorial-content {
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 4rem 2rem 8rem;
+      z-index: 10;
+    }
+
+    .view-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2.5rem;
+      margin-top: 4rem;
+    }
+
+    .editorial-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      padding: 2.5rem;
+      border-radius: 4px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
+      
+      /* View() zaman çizelgesi bağlantısı */
+      animation: card-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 40%;
+      will-change: transform, opacity;
+    }
+
+    @keyframes card-reveal {
+      from {
+        opacity: 0.1;
+        transform: translateY(60px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .card-num {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent-terracotta);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--ink-primary);
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .card-desc {
+      color: var(--ink-secondary);
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    /* Kinetik Katman Parşömeni */
+    .scroll-narrative-section {
+      margin-top: 8rem;
+      border-top: 2px solid var(--ink-primary);
+      padding-top: 3rem;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 3rem;
+    }
+
+    .narrative-lead {
+      font-family: var(--font-serif);
+      font-size: clamp(1.8rem, 3.5vw, 2.75rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      position: sticky;
+      top: 140px;
+      align-self: start;
+      color: var(--ink-primary);
+    }
+
+    .narrative-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 4rem;
+    }
+
+    .stream-block {
+      background: var(--bg-surface);
+      border-left: 3px solid var(--accent-cobalt);
+      padding: 2rem;
+      border-radius: 0 4px 4px 0;
+      
+      animation: stream-fade linear both;
+      animation-timeline: view();
+      animation-range: entry 15% cover 45%;
+    }
+
+    @keyframes stream-fade {
+      from {
+        opacity: 0.2;
+        transform: translateX(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .stream-block h3 {
+      font-family: var(--font-serif);
+      font-size: 1.3rem;
+      margin-bottom: 0.75rem;
+      color: var(--ink-primary);
+    }
+
+    .stream-block p {
+      color: var(--ink-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* ==========================================================================
+       6. SONUÇ VE MÜHÜR PANELİ
+       ========================================================================== */
+    .editorial-footer {
+      max-width: 1100px;
+      margin: 8rem auto 4rem;
+      padding: 3rem 2rem 2rem;
+      border-top: 1px solid var(--border-strong);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+    }
+
+    .editorial-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--accent-terracotta);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <!-- Kök Kaydırma İlerleme Çubuğu -->
+  <div class="scroll-progress-track" aria-hidden="true">
+    <div class="scroll-progress-bar"></div>
+  </div>
+
+  <!-- Üst Editoryal Navigasyon -->
+  <header class="editorial-header" role="banner">
+    <div class="editorial-masthead">
+      <span>HELLO WORLD LAB</span>
+      <span class="editorial-tag">DENEY 019</span>
+    </div>
+    <div class="scroll-metric">
+      <span>ZAMAN ÇİZELGESİ: SCROLL(ROOT)</span>
+      <span>MOTOR: CSS COMPOSITOR</span>
+    </div>
+  </header>
+
+  <!-- Ana Sahne: Hello World Kinetik Odak Noktası -->
+  <main class="hero-container" role="main" aria-label="Hello World Scroll-Driven Animasyon Sahnesi">
+    <div class="sticky-stage">
+      <h1 class="main-typography-title" aria-label="Hello World">
+        <span class="word-hello">HELLO</span>
+        <span class="word-world">WORLD</span>
+      </h1>
+      <p class="stage-subtitle">
+        Modern CSS Scroll-Driven Animations &bull; animation-timeline: scroll(root) &bull; 60 FPS GPU Kinetiği
+      </p>
+    </div>
+  </main>
+
+  <!-- Editoryal Kartlar ve View() Paralaksı -->
+  <section class="editorial-content" aria-label="CSS Scroll-Driven Mekanizma Detayları">
+    <div class="view-card-grid">
+      <article class="editorial-card">
+        <div class="card-num">01 / DÖNGÜ</div>
+        <h2 class="card-title">Deklaratif Kaydırma Zaman Çizelgesi</h2>
+        <p class="card-desc">
+          JavaScript scroll olayları ve requestAnimationFrame döngüleri yerine, doğrudan tarayıcının yerel kompozitör iş parçacığında donanım hızlandırmalı çalışan <code>animation-timeline: scroll()</code> deklarasyonu ile ana iş parçacığı kilitlemesi sıfırlanmıştır.
+        </p>
+      </article>
+
+      <article class="editorial-card">
+        <div class="card-num">02 / ÖZNE</div>
+        <h2 class="card-title">View() Zaman Çizelgesi & Aralıklar</h2>
+        <p class="card-desc">
+          Her bir tipografik kart, viewport penceresine giriş ve çıkış anını bağımsız olarak takip eden <code>animation-timeline: view()</code> ve <code>animation-range: entry 10% cover 40%</code> mekanizmalarıyla reaktif paralaks derinliği kazanır.
+        </p>
+      </article>
+
+      <article class="editorial-card">
+        <div class="card-num">03 / ETKİ</div>
+        <h2 class="card-title">Sıfır Dış Bağımlılık ve İsviçre Mizanpajı</h2>
+        <p class="card-desc">
+          Tüm animasyon ve biçimlendirme kuralları tek bir HTML dosyasında toplanmış; klasik Charter serif yazı karakteri ile monospaced teknik etiketlerin zıtlığından doğan rafine editoryal tipografi inşa edilmiştir.
+        </p>
+      </article>
+    </div>
+
+    <!-- Anlatı Akışı -->
+    <div class="scroll-narrative-section">
+      <div class="narrative-lead">
+        Kaydırma İlerlemesiyle Şekillenen Kinetik Dünya.
+      </div>
+      <div class="narrative-stream">
+        <div class="stream-block">
+          <h3>Pürüzsüz Kompozitör Entegrasyonu</h3>
+          <p>
+            Scroll-driven animasyonlar ana iş parçacığında çalışmaz; ekran kartı kompozitöründe doğrudan GPU katmanları üzerinden yürütüldüğü için ağır DOM işlemlerinde bile kare düşüşü yaşanmaz.
+          </p>
+        </div>
+        <div class="stream-block">
+          <h3>Tipografik Eksen Yakınsaması</h3>
+          <p>
+            Kullanıcı dikey eksende ilerledikçe HELLO ve WORLD blokları oransal olarak birbirine yaklaşır, nefes alan bir ölçeklenme ile sayfanın en güçlü görsel anını meydana getirir.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mühür ve Alt Bilgi -->
+  <footer class="editorial-footer">
+    <div class="editorial-badge">
+      <span>&bull;</span>
+      <span>DENEY 019 &mdash; CSS SCROLL-DRIVEN ANIMATIONS</span>
+    </div>
+    <div>
+      <span>HELLO WORLD LABORATUVARI &copy; 2026</span>
+    </div>
+  </footer>
+</body>
+</html>

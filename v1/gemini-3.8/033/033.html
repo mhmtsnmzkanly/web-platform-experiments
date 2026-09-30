@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 033: MutationObserver API — Sibernetik Tipografik Genom ve Canlı Mutasyon Odası</title>
+  <style>
+    /* ==========================================================================
+       1. KÖK DEĞİŞKENLER VE TEMEL AYARLAR
+       ========================================================================== */
+    :root {
+      --bg-lab: #050811;
+      --panel-bg: rgba(9, 14, 26, 0.85);
+      --panel-border: rgba(168, 85, 247, 0.25);
+      --neon-purple: #a855f7;
+      --neon-purple-glow: rgba(168, 85, 247, 0.35);
+      --neon-cyan: #06b6d4;
+      --neon-cyan-glow: rgba(6, 182, 212, 0.35);
+      --neon-green: #10b981;
+      --neon-amber: #f59e0b;
+      --neon-rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-lab);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 15%, rgba(168, 85, 247, 0.06) 0%, transparent 60%),
+        repeating-linear-gradient(0deg, rgba(168, 85, 247, 0.015) 0px, rgba(168, 85, 247, 0.015) 1px, transparent 1px, transparent 28px);
+    }
+
+    /* ==========================================================================
+       2. ÜST TELEMETRİ BAŞLIĞI
+       ========================================================================== */
+    header {
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .badge-milestone {
+      background: rgba(168, 85, 247, 0.12);
+      border: 1px solid var(--neon-purple);
+      color: var(--neon-purple);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      letter-spacing: 0.08em;
+      box-shadow: 0 0 10px var(--neon-purple-glow);
+    }
+
+    .header-title-block h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+
+    .header-title-block p {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    .telemetry-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-chip {
+      background: rgba(168, 85, 247, 0.05);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      min-width: 95px;
+    }
+
+    .stat-chip-label {
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-chip-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--neon-purple);
+    }
+
+    .stat-chip-val.green { color: var(--neon-green); }
+    .stat-chip-val.cyan { color: var(--neon-cyan); }
+    .stat-chip-val.amber { color: var(--neon-amber); }
+    .stat-chip-val.rose { color: var(--neon-rose); }
+
+    /* ==========================================================================
+       3. ANA DÜZEN (GENOM REAKTÖRÜ & KONTROL MASASI)
+       ========================================================================== */
+    main {
+      flex: 1;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.5rem;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Kuantum Genom Odası Sahnesi */
+    .genome-card {
+      background: #030611;
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), inset 0 0 50px rgba(168, 85, 247, 0.04);
+      min-height: 480px;
+      transition: all 0.4s ease;
+    }
+
+    .genome-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--neon-purple), var(--neon-cyan), transparent);
+    }
+
+    /* Gözlemci Durum Rozeti */
+    .observer-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.3rem 0.8rem;
+      border-radius: 4px;
+      border: 1px solid var(--neon-green);
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--neon-green);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+      transition: all 0.3s ease;
+    }
+
+    .observer-status-badge.disconnected {
+      border-color: var(--neon-rose);
+      background: rgba(244, 63, 94, 0.12);
+      color: var(--neon-rose);
+      box-shadow: 0 0 12px rgba(244, 63, 94, 0.25);
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    /* HELLO WORLD Genom Sahnesi */
+    .genome-sequence-wrap {
+      margin: 2rem 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    #hw-genome-container {
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
+      font-weight: 900;
+      font-family: var(--font-mono);
+      letter-spacing: 0.08em;
+      color: #ffffff;
+      text-transform: uppercase;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      user-select: none;
+      transition: all 0.3s ease;
+    }
+
+    /* Kodon Glif Kapsülü */
+    .codon-pill {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 0.65rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 8px;
+      min-width: 60px;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      position: relative;
+    }
+
+    .codon-pill:hover {
+      border-color: var(--neon-purple);
+      box-shadow: 0 0 16px var(--neon-purple-glow);
+    }
+
+    .codon-char {
+      background: linear-gradient(135deg, #ffffff 0%, var(--neon-purple) 60%, var(--neon-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 12px var(--neon-purple-glow));
+      transition: all 0.3s ease;
+      line-height: 1;
+    }
+
+    .codon-meta {
+      font-size: 0.6rem;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+      margin-top: 0.35rem;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    /* Mutasyon Durum Stilleri */
+    .codon-pill.mutated-glow {
+      border-color: var(--neon-rose);
+      background: rgba(244, 63, 94, 0.12);
+      box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+      transform: translateY(-4px) scale(1.05);
+    }
+
+    .codon-pill.mutated-glow .codon-char {
+      background: linear-gradient(135deg, #ffffff 0%, var(--neon-rose) 60%, var(--neon-amber) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 16px rgba(244, 63, 94, 0.6));
+    }
+
+    .codon-pill.charged-cyan {
+      border-color: var(--neon-cyan);
+      background: rgba(6, 182, 212, 0.12);
+      box-shadow: 0 0 16px var(--neon-cyan-glow);
+    }
+
+    .codon-pill.charged-cyan .codon-char {
+      background: linear-gradient(135deg, #ffffff 0%, var(--neon-cyan) 60%, var(--neon-green) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .codon-pill.synthetic-insertion {
+      border-color: var(--neon-amber);
+      background: rgba(245, 158, 11, 0.12);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+      animation: insertPulse 0.4s ease-out;
+    }
+
+    @keyframes insertPulse {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .spacer-codon {
+      width: 0.8rem;
+    }
+
+    /* Alt Mutasyon Dağılım Çubukları */
+    .mutation-stats-strip {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      background: #02050c;
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+
+    .mut-stat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mut-stat-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    /* ==========================================================================
+       4. SAĞ KONTROL PANELİ
+       ========================================================================== */
+    .controls-panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .panel-section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 6px;
+      padding: 0.65rem 0.75rem;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(168, 85, 247, 0.12);
+      border-color: var(--neon-purple);
+      box-shadow: 0 0 12px var(--neon-purple-glow);
+    }
+
+    .ctrl-btn.active {
+      background: rgba(168, 85, 247, 0.2);
+      border-color: var(--neon-purple);
+      box-shadow: 0 0 16px var(--neon-purple-glow);
+      color: var(--neon-purple);
+      font-weight: 800;
+    }
+
+    .ctrl-btn-full {
+      grid-column: 1 / -1;
+    }
+
+    .ctrl-btn.btn-burst {
+      border-color: var(--neon-rose);
+      color: var(--neon-rose);
+      background: rgba(244, 63, 94, 0.08);
+    }
+
+    .ctrl-btn.btn-burst:hover {
+      background: rgba(244, 63, 94, 0.18);
+      box-shadow: 0 0 16px rgba(244, 63, 94, 0.4);
+    }
+
+    /* Olay Akış Listesi (Mutation Audit Stream) */
+    .mutation-event-stream {
+      background: #02050c;
+      border: 1px solid rgba(168, 85, 247, 0.18);
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      max-height: 180px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .event-line {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      padding: 0.25rem 0.4rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.02);
+      border-left: 3px solid var(--neon-purple);
+    }
+
+    .event-line.attr { border-left-color: var(--neon-cyan); }
+    .event-line.char { border-left-color: var(--neon-purple); }
+    .event-line.child { border-left-color: var(--neon-amber); }
+
+    .event-meta {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-dim);
+      font-size: 0.65rem;
+    }
+
+    .event-desc {
+      color: #e2e8f0;
+      word-break: break-all;
+    }
+
+    .event-diff {
+      color: var(--neon-amber);
+      font-size: 0.65rem;
+    }
+
+    /* ==========================================================================
+       5. ALT BİLGİ ŞERİDİ
+       ========================================================================== */
+    footer {
+      background: var(--panel-bg);
+      border-top: 1px solid var(--panel-border);
+      padding: 0.85rem 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .footer-stat {
+      color: var(--neon-purple);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Kokpit Başlığı & Mutasyon Telemetrisi -->
+  <header>
+    <div class="header-branding">
+      <span class="badge-milestone">DENEY 033</span>
+      <div class="header-title-block">
+        <h2>Sibernetik Tipografik Genom ve Mutasyon Odası</h2>
+        <p>W3C DOM Level 4 MutationObserver API (Microtask Batching Audit)</p>
+      </div>
+    </div>
+
+    <div class="telemetry-badges">
+      <div class="stat-chip">
+        <span class="stat-chip-label">Toplam Mutasyon</span>
+        <span class="stat-chip-val" id="valTotalMutations">0</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">Attributes</span>
+        <span class="stat-chip-val cyan" id="valAttrMutations">0</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">CharacterData</span>
+        <span class="stat-chip-val" id="valCharMutations">0</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-chip-label">ChildList</span>
+        <span class="stat-chip-val amber" id="valChildMutations">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ana Düzen -->
+  <main>
+    <!-- Kuantum Genom Odası Sahnesi -->
+    <section class="genome-card" id="genomeCard" aria-label="Genom Mutasyon Sahnesi">
+      
+      <div class="observer-status-badge" id="observerBadge">
+        <span class="pulse-dot"></span>
+        <span id="txtObserverState">MUTATIONOBSERVER AKTİF (BAĞLI)</span>
+      </div>
+
+      <!-- HELLO WORLD Genom Dizisi (Hedef Gözlem Konteyneri) -->
+      <div class="genome-sequence-wrap">
+        <h1 id="hw-genome-container" aria-label="Hello World">
+          <span class="codon-pill" data-codon="1" data-charge="100" data-base="H"><span class="codon-char">H</span><span class="codon-meta">CD-01</span></span>
+          <span class="codon-pill" data-codon="2" data-charge="100" data-base="E"><span class="codon-char">E</span><span class="codon-meta">CD-02</span></span>
+          <span class="codon-pill" data-codon="3" data-charge="100" data-base="L"><span class="codon-char">L</span><span class="codon-meta">CD-03</span></span>
+          <span class="codon-pill" data-codon="4" data-charge="100" data-base="L"><span class="codon-char">L</span><span class="codon-meta">CD-04</span></span>
+          <span class="codon-pill" data-codon="5" data-charge="100" data-base="O"><span class="codon-char">O</span><span class="codon-meta">CD-05</span></span>
+          <span class="spacer-codon" aria-hidden="true"></span>
+          <span class="codon-pill" data-codon="6" data-charge="100" data-base="W"><span class="codon-char">W</span><span class="codon-meta">CD-06</span></span>
+          <span class="codon-pill" data-codon="7" data-charge="100" data-base="O"><span class="codon-char">O</span><span class="codon-meta">CD-07</span></span>
+          <span class="codon-pill" data-codon="8" data-charge="100" data-base="R"><span class="codon-char">R</span><span class="codon-meta">CD-08</span></span>
+          <span class="codon-pill" data-codon="9" data-charge="100" data-base="L"><span class="codon-char">L</span><span class="codon-meta">CD-09</span></span>
+          <span class="codon-pill" data-codon="10" data-charge="100" data-base="D"><span class="codon-char">D</span><span class="codon-meta">CD-10</span></span>
+        </h1>
+      </div>
+
+      <!-- Mutasyon Dağılım Çubuğu -->
+      <div class="mutation-stats-strip">
+        <div class="mut-stat-item">
+          <span class="mut-stat-dot" style="background: var(--neon-cyan);"></span>
+          <span>Nitelik (Attributes)</span>
+        </div>
+        <div class="mut-stat-item">
+          <span class="mut-stat-dot" style="background: var(--neon-purple);"></span>
+          <span>Metin (CharacterData)</span>
+        </div>
+        <div class="mut-stat-item">
+          <span class="mut-stat-dot" style="background: var(--neon-amber);"></span>
+          <span>Düğüm (ChildList)</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Yan Kontrol Masası -->
+    <aside class="controls-panel" aria-label="Mutasyon Kontrol Masası">
+      
+      <!-- Mutasyon Tetikleyicileri -->
+      <div>
+        <div class="panel-section-title">
+          <span>Mutasyon Reaktörü (Trigger)</span>
+        </div>
+        <div class="btn-grid" style="margin-top: 0.75rem;">
+          <button class="ctrl-btn" id="btnMutateChar" type="button">
+            <strong>Nokta Mutasyonu</strong>
+            <span style="font-size: 0.65rem; color: var(--neon-purple);">[CHARACTER_DATA]</span>
+          </button>
+          <button class="ctrl-btn" id="btnMutateAttr" type="button">
+            <strong>Epigenetik Yük</strong>
+            <span style="font-size: 0.65rem; color: var(--neon-cyan);">[ATTRIBUTES]</span>
+          </button>
+          <button class="ctrl-btn" id="btnInsertCodon" type="button">
+            <strong>Nükleotid Ekle</strong>
+            <span style="font-size: 0.65rem; color: var(--neon-amber);">[CHILD_LIST +]</span>
+          </button>
+          <button class="ctrl-btn" id="btnRemoveCodon" type="button">
+            <strong>Nükleotid Sil</strong>
+            <span style="font-size: 0.65rem; color: var(--neon-amber);">[CHILD_LIST -]</span>
+          </button>
+          <button class="ctrl-btn ctrl-btn-full btn-burst" id="btnCosmicStorm" type="button">
+            <strong style="font-size: 0.82rem;">⚡ KOZMİK RADYASYON FIRTINASI</strong>
+            <span style="font-size: 0.65rem;">Toplu Eşzamanlı Microtask Mutasyonu</span>
+          </button>
+          <button class="ctrl-btn ctrl-btn-full" id="btnGeneRepair" type="button" style="border-color: var(--neon-green); color: var(--neon-green);">
+            <strong>GENOMU ONAR (RESET DNA)</strong>
+            <span style="font-size: 0.65rem;">Orijinal "HELLO WORLD" Dizilimine Dön</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Gözlemci Yönetimi (Observer Lifecycle) -->
+      <div>
+        <div class="panel-section-title">
+          <span>Gözlemci Yaşam Döngüsü</span>
+        </div>
+        <div class="btn-grid" style="margin-top: 0.75rem;">
+          <button class="ctrl-btn active" id="btnToggleObserver" type="button" style="grid-column: 1 / -1;">
+            <strong id="lblToggleObserver">BAĞLANTIYI KES (DISCONNECT)</strong>
+            <span style="font-size: 0.65rem;">observer.disconnect()</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Canlı Mutasyon Günlüğü (Audit Stream) -->
+      <div>
+        <div class="panel-section-title">
+          <span>Mutasyon Denetim Defteri</span>
+          <span style="color: var(--neon-purple); font-size: 0.72rem;">CANLI</span>
+        </div>
+        <div class="mutation-event-stream" id="eventLog" style="margin-top: 0.5rem;">
+          <!-- Canlı mutasyonlar -->
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- Alt Bilgi Şeridi -->
+  <footer>
+    <div>
+      <span>STANDART: </span>
+      <span class="footer-stat">W3C DOM Level 4 MutationObserver Interface</span>
+    </div>
+    <div>
+      <span>GÖZLEM KAPSAMI: </span>
+      <span class="footer-stat">attributes, characterData, childList, subtree</span>
+    </div>
+    <div>
+      <span>DÖNGÜ: </span>
+      <span class="footer-stat">Observer Quartet Tamamlandı</span>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       6. JAVASCRIPT ÇALIŞMA ZAMANI MOTORU (Tekil Script Bloğu)
+       ========================================================================== */
+  -->
+  <script>
+    (function initMutationReactor() {
+      // DOM Elemanları
+      const genomeContainer = document.getElementById("hw-genome-container");
+      const observerBadge = document.getElementById("observerBadge");
+      const txtObserverState = document.getElementById("txtObserverState");
+      const valTotalMutations = document.getElementById("valTotalMutations");
+      const valAttrMutations = document.getElementById("valAttrMutations");
+      const valCharMutations = document.getElementById("valCharMutations");
+      const valChildMutations = document.getElementById("valChildMutations");
+      const btnMutateChar = document.getElementById("btnMutateChar");
+      const btnMutateAttr = document.getElementById("btnMutateAttr");
+      const btnInsertCodon = document.getElementById("btnInsertCodon");
+      const btnRemoveCodon = document.getElementById("btnRemoveCodon");
+      const btnCosmicStorm = document.getElementById("btnCosmicStorm");
+      const btnGeneRepair = document.getElementById("btnGeneRepair");
+      const btnToggleObserver = document.getElementById("btnToggleObserver");
+      const lblToggleObserver = document.getElementById("lblToggleObserver");
+      const eventLog = document.getElementById("eventLog");
+
+      // İstatistik Sayaçları
+      let totalCount = 0;
+      let attrCount = 0;
+      let charCount = 0;
+      let childCount = 0;
+      let isObserverActive = true;
+
+      // Orijinal Genom Şablonu
+      const canonicalGenome = [
+        { char: "H", id: "CD-01" },
+        { char: "E", id: "CD-02" },
+        { char: "L", id: "CD-03" },
+        { char: "L", id: "CD-04" },
+        { char: "O", id: "CD-05" },
+        { spacer: true },
+        { char: "W", id: "CD-06" },
+        { char: "O", id: "CD-07" },
+        { char: "R", id: "CD-08" },
+        { char: "L", id: "CD-09" },
+        { char: "D", id: "CD-10" }
+      ];
+
+      // Mutasyon Günlüğü Ekleme
+      function logMutation(type, targetName, oldVal, newVal) {
+        if (!eventLog) return;
+        const now = new Date();
+        const timeStr = now.toTimeString().split(" ")[0] + "." + String(now.getMilliseconds()).padStart(3, "0");
+
+        const row = document.createElement("div");
+        row.className = "event-line " + (type === "attributes" ? "attr" : (type === "characterData" ? "char" : "child"));
+
+        let diffText = "";
+        if (type === "attributes") {
+          diffText = `Eski: [${oldVal || "null"}] → Yeni: [${newVal}]`;
+        } else if (type === "characterData") {
+          diffText = `Eski: '${oldVal}' → Yeni: '${newVal}'`;
+        } else {
+          diffText = `${newVal}`;
+        }
+
+        row.innerHTML = `
+          <div class="event-meta">
+            <span>${timeStr}</span>
+            <strong style="text-transform: uppercase;">[${type}]</strong>
+          </div>
+          <div class="event-desc">Hedef: <strong>${targetName}</strong></div>
+          <div class="event-diff">${diffText}</div>
+        `;
+
+        eventLog.prepend(row);
+        while (eventLog.children.length > 30) {
+          eventLog.removeChild(eventLog.lastChild);
+        }
+      }
+
+      // 1. MUTATIONOBSERVER BAŞLATMA
+      const observer = new MutationObserver((mutationsList) => {
+        mutationsList.forEach((mutation) => {
+          totalCount++;
+
+          if (mutation.type === "attributes") {
+            attrCount++;
+            const targetEl = mutation.target;
+            const attrName = mutation.attributeName;
+            const oldVal = mutation.oldValue;
+            const newVal = targetEl.getAttribute(attrName);
+            const targetDesc = `${targetEl.tagName.toLowerCase()}.${targetEl.className.split(" ")[0]} [${attrName}]`;
+            logMutation("attributes", targetDesc, oldVal, newVal);
+          } else if (mutation.type === "characterData") {
+            charCount++;
+            const oldText = mutation.oldValue;
+            const newText = mutation.target.nodeValue;
+            const parent = mutation.target.parentElement;
+            const targetDesc = parent ? `${parent.className.split(" ")[0]}` : "textNode";
+            logMutation("characterData", targetDesc, oldText, newText);
+          } else if (mutation.type === "childList") {
+            childCount++;
+            const added = Array.from(mutation.addedNodes).map(n => n.nodeType === 1 ? n.textContent.trim() : "").filter(Boolean).join(", ");
+            const removed = Array.from(mutation.removedNodes).map(n => n.nodeType === 1 ? n.textContent.trim() : "").filter(Boolean).join(", ");
+            let desc = "";
+            if (added) desc += `Eklenen: +[${added}] `;
+            if (removed) desc += `Silinen: -[${removed}]`;
+            logMutation("childList", "hw-genome-container", "", desc);
+          }
+        });
+
+        // Telemetriyi Güncelle
+        valTotalMutations.textContent = totalCount;
+        valAttrMutations.textContent = attrCount;
+        valCharMutations.textContent = charCount;
+        valChildMutations.textContent = childCount;
+      });
+
+      // Gözlemleyiciyi Başlat (Subtree, Attributes, CharacterData, ChildList)
+      function startObserving() {
+        observer.observe(genomeContainer, {
+          attributes: true,
+          attributeOldValue: true,
+          characterData: true,
+          characterDataOldValue: true,
+          childList: true,
+          subtree: true
+        });
+        isObserverActive = true;
+        observerBadge.className = "observer-status-badge";
+        txtObserverState.textContent = "MUTATIONOBSERVER AKTİF (BAĞLI)";
+        lblToggleObserver.textContent = "BAĞLANTIYI KES (DISCONNECT)";
+        btnToggleObserver.classList.add("active");
+      }
+
+      function stopObserving() {
+        observer.disconnect();
+        isObserverActive = false;
+        observerBadge.className = "observer-status-badge disconnected";
+        txtObserverState.textContent = "GÖZLEMCİ KAPALI (DISCONNECTED)";
+        lblToggleObserver.textContent = "TEKRAR BAĞLAN (OBSERVE)";
+        btnToggleObserver.classList.remove("active");
+      }
+
+      btnToggleObserver.addEventListener("click", () => {
+        if (isObserverActive) stopObserving();
+        else startObserving();
+      });
+
+      // 2. MUTASYON TETİKLEYİCİ FONKSİYONLARI
+
+      // A. Nokta Mutasyonu (CharacterData)
+      const greekMutations = ["α", "β", "γ", "δ", "ε", "ζ", "η", "θ", "λ", "μ", "ξ", "π", "σ", "ψ", "ω", "7", "3", "0", "1"];
+      btnMutateChar.addEventListener("click", () => {
+        const codonChars = genomeContainer.querySelectorAll(".codon-char");
+        if (codonChars.length === 0) return;
+        const target = codonChars[Math.floor(Math.random() * codonChars.length)];
+        const textNode = target.firstChild;
+        if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+          const randGreek = greekMutations[Math.floor(Math.random() * greekMutations.length)];
+          textNode.nodeValue = randGreek;
+          target.parentElement.classList.add("mutated-glow");
+        }
+      });
+
+      // B. Epigenetik Nitelik Mutasyonu (Attributes)
+      btnMutateAttr.addEventListener("click", () => {
+        const pills = genomeContainer.querySelectorAll(".codon-pill");
+        if (pills.length === 0) return;
+        const target = pills[Math.floor(Math.random() * pills.length)];
+        const newCharge = Math.floor(Math.random() * 250) + 50;
+        target.setAttribute("data-charge", newCharge);
+        target.classList.toggle("charged-cyan");
+      });
+
+      // C. Nükleotid Ekleme (ChildList +)
+      let syntheticId = 11;
+      btnInsertCodon.addEventListener("click", () => {
+        const span = document.createElement("span");
+        span.className = "codon-pill synthetic-insertion";
+        span.setAttribute("data-codon", syntheticId);
+        span.setAttribute("data-charge", "150");
+        const chars = ["Ω", "Ψ", "Δ", "Σ", "Φ"];
+        const randChar = chars[Math.floor(Math.random() * chars.length)];
+        span.innerHTML = `<span class="codon-char">${randChar}</span><span class="codon-meta">SYN-${syntheticId++}</span>`;
+        genomeContainer.appendChild(span);
+      });
+
+      // D. Nükleotid Silme (ChildList -)
+      btnRemoveCodon.addEventListener("click", () => {
+        const pills = genomeContainer.querySelectorAll(".codon-pill");
+        if (pills.length > 5) {
+          const target = pills[pills.length - 1];
+          genomeContainer.removeChild(target);
+        }
+      });
+
+      // E. Kozmik Radyasyon Fırtınası (Microtask Batching Test)
+      btnCosmicStorm.addEventListener("click", () => {
+        const pills = genomeContainer.querySelectorAll(".codon-pill");
+        pills.forEach((p, idx) => {
+          // Çoklu eşzamanlı mutasyon
+          p.setAttribute("data-charge", Math.floor(Math.random() * 300));
+          p.classList.toggle("mutated-glow", idx % 2 === 0);
+          const charSpan = p.querySelector(".codon-char");
+          if (charSpan && charSpan.firstChild && Math.random() > 0.4) {
+            charSpan.firstChild.nodeValue = greekMutations[Math.floor(Math.random() * greekMutations.length)];
+          }
+        });
+      });
+
+      // F. Gen Onarımı (Reset to Pristine "HELLO WORLD")
+      btnGeneRepair.addEventListener("click", () => {
+        genomeContainer.innerHTML = "";
+        canonicalGenome.forEach((item, idx) => {
+          if (item.spacer) {
+            const sp = document.createElement("span");
+            sp.className = "spacer-codon";
+            sp.setAttribute("aria-hidden", "true");
+            genomeContainer.appendChild(sp);
+          } else {
+            const pill = document.createElement("span");
+            pill.className = "codon-pill";
+            pill.setAttribute("data-codon", idx + 1);
+            pill.setAttribute("data-charge", "100");
+            pill.setAttribute("data-base", item.char);
+            pill.innerHTML = `<span class="codon-char">${item.char}</span><span class="codon-meta">${item.id}</span>`;
+            genomeContainer.appendChild(pill);
+          }
+        });
+      });
+
+      // Başlangıç Gözlemini Başlat
+      startObserving();
+    })();
+  </script>
+</body>
+</html>

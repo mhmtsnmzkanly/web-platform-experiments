@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deney 017: Web Workers API ve Çok İş Parçacıklı Boids Sürü Tipografisi</title>
+  <style>
+    /* ==========================================================================
+       1. KÖK DEĞİŞKENLER VE BİYOLÜMİNESANS PALETİ (BIOLUMINESCENT PALETTE)
+       ========================================================================== */
+    :root {
+      --bg-ocean: oklch(0.09 0.02 245);
+      --bg-panel: oklch(0.14 0.03 245 / 0.85);
+      --border-panel: oklch(0.26 0.05 245 / 0.8);
+      
+      --boid-cyan: oklch(0.88 0.18 195);
+      --boid-blue: oklch(0.75 0.22 230);
+      --boid-gold: oklch(0.88 0.18 85);
+      --boid-green: oklch(0.86 0.22 145);
+      
+      --text-primary: oklch(0.96 0.01 245);
+      --text-muted: oklch(0.65 0.04 245);
+      --glow-cyan: 0 0 16px oklch(0.88 0.18 195 / 0.45);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-ocean);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, ui-monospace, monospace;
+      color: var(--text-primary);
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       2. ANA SAHNE VE ŞASİ YERLEŞİMİ (SWARM VIEWPORT)
+       ========================================================================== */
+    .swarm-app {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px 20px;
+      position: relative;
+      background: radial-gradient(circle at 50% 50%, oklch(0.14 0.04 240) 0%, var(--bg-ocean) 85%);
+    }
+
+    /* Tuval Yüzeyi (Tam Ekran Boids Canvas) */
+    .canvas-container {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #swarm-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    /* ==========================================================================
+       3. TELEMETRİ VE BAŞLIK HUD'I (HEADER HUD)
+       ========================================================================== */
+    .hud-header {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      pointer-events: auto;
+    }
+
+    .badge-worker {
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: oklch(0.20 0.05 245);
+      border: 1px solid var(--border-panel);
+      color: var(--boid-cyan);
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-worker::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--boid-cyan);
+      box-shadow: 0 0 8px var(--boid-cyan);
+      animation: pulse 1.6s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .badge-status {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--boid-green);
+      background: oklch(0.18 0.04 145 / 0.25);
+      border: 1px solid oklch(0.4 0.1 145 / 0.5);
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+
+    .thread-telemetry {
+      display: flex;
+      gap: 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      background: var(--bg-panel);
+      border: 1px solid var(--border-panel);
+      padding: 6px 14px;
+      border-radius: 6px;
+      backdrop-filter: blur(10px);
+      pointer-events: auto;
+    }
+
+    .thread-telemetry span b {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       4. GÖRÜNÜR YARDIMCI TİPOGRAFİK REHBER (SUBTLE WATERMARK)
+       ========================================================================== */
+    .watermark-guide {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(3.5rem, 10.5vw, 8.5rem);
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: oklch(0.88 0.18 195 / 0.16);
+      text-shadow: 0 0 32px oklch(0.88 0.18 195 / 0.25);
+      pointer-events: none;
+      z-index: 2;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       5. KONTROL DOKU VE BUTONLAR (CONTROLS DOCK)
+       ========================================================================== */
+    .controls-dock {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-panel);
+      padding: 10px 18px;
+      border-radius: 12px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+      flex-wrap: wrap;
+      z-index: 20;
+    }
+
+    .btn-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-mode {
+      appearance: none;
+      background: oklch(0.20 0.04 245);
+      border: 1px solid var(--border-panel);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .btn-mode:hover {
+      background: oklch(0.26 0.06 245);
+      border-color: var(--boid-cyan);
+    }
+
+    .btn-mode.active {
+      background: var(--boid-cyan);
+      color: oklch(0.12 0.03 245);
+      border-color: var(--boid-cyan);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .btn-mode:focus-visible {
+      outline: 2px solid var(--boid-cyan);
+      outline-offset: 2px;
+    }
+
+    /* Kaydırıcı Parametre Grubu */
+    .slider-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .slider-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slider-item input[type="range"] {
+      appearance: none;
+      width: 80px;
+      height: 4px;
+      background: oklch(0.28 0.04 245);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .slider-item input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--boid-cyan);
+      box-shadow: 0 0 6px var(--boid-cyan);
+      cursor: pointer;
+    }
+
+    /* Erişilebilirlik Başlığı */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="swarm-app" role="main" aria-label="Hello World Web Workers Sürü Fiziği Laboratuvarı">
+    
+    <!-- Üst Başlık ve Çok İş Parçacıklı Telemetri HUD -->
+    <header class="hud-header">
+      <div class="brand-box">
+        <div class="badge-worker">EXP 017 // WEB WORKERS SWARM</div>
+        <div class="badge-status" id="badge-threads">İŞ PARÇACIĞI: 2 ÇEKİRDEK AKTİF</div>
+      </div>
+      <div class="thread-telemetry" id="thread-telemetry" aria-live="polite">
+        <span>RENDER (UI): <b id="val-fps">60.0 FPS</b></span>
+        <span>FİZİK (WORKER): <b id="val-tps">60.0 TPS</b></span>
+        <span>AJANLAR: <b id="val-agents">3,600 BOID</b></span>
+        <span>BELLEK: <b>ZERO-COPY TRANSFER</b></span>
+      </div>
+    </header>
+
+    <!-- Erişilebilir Birincil Başlık -->
+    <h1 class="sr-only">Hello World - Web Workers API ve Çok İş Parçacıklı Boids Sürü Tipografisi</h1>
+    
+    <!-- Görsel Tipografik Filigran Rehberi (DOM Focus) -->
+    <div class="watermark-guide" aria-hidden="true">HELLO WORLD</div>
+
+    <!-- Merkez Boids Canvas Yüzeyi -->
+    <div class="canvas-container">
+      <canvas id="swarm-canvas" role="img" aria-label="Hello World Boids Otonom Sürü Parçacıkları">Hello World Sürü Simülasyonu</canvas>
+    </div>
+
+    <!-- Alt Kontrol Paneli -->
+    <footer class="controls-dock" role="toolbar" aria-label="Sürü Fiziği Kontrolleri">
+      <div class="btn-group">
+        <button type="button" class="btn-mode active" data-mode="flock">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Hello World'e Toplan
+        </button>
+        <button type="button" class="btn-mode" data-mode="scatter">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          Şok Dalgası (Dağıt)
+        </button>
+        <button type="button" class="btn-mode" data-mode="vortex">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 12a4 4 0 1 1-8 0"/></svg>
+          Yerçekimsel Vorteks
+        </button>
+        <button type="button" class="btn-mode" data-mode="flow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M2 6h20M2 18h20"/></svg>
+          Kaotik Akış
+        </button>
+      </div>
+
+      <!-- Fizik Ayar Kaydırıcıları -->
+      <div class="slider-group">
+        <div class="slider-item">
+          <label for="range-count">Ajan Sayısı:</label>
+          <input type="range" id="range-count" min="1200" max="4800" value="3600" step="300">
+        </div>
+        <div class="slider-item">
+          <label for="range-speed">Hız Limiti:</label>
+          <input type="range" id="range-speed" min="2" max="10" value="6" step="1">
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ==========================================================================
+       6. WEB WORKER SATIR İÇİ KODU (BACKGROUND THREAD SCRIPT)
+       ========================================================================== -->
+  <script id="worker-script" type="text/plain">
+    let agentCount = 3600;
+    let maxSpeed = 6.0;
+    let currentMode = "flock";
+    let width = 1280;
+    let height = 800;
+    let targets = null;
+    let mouse = { x: -9999, y: -9999, active: false };
+
+    // Boid Durum Dizileri (SoA: Structure of Arrays)
+    let posX = null;
+    let posY = null;
+    let velX = null;
+    let velY = null;
+
+    function initAgents(count) {
+      agentCount = count;
+      posX = new Float32Array(agentCount);
+      posY = new Float32Array(agentCount);
+      velX = new Float32Array(agentCount);
+      velY = new Float32Array(agentCount);
+
+      const hasTargets = targets && targets.length > 0;
+      for (let i = 0; i < agentCount; i++) {
+        if (hasTargets) {
+          const targetIdx = i % (targets.length / 2);
+          posX[i] = targets[targetIdx * 2] + (Math.random() - 0.5) * 10;
+          posY[i] = targets[targetIdx * 2 + 1] + (Math.random() - 0.5) * 10;
+        } else {
+          posX[i] = Math.random() * width;
+          posY[i] = Math.random() * height;
+        }
+        const angle = Math.random() * Math.PI * 2;
+        const spd = Math.random() * 1.5 + 0.5;
+        velX[i] = Math.cos(angle) * spd;
+        velY[i] = Math.sin(angle) * spd;
+      }
+    }
+
+    // Fizik Güncelleme Adımı (Reynolds Flocking + Target Vector Dynamics)
+    function updatePhysics() {
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const hasTargets = targets && targets.length > 0;
+
+      for (let i = 0; i < agentCount; i++) {
+        let ax = 0;
+        let ay = 0;
+
+        // 1. Mod Odaklı Kuvvetler
+        if (currentMode === "flock" && hasTargets) {
+          // Hello World hedef noktasına çekim kuvveti
+          const targetIdx = i % (targets.length / 2);
+          const tx = targets[targetIdx * 2];
+          const ty = targets[targetIdx * 2 + 1];
+
+          const dx = tx - posX[i];
+          const dy = ty - posY[i];
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+
+          const force = Math.min(dist * 0.08, 0.45);
+          ax += (dx / dist) * force;
+          ay += (dy / dist) * force;
+
+          // Yakınlaştıkça yumuşak sürtünme
+          if (dist < 40) {
+            velX[i] *= 0.92;
+            velY[i] *= 0.92;
+          }
+
+        } else if (currentMode === "scatter") {
+          // Merkezden dışarıya doğru şok dalgası
+          const dx = posX[i] - centerX;
+          const dy = posY[i] - centerY;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const repulse = Math.min(800 / (dist * dist + 10), 0.8);
+          ax += (dx / dist) * repulse;
+          ay += (dy / dist) * repulse;
+
+        } else if (currentMode === "vortex") {
+          // Merkeze göre teğetsel dönüş kuvveti
+          const dx = posX[i] - centerX;
+          const dy = posY[i] - centerY;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          
+          // Teğet vektör
+          const tangentX = -dy / dist;
+          const tangentY = dx / dist;
+
+          // İçe doğru çekim + teğetsel hız
+          const gravity = Math.min(dist * 0.002, 0.2);
+          ax += tangentX * 0.4 - (dx / dist) * gravity;
+          ay += tangentY * 0.4 - (dy / dist) * gravity;
+
+        } else if (currentMode === "flow") {
+          // Sinüzoidal kaotik akış alanı
+          const angle = Math.sin(posX[i] * 0.005) * 3 + Math.cos(posY[i] * 0.005) * 3;
+          ax += Math.cos(angle) * 0.25;
+          ay += Math.sin(angle) * 0.25;
+        }
+
+        // 2. İmleç Etkileşimi
+        if (mouse.active) {
+          const mdx = posX[i] - mouse.x;
+          const mdy = posY[i] - mouse.y;
+          const mdistSq = mdx * mdx + mdy * mdy;
+          if (mdistSq < 16000 && mdistSq > 1) {
+            const mdist = Math.sqrt(mdistSq);
+            const mforce = (1 - mdist / 126) * 1.2;
+            ax += (mdx / mdist) * mforce;
+            ay += (mdy / mdist) * mforce;
+          }
+        }
+
+        // 3. Hız ve Konum Entegrasyonu (Euler)
+        velX[i] += ax;
+        velY[i] += ay;
+
+        // Hız limiti (Clamping)
+        const currentSpeed = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i]);
+        if (currentSpeed > maxSpeed) {
+          velX[i] = (velX[i] / currentSpeed) * maxSpeed;
+          velY[i] = (velY[i] / currentSpeed) * maxSpeed;
+        }
+
+        posX[i] += velX[i];
+        posY[i] += velY[i];
+
+        // Ekran Sınırlarından Sekme / Sarma (Wrap-around)
+        if (posX[i] < 0) posX[i] = width;
+        else if (posX[i] > width) posX[i] = 0;
+        if (posY[i] < 0) posY[i] = height;
+        else if (posY[i] > height) posY[i] = 0;
+      }
+    }
+
+    // Mesajlaşma Dinleyicisi
+    self.onmessage = function (e) {
+      const data = e.data;
+      if (data.type === "INIT") {
+        width = data.width;
+        height = data.height;
+        if (data.targets) targets = new Float32Array(data.targets);
+        initAgents(data.count || agentCount);
+      } else if (data.type === "TARGETS") {
+        targets = new Float32Array(data.targets);
+      } else if (data.type === "PARAMS") {
+        if (data.mode) currentMode = data.mode;
+        if (data.maxSpeed) maxSpeed = data.maxSpeed;
+        if (data.count && data.count !== agentCount) {
+          initAgents(data.count);
+        }
+        if (data.mouse) mouse = data.mouse;
+        if (data.width) width = data.width;
+        if (data.height) height = data.height;
+      } else if (data.type === "STEP") {
+        const startTime = performance.now();
+        updatePhysics();
+        const computeDuration = performance.now() - startTime;
+
+        // Koordinatları tek bir Float32Array tamponuna kopyala
+        // [x0, y0, vx0, vy0, x1, y1, vx1, vy1, ...]
+        const outBuffer = new Float32Array(agentCount * 4);
+        for (let i = 0; i < agentCount; i++) {
+          const idx = i * 4;
+          outBuffer[idx] = posX[i];
+          outBuffer[idx + 1] = posY[i];
+          outBuffer[idx + 2] = velX[i];
+          outBuffer[idx + 3] = velY[i];
+        }
+
+        // Zero-copy aktarımı (Transferable Object)
+        self.postMessage({
+          type: "FRAME",
+          buffer: outBuffer,
+          computeTime: computeDuration
+        }, [outBuffer.buffer]);
+      }
+    };
+  </script>
+
+  <!-- ==========================================================================
+       7. ANA İŞ PARÇACIĞI RENDER VE WORKER YÖNETİCİSİ (MAIN THREAD)
+       ========================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      // DOM Referansları
+      const canvas = document.getElementById('swarm-canvas');
+      const ctx = canvas.getContext('2d');
+      const modeButtons = Array.from(document.querySelectorAll('.btn-mode'));
+      const rangeCount = document.getElementById('range-count');
+      const rangeSpeed = document.getElementById('range-speed');
+      
+      const valFps = document.getElementById('val-fps');
+      const valTps = document.getElementById('val-tps');
+      const valAgents = document.getElementById('val-agents');
+
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      let dpr = window.devicePixelRatio || 1;
+
+      // Boyutlandırma
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        dpr = window.devicePixelRatio || 1;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
+        extractTargets();
+      }
+
+      // "HELLO WORLD" Hedef Noktalarını Rasterize Et ve Örnekle
+      let targetCoordinates = [];
+
+      function extractTargets() {
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = width;
+        offCanvas.height = height;
+        const offCtx = offCanvas.getContext('2d');
+
+        offCtx.fillStyle = '#000000';
+        offCtx.fillRect(0, 0, width, height);
+
+        const fontSize = Math.min(width * 0.11, 140);
+        offCtx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+        offCtx.textAlign = 'center';
+        offCtx.textBaseline = 'middle';
+        offCtx.fillStyle = '#ffffff';
+        offCtx.fillText('HELLO WORLD', width / 2, height / 2);
+
+        const imgData = offCtx.getImageData(0, 0, width, height).data;
+        targetCoordinates = [];
+
+        const step = Math.max(3, Math.floor(Math.sqrt((width * height) / 14000)));
+        for (let y = 0; y < height; y += step) {
+          for (let x = 0; x < width; x += step) {
+            const idx = (y * width + x) * 4;
+            if (imgData[idx] > 120) {
+              targetCoordinates.push(x, y);
+            }
+          }
+        }
+
+        if (worker) {
+          worker.postMessage({
+            type: "TARGETS",
+            targets: targetCoordinates
+          });
+        }
+      }
+
+      // Satır İçi Web Worker'ı Başlat (Inline Blob Worker)
+      let worker = null;
+      let isWorkerBusy = false;
+      let currentAgentCount = parseInt(rangeCount.value, 10);
+      let currentSpeed = parseFloat(rangeSpeed.value);
+
+      function initWorker() {
+        const workerScriptEl = document.getElementById('worker-script');
+        const blob = new Blob([workerScriptEl.textContent], { type: 'application/javascript' });
+        worker = new Worker(URL.createObjectURL(blob));
+
+        worker.onmessage = function (e) {
+          if (e.data.type === "FRAME") {
+            isWorkerBusy = false;
+            handleWorkerFrame(e.data);
+          }
+        };
+
+        worker.postMessage({
+          type: "INIT",
+          width: width,
+          height: height,
+          count: currentAgentCount,
+          targets: targetCoordinates
+        });
+      }
+
+      // Son Alınan Ajan Tamponu
+      let latestBuffer = null;
+      let tpsCounter = 0;
+      let lastTpsTime = performance.now();
+      let currentTps = 60.0;
+
+      function handleWorkerFrame(data) {
+        latestBuffer = data.buffer;
+        tpsCounter++;
+        const now = performance.now();
+        if (now - lastTpsTime >= 1000) {
+          currentTps = (tpsCounter * 1000) / (now - lastTpsTime);
+          tpsCounter = 0;
+          lastTpsTime = now;
+          if (valTps) valTps.textContent = `${currentTps.toFixed(1)} TPS`;
+        }
+      }
+
+      // Ana İş Parçacığı Çizim Döngüsü (Main Render Loop - 60 FPS)
+      let fpsCounter = 0;
+      let lastFpsTime = performance.now();
+      let currentFps = 60.0;
+
+      function renderLoop() {
+        fpsCounter++;
+        const now = performance.now();
+        if (now - lastFpsTime >= 1000) {
+          currentFps = (fpsCounter * 1000) / (now - lastFpsTime);
+          fpsCounter = 0;
+          lastFpsTime = now;
+          if (valFps) valFps.textContent = `${currentFps.toFixed(1)} FPS`;
+        }
+
+        // Eğer Worker boşta ise yeni fizik adımı talep et
+        if (!isWorkerBusy && worker) {
+          isWorkerBusy = true;
+          worker.postMessage({ type: "STEP" });
+        }
+
+        // Tuvali hafif alfa ile temizle (Biyolüminesans Parçacık İzi Efekti)
+        ctx.fillStyle = 'rgba(9, 13, 20, 0.28)';
+        ctx.fillRect(0, 0, width, height);
+
+        // Ajanları Çiz
+        if (latestBuffer) {
+          const count = latestBuffer.length / 4;
+          
+          ctx.fillStyle = '#00f3ff';
+          ctx.shadowColor = '#00f3ff';
+          ctx.shadowBlur = 4;
+
+          for (let i = 0; i < count; i++) {
+            const idx = i * 4;
+            const x = latestBuffer[idx];
+            const y = latestBuffer[idx + 1];
+            const vx = latestBuffer[idx + 2];
+            const vy = latestBuffer[idx + 3];
+
+            // Hıza göre dinamik boyut ve hafif yön oku
+            const spd = Math.sqrt(vx * vx + vy * vy);
+            const size = spd > 2 ? 2.0 : 1.6;
+
+            ctx.fillRect(x - size / 2, y - size / 2, size, size);
+          }
+          ctx.shadowBlur = 0;
+        }
+
+        requestAnimationFrame(renderLoop);
+      }
+
+      // İmleç Etkileşimi
+      let mouseState = { x: -9999, y: -9999, active: false };
+
+      canvas.addEventListener('pointermove', (e) => {
+        mouseState.x = e.clientX;
+        mouseState.y = e.clientY;
+        mouseState.active = true;
+        if (worker) {
+          worker.postMessage({
+            type: "PARAMS",
+            mouse: mouseState
+          });
+        }
+      });
+
+      canvas.addEventListener('pointerleave', () => {
+        mouseState.active = false;
+        if (worker) {
+          worker.postMessage({
+            type: "PARAMS",
+            mouse: mouseState
+          });
+        }
+      });
+
+      // Mod Butonları
+      modeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          modeButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const mode = btn.getAttribute('data-mode');
+          if (worker) {
+            worker.postMessage({
+              type: "PARAMS",
+              mode: mode
+            });
+          }
+        });
+      });
+
+      // Kaydırıcılar
+      rangeCount.addEventListener('input', (e) => {
+        currentAgentCount = parseInt(e.target.value, 10);
+        if (valAgents) valAgents.textContent = `${currentAgentCount.toLocaleString()} BOID`;
+        if (worker) {
+          worker.postMessage({
+            type: "PARAMS",
+            count: currentAgentCount
+          });
+        }
+      });
+
+      rangeSpeed.addEventListener('input', (e) => {
+        currentSpeed = parseFloat(e.target.value);
+        if (worker) {
+          worker.postMessage({
+            type: "PARAMS",
+            maxSpeed: currentSpeed
+          });
+        }
+      });
+
+      // Başlatma
+      window.addEventListener('resize', () => {
+        resize();
+        if (worker) {
+          worker.postMessage({
+            type: "PARAMS",
+            width: width,
+            height: height
+          });
+        }
+      });
+
+      resize();
+      initWorker();
+      requestAnimationFrame(renderLoop);
+
+    })();
+  </script>
+</body>
+</html>

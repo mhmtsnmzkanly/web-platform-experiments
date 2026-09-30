@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Color Portrait</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #eeece5;
+      --ink: #181b1c;
+      --accent-a: hsl(12 82% 58%);
+      --accent-b: hsl(176 72% 42%);
+      --accent-c: hsl(254 64% 58%);
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--accent-a) 26%, transparent), transparent 30%),
+        radial-gradient(circle at 84% 76%, color-mix(in srgb, var(--accent-b) 25%, transparent), transparent 34%),
+        var(--paper);
+    }
+
+    main {
+      width: min(1080px, calc(100vw - 64px));
+      height: 100vh;
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 26px;
+      padding: 34px 0 28px;
+    }
+
+    header,
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.17em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    header {
+      border-top: 3px solid var(--ink);
+      padding-top: 12px;
+    }
+
+    header span:first-child,
+    footer span:last-child {
+      color: var(--accent-a);
+    }
+
+    header span:last-child,
+    footer span:first-child {
+      color: rgba(24, 27, 28, 0.58);
+      text-align: right;
+    }
+
+    .portrait {
+      position: relative;
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid rgba(24, 27, 28, 0.3);
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--accent-c) 12%, transparent), transparent 48%),
+        rgba(255, 255, 255, 0.36);
+      box-shadow:
+        14px 14px 0 var(--ink),
+        inset 0 0 70px color-mix(in srgb, var(--accent-b) 15%, transparent);
+    }
+
+    .portrait::before {
+      position: absolute;
+      inset: 28px;
+      border: 1px solid color-mix(in srgb, var(--accent-c) 42%, transparent);
+      content: "";
+      pointer-events: none;
+    }
+
+    h1 {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(62px, 13.2vw, 176px);
+      font-weight: 900;
+      letter-spacing: -0.095em;
+      line-height: 0.86;
+      text-align: center;
+      text-shadow:
+        8px 8px 0 color-mix(in srgb, var(--accent-a) 44%, transparent),
+        -8px -8px 0 color-mix(in srgb, var(--accent-b) 28%, transparent);
+    }
+
+    .swatches {
+      position: absolute;
+      right: 54px;
+      bottom: 42px;
+      left: 54px;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+    }
+
+    .swatch {
+      width: 72px;
+      height: 72px;
+      border: 1px solid rgba(24, 27, 28, 0.3);
+      box-shadow: 5px 5px 0 rgba(24, 27, 28, 0.14);
+    }
+
+    .swatch:first-child {
+      background: var(--accent-a);
+    }
+
+    .swatch:nth-child(2) {
+      background: var(--accent-b);
+    }
+
+    .swatch:last-child {
+      background: var(--accent-c);
+    }
+
+    .digest {
+      position: absolute;
+      top: 42px;
+      right: 54px;
+      color: rgba(24, 27, 28, 0.58);
+      font-family: "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+    }
+
+    footer {
+      border-bottom: 1px solid rgba(24, 27, 28, 0.34);
+      padding-bottom: 12px;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        width: calc(100vw - 28px);
+        padding-top: 22px;
+      }
+
+      header,
+      footer {
+        font-size: 9px;
+      }
+
+      .portrait {
+        box-shadow: 8px 8px 0 var(--ink);
+      }
+
+      .swatches {
+        right: 32px;
+        bottom: 30px;
+        left: 32px;
+      }
+
+      .swatch {
+        width: 42px;
+        height: 42px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span>008 / COLOR PORTRAIT</span>
+      <span>SHA-256 → CSS PALETTE</span>
+    </header>
+
+    <section class="portrait" aria-label="Hello World generated from its SHA-256 color portrait">
+      <span class="digest" id="digest">DIGEST / COMPUTING</span>
+      <h1>Hello World</h1>
+      <div class="swatches" aria-hidden="true">
+        <span class="swatch"></span>
+        <span class="swatch"></span>
+        <span class="swatch"></span>
+      </div>
+    </section>
+
+    <footer>
+      <span>THE WORD COLORS ITSELF</span>
+      <span>LIVE / <strong>DETERMINISTIC PALETTE</strong></span>
+    </footer>
+  </main>
+
+  <script>
+    (async () => {
+      if (!window.crypto || !window.crypto.subtle || !window.TextEncoder) {
+        throw new Error("Web Crypto API is unavailable.");
+      }
+
+      const phrase = "Hello World";
+      const bytes = new TextEncoder().encode(phrase);
+      const digestBuffer = await crypto.subtle.digest("SHA-256", bytes);
+      const digestBytes = new Uint8Array(digestBuffer);
+      const hex = Array.from(digestBytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+      const hueA = Math.round((digestBytes[0] / 255) * 360);
+      const hueB = Math.round((digestBytes[8] / 255) * 360);
+      const hueC = Math.round((digestBytes[16] / 255) * 360);
+      const root = document.documentElement;
+
+      root.style.setProperty("--accent-a", `hsl(${hueA} 82% 58%)`);
+      root.style.setProperty("--accent-b", `hsl(${hueB} 72% 42%)`);
+      root.style.setProperty("--accent-c", `hsl(${hueC} 64% 58%)`);
+      document.getElementById("digest").textContent = `SHA-256 / ${hex.slice(0, 24)}…`;
+    })();
+  </script>
+</body>
+</html>
