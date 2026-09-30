@@ -8,6 +8,8 @@ Experiments are grouped by run version and model. When available, each entry lin
 
 # v1
 
+[View prompt](v1/PROMPT.md)
+
 ## gemini-3.8
 
 **42 experiments**

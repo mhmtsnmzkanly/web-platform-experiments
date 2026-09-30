@@ -4,8 +4,18 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 README="$ROOT_DIR/README.md"
 
+# Optional:
+# If the archive is published under a fixed Pages base URL, set:
+#
+#   PAGES_BASE="https://USERNAME.github.io/REPOSITORY" ./generate-readme.sh
+#
+# When unset, Demo links remain relative.
 PAGES_BASE="${PAGES_BASE:-}"
+
+# Number of experiment cards per gallery row.
+# Do not use Bash's special COLUMNS variable.
 GRID_COLUMNS=3
+
 
 get_report_title() {
     local report="$1"
@@ -25,6 +35,7 @@ get_report_title() {
         return
     fi
 
+    # Remove common report prefixes while keeping the meaningful title.
     title="$(
         printf '%s' "$title" | sed -E \
             -e 's/^Hello World Lab[[:space:]]*[—–-][[:space:]]*//' \
@@ -41,6 +52,7 @@ get_report_title() {
     printf '%s' "$title"
 }
 
+
 make_demo_link() {
     local relative_html="$1"
 
@@ -51,28 +63,43 @@ make_demo_link() {
     fi
 }
 
+
 first_html_file() {
     local dir="$1"
 
-    find "$dir" -mindepth 1 -maxdepth 1 -type f -iname '*.html' -printf '%f\n' 2>/dev/null \
+    find "$dir" \
+        -mindepth 1 \
+        -maxdepth 1 \
+        -type f \
+        -iname '*.html' \
+        -printf '%f\n' \
+        2>/dev/null \
         | sort -V \
         | head -n 1
 }
 
+
 primary_screenshot_file() {
     local dir="$1"
 
+    # Prefer the conventional primary screenshot.
     if [[ -f "$dir/screenshot.png" ]]; then
         printf 'screenshot.png'
         return
     fi
 
-    find "$dir" -mindepth 1 -maxdepth 1 -type f \
+    # Otherwise use the first available screenshot image.
+    find "$dir" \
+        -mindepth 1 \
+        -maxdepth 1 \
+        -type f \
         \( -iname 'screenshot*.png' -o -iname 'screenshot*.jpg' -o -iname 'screenshot*.jpeg' -o -iname 'screenshot*.webp' \) \
-        -printf '%f\n' 2>/dev/null \
+        -printf '%f\n' \
+        2>/dev/null \
         | sort -V \
         | head -n 1
 }
+
 
 write_model_gallery() {
     local version="$1"
@@ -82,7 +109,13 @@ write_model_gallery() {
     [[ -d "$model_dir" ]] || return 0
 
     mapfile -t experiments < <(
-        find "$model_dir" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort -V
+        find "$model_dir" \
+            -mindepth 1 \
+            -maxdepth 1 \
+            -type d \
+            -printf '%f\n' \
+            2>/dev/null \
+            | sort -V
     )
 
     local count="${#experiments[@]}"
@@ -103,6 +136,7 @@ write_model_gallery() {
     local index=0
 
     while (( index < count )); do
+        # Screenshot row.
         printf '|' >> "$README"
 
         for (( col=0; col<GRID_COLUMNS; col++ )); do
@@ -125,9 +159,13 @@ write_model_gallery() {
                     if [[ -n "$html_file" ]]; then
                         local html_path="$relative_dir/$html_file"
                         printf ' [![Experiment %s](%s)](%s) |' \
-                            "$experiment" "$screenshot_path" "$(make_demo_link "$html_path")" >> "$README"
+                            "$experiment" \
+                            "$screenshot_path" \
+                            "$(make_demo_link "$html_path")" >> "$README"
                     else
-                        printf ' ![Experiment %s](%s) |' "$experiment" "$screenshot_path" >> "$README"
+                        printf ' ![Experiment %s](%s) |' \
+                            "$experiment" \
+                            "$screenshot_path" >> "$README"
                     fi
                 else
                     printf ' **Experiment %s** |' "$experiment" >> "$README"
@@ -137,11 +175,14 @@ write_model_gallery() {
             fi
         done
 
+        # Alignment row.
         printf '\n|' >> "$README"
+
         for (( col=0; col<GRID_COLUMNS; col++ )); do
             printf ' :---: |' >> "$README"
         done
 
+        # Information row.
         printf '\n|' >> "$README"
 
         for (( col=0; col<GRID_COLUMNS; col++ )); do
@@ -157,6 +198,8 @@ write_model_gallery() {
 
                 local title
                 title="$(get_report_title "$ROOT_DIR/$report_path" "$experiment")"
+
+                # Prevent Markdown table breakage.
                 title="${title//|/\\|}"
 
                 local html_file
@@ -186,9 +229,14 @@ write_model_gallery() {
                 fi
 
                 if [[ -n "$link_text" ]]; then
-                    printf ' **%s — %s**<br>%s |' "$experiment" "$title" "$link_text" >> "$README"
+                    printf ' **%s — %s**<br>%s |' \
+                        "$experiment" \
+                        "$title" \
+                        "$link_text" >> "$README"
                 else
-                    printf ' **%s — %s** |' "$experiment" "$title" >> "$README"
+                    printf ' **%s — %s** |' \
+                        "$experiment" \
+                        "$title" >> "$README"
                 fi
             else
                 printf ' |' >> "$README"
@@ -200,6 +248,7 @@ write_model_gallery() {
     done
 }
 
+
 cat > "$README" <<'EOF'
 # Web Platform Experiments
 
@@ -209,8 +258,17 @@ Experiments are grouped by run version and model. When available, each entry lin
 
 EOF
 
+
+# Discover run versions automatically: v1, v2, v3, ...
 mapfile -t versions < <(
-    find "$ROOT_DIR" -mindepth 1 -maxdepth 1 -type d -name 'v*' -printf '%f\n' 2>/dev/null | sort -V
+    find "$ROOT_DIR" \
+        -mindepth 1 \
+        -maxdepth 1 \
+        -type d \
+        -name 'v*' \
+        -printf '%f\n' \
+        2>/dev/null \
+        | sort -V
 )
 
 if (( ${#versions[@]} == 0 )); then
@@ -224,6 +282,7 @@ if (( ${#versions[@]} == 0 )); then
     exit 0
 fi
 
+
 for version in "${versions[@]}"; do
     {
         echo "---"
@@ -234,8 +293,23 @@ for version in "${versions[@]}"; do
 
     version_dir="$ROOT_DIR/$version"
 
+    # If the version has its own prompt/specification, link it here.
+    if [[ -f "$version_dir/PROMPT.md" ]]; then
+        {
+            echo "[View prompt]($version/PROMPT.md)"
+            echo
+        } >> "$README"
+    fi
+
+    # Discover model/category directories automatically.
     mapfile -t models < <(
-        find "$version_dir" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort -V
+        find "$version_dir" \
+            -mindepth 1 \
+            -maxdepth 1 \
+            -type d \
+            -printf '%f\n' \
+            2>/dev/null \
+            | sort -V
     )
 
     if (( ${#models[@]} == 0 )); then
