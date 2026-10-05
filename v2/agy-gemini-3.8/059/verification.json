@@ -1,0 +1,114 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "canvas-source"
+      },
+      {
+        "tag": "canvas",
+        "id": "canvas-output"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "canvas-source",
+        "width": 460,
+        "height": 150,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "canvas-output",
+        "width": 460,
+        "height": 150,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 11,
+      "webgl": 0
+    },
+    "drawnText": [
+      "CONVOLVE",
+      "2D MATRIX"
+    ],
+    "animations": [],
+    "title": "Experiment 059: Canvas 2D ImageData Convolution Matrix Engine"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "canvas-source"
+      },
+      {
+        "tag": "canvas",
+        "id": "canvas-output"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "canvas-source",
+        "width": 460,
+        "height": 150,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "canvas-output",
+        "width": 460,
+        "height": 150,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 11,
+      "webgl": 0
+    },
+    "drawnText": [
+      "CONVOLVE",
+      "2D MATRIX"
+    ],
+    "animations": [],
+    "title": "Experiment 059: Canvas 2D ImageData Convolution Matrix Engine"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Canvas 2D ImageData Convolution Kernel Processing (Sobel, Gaussian, Laplacian)",
+    "measurements": {
+      "canvasWidth": 460,
+      "canvasHeight": 150,
+      "pixelByteLength": 276000,
+      "sourceCanvasReadable": true,
+      "outputCanvasReadable": true,
+      "activeKernel": "Sobel 3x3 Edge",
+      "subjectFontSize": "54.4px"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

@@ -1,0 +1,882 @@
+{
+  "date": "2026-10-04",
+  "experiments": [
+    {
+      "experiment": "001",
+      "sha256": "a53b008ebfd82fbadd4ca3de10470d277744406e18e908b2ad1796ecb0c726b6",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "002",
+      "sha256": "f45ec0366761f2fad36c5bf39990cb13dd8f0c2867082fe3c2eae7103bd5e1d4",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "003",
+      "sha256": "089065fe82f0f81440c8eebe3ad7ef03851b47ceea81e0e19d23b63f1dce986b",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "004",
+      "sha256": "63bd3fc359a9d1dd0c9984517dc318ee77acfb6874edd0c3f8c6b6babb894bde",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "005",
+      "sha256": "d9133ecdd8165c1a68685b4ac498fdc224dd4d0038f2388d913c8455cd76adb4",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "006",
+      "sha256": "5205e7a85c6bb3de94dbbdad046b77a8f4bcfb479a67763bc7ee68dff1c85e05",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "007",
+      "sha256": "5377764280e3bf43cb47de4e338f888177055e895e4de0a5c6c569a7c6a4015c",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "008",
+      "sha256": "16df825c3e09267c33f116213ba001486c579583d1ba3d04e9c95e52b22024c4",
+      "dynamic": true,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-late.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "009",
+      "sha256": "4e2573cc9dcd6fe4edcac5bb59e945d6ccff120846e5499ff45769362fd95d1e",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "010",
+      "sha256": "5378241b5d47411e9f747a20de4bf163d74ff28418cd04e875bc91ce090989d5",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "011",
+      "sha256": "f484bc87ae85a93da77f302c9f7da04429b6035dec9f8d138ac43d8ec4f4a95d",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "012",
+      "sha256": "cab340caea61a1fc0443cbdbb5986ef6b941521024ce9b0ce66e69a1730bfab3",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "013",
+      "sha256": "ae1c9a63ba3935d71bafa0dd8c06f4156f85867de2b64f69fc10c4ef71e1f7e0",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "014",
+      "sha256": "97e5c1a0a3af12a1a9a72efeb8fc40ce334e89325a1aaab9b47a20a5f8f6a17b",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "015",
+      "sha256": "9b65b7499b367a30aca571f7eb0aaacbd3f49e6558d418c5fcc0972c1ac671df",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "016",
+      "sha256": "d8476f7e247af08b264016767c04fd29fd9a94061b9e284d5fe306ad2f393870",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "017",
+      "sha256": "cda5924d337a213fef7a84a440799b79d1c1b7e85bc93353a70853cef7e4d6f4",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "018",
+      "sha256": "e24891023078a323f0822142fb8fbb300bfa272977b9d0ab686fc64853b72649",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "019",
+      "sha256": "cc3875c2509f09da40b7e538535d71209f00f9e73a7af56423c5be3befc807b3",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "020",
+      "sha256": "c09ba6c22b788e1b1165f62d2e7ab0b8bdf5a1a77bb9cb07aef9e59bda3013e5",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "021",
+      "sha256": "e94c8f38f44c54f10fbdddd09093c7fa55234bd56dbdf6a7c5dfd221721f93c2",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "022",
+      "sha256": "8cd75783202f5477a2d21a3d78209fe756682380f12b79a19b1e0ff416906e99",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "023",
+      "sha256": "f73aad613b6a39f5deb70784a323439958318363fc48136caddb3d966f958957",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "024",
+      "sha256": "4a4f8a5bd8d1d85ec4a2fdf5154bd4c72b1465392a7bc4e2e758887b1ecdd020",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "025",
+      "sha256": "16ee0074a2b259d930a8a541728aa99f0b06d03f336f3cd6bff99899f7d70a97",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "026",
+      "sha256": "d2f6aef35d0951d3cf6261b5f37bac2643ab5fe5d4e1d7a6c2670d73e26f82fc",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "027",
+      "sha256": "98922d9d7cb47edb0e5b58bc533e2ab41c20fae5ac584711bb9db82bba91dc6e",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "028",
+      "sha256": "51860b56c9af99ba98dfa3e6e4c768c4952c6c94263bc56cf874342951a1c52d",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "029",
+      "sha256": "467fe6888b019151791ae6bdd0fcce7c02518e75a668665b37ecd44af2979708",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "030",
+      "sha256": "108d9754b116cf41f37d2cc777ceb1184632d51a8679d77ef497526298d8f536",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "031",
+      "sha256": "953123c23449577cd5426c49af858bd5c93f1d9e1f8ba16e70a59f43db28f877",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "032",
+      "sha256": "ebd00a979c2972ccc6b9b2d1a3c7e117d8af979bcba4aa1bac8232a39c081b6b",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "033",
+      "sha256": "1ae5fcf5f5231a429d27126fdf8df9e7a6618f171e08396fd30a3c6dd1aa5d69",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "034",
+      "sha256": "8ec18b6a80a111965daa8a64c7265cc2d108e1e15bd16f48aad7b16ee62aae61",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "035",
+      "sha256": "51fe0ba9eb80c304d55e7c9f5905919c7a516693c670d9d741b310dc29cf99d8",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "036",
+      "sha256": "fd59f739534527cf58e5811aec83525ce1584f9ef47d4d52a5747f945e969781",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "037",
+      "sha256": "37487e667156e4fd2f2702859e84935863375afa8e69c6d3666ecc4b43ae7c2c",
+      "dynamic": true,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-late.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "038",
+      "sha256": "1539635c2208db63c30a11eb235df96c206fcac8f3282024cd78577a167d09bf",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "039",
+      "sha256": "167274d43fcb07f7267fa28c620815951db6ac063af9ad94ee534113579395ba",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "040",
+      "sha256": "603f1c3c6a6b6814e055ac82a5e4f6451e9cb8255c624547534942529da68753",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "041",
+      "sha256": "f9e03d3909320a0fe0bf3bf876e35fa2ad7ba023838211b05c753086008d513f",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "042",
+      "sha256": "f433f2f79d1b8b34acf7731621e8970d2cd0709718e6ca66926c22dd85c94790",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "043",
+      "sha256": "4e636d5462ebeaf93130509ec784856a043dd7db4f1c192158907ffa4026cdd4",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "044",
+      "sha256": "39a91296663d56cc960c12ec3c3d742a0b7ab1cfd03bb16fb27636ada9bc96af",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "045",
+      "sha256": "5de0b63c24dcbc07b6d18df8170b746392a48398811f18f83c4a30e8e7c3aadc",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "046",
+      "sha256": "b2004042414f864faf9701bbbf11578b030d4ade4deb92e9b57a81e6409f1895",
+      "dynamic": true,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-late.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "047",
+      "sha256": "8a0bb6b96c118dc642c3f3a452506f13a9f6286d52e4ded84b2c037ea53c9649",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "048",
+      "sha256": "92e5a2c740248615d8a670ec4bf32a2a465c628b4aed2da67056216b6d761a3d",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "049",
+      "sha256": "e986af02344e3deb90237856f2d6ef2460eecf4a00de1660d3d546a68e969180",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "050",
+      "sha256": "e31b5df19fb3ae5d8e302b8926a848271283638db862573a75d6e5970f10d575",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Previously recorded 001-050 audit"
+    },
+    {
+      "experiment": "051",
+      "sha256": "33a93b5ee815269a1c52b4b61fcf60a9f600c8085c164ab173cf31cb9a0e805b",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "052",
+      "sha256": "fa11a080cbe5e1ade16a9374812237bebfb34f7495adabe999504d759d1c561c",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "053",
+      "sha256": "72d10280c0cb34c90b07e1ba98284f836cb6684d2c94df5e5ed4987169b927a9",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "054",
+      "sha256": "e173351181005919eaa43ecbf54c1c4da20e6b5af5d57846fc7ffbe1e95adaca",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "055",
+      "sha256": "420528c990e801055ca1f2c45467436cf4848f70680b3f6daad21f832f63d548",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "056",
+      "sha256": "2be90df67f4d1adf865a2b8abea3c16c4a87421558822da36704a110565c9eb0",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "057",
+      "sha256": "f84950529a6ca28b165609a88f17894857180b16c7dc45b0a03665f30f40ed5f",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "058",
+      "sha256": "eca85e2495443a23f4f3c4c2c68168e2ee9e83a79f57b5dff254f9af8d13d923",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "059",
+      "sha256": "02de612611f2ec20ad4de19adfda19bf8f78d73111112898da8c936e5c13a4ab",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "060",
+      "sha256": "455d4027ac35360e99afe1aa2d6f0cb8ec3745e891899378e9673aaaecbed694",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "061",
+      "sha256": "3814098a7d1e4ff4e4e2cd7597d8570fe760a7a4d94598e4ecf998374a1b8c5e",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "062",
+      "sha256": "e7a138a5307e70b5d85c635ad0da7adae1002baa35d024cbe2ba65b926bce467",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "063",
+      "sha256": "2d63924978b28c1fc00f8d674a9b324bfb8c017f5c1044de4600854670182d56",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "064",
+      "sha256": "1cdaf7fe16227ceb183685d6393319a09fd380e28cb1fad3f83bdddf78aa147d",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "065",
+      "sha256": "bfb0f8fcd53de336ef3bfe53488bfb55400df641203d0de373dd3b5a6d524566",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "066",
+      "sha256": "2833f1035aadc46b20f82035cef24258abf30a9b6b5edcb9f85bd82c2e3c9eea",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "067",
+      "sha256": "38abaf3bc1bb309e5520083e60a9fd67c433e7e4a25c758dc68851c15c0ca0ac",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "068",
+      "sha256": "a8db8feb2061525ed540e9b0e0ce6140463c25eda69f0f23c92a880106426a57",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "069",
+      "sha256": "e521f437430fa862611c93507fed4baf75e12896208152a1d65a3b98d7d7cb85",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "070",
+      "sha256": "800b63b150305615bba3dc9bab348a5917c9e57981fbef0fa6620ec2c2e37ab4",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "071",
+      "sha256": "f1d439064ce9580b8ac9e9696ad22e5bfed2fe0f414b286e179052f25b700723",
+      "dynamic": false,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "072",
+      "sha256": "24fb859b1ba0fdc7a6e20a98c5efe42be103fc4542cdbf602f29fcbbda03e98e",
+      "dynamic": true,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-late.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "073",
+      "sha256": "cdecfeefff70401d72a46db838b303ff15607da821b9ed06076301ddbdb5f2b4",
+      "dynamic": true,
+      "interaction": false,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-late.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "074",
+      "sha256": "626568857ed6fa1a637a469559adceb3ca6bc009ba40771b3b6b074e6552d0fa",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    },
+    {
+      "experiment": "075",
+      "sha256": "731ff13f3c5977eb4d1b4685af9233388d006668c37009601a199e0030975d1c",
+      "dynamic": false,
+      "interaction": true,
+      "requiredCaptures": [
+        "screenshot.png",
+        "screenshot-interaction.png"
+      ],
+      "finalBrowserTest": "OK",
+      "finalBrowserTestScope": "Current 051-075 batch"
+    }
+  ],
+  "checks": {
+    "priorSealedHashesUnchanged": true,
+    "priorArchive": "001-050",
+    "requiredArtifactsPresent": true,
+    "captureDimensions": "1280x800",
+    "noDevelopmentFiles": true,
+    "no076": true,
+    "finalBrowserTests": "051-075 OK; 001-050 previously recorded OK with unchanged hashes",
+    "gradientVisibilityFixtures": {
+      "opaque": "OK",
+      "transparent": "DOM_VISIBILITY rejected as expected"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Shared Plate</title>
+<style>
+body{margin:0;background:#e1e7ec;color:#233a50;font-family:Arial,sans-serif}main{padding:50px 7vw}header{font-size:12px;letter-spacing:3px}
+greeting-plate{display:block;margin-top:125px}greeting-plate[echo]{margin-top:45px;border-top:1px solid #a6b6c2;padding-top:30px}
+/* Deliberately conflicting document-level h1 styles demonstrate the shadow
+   boundary. They must not recolor the component's actual Hello World headings. */
+h1{font:14px Arial,sans-serif;color:#6a7c89;margin-top:30px}
+button{margin-top:45px;border:1px solid;background:none;color:inherit;padding:13px 23px;font:14px Arial,sans-serif;cursor:pointer}
+</style></head><body><main><header>014 / ONE SHEET, TWO SHADOW ROOTS</header><greeting-plate></greeting-plate><greeting-plate echo></greeting-plate><button id="recast">Recast the shared plate</button><h1 id="sentinel">Document styling remains outside the plate.</h1></main>
+<script>
+const sheet=new CSSStyleSheet();
+const steel='h1{font:normal 105px Georgia,serif;letter-spacing:-5px;margin:0;color:#233a50;text-shadow:2px 2px 0 white}:host([echo]) h1{font-size:60px}';
+const copper='h1{font:bold 92px monospace;letter-spacing:1px;margin:0;color:#a44928;text-shadow:2px 3px 0 #f8d5bb}:host([echo]) h1{font-size:52px}';
+sheet.replaceSync(steel);
+// Both roots adopt the same stylesheet object. Replacing its contents updates
+// both rendered greetings without changing their nodes or leaking outer rules.
+customElements.define('greeting-plate',class extends HTMLElement{
+ constructor(){super();const root=this.attachShadow({mode:'open'});root.innerHTML='<h1>Hello World</h1>';root.adoptedStyleSheets=[sheet]}
+});
+const roots=[...document.querySelectorAll('greeting-plate')].map(el=>el.shadowRoot),nodes=roots.map(root=>root.querySelector('h1'));let recast=false;
+document.querySelector('#recast').onclick=()=>{recast=!recast;sheet.replaceSync(recast?copper:steel)};
+window.labScenario={kind:'click',selector:'#recast'};
+window.labEvidence=()=>({subject:'Hello World',passed:roots.every(root=>root.adoptedStyleSheets[0]===sheet)&&nodes.every(node=>getComputedStyle(node).color==='rgb(35, 58, 80)'),
+mechanism:'One constructable stylesheet -> two adopted shadow roots -> scoped greeting styles',measurements:{roots:roots.length,sameSheet:roots.every(root=>root.adoptedStyleSheets[0]===sheet),colors:nodes.map(node=>getComputedStyle(node).color)}});
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:recast&&nodes.every(node=>getComputedStyle(node).color==='rgb(164, 73, 40)')&&getComputedStyle(document.querySelector('#sentinel')).color==='rgb(106, 124, 137)'&&roots.every((root,i)=>root.querySelector('h1')===nodes[i]),
+mechanism:'replaceSync on shared sheet -> coordinated shadow typography, outer sentinel unchanged',measurements:{colors:nodes.map(node=>getComputedStyle(node).color),families:nodes.map(node=>getComputedStyle(node).fontFamily),unchangedNodes:true,sentinelColor:getComputedStyle(document.querySelector('#sentinel')).color}});
+</script></body></html>

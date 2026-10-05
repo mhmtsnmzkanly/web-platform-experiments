@@ -1,0 +1,78 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Two Color Paths"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Two Color Paths"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Glyph position -> native color-mix space -> greeting ink spectrum",
+    "measurements": {
+      "srgb": {
+        "color": "color(srgb 0.4 0.482353 0.6)",
+        "rgb": [
+          102,
+          123,
+          153
+        ]
+      },
+      "oklab": {
+        "color": "oklab(0.652954 -0.0236783 -0.0955406)",
+        "rgb": [
+          103,
+          146,
+          204
+        ]
+      },
+      "difference": 55.95533933415112
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

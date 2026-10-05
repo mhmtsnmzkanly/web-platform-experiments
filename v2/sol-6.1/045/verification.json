@@ -1,0 +1,103 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Distributed Sheets"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Distributed Sheets"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Custom element upgrade -> named slot distribution -> greeting sheets",
+    "measurements": {
+      "connected": 1,
+      "changes": 2
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#swap"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Slot reassignment -> slotchange -> reversed greeting hierarchy",
+      "measurements": {
+        "changes": 4,
+        "frontIsOriginalSecond": true,
+        "connected": 1
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        },
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Hello World — Distributed Sheets"
+    },
+    "late": null
+  }
+}

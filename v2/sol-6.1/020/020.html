@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Pull</title>
+<style>
+body{margin:0;background:#092e39;color:#79e2cd;font-family:Arial,sans-serif;overflow:hidden}
+main{height:100vh;display:flex;align-items:center;padding-left:90px}
+h1{font-size:110px;letter-spacing:-7px;margin:0;transform-origin:left center;transform:scaleX(var(--stretch,1));user-select:none}
+button{position:absolute;left:920px;top:360px;width:80px;height:80px;border:2px solid #79e2cd;background:#195563;color:#79e2cd;border-radius:50%;font:32px monospace;touch-action:none;cursor:ew-resize}
+small{position:absolute;bottom:55px;left:90px;font:14px monospace}
+</style></head><body><main><h1>Hello World</h1><button id="pull" aria-label="Drag to stretch Hello World">↔</button><small id="readout">020 / PULL THE HANDLE</small></main>
+<script>
+const handle=document.querySelector('#pull'),heading=document.querySelector('h1');let start=0,delta=0,captured=false,trusted=false,moves=0,released=false;
+// Pointer capture keeps movement addressed to the handle even after leaving its
+// bounds. Delta controls live text geometry; it is not a simulated drag button.
+handle.onpointerdown=e=>{start=e.clientX;handle.setPointerCapture(e.pointerId);captured=handle.hasPointerCapture(e.pointerId);trusted=e.isTrusted;released=false};
+handle.onpointermove=e=>{if(!handle.hasPointerCapture(e.pointerId)||!e.buttons)return;delta=Math.max(-150,Math.min(250,e.clientX-start));moves++;heading.style.setProperty('--stretch',1+delta/650);handle.style.transform='translateX('+delta+'px)';document.querySelector('#readout').textContent='CAPTURED DELTA / '+Math.round(delta)+' PX'};
+handle.onpointerup=e=>{released=true;handle.releasePointerCapture(e.pointerId)};
+window.labScenario={kind:'drag',selector:'#pull',deltaX:180};
+window.labEvidence=()=>({subject:'Hello World',passed:delta===0&&getComputedStyle(handle).touchAction==='none',mechanism:'Pointer capture -> delta -> live greeting stretch',measurements:{initialDelta:delta,touchAction:getComputedStyle(handle).touchAction}});
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:trusted&&captured&&released&&moves>=6&&delta>170&&new DOMMatrix(getComputedStyle(heading).transform).a>1.25,mechanism:'Captured trusted drag -> persistent stretched text',measurements:{trusted,captured,released,moves,delta,scale:new DOMMatrix(getComputedStyle(heading).transform).a}});
+</script></body></html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Scroll Is the Clock</title>
+<style>
+body{margin:0;background:#e7e6df;color:#274655;font-family:Arial,sans-serif}
+.scrollbox{height:100vh;overflow-y:auto;overflow-x:hidden;scroll-timeline:--greeting block}.track{height:1800px;padding-top:180px;box-sizing:border-box}
+/* A native scroll timeline supplies animation time. There is no scroll handler
+   assigning transform: the browser interpolates directly from scroll progress. */
+h1{position:sticky;top:220px;text-align:center;font-size:135px;margin:0;white-space:nowrap;animation:drift 1s linear both;animation-timeline:--greeting}
+@keyframes drift{from{transform:translateX(-140px) scale(.72) rotate(-9deg);letter-spacing:-8px}to{transform:translateX(140px) scale(1.05) rotate(8deg);letter-spacing:0}}
+small{position:fixed;top:35px;right:40px;font:12px monospace}.axis{position:fixed;top:90px;right:30px;height:600px;width:3px;background:repeating-linear-gradient(#274655 0 2px,transparent 2px 24px)}
+</style></head><body><main class="scrollbox"><div class="track"><h1>Hello World</h1></div></main><small>019 / SCROLL IS THE CLOCK</small><div class="axis" aria-hidden="true"></div>
+<script>
+const box=document.querySelector('.scrollbox'),h=document.querySelector('h1');let trusted=false;
+box.addEventListener('wheel',e=>{trusted=e.isTrusted},{passive:true});
+window.labScenario={kind:'scroll',selector:'.scrollbox',deltaY:850};
+window.labEvidence=()=>{const a=h.getAnimations()[0],m=new DOMMatrix(getComputedStyle(h).transform);
+return {subject:'Hello World',passed:CSS.supports('animation-timeline','scroll()')&&a.timeline.constructor.name==='ScrollTimeline'&&box.scrollTop===0&&m.a<.8,
+mechanism:'Native scroll offset -> ScrollTimeline -> interpolated greeting geometry',measurements:{timeline:a.timeline.constructor.name,progress:a.currentTime?.value,transform:getComputedStyle(h).transform}}};
+window.labInteractionEvidence=()=>{const a=h.getAnimations()[0],m=new DOMMatrix(getComputedStyle(h).transform);
+return {subject:'Hello World',passed:trusted&&box.scrollTop>600&&a.currentTime.value>60&&m.a>.9,
+mechanism:'Trusted wheel -> timeline progress -> larger rotated Hello World',measurements:{scrollTop:box.scrollTop,progress:a.currentTime.value,transform:getComputedStyle(h).transform,tracking:getComputedStyle(h).letterSpacing}}};
+</script></body></html>

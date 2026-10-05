@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Clone Terrarium</title>
+<style>
+:root{color:#e7f3df;background:#13261b;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#13261b,#3a6b4b)}.terrarium{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #b8d56e;overflow:hidden}.terrarium:before{position:absolute;inset:24% 10% 8%;border:1px solid rgba(184,213,110,.5);border-radius:50% 50% 12% 12%;content:""}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#b8d56e;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#d3e7c5;font:12px monospace}.seed{position:relative;z-index:1;margin:18vh 0 0;text-align:center}.seed h1{margin:0;color:#f2efda;font-size:clamp(64px,13vw,158px);line-height:.8;letter-spacing:-.1em}.leaf{display:inline-block;width:26px;height:48px;margin:28px 8px 0;border-radius:100% 0;background:#b8d56e;transform:rotate(var(--r))}.controls{position:absolute;right:28px;bottom:28px;display:flex;gap:12px}button{border:1px solid #b8d56e;padding:9px 14px;color:#b8d56e;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="terrarium"><p class="label">036R / clone terrarium / structured data</p><p class="state" id="state">specimen / original seed</p><section class="seed"><h1>Hello World</h1><i class="leaf" style="--r:-28deg"></i><i class="leaf" style="--r:28deg"></i></section><div class="controls"><button id="clone" type="button">grow a clone</button></div></main><script>
+const state=document.querySelector('#state'),seed={text:'Hello World',habitat:'terrarium',leaves:[-28,28]};document.querySelector('#clone').addEventListener('click',()=>{const clone=structuredClone(seed);clone.leaves.push(-48,48);state.textContent=`specimen / clone grown / ${clone.leaves.length} leaves`});
+</script></body></html>

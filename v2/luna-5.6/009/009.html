@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Impression</title>
+  <style>
+    :root {
+      color: #f6e6a8;
+      background: #172338;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #172338;
+    }
+
+    .poster {
+      width: min(88vw, 1000px);
+      padding: 42px 48px 50px;
+      border: 2px solid #f6e6a8;
+      background: #263b5d;
+      transition: background 180ms ease, border-color 180ms ease;
+    }
+
+    .control {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: fit-content;
+      color: #f6e6a8;
+      font: 12px/1.2 monospace;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .control input {
+      width: 18px;
+      height: 18px;
+      accent-color: #ee7654;
+    }
+
+    h1 {
+      margin: 72px 0 36px;
+      color: #f6e6a8;
+      font-size: clamp(68px, 14vw, 170px);
+      line-height: 0.82;
+      letter-spacing: -0.1em;
+      transform: translateX(0);
+      transition: color 180ms ease, transform 180ms ease, text-shadow 180ms ease;
+    }
+
+    .stamp {
+      display: inline-block;
+      padding: 10px 14px;
+      border: 1px solid #ee7654;
+      color: #ee7654;
+      font: 12px/1.2 monospace;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    body:has(#signal:checked) .poster {
+      background: #ee7654;
+      border-color: #172338;
+    }
+
+    body:has(#signal:checked) h1 {
+      color: #172338;
+      transform: translateX(22px) rotate(-2deg);
+      text-shadow: 10px 10px 0 #f6e6a8;
+    }
+
+    body:has(#signal:checked) .control {
+      color: #172338;
+    }
+
+    body:has(#signal:checked) .stamp {
+      border-color: #172338;
+      color: #172338;
+    }
+  </style>
+</head>
+<body>
+  <main class="poster">
+    <label class="control">
+      <input id="signal" type="checkbox" checked>
+      <span>relational state / active</span>
+    </label>
+    <h1>Hello World</h1>
+    <span class="stamp">:has() controls the impression</span>
+  </main>
+</body>
+</html>

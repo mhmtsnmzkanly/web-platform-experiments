@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Spotlight</title>
+<style>
+body{margin:0;background:#17283a;color:#f7deac;font-family:Arial,sans-serif}main{height:100vh;padding:55px 70px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:flex-end}
+header{position:absolute;top:45px;font-size:12px;letter-spacing:3px}h1{font-size:115px;letter-spacing:-7px;margin:0 0 35px}
+button{background:transparent;color:inherit;border:1px solid;padding:14px 24px;font:14px Arial,sans-serif;cursor:pointer;align-self:flex-start}
+/* showModal owns the top layer and backdrop; no z-index simulation or custom
+   focus trap is used. Styling changes the material, not native modality. */
+dialog{width:min(900px,80vw);height:440px;border:0;border-radius:50%;background:#f97650;color:#17283a;padding:30px}
+dialog[open]{display:flex;flex-direction:column;align-items:center;justify-content:center}
+dialog::backdrop{background:rgba(10,22,35,.94)}h2{font:normal 110px Georgia,serif;letter-spacing:-6px;margin:15px 0 30px}
+dialog button{color:#17283a}button:focus-visible{outline:3px solid #f7deac;outline-offset:5px}
+@media(max-width:700px){h1{font-size:14vw}h2{font-size:12vw}main{padding:30px}}
+</style></head><body><main><header>012 / SPOTLIGHT</header><h1>Hello World</h1><button id="open">Bring the greeting forward</button></main>
+<dialog aria-labelledby="greeting"><h2 id="greeting">Hello World</h2><form method="dialog"><button autofocus>Return to the page</button></form></dialog>
+<script>
+const dialog=document.querySelector('dialog');document.querySelector('#open').onclick=()=>dialog.showModal();
+window.labScenario={kind:'click',selector:'#open'};
+window.labEvidence=()=>({subject:'Hello World',passed:!dialog.open&&!dialog.matches(':modal'),
+mechanism:'Trusted click -> native modal top layer -> spotlight greeting',measurements:{initialOpen:dialog.open,initialModal:dialog.matches(':modal')}});
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:dialog.open&&dialog.matches(':modal')&&dialog.contains(document.activeElement),
+mechanism:'showModal -> top layer and native focus transfer',measurements:{open:dialog.open,modal:dialog.matches(':modal'),focusedTag:document.activeElement.tagName,focusInside:dialog.contains(document.activeElement)}});
+</script></body></html>

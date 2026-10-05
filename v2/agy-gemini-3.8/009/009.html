@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — CSS :has() Relational Stencil</title>
+  <style>
+    /*
+      EXPERIMENT 009: CSS :has() Relational Pseudo-class & Interactive Registration
+
+      Architecture:
+      Utilizes the CSS Selectors Level 4 `:has()` relational pseudo-class.
+      A native, unscripted checkbox `<input type="checkbox">` acts as the state carrier.
+      When toggled via trusted user interaction, the parent enclosure `.print-bed`
+      matches `.print-bed:has(#plate-toggle:checked)`.
+      This instantaneously recalculates custom properties, shifting the visual language
+      from a raw monochrome kraft proof into a vivid fluorescent two-color Risograph print
+      with intentional mechanical registration misalignments and blend modes.
+
+      Design System:
+      - Style: Risograph Print Stencil / Graphic Arts Registration Press
+      - Palette (Initial Proof): Raw kraft paper (#eae4d6), graphite carbon (#181716), zinc (#807b73)
+      - Palette (Engaged Press): Deep midnight indigo (#0e071c), hot fluorescent pink (#ff0055),
+                                 solar canary yellow (#ffee00), electric screen blend
+      - Typography: Heavy brutalist display sans-serif (Arial Black / Impact / sans-serif)
+    */
+
+    :root {
+      --bg-bed: #eae4d6;
+      --color-frame: #181716;
+      --color-hello: #181716;
+      --color-world: #181716;
+      --color-muted: #78736a;
+      --hello-offset: 0px, 0px;
+      --world-offset: 0px, 0px;
+      --blend-mode: normal;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: var(--bg-bed);
+      color: var(--color-frame);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.15s ease;
+    }
+
+    /* Print Bed Enclosure */
+    .print-bed {
+      width: 100%;
+      max-width: 1080px;
+      height: 720px;
+      background: var(--bg-bed);
+      border: 3px solid var(--color-frame);
+      box-shadow: 12px 12px 0 var(--color-frame);
+      padding: 36px 44px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    /*
+      THE CORE MECHANISM:
+      Relational parent styling triggered purely through CSS :has()
+    */
+    .print-bed:has(#plate-toggle:checked) {
+      --bg-bed: #0f0720;
+      --color-frame: #ffee00;
+      --color-hello: #ff0055;
+      --color-world: #ffee00;
+      --color-muted: #a39cb5;
+      --hello-offset: -8px, -6px;
+      --world-offset: 8px, 6px;
+      --blend-mode: screen;
+      box-shadow: 12px 12px 0 #ff0055;
+    }
+
+    /* Header Bar */
+    .press-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--color-frame);
+      padding-bottom: 14px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+    }
+
+    /* Checkbox & Native Toggle Lever */
+    .toggle-assembly {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sr-toggle {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .stencil-lever {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--color-frame);
+      color: var(--bg-bed);
+      padding: 8px 16px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+      border: 2px solid var(--color-frame);
+      border-radius: 2px;
+    }
+
+    .indicator-lamp {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #78736a;
+    }
+
+    .print-bed:has(#plate-toggle:checked) .indicator-lamp {
+      background: #ff0055;
+      box-shadow: 0 0 10px #ff0055;
+    }
+
+    /* Primary Arena */
+    .print-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Registration Crosshairs */
+    .crosshair-tl { position: absolute; top: 16px; left: 16px; font-family: monospace; font-size: 16px; color: var(--color-muted); }
+    .crosshair-tr { position: absolute; top: 16px; right: 16px; font-family: monospace; font-size: 16px; color: var(--color-muted); }
+    .crosshair-bl { position: absolute; bottom: 16px; left: 16px; font-family: monospace; font-size: 16px; color: var(--color-muted); }
+    .crosshair-br { position: absolute; bottom: 16px; right: 16px; font-family: monospace; font-size: 16px; color: var(--color-muted); }
+
+    /* The Primary Semantic Subject */
+    h1.print-h1 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin: 0;
+      padding: 0;
+      font-size: inherit;
+      font-weight: inherit;
+      mix-blend-mode: var(--blend-mode);
+    }
+
+    .plate-hello {
+      font-family: "Arial Black", "Impact", -apple-system, sans-serif;
+      font-size: clamp(84px, 14vw, 150px);
+      line-height: 0.88;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      color: var(--color-hello);
+      transform: translate(var(--hello-offset));
+      transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2), color 0.15s ease;
+    }
+
+    .plate-world {
+      font-family: "Arial Black", "Impact", -apple-system, sans-serif;
+      font-size: clamp(84px, 14vw, 150px);
+      line-height: 0.88;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      color: var(--color-world);
+      transform: translate(var(--world-offset));
+      transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2), color 0.15s ease;
+    }
+
+    /* Footer Status */
+    .press-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 2px solid var(--color-frame);
+      padding-top: 14px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+    }
+
+    .mode-readout {
+      font-family: monospace;
+      color: var(--color-frame);
+    }
+  </style>
+</head>
+<body>
+  <main class="print-bed">
+    <!-- Native Checkbox carrier for relational state -->
+    <input type="checkbox" id="plate-toggle" class="sr-toggle" />
+
+    <header class="press-header">
+      <div>EXP 009 // RELATIONAL STENCIL</div>
+      <div class="toggle-assembly">
+        <label for="plate-toggle" class="stencil-lever" id="action-lever">
+          <span class="indicator-lamp"></span>
+          ENGAGE RISOGRAPH COLOR PLATES
+        </label>
+      </div>
+      <div>SPEC: CSS :HAS() SELECTOR</div>
+    </header>
+
+    <div class="print-stage">
+      <span class="crosshair-tl" aria-hidden="true">+ 01/A</span>
+      <span class="crosshair-tr" aria-hidden="true">+ 02/B</span>
+      <span class="crosshair-bl" aria-hidden="true">+ 03/C</span>
+      <span class="crosshair-br" aria-hidden="true">+ 04/D</span>
+
+      <!-- Primary Subject: Hello World transformed across :has() states -->
+      <h1 class="print-h1">
+        <span class="plate-hello">Hello</span>
+        <span class="plate-world">World</span>
+      </h1>
+    </div>
+
+    <footer class="press-footer">
+      <span>STATE: :HAS(:CHECKED) ANCESTOR SELECTOR</span>
+      <span class="mode-readout" id="press-status">BED STATUS: MONOCHROME PROOF</span>
+      <span>MECHANICAL REGISTRATION OFFSET</span>
+    </footer>
+  </main>
+
+  <script>
+    const checkbox = document.getElementById('plate-toggle');
+    const statusText = document.getElementById('press-status');
+
+    checkbox.addEventListener('change', () => {
+      statusText.textContent = checkbox.checked ?
+        'BED STATUS: 2-COLOR RISO OVERPRINT ACTIVE' :
+        'BED STATUS: MONOCHROME PROOF';
+    });
+
+    // Configure trusted interaction scenario for tools.js
+    window.labScenario = {
+      kind: 'click',
+      selector: '#action-lever'
+    };
+
+    // Interaction Evidence evaluating post-click transformed state
+    window.labInteractionEvidence = () => {
+      const isChecked = checkbox.checked;
+      const computedBed = window.getComputedStyle(document.querySelector('.print-bed'));
+      const computedHello = window.getComputedStyle(document.querySelector('.plate-hello'));
+
+      return {
+        subject: 'Hello World',
+        passed: isChecked === true && computedHello.color !== 'rgb(24, 23, 22)',
+        mechanism: 'Native checkbox input -> CSS :has(:checked) relational ancestor matching -> dual-plate registration shift & chromatic inversion -> transformed Hello World',
+        measurements: {
+          checkboxChecked: isChecked,
+          bedBackgroundColor: computedBed.backgroundColor,
+          helloColor: computedHello.color,
+          blendMode: computedHello.mixBlendMode
+        }
+      };
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 054: CSS Trigonometric Functions Level 4 Parametric Reticle"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 054: CSS Trigonometric Functions Level 4 Parametric Reticle"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS Values and Units Module Level 4 Trigonometric Functions (sin, cos, tan)",
+    "measurements": {
+      "supportsSin": true,
+      "supportsAtan2": true,
+      "currentRotationOffset": "0deg",
+      "currentRadius": "170px",
+      "sat45Transform": "matrix(1, 0, 0, 1, 120.208, 120.208)",
+      "hubFontSize": "51.2px"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

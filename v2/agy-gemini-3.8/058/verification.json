@@ -1,0 +1,61 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 058: W3C User Timing API Level 3 Execution Chronometer"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 058: W3C User Timing API Level 3 Execution Chronometer"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "W3C User Timing API Level 3 (performance.mark and performance.measure with detail payloads)",
+    "measurements": {
+      "hasDetailSupport": true,
+      "totalMarks": 5,
+      "totalMeasures": 5,
+      "lastTotalDuration": 11.900000000372529,
+      "lastMeasureDetail": {
+        "totalPipeline": true
+      },
+      "subjectFontSize": "64px"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

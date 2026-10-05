@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Two Tracks</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#e6412d;color:#231d1a;font-family:Arial,sans-serif}
+main{min-height:100vh;padding:48px;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);grid-template-rows:auto 1fr auto;gap:24px}
+header{grid-column:1/-1;display:flex;justify-content:space-between;border-top:3px solid;padding-top:14px;font-size:13px;letter-spacing:.12em}
+/* The unequal tracks make the words occupy different spatial roles. minmax
+   prevents intrinsic word width from forcing the poster outside the viewport. */
+h1{grid-column:1/-1;display:grid;grid-template-columns:subgrid;align-self:center;align-items:end;margin:0;gap:24px}
+.hello{font-size:clamp(70px,14vw,190px);letter-spacing:-.085em;line-height:.8}
+.world{font-size:clamp(42px,6.8vw,100px);letter-spacing:-.065em;line-height:.9;border-bottom:12px solid;padding-bottom:14px}
+footer{grid-column:1/-1;font-size:14px;display:flex;justify-content:space-between}
+@media(max-width:650px){main{padding:24px;grid-template-columns:1fr}h1{grid-template-columns:1fr}.world{width:max-content}}
+</style>
+</head>
+<body><main><header><span>002 / TWO TRACKS</span><span>INTRINSIC TYPOGRAPHY</span></header>
+<h1 aria-label="Hello World"><span class="hello">Hello </span><span class="world">World</span></h1>
+<footer><span>Two words. One shared grid.</span><span>2 : 1</span></footer></main>
+<script>
+// Inspect actual layout geometry rather than claiming support from API presence.
+window.labEvidence=()=>{
+ const a=document.querySelector('.hello').getBoundingClientRect(),b=document.querySelector('.world').getBoundingClientRect();
+ return {subject:'Hello World',passed:CSS.supports('grid-template-columns','subgrid')&&a.width>b.width&&b.left>a.left,
+ mechanism:'CSS Grid unequal tracks -> inherited subgrid -> contrasting Hello World word scales',
+ measurements:{helloTrack:a.width,worldTrack:b.width,worldLeft:b.left}};
+};
+</script></body></html>

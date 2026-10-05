@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — SVG Filter Displacement & Prismatic Refraction</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-void: #08090c;
+      --card-bg: #0f1218;
+      --border-lens: #222b3d;
+      --grid-line: rgba(70, 95, 135, 0.15);
+      --spectral-cyan: #00f5d4;
+      --spectral-magenta: #f72585;
+      --spectral-violet: #7209b7;
+      --text-bright: #f0f4fc;
+      --text-dim: #64748b;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--bg-void);
+      background-image: 
+        radial-gradient(ellipse at 50% 50%, rgba(114, 9, 183, 0.12) 0%, transparent 70%),
+        linear-gradient(180deg, #050608 0%, #0d1016 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-bright);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    .optical-bench {
+      width: 1180px;
+      height: 720px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-lens);
+      border-radius: 12px;
+      box-shadow: 
+        0 25px 60px rgba(0, 0, 0, 0.85),
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        inset 0 0 80px rgba(0, 245, 212, 0.03);
+      display: flex;
+      flex-direction: column;
+      padding: 26px 36px;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Graticule Background Matrix */
+    .optical-bench::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    /* Header Deck */
+    .bench-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-lens);
+      z-index: 2;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .header-tag {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--spectral-cyan);
+      font-weight: 700;
+    }
+
+    .optical-indicator {
+      width: 8px;
+      height: 8px;
+      background: var(--spectral-cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--spectral-cyan);
+    }
+
+    .header-meta {
+      color: var(--text-dim);
+      display: flex;
+      gap: 24px;
+    }
+
+    /* Stage: Refractive Chamber */
+    .refraction-chamber {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.8) 0%, rgba(8, 10, 15, 0.95) 100%);
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+    }
+
+    /* Optical Target Reticle */
+    .reticle-ring {
+      position: absolute;
+      width: 440px;
+      height: 220px;
+      border: 1px dashed rgba(0, 245, 212, 0.25);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .reticle-crosshair {
+      position: absolute;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 15%, rgba(0, 245, 212, 0.2) 50%, transparent 85%);
+      pointer-events: none;
+    }
+
+    .chamber-label {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--spectral-cyan);
+      margin-bottom: 12px;
+      opacity: 0.9;
+    }
+
+    /* Subject Headline with SVG Filter Applied */
+    .distorted-headline {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      font-size: 82px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-align: center;
+      line-height: 1.1;
+      margin: 0;
+      filter: url(#prismatic-fluid);
+      transition: filter 0.3s ease;
+      cursor: default;
+    }
+
+    .chamber-sublabel {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-top: 16px;
+    }
+
+    /* Telemetry Deck */
+    .bench-footer {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-lens);
+      z-index: 2;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+    }
+
+    .telemetry-card {
+      background: rgba(14, 19, 28, 0.7);
+      border: 1px solid var(--border-lens);
+      border-radius: 6px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .telemetry-label {
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .telemetry-value {
+      color: var(--spectral-cyan);
+      font-weight: 700;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Hidden SVG Filter Definition -->
+  <svg width="0" height="0" style="position: absolute; pointer-events: none;" aria-hidden="true">
+    <defs>
+      <filter id="prismatic-fluid" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+        <!-- 1. High-frequency fractal turbulence -->
+        <feTurbulence type="fractalNoise" baseFrequency="0.015 0.025" numOctaves="3" seed="73" result="rawNoise" />
+        
+        <!-- 2. Dual-channel displacement for liquid refraction -->
+        <feDisplacementMap in="SourceGraphic" in2="rawNoise" scale="28" xChannelSelector="R" yChannelSelector="G" result="fluidDistort" />
+        
+        <!-- 3. Spectral offset for chromatic aberration -->
+        <feOffset in="fluidDistort" dx="-4" dy="-2" result="redShift" />
+        <feOffset in="fluidDistort" dx="4" dy="2" result="blueShift" />
+        
+        <!-- 4. Chromatic isolation matrices -->
+        <feColorMatrix in="redShift" type="matrix"
+          values="1 0 0 0 0
+                  0 0 0 0 0
+                  0 0 0 0 0
+                  0 0 0 0.85 0" result="redChannel" />
+
+        <feColorMatrix in="blueShift" type="matrix"
+          values="0 0 0 0 0
+                  0 0.9 0 0 0
+                  0 0 1 0 0
+                  0 0 0 0.85 0" result="blueChannel" />
+
+        <!-- 5. Optical composite blending -->
+        <feBlend in="redChannel" in2="blueChannel" mode="screen" result="chromaFringe" />
+        <feBlend in="fluidDistort" in2="chromaFringe" mode="screen" result="finalComposite" />
+      </filter>
+    </defs>
+  </svg>
+
+  <main class="optical-bench" role="main">
+    <header class="bench-header">
+      <div class="header-tag">
+        <span class="optical-indicator"></span>
+        <span>Optical Bench Specimen // Exp 015</span>
+      </div>
+      <div class="header-meta">
+        <span>PRIMITIVE: FETURBULENCE + FEDISPLACEMENTMAP</span>
+        <span>COLOR MATRIX: CHROMATIC SPLIT</span>
+        <span>INDEX: η = 1.54 (RI)</span>
+      </div>
+    </header>
+
+    <section class="refraction-chamber" aria-label="Liquid Refraction Testbed">
+      <div class="reticle-ring"></div>
+      <div class="reticle-crosshair"></div>
+      
+      <span class="chamber-label">Refractive Float Glass Medium</span>
+      <h1 class="distorted-headline" id="main-subject">Hello World</h1>
+      <span class="chamber-sublabel">Perlin Turbulence Displaced Baseline &middot; Chromatic Dispersion</span>
+    </section>
+
+    <footer class="bench-footer">
+      <div class="telemetry-card">
+        <span class="telemetry-label">Filter Primitives</span>
+        <span class="telemetry-value">feTurbulence &middot; feDisplacement</span>
+      </div>
+      <div class="telemetry-card">
+        <span class="telemetry-label">Turbulence Freq</span>
+        <span class="telemetry-value">fx: 0.015 &middot; fy: 0.025 (3 Oct)</span>
+      </div>
+      <div class="telemetry-card">
+        <span class="telemetry-label">Displacement Scale</span>
+        <span class="telemetry-value">28.0 px (R/G Vector)</span>
+      </div>
+      <div class="telemetry-card">
+        <span class="telemetry-label">Dispersion Fringe</span>
+        <span class="telemetry-value">RGB Lateral Aberration</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // Lab Evidence Hook for Verification
+    window.labEvidence = () => {
+      const filter = document.getElementById('prismatic-fluid');
+      const turbulence = filter?.querySelector('feTurbulence');
+      const displacement = filter?.querySelector('feDisplacementMap');
+      const headline = document.getElementById('main-subject');
+      const style = window.getComputedStyle(headline);
+
+      return {
+        subject: "Hello World",
+        passed: !!(filter && turbulence && displacement && style.filter.includes('url')),
+        mechanism: "SVG feTurbulence noise generation -> feDisplacementMap vector warping -> feColorMatrix chromatic split -> prismatic fluid Hello World",
+        measurements: {
+          filterId: filter?.id,
+          turbulenceFrequency: turbulence?.getAttribute('baseFrequency'),
+          turbulenceOctaves: Number(turbulence?.getAttribute('numOctaves')),
+          displacementScale: Number(displacement?.getAttribute('scale')),
+          xChannel: displacement?.getAttribute('xChannelSelector'),
+          yChannel: displacement?.getAttribute('yChannelSelector'),
+          computedFilter: style.filter
+        }
+      };
+    };
+  </script>
+</body>
+</html>

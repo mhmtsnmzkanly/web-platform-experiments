@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 038: CSS Typed Object Model API Level 1 Algebraic Typography</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #0b0f19;
+      color: #f1f5f9;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 24px;
+      gap: 16px;
+      user-select: none;
+    }
+
+    /* Top Math Calculus Header */
+    .math-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #111827;
+      border: 1px solid #1f293d;
+      border-left: 4px solid #6366f1;
+      padding: 10px 18px;
+      border-radius: 4px;
+    }
+
+    .math-header .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand .label {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .brand .title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #818cf8;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-strip {
+      display: flex;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 3px;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+    }
+
+    .badge.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border-color: #6366f1;
+    }
+
+    .badge.green {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: #059669;
+    }
+
+    /* Proscenium Stage */
+    .proscenium-stage {
+      background: radial-gradient(circle at center, #141c2e 0%, #0d121f 100%);
+      border: 1px solid #1f293d;
+      border-radius: 6px;
+      padding: 30px 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .proscenium-stage::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px dashed rgba(99, 102, 241, 0.25);
+      pointer-events: none;
+      border-radius: 4px;
+    }
+
+    .math-corner {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: #818cf8;
+      border-style: solid;
+      pointer-events: none;
+    }
+    .math-corner.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+    .math-corner.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+    .math-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+    .math-corner.br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+    main {
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Subject element - styles injected purely via attributeStyleMap */
+    #subject-hello-world {
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      font-weight: 900;
+      color: #ffffff;
+      text-transform: none;
+      margin: 0;
+      display: inline-block;
+      text-shadow: 0 0 25px rgba(99, 102, 241, 0.6), 0 0 6px #6366f1;
+    }
+
+    .stage-subline {
+      margin-top: 14px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 6px 14px;
+      border-radius: 4px;
+      border: 1px solid #1e293b;
+    }
+
+    .stage-subline .param {
+      color: #a5b4fc;
+      font-weight: 700;
+    }
+
+    /* Calculus Workbench Grid */
+    .workbench-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 14px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .calc-card {
+      background: #0e1526;
+      border: 1px solid #1f293d;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .calc-card-header {
+      background: #151e33;
+      padding: 8px 14px;
+      border-bottom: 1px solid #1f293d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .calc-card-header .type-tag {
+      font-size: 0.62rem;
+      padding: 2px 6px;
+      border-radius: 2px;
+      background: #090e1a;
+      color: #818cf8;
+      border: 1px solid #1f293d;
+    }
+
+    .calc-card-body {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.72rem;
+      overflow-y: auto;
+    }
+
+    .formula-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: #080d18;
+      border: 1px solid #1a233a;
+      border-radius: 4px;
+      padding: 8px 10px;
+    }
+
+    .formula-title {
+      font-size: 0.65rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .formula-expr {
+      font-family: ui-monospace, monospace;
+      color: #fbbf24;
+      font-size: 0.72rem;
+      word-break: break-all;
+    }
+
+    .formula-result {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2px;
+      padding-top: 4px;
+      border-top: 1px dashed #1e293b;
+      font-size: 0.68rem;
+    }
+
+    .formula-result .res-label {
+      color: #94a3b8;
+    }
+
+    .formula-result .res-val {
+      color: #34d399;
+      font-weight: 700;
+    }
+
+    /* AST Expression Tree */
+    .ast-tree {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: ui-monospace, monospace;
+      font-size: 0.7rem;
+    }
+
+    .tree-node {
+      background: #080d18;
+      border: 1px solid #1a233a;
+      border-left: 3px solid #6366f1;
+      padding: 6px 10px;
+      border-radius: 3px;
+    }
+
+    .tree-node.branch {
+      border-left-color: #f59e0b;
+    }
+
+    .tree-node.leaf {
+      border-left-color: #10b981;
+    }
+
+    .node-type {
+      color: #818cf8;
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    .node-val {
+      color: #e2e8f0;
+    }
+
+    .node-unit {
+      color: #fbbf24;
+      font-weight: 600;
+    }
+
+    /* Comparison Table */
+    .om-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.68rem;
+    }
+
+    .om-table th {
+      text-align: left;
+      color: #64748b;
+      padding: 5px 6px;
+      border-bottom: 1px solid #1f293d;
+      font-weight: 600;
+    }
+
+    .om-table td {
+      padding: 5px 6px;
+      border-bottom: 1px solid #101726;
+      color: #cbd5e1;
+    }
+
+    .om-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .om-table .val-typed {
+      color: #a5b4fc;
+      font-weight: 600;
+    }
+
+    .om-table .val-computed {
+      color: #34d399;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="math-header">
+    <div class="brand">
+      <span class="label">CSS Houdini Object Model Workbench</span>
+      <span class="title">Typed OM Algebraic Typography Engine Level 1</span>
+    </div>
+    <div class="badge-strip">
+      <span class="badge active" id="badge-map-type">ATTRIBUTE_STYLE_MAP</span>
+      <span class="badge green" id="badge-properties-count">0 TYPED PROPERTIES</span>
+      <span class="badge" id="badge-api-status">API: SUPPORTED</span>
+    </div>
+  </header>
+
+  <!-- Proscenium Stage -->
+  <section class="proscenium-stage">
+    <div class="math-corner tl"></div>
+    <div class="math-corner tr"></div>
+    <div class="math-corner bl"></div>
+    <div class="math-corner br"></div>
+
+    <main>
+      <h1 id="subject-hello-world">Hello World</h1>
+    </main>
+
+    <div class="stage-subline">
+      <span>FONT_SIZE: <span class="param" id="subline-font-size">0.00 px</span></span>
+      <span>LETTER_SPACING: <span class="param" id="subline-letter-spacing">0.00 px</span></span>
+      <span>TRANSFORM: <span class="param" id="subline-transform">identity</span></span>
+      <span>METHOD: <span class="param" style="color: #34d399;">attributeStyleMap.set()</span></span>
+    </div>
+  </section>
+
+  <!-- Calculus Workbench Grid -->
+  <div class="workbench-grid">
+    <!-- Column 1: Algebraic Expressions -->
+    <div class="calc-card">
+      <div class="calc-card-header">
+        <span>Algebraic Expressions</span>
+        <span class="type-tag">CSSMathValue</span>
+      </div>
+      <div class="calc-card-body">
+        <div class="formula-row">
+          <span class="formula-title">Font Size (CSSMathSum)</span>
+          <span class="formula-expr">new CSSMathSum(CSS.rem(3.5), CSS.vw(0.4))</span>
+          <div class="formula-result">
+            <span class="res-label">Evaluated / Computed:</span>
+            <span class="res-val" id="res-font-size-eval">0.00 px</span>
+          </div>
+        </div>
+
+        <div class="formula-row">
+          <span class="formula-title">Letter Spacing (CSSMathProduct)</span>
+          <span class="formula-expr">new CSSMathProduct(CSS.px(1.5), 1.2)</span>
+          <div class="formula-result">
+            <span class="res-label">Evaluated / Computed:</span>
+            <span class="res-val" id="res-letter-spacing-eval">0.00 px</span>
+          </div>
+        </div>
+
+        <div class="formula-row">
+          <span class="formula-title">Transform (CSSTransformValue)</span>
+          <span class="formula-expr">CSSTransformValue([CSSTranslate(0, -2px)])</span>
+          <div class="formula-result">
+            <span class="res-label">Evaluated / Computed:</span>
+            <span class="res-val" id="res-transform-eval">matrix(...)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 2: AST Math Tree -->
+    <div class="calc-card">
+      <div class="calc-card-header">
+        <span>Typed OM Expression Tree</span>
+        <span class="type-tag">AST NODES</span>
+      </div>
+      <div class="calc-card-body">
+        <div class="ast-tree" id="ast-tree-container">
+          <!-- Dynamically populated AST nodes -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 3: TypedOM vs Computed Map Comparison -->
+    <div class="calc-card">
+      <div class="calc-card-header">
+        <span>StyleMap Resolution Matrix</span>
+        <span class="type-tag">attributeStyleMap vs computedStyleMap</span>
+      </div>
+      <div class="calc-card-body">
+        <table class="om-table">
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Typed OM Input</th>
+              <th style="text-align: right;">Computed Value</th>
+            </tr>
+          </thead>
+          <tbody id="table-om-body">
+            <!-- Dynamically populated comparison rows -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const el = document.getElementById('subject-hello-world');
+    const hasTypedOM = typeof el.attributeStyleMap !== 'undefined' && typeof CSSUnitValue !== 'undefined';
+
+    if (!hasTypedOM) {
+      document.getElementById('badge-api-status').textContent = 'API: NOT SUPPORTED';
+    }
+
+    // Mathematical values instantiated via CSS Typed OM
+    const fontSizeSum = new CSSMathSum(CSS.rem(3.5), CSS.vw(0.4));
+    const letterSpacingProd = new CSSMathProduct(CSS.px(1.5), 1.2);
+    const transformVal = new CSSTransformValue([new CSSTranslate(CSS.px(0), CSS.px(-2))]);
+
+    // Apply strictly via element.attributeStyleMap without string parsing
+    el.attributeStyleMap.set('font-size', fontSizeSum);
+    el.attributeStyleMap.set('letter-spacing', letterSpacingProd);
+    el.attributeStyleMap.set('transform', transformVal);
+
+    // Read back via attributeStyleMap and computedStyleMap
+    const computedMap = el.computedStyleMap();
+    const computedFontSize = computedMap.get('font-size');
+    const computedLetterSpacing = computedMap.get('letter-spacing');
+    const computedTransform = computedMap.get('transform');
+
+    // Update Stage Subline
+    const fsPx = computedFontSize ? `${computedFontSize.value.toFixed(2)} ${computedFontSize.unit}` : 'N/A';
+    const lsPx = computedLetterSpacing ? `${computedLetterSpacing.value.toFixed(2)} ${computedLetterSpacing.unit}` : 'N/A';
+    const trStr = computedTransform ? computedTransform.toString() : 'none';
+
+    document.getElementById('subline-font-size').textContent = fsPx;
+    document.getElementById('subline-letter-spacing').textContent = lsPx;
+    document.getElementById('subline-transform').textContent = trStr;
+
+    document.getElementById('res-font-size-eval').textContent = fsPx;
+    document.getElementById('res-letter-spacing-eval').textContent = lsPx;
+    document.getElementById('res-transform-eval').textContent = trStr;
+
+    // Build AST Tree Visualizer
+    const astContainer = document.getElementById('ast-tree-container');
+    function createTreeNode(type, value, unit, isBranch, isLeaf) {
+      const div = document.createElement('div');
+      div.className = `tree-node ${isBranch ? 'branch' : ''} ${isLeaf ? 'leaf' : ''}`;
+      div.innerHTML = `<span class="node-type">${type}</span><span class="node-val">${value}</span> ${unit ? `<span class="node-unit">[${unit}]</span>` : ''}`;
+      return div;
+    }
+
+    astContainer.appendChild(createTreeNode('CSSMathSum', 'Root Operator: (+)', null, true, false));
+    for (const term of fontSizeSum.values) {
+      astContainer.appendChild(createTreeNode('├─ CSSUnitValue', term.value, term.unit, false, true));
+    }
+
+    astContainer.appendChild(createTreeNode('CSSMathProduct', 'Root Operator: (×)', null, true, false));
+    for (const term of letterSpacingProd.values) {
+      if (term instanceof CSSNumericValue) {
+        astContainer.appendChild(createTreeNode('├─ CSSUnitValue', term.value, term.unit, false, true));
+      } else {
+        astContainer.appendChild(createTreeNode('├─ NumberMultiplier', term, null, false, true));
+      }
+    }
+
+    astContainer.appendChild(createTreeNode('CSSTransformValue', 'Transform Component Sequence', null, true, false));
+    astContainer.appendChild(createTreeNode('└─ CSSTranslate', 'x: 0px, y: -2px', null, false, true));
+
+    // Populate Comparison Table
+    const tableBody = document.getElementById('table-om-body');
+    const propertiesToCompare = [
+      { name: 'font-size', typedInput: 'CSSMathSum(3.5rem, 0.4vw)', computed: fsPx },
+      { name: 'letter-spacing', typedInput: 'CSSMathProduct(1.5px, 1.2)', computed: lsPx },
+      { name: 'transform', typedInput: 'CSSTranslate(0px, -2px)', computed: trStr }
+    ];
+
+    for (const item of propertiesToCompare) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><code>${item.name}</code></td><td class="val-typed">${item.typedInput}</td><td class="val-computed">${item.computed}</td>`;
+      tableBody.appendChild(tr);
+    }
+
+    const badgeProps = document.getElementById('badge-properties-count');
+    if (badgeProps) badgeProps.textContent = `${el.attributeStyleMap.size} TYPED PROPERTIES`;
+
+    // Evidence and labReady contract
+    window.labEvidence = () => ({
+      subject: "Hello World",
+      passed: hasTypedOM && el.attributeStyleMap.size >= 3,
+      mechanism: "CSS Typed Object Model API Level 1 (attributeStyleMap, CSSUnitValue, CSSMathSum, CSSTransformValue)",
+      measurements: {
+        attributeStyleMapSize: el.attributeStyleMap.size,
+        computedFontSizePx: computedFontSize?.value ?? 0,
+        computedLetterSpacingPx: computedLetterSpacing?.value ?? 0,
+        fontSizeSumTermsCount: fontSizeSum.values.length,
+        hasFontSize: el.attributeStyleMap.has('font-size'),
+        hasLetterSpacing: el.attributeStyleMap.has('letter-spacing'),
+        hasTransform: el.attributeStyleMap.has('transform')
+      }
+    });
+
+    window.labReady = Promise.resolve(true);
+  </script>
+</body>
+</html>

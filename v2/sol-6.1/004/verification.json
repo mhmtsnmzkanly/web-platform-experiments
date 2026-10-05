@@ -1,0 +1,70 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "textPath",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Contour"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "textPath",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Contour"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Cubic path geometry -> textPath baselines -> curved Hello World",
+    "measurements": {
+      "characters": 11,
+      "pathLength": 1116.2451171875,
+      "bounds": {
+        "width": 521.0982055664062,
+        "height": 383.91082763671875
+      },
+      "firstY": 458.1600036621094,
+      "lastY": 199.53167724609375
+    }
+  },
+  "dynamic": false
+}

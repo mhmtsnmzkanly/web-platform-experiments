@@ -1,0 +1,133 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World Hello World Hello World Hello World Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Balanced Stanza"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World Hello World Hello World Hello World Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Balanced Stanza"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Native wrapping -> measured greeting stanza widths",
+    "measurements": {
+      "widths": [
+        740,
+        765.296875,
+        740,
+        247.46875
+      ],
+      "wordCounts": [
+        3,
+        3,
+        3,
+        1
+      ],
+      "spread": 517.828125,
+      "box": 900
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#balance"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "CSS text-wrap balance -> optimized line breaks -> greeting stanza",
+      "measurements": {
+        "before": {
+          "widths": [
+            740,
+            765.296875,
+            740,
+            247.46875
+          ],
+          "wordCounts": [
+            3,
+            3,
+            3,
+            1
+          ],
+          "spread": 517.828125,
+          "box": 900
+        },
+        "after": {
+          "widths": [
+            740,
+            494.640625,
+            494.640625,
+            765.296875
+          ],
+          "wordCounts": [
+            3,
+            2,
+            2,
+            3
+          ],
+          "spread": 270.65625,
+          "box": 900
+        },
+        "unchangedText": true
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World Hello World Hello World Hello World Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Hello World — Balanced Stanza"
+    },
+    "late": null
+  }
+}

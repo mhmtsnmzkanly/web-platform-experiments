@@ -1,0 +1,61 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 053: CSS Scroll Snap Module Level 1"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 053: CSS Scroll Snap Module Level 1"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS Scroll Snap Module Level 1 (mandatory snap points & center alignment)",
+    "measurements": {
+      "supportsScrollSnap": true,
+      "supportsSnapAlign": true,
+      "supportsSnapStop": true,
+      "scrollSnapType": "x mandatory",
+      "scrollSnapAlign": "center",
+      "scrollSnapStop": "always",
+      "viewportScrollLeft": 0,
+      "slide1OffsetLeft": 41
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

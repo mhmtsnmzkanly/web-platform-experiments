@@ -1,0 +1,99 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 033: Intersection Observer Level 2 Focal Scanner"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 033: Intersection Observer Level 2 Focal Scanner"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "W3C Intersection Observer Level 2 multi-threshold focal telemetry scanner",
+    "measurements": {
+      "intersectionRatio": 1,
+      "isIntersecting": true,
+      "thresholdSteps": 11,
+      "observedRoot": "#collimator-track",
+      "initialRatio": 1
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "scroll",
+      "selector": "#collimator-track",
+      "deltaY": 160
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "CDP mouseWheel scroll deflection measured via IntersectionObserver Level 2 threshold crossings",
+      "measurements": {
+        "entriesReceived": 1,
+        "currentRatio": 1,
+        "scrollTop": 58,
+        "scrollTriggered": true,
+        "initialRatio": 1,
+        "targetWidth": 462,
+        "targetHeight": 70
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Experiment 033: Intersection Observer Level 2 Focal Scanner"
+    },
+    "late": null
+  }
+}

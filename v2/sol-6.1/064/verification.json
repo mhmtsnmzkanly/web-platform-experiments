@@ -1,0 +1,89 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Two Sides"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Two Sides"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Native backface culling -> visible greeting face",
+    "measurements": {
+      "hitFace": "face front"
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#turn"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "3D half-turn -> backface exclusion -> alternate greeting face",
+      "measurements": {
+        "hitFace": "face back",
+        "transform": "matrix3d(-0.939693, 0, -0.34202, 0, 0, 1, 0, 0, 0.34202, 0, -0.939693, 0, 0, 0, 0, 1)"
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Hello World — Two Sides"
+    },
+    "late": null
+  }
+}

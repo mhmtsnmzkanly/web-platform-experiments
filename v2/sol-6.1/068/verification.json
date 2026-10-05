@@ -1,0 +1,96 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Underprint"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Underprint"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Ordered cascade layers -> poster greeting edition",
+    "measurements": {
+      "font": "170px",
+      "family": "Arial",
+      "color": "rgb(52, 95, 155)",
+      "weight": "700",
+      "tracking": "-8px"
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#rollback"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "revert-layer -> earlier book typography -> restored greeting",
+      "measurements": {
+        "font": "110px",
+        "family": "Georgia",
+        "color": "rgb(104, 68, 84)",
+        "weight": "400",
+        "tracking": "normal"
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Hello World — Underprint"
+    },
+    "late": null
+  }
+}

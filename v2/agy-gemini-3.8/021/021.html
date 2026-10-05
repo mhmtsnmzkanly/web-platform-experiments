@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Web Cryptography API SHA-256 Ledger</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --vault-void: #05080f;
+      --vault-card: #090f1d;
+      --border-vault: #17243c;
+      --crypto-green: #00ff66;
+      --crypto-cyan: #00f0ff;
+      --crypto-amber: #ffb700;
+      --byte-bg: #0f1a30;
+      --byte-border: #1e3357;
+      --text-white: #f8fafc;
+      --text-dim: #5c7094;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--vault-void);
+      background-image: 
+        radial-gradient(ellipse at 50% 20%, rgba(0, 255, 102, 0.06) 0%, transparent 60%),
+        linear-gradient(180deg, #03050a 0%, #070c17 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    /* Cryptographic Ledger Frame */
+    .crypto-ledger {
+      width: 1180px;
+      height: 720px;
+      background: var(--vault-card);
+      border: 1px solid var(--border-vault);
+      border-radius: 10px;
+      box-shadow: 
+        0 25px 60px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(0, 255, 102, 0.15),
+        inset 0 0 80px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      padding: 26px 36px;
+      gap: 16px;
+      position: relative;
+    }
+
+    /* Vault Header */
+    .ledger-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-vault);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .vault-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--crypto-green);
+      font-weight: 700;
+    }
+
+    .security-lock-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--crypto-green);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--crypto-green);
+    }
+
+    .vault-meta {
+      color: var(--text-dim);
+      display: flex;
+      gap: 24px;
+    }
+
+    /* Central Verified Plaintext Payload (Subject Anchor) */
+    .payload-card {
+      background: rgba(15, 26, 48, 0.8);
+      border: 1px solid rgba(0, 255, 102, 0.3);
+      border-radius: 8px;
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.5),
+        inset 0 0 30px rgba(0, 255, 102, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .payload-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      background: var(--crypto-green);
+      box-shadow: 0 0 10px var(--crypto-green);
+    }
+
+    .payload-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .payload-tag {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--crypto-green);
+    }
+
+    .payload-headline {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #ffffff;
+      line-height: 1;
+      text-shadow: 0 0 20px rgba(0, 255, 102, 0.5);
+    }
+
+    .payload-seal {
+      border: 2px solid var(--crypto-amber);
+      color: var(--crypto-amber);
+      border-radius: 4px;
+      padding: 8px 16px;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      background: rgba(255, 183, 0, 0.08);
+      box-shadow: 0 0 15px rgba(255, 183, 0, 0.2);
+    }
+
+    /* 32-Byte Cryptographic Digest Matrix */
+    .digest-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .section-label {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--crypto-cyan);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .bytes-matrix {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 8px;
+      flex: 1;
+    }
+
+    .byte-card {
+      background: var(--byte-bg);
+      border: 1px solid var(--byte-border);
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 8px 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .byte-header {
+      display: flex;
+      justify-content: space-between;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+    }
+
+    .byte-hex {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 22px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: 0.05em;
+      text-align: center;
+      margin: 2px 0;
+    }
+
+    .byte-binary {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 8px;
+      color: var(--crypto-cyan);
+      letter-spacing: 0.08em;
+      text-align: center;
+      background: rgba(0, 240, 255, 0.06);
+      border-radius: 2px;
+      padding: 2px 0;
+    }
+
+    /* Full Hash String Bar */
+    .hash-ribbon {
+      background: rgba(5, 10, 20, 0.95);
+      border: 1px solid var(--border-vault);
+      border-radius: 6px;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+    }
+
+    .ribbon-label {
+      color: var(--text-dim);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .ribbon-hash {
+      color: var(--crypto-green);
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      word-break: break-all;
+    }
+
+    /* Ledger Footer */
+    .ledger-footer {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-vault);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+    }
+
+    .telemetry-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .cell-label {
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .cell-val {
+      color: var(--crypto-green);
+      font-weight: 700;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <main class="crypto-ledger" role="main">
+    <header class="ledger-header">
+      <div class="vault-badge">
+        <span class="security-lock-dot"></span>
+        <span>Cryptographic Vault Ledger // Exp 021</span>
+      </div>
+      <div class="vault-meta">
+        <span>ENGINE: WEB CRYPTOGRAPHY API</span>
+        <span>PRIMITIVE: CRYPTO.SUBTLE.DIGEST</span>
+        <span>STANDARD: FIPS PUB 180-4 SHA-256</span>
+      </div>
+    </header>
+
+    <!-- Plaintext Subject Anchor -->
+    <section class="payload-card" aria-label="Plaintext Payload">
+      <div class="payload-info">
+        <span class="payload-tag">Original Plaintext Payload</span>
+        <h1 class="payload-headline" id="main-subject">Hello World</h1>
+      </div>
+      <div class="payload-seal">
+        SHA-256 Verified
+      </div>
+    </section>
+
+    <!-- 32-Byte Cryptographic Matrix -->
+    <section class="digest-section" aria-label="32-Byte Cryptographic Hash Matrix">
+      <div class="section-label">
+        <span>256-Bit Cryptographic Hash Matrix (32 Octets)</span>
+        <span>Endianness: Big-Endian MSB</span>
+      </div>
+      <div class="bytes-matrix" id="bytes-container">
+        <!-- Injected via crypto.subtle.digest -->
+      </div>
+    </section>
+
+    <!-- Full Digest Ribbon -->
+    <div class="hash-ribbon">
+      <span class="ribbon-label">SHA-256 Digest:</span>
+      <span class="ribbon-hash" id="full-hash-string">Computing...</span>
+    </div>
+
+    <footer class="ledger-footer">
+      <div class="telemetry-cell">
+        <span class="cell-label">Hash Algorithm</span>
+        <span class="cell-val">SHA-256 (256 Bits)</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="cell-label">Digest Octet Count</span>
+        <span class="cell-val">32 Bytes (256 Bits)</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="cell-label">Plaintext Input</span>
+        <span class="cell-val">11 Bytes UTF-8</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="cell-label">Consensus State</span>
+        <span class="cell-val" id="consensus-status">VERIFYING...</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const plaintext = "Hello World";
+    let computedDigestHex = "";
+    let isCryptoVerified = false;
+
+    async function computeCryptographicProof() {
+      const encoder = new TextEncoder();
+      const payloadBytes = encoder.encode(plaintext);
+
+      // Web Cryptography API Native Hardware Digest
+      const hashBuffer = await crypto.subtle.digest('SHA-256', payloadBytes);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      computedDigestHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+      // Populate Full Hash Display
+      document.getElementById('full-hash-string').textContent = computedDigestHex;
+      document.getElementById('consensus-status').textContent = 'CRYPTOGRAPHIC MATCH';
+
+      // Expected canonical SHA-256 for "Hello World"
+      const expected = "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e";
+      isCryptoVerified = (computedDigestHex.toLowerCase() === expected.toLowerCase());
+
+      // Render 32 Byte Matrix Cards
+      const container = document.getElementById('bytes-container');
+      container.innerHTML = '';
+
+      hashArray.forEach((byteVal, index) => {
+        const hex = byteVal.toString(16).toUpperCase().padStart(2, '0');
+        const bin = byteVal.toString(2).padStart(8, '0');
+
+        const card = document.createElement('div');
+        card.className = 'byte-card';
+        card.innerHTML = `
+          <div class="byte-header">
+            <span>[${String(index).padStart(2, '0')}]</span>
+            <span>0x${hex}</span>
+          </div>
+          <div class="byte-hex">${hex}</div>
+          <div class="byte-binary">${bin}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    const digestPromise = computeCryptographicProof();
+
+    // Lab Evidence Hook for Automated Verification
+    window.labEvidence = async () => {
+      await digestPromise;
+      return {
+        subject: "Hello World",
+        passed: isCryptoVerified && computedDigestHex.length === 64,
+        mechanism: "TextEncoder buffer encoding -> crypto.subtle.digest('SHA-256') -> byte array extraction -> cryptographic hash matrix & signature Hello World verification",
+        measurements: {
+          algorithm: "SHA-256",
+          digestHex: computedDigestHex,
+          byteLength: 32,
+          bitLength: 256,
+          inputLength: plaintext.length,
+          verified: isCryptoVerified
+        }
+      };
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "svg",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Measured Arc"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "svg",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Measured Arc"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "SVG arc length -> sampled points/tangents -> oriented greeting glyphs",
+    "measurements": {
+      "length": 1182.961181640625,
+      "positions": [
+        {
+          "distance": 59.14805908203125,
+          "x": 131.04966735839844,
+          "y": 399.6956787109375,
+          "angle": -54.99207967646781
+        },
+        {
+          "distance": 165.6145654296875,
+          "x": 200.81553649902344,
+          "y": 319.533203125,
+          "angle": -42.963538627694284
+        },
+        {
+          "distance": 272.0810717773437,
+          "x": 285.63018798828125,
+          "y": 255.48390197753906,
+          "angle": -31.268348971574124
+        },
+        {
+          "distance": 378.54757812500003,
+          "x": 381.4042053222656,
+          "y": 209.3563690185547,
+          "angle": -20.29715978032009
+        },
+        {
+          "distance": 485.01408447265624,
+          "x": 484.0662841796875,
+          "y": 181.6993408203125,
+          "angle": -9.94553561514478
+        },
+        {
+          "distance": 591.4805908203124,
+          "x": 590.0001831054688,
+          "y": 172.5,
+          "angle": 0
+        },
+        {
+          "distance": 697.9470971679689,
+          "x": 695.9340209960938,
+          "y": 181.6993865966797,
+          "angle": 9.94553561514478
+        },
+        {
+          "distance": 804.413603515625,
+          "x": 798.5962524414062,
+          "y": 209.35653686523438,
+          "angle": 20.29756977222869
+        },
+        {
+          "distance": 910.8801098632813,
+          "x": 894.3704223632812,
+          "y": 255.4842529296875,
+          "angle": 31.2691763943968
+        },
+        {
+          "distance": 1017.3466162109374,
+          "x": 979.1856079101562,
+          "y": 319.5330505371094,
+          "angle": 42.94653804482508
+        },
+        {
+          "distance": 1123.8131225585937,
+          "x": 1048.9505615234375,
+          "y": 399.6959228515625,
+          "angle": 54.98978793726064
+        }
+      ]
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

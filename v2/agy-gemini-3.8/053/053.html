@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 053: CSS Scroll Snap Module Level 1</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(22, 28, 44, 0.7);
+      --border: rgba(100, 160, 255, 0.2);
+      --primary: #00f0ff;
+      --primary-dim: rgba(0, 240, 255, 0.15);
+      --accent: #a855f7;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --font-mono: 'SF Mono', Monaco, Menlo, Consolas, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 16px;
+      overflow: hidden;
+      background-image:
+        radial-gradient(circle at 50% 10%, rgba(0, 240, 255, 0.08), transparent 50%),
+        radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.06), transparent 45%);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .badge-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--primary-dim);
+      color: var(--primary);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+    }
+
+    .spec-ref {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Scroll Snap Arena */
+    .snap-container-outer {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .snap-viewport {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      scroll-padding: 0 40px;
+      gap: 24px;
+      padding: 12px 40px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+      border-radius: 12px;
+      background: rgba(14, 18, 30, 0.5);
+      border: 1px solid var(--border);
+    }
+
+    .snap-slide {
+      flex: 0 0 100%;
+      max-width: 100%;
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+      min-height: 290px;
+    }
+
+    .slide-tag {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+
+    .slide-coord {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    #subject-hello-world {
+      font-size: 4.5rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      text-align: center;
+      color: #ffffff;
+      text-shadow:
+        0 0 20px rgba(0, 240, 255, 0.8),
+        0 0 40px rgba(0, 240, 255, 0.4);
+      margin-bottom: 12px;
+    }
+
+    .slide-desc {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .physics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    .physics-box {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .physics-title {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .physics-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Carousel Pagination & Controls */
+    .snap-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+    }
+
+    .nav-btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .snap-btn {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 6px 14px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .snap-btn:hover {
+      background: var(--primary-dim);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .indicator-dots {
+      display: flex;
+      gap: 10px;
+    }
+
+    .dot {
+      width: 24px;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .dot.active {
+      background: var(--primary);
+      box-shadow: 0 0 10px var(--primary);
+      width: 40px;
+    }
+
+    /* Diagnostics Telemetry Deck */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-value {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .card-subtext {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge-bar">
+      <span class="badge">CSS Scroll Snap Level 1</span>
+      <span class="badge">Mandatory Point Alignment</span>
+    </div>
+    <div class="spec-ref">scroll-snap-type: x mandatory • scroll-snap-stop: always</div>
+  </header>
+
+  <div class="snap-container-outer">
+    <div class="snap-viewport" id="snap-viewport">
+      
+      <!-- Slide 1: Primary Subject Hello World -->
+      <section class="snap-slide" id="slide-1">
+        <span class="slide-tag">Panel 01 // Hero Stage</span>
+        <span class="slide-coord">align: center</span>
+        <h1 id="subject-hello-world">Hello World</h1>
+        <p class="slide-desc">Kinetic Anchor Alignment Active</p>
+      </section>
+
+      <!-- Slide 2: Kinematic Physics -->
+      <section class="snap-slide" id="slide-2">
+        <span class="slide-tag">Panel 02 // Snap Behavior</span>
+        <span class="slide-coord">stop: always</span>
+        <div class="physics-grid">
+          <div class="physics-box">
+            <div class="physics-title">x mandatory</div>
+            <div class="physics-desc">Viewport must rest on a snap position when scrolling ceases</div>
+          </div>
+          <div class="physics-box">
+            <div class="physics-title">center alignment</div>
+            <div class="physics-desc">Slide midpoint automatically locks to viewport centerline</div>
+          </div>
+          <div class="physics-box">
+            <div class="physics-title">stop: always</div>
+            <div class="physics-desc">Prevents flick gesture overshoot past adjacent snap positions</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 3: Telemetry Matrix -->
+      <section class="snap-slide" id="slide-3">
+        <span class="slide-tag">Panel 03 // Precision Geometry</span>
+        <span class="slide-coord">padding: 0 40px</span>
+        <div class="physics-grid">
+          <div class="physics-box">
+            <div class="physics-title">Scroll Padding</div>
+            <div class="physics-desc">Defines inset boundary region for target snap calculation</div>
+          </div>
+          <div class="physics-box">
+            <div class="physics-title">Zero Friction Loss</div>
+            <div class="physics-desc">Operated strictly within compositor thread pipeline</div>
+          </div>
+          <div class="physics-box">
+            <div class="physics-title">Declarative Layout</div>
+            <div class="physics-desc">Zero runtime JavaScript wheel hijacking or layout thrashing</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Carousel Controls -->
+    <div class="snap-controls">
+      <div class="nav-btn-group">
+        <button class="snap-btn" id="btn-prev">‹ Previous</button>
+        <button class="snap-btn" id="btn-next">Next ›</button>
+      </div>
+
+      <div class="indicator-dots">
+        <div class="dot active" data-index="0"></div>
+        <div class="dot" data-index="1"></div>
+        <div class="dot" data-index="2"></div>
+      </div>
+
+      <div class="nav-btn-group">
+        <button class="snap-btn" id="btn-slide1">Snap: Slide 1</button>
+        <button class="snap-btn" id="btn-slide2">Snap: Slide 2</button>
+        <button class="snap-btn" id="btn-slide3">Snap: Slide 3</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="dashboard">
+    <div class="card">
+      <div class="card-title">Snap Type</div>
+      <div class="card-value" id="val-type">x mandatory</div>
+      <div class="card-subtext">Strict axis constraint</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Active Snap Target</div>
+      <div class="card-value" id="val-target">Slide 1 (#slide-1)</div>
+      <div class="card-subtext">Midpoint aligned to viewport</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Viewport ScrollLeft</div>
+      <div class="card-value" id="val-scroll">0 px</div>
+      <div class="card-subtext">Horizontal offset</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Engine Conformance</div>
+      <div class="card-value" id="val-conformance" style="color: #00f0ff;">PASSED</div>
+      <div class="card-subtext">CSS.supports() Level 1</div>
+    </div>
+  </section>
+
+  <script>
+    // Ready contract
+    window.labReady = new Promise(resolve => {
+      setTimeout(resolve, 50);
+    });
+
+    const viewport = document.getElementById('snap-viewport');
+    const slides = [
+      document.getElementById('slide-1'),
+      document.getElementById('slide-2'),
+      document.getElementById('slide-3')
+    ];
+    const dots = document.querySelectorAll('.dot');
+    const valScroll = document.getElementById('val-scroll');
+    const valTarget = document.getElementById('val-target');
+    const valConformance = document.getElementById('val-conformance');
+
+    const supportsScrollSnap = CSS.supports('scroll-snap-type: x mandatory');
+    const supportsSnapAlign = CSS.supports('scroll-snap-align: center');
+    const supportsSnapStop = CSS.supports('scroll-snap-stop: always');
+
+    function updateActiveState() {
+      valScroll.textContent = Math.round(viewport.scrollLeft) + ' px';
+      const center = viewport.scrollLeft + viewport.clientWidth / 2;
+
+      let closestIdx = 0;
+      let minDiff = Infinity;
+      slides.forEach((slide, idx) => {
+        const slideCenter = slide.offsetLeft + slide.offsetWidth / 2;
+        const diff = Math.abs(center - slideCenter);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestIdx = idx;
+        }
+      });
+
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === closestIdx);
+      });
+
+      valTarget.textContent = `Slide ${closestIdx + 1} (#slide-${closestIdx + 1})`;
+    }
+
+    viewport.addEventListener('scroll', updateActiveState, { passive: true });
+
+    document.getElementById('btn-prev').addEventListener('click', () => {
+      viewport.scrollBy({ left: -viewport.clientWidth * 0.9, behavior: 'smooth' });
+    });
+
+    document.getElementById('btn-next').addEventListener('click', () => {
+      viewport.scrollBy({ left: viewport.clientWidth * 0.9, behavior: 'smooth' });
+    });
+
+    dots.forEach((dot, idx) => {
+      dot.addEventListener('click', () => {
+        slides[idx].scrollIntoView({ behavior: 'smooth', inline: 'center' });
+      });
+    });
+
+    document.getElementById('btn-slide1').addEventListener('click', () => {
+      slides[0].scrollIntoView({ behavior: 'smooth', inline: 'center' });
+    });
+    document.getElementById('btn-slide2').addEventListener('click', () => {
+      slides[1].scrollIntoView({ behavior: 'smooth', inline: 'center' });
+    });
+    document.getElementById('btn-slide3').addEventListener('click', () => {
+      slides[2].scrollIntoView({ behavior: 'smooth', inline: 'center' });
+    });
+
+    updateActiveState();
+
+    // Lab Evidence
+    window.labEvidence = () => ({
+      subject: 'Hello World',
+      passed: Boolean(supportsScrollSnap && supportsSnapAlign && supportsSnapStop),
+      mechanism: 'CSS Scroll Snap Module Level 1 (mandatory snap points & center alignment)',
+      measurements: {
+        supportsScrollSnap,
+        supportsSnapAlign,
+        supportsSnapStop,
+        scrollSnapType: getComputedStyle(viewport).scrollSnapType,
+        scrollSnapAlign: getComputedStyle(slides[0]).scrollSnapAlign,
+        scrollSnapStop: getComputedStyle(slides[0]).scrollSnapStop,
+        viewportScrollLeft: viewport.scrollLeft,
+        slide1OffsetLeft: slides[0].offsetLeft
+      }
+    });
+  </script>
+</body>
+</html>

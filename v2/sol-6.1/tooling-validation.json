@@ -1,0 +1,151 @@
+[
+  {
+    "name": "dependency-check .tooling-fixtures/valid.html",
+    "exitCode": 0,
+    "output": "OK"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/valid.html",
+    "exitCode": 0,
+    "output": "OK"
+  },
+  {
+    "name": "verify .tooling-fixtures/valid.html .tooling-fixtures",
+    "exitCode": 0,
+    "output": "OK"
+  },
+  {
+    "name": "dependency-check .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] Non-embedded resource reference: https://example.com/a.js"
+  },
+  {
+    "name": "dependency-check .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] Non-embedded resource reference: https://example.com/a.css"
+  },
+  {
+    "name": "dependency-check .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] Non-embedded resource reference: https://example.com/a.png"
+  },
+  {
+    "name": "dependency-check .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] Network-capable construction cannot be certified statically"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[STATIC_SYNTAX] SyntaxError: Unexpected token '='"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[RUNTIME_EXCEPTION] Error: fixture exception\n    at http://127.0.0.1:37769/.tooling-fixtures/case.html:3:54"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[CONSOLE_ERROR] fixture error"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DOM_VISIBILITY] No visible Hello World subject"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DOM_VISIBILITY] No visible Hello World subject"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DOM_VISIBILITY] No visible Hello World subject"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DOM_VISIBILITY] No visible Hello World subject"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[STATIC_SYNTAX] Duplicate DOM ID: repeat"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[CSS] Invalid declaration: color: not-a-color;"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[RUNTIME_EXCEPTION] Error: Prohibited permission attempt: getCurrentPosition\n    at Geolocation.value (<anonymous>:8:13)\n    at http://127.0.0.1:46303/.tooling-fixtures/case.html:3:70\n[PERMISSIONS] getCurrentPosition"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] Unexpected runtime request: http://127.0.0.1:33297/unexpected\n[DEPENDENCY] Resource load failed: net::ERR_BLOCKED_BY_CLIENT.Inspector\n[RUNTIME_EXCEPTION] TypeError: Failed to fetch\n    at http://127.0.0.1:33297/.tooling-fixtures/case.html:3:66"
+  },
+  {
+    "name": "dependency-check .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] Non-embedded resource reference: companion.png"
+  },
+  {
+    "name": "dependency-check .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] CSS @import is prohibited"
+  },
+  {
+    "name": "dependency-check .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] Non-embedded resource reference: theme.png"
+  },
+  {
+    "name": "dependency-check .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] Non-embedded resource reference: theme.png"
+  },
+  {
+    "name": "dependency-check .tooling-fixtures/case.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] Non-embedded resource reference: shapes.svg#hello"
+  },
+  {
+    "name": "verify .tooling-fixtures/case.html .tooling-fixtures",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] Non-embedded resource reference: shapes.svg#hello"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/valid.html",
+    "exitCode": 1,
+    "output": "ERRORS\n[TEST_INFRASTRUCTURE] Chrome/Chromium not found; set LAB_CHROME to an installed executable"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/case.html",
+    "exitCode": 0,
+    "output": "OK"
+  },
+  {
+    "name": "web-server --port 17373",
+    "exitCode": 1,
+    "output": "ERRORS\n[TEST_INFRASTRUCTURE] Port 17373 is occupied; no duplicate server started"
+  },
+  {
+    "name": "screenshot http://127.0.0.1:17373/.tooling-fixtures/valid.html .tooling-fixtures/direct.png",
+    "exitCode": 0,
+    "output": "OK"
+  },
+  {
+    "name": "screenshot http://127.0.0.1:17373/missing.html .tooling-fixtures/missing.png",
+    "exitCode": 1,
+    "output": "ERRORS\n[TEST_INFRASTRUCTURE] Page load HTTP 404"
+  },
+  {
+    "name": "HTTP serving, encoded traversal and symlink escape",
+    "passed": true
+  }
+]

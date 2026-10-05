@@ -1,0 +1,14 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — In Sight</title><style>
+body{margin:0;background:#26272c;color:#c9cbd2;font-family:Georgia,serif}.viewport{height:100vh;overflow-y:auto}.track{height:1500px;padding:0 80px;position:relative}
+h1{position:sticky;top:90px;font-size:130px;font-weight:normal;letter-spacing:-6px;margin:0;padding-top:90px}
+.target{position:absolute;top:1100px;left:110px;font-size:100px;letter-spacing:-4px;border-top:1px solid;padding-top:40px;width:850px;height:210px;box-sizing:border-box}
+.seen h1{color:#f2bd64;text-shadow:3px 4px 0 #83542b}.seen .target{color:#f2bd64}small{position:fixed;bottom:25px;left:80px;font:13px monospace}
+</style></head><body><main class="viewport"><div class="track"><h1>Hello World</h1><section class="target">Hello World</section></div></main><small id="state">030 / SCROLL THE SECOND GREETING INTO SIGHT</small><script>
+const root=document.querySelector('.viewport'),target=document.querySelector('.target');let deliveries=0,ratio=0,seen=false;
+// The observer owns the activation threshold. Scroll events never calculate
+// bounds or restyle the text; delivered intersection geometry drives the effect.
+new IntersectionObserver(entries=>{for(const entry of entries){deliveries++;ratio=entry.intersectionRatio;if(ratio>=.6){seen=true;root.classList.add('seen');document.querySelector('#state').textContent='INTERSECTION / '+Math.round(ratio*100)+'% / GREETING ILLUMINATED'}}},{root,threshold:[0,.6,1]}).observe(target);
+window.labScenario={kind:'scroll',selector:'.viewport',deltaY:620};
+window.labEvidence=()=>({subject:'Hello World',passed:deliveries>0&&!seen&&ratio===0,mechanism:'Intersection geometry -> observer threshold -> illuminated greeting',measurements:{initialDeliveries:deliveries,initialRatio:ratio,initialSeen:seen}});
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:seen&&deliveries>=2&&ratio>=.6&&getComputedStyle(document.querySelector('h1')).color==='rgb(242, 189, 100)',mechanism:'Native wheel -> target enters root -> observer-owned illumination',measurements:{deliveries,intersectionRatio:ratio,scrollTop:root.scrollTop,seen,color:getComputedStyle(document.querySelector('h1')).color}});
+</script></body></html>

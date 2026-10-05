@@ -1,0 +1,92 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1150,
+        "height": 650,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 5,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World",
+      "Hello World",
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Proof Sheet"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1150,
+        "height": 650,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 5,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World",
+      "Hello World",
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Proof Sheet"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Canvas PNG encoding -> image.decode -> pixel-equal greeting proof",
+    "measurements": {
+      "bytes": 53814,
+      "type": "image/png",
+      "signature": [
+        137,
+        80,
+        78,
+        71,
+        13,
+        10,
+        26,
+        10
+      ],
+      "width": 1150,
+      "height": 650,
+      "differences": 0
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

@@ -1,0 +1,109 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Pointer Events & Pointer Capture Caliper"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Pointer Events & Pointer Capture Caliper"
+  },
+  "technology": null,
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "drag",
+      "selector": "#vernier-slider",
+      "deltaX": 280
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "CDP drag gesture dispatch -> pointerdown hardware pointer capture -> continuous pointermove coordinate translation -> vernier index alignment -> illuminated calibrated Hello World lockup",
+      "measurements": {
+        "sliderDisplacementPx": 280,
+        "calibratedMm": "28.00",
+        "sliderStyleTransform": "translateX(280px)",
+        "caliperTitleText": "Hello World"
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 49.99999999999982,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "Hello World — Pointer Events & Pointer Capture Caliper"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Hello World — Pointer Events & Pointer Capture Caliper"
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 036: CSS @scope Donut Scoping & Proximity Laboratory"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 036: CSS @scope Donut Scoping & Proximity Laboratory"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "W3C CSS Cascading & Inheritance Level 6 @scope donut boundary isolation and proximity precedence",
+    "measurements": {
+      "atriumComputedColor": "rgb(56, 189, 248)",
+      "sanctumComputedColor": "rgb(52, 211, 153)",
+      "colorsDistinct": true,
+      "scopeRulesDetected": 2,
+      "donutLimitVerified": true
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

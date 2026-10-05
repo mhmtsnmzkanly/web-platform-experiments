@@ -1,0 +1,8 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Stitched</title><style>body{margin:0;background:#d6e1cf}main{height:100vh;display:grid;place-items:center}canvas{width:1150px;max-width:95vw}</style></head><body><main><canvas width="1150" height="650" aria-label="Hello World stroked with dashed thread">Hello World</canvas></main><script>
+const ctx=document.querySelector('canvas').getContext('2d');ctx.font='bold 190px Georgia';ctx.strokeStyle='#a75d42';ctx.lineWidth=3;ctx.setLineDash([9,5]);ctx.lineCap='round';
+// Stroke dashes follow native glyph contours, not an arbitrary rectangular
+// frame. Transparent interiors keep the lettering materially light.
+ctx.strokeText('Hello',80,275);ctx.strokeText('World',300,520);
+const pixels=ctx.getImageData(0,0,1150,650).data;let ink=0;for(let i=3;i<pixels.length;i+=4)if(pixels[i])ink++;
+window.labEvidence=()=>({subject:'Hello World',passed:ctx.getLineDash().join(',')==='9,5'&&ctx.lineWidth===3&&ink>5000&&ink<40000,mechanism:'Canvas dash pattern -> strokeText glyph contours -> stitched greeting',measurements:{dash:ctx.getLineDash(),lineWidth:ctx.lineWidth,ink}});
+</script></body></html>

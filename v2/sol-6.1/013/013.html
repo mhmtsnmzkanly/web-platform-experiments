@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Units</title>
+<style>
+body{margin:0;background:#f8f8f4;color:#171917;font-family:monospace}main{padding:55px 7vw}header{font-size:12px;letter-spacing:3px}h1{margin:180px 0 90px;display:flex;align-items:center;gap:12px;font-size:100px;font-weight:normal;white-space:pre}
+h1 span{background:#c6ed48;padding:16px;box-shadow:0 8px 0 #171917}.space{background:none!important;box-shadow:none!important;padding:0;width:20px}
+h1.grapheme{gap:8px;font-size:65px}h1.grapheme span{padding:12px 8px;min-width:46px;text-align:center}h1.grapheme span:nth-child(3n){background:#f59643}
+button{border:2px solid;background:none;padding:14px 25px;font:14px monospace;cursor:pointer}small{display:block;margin-top:25px;font-size:13px}
+@media(max-width:900px){h1{font-size:10vw}h1.grapheme{font-size:5vw;gap:4px}h1.grapheme span{min-width:0;padding:8px 4px}}
+</style></head><body><main><header>013 / UNITS OF A GREETING</header><h1 aria-label="Hello World">Hello World</h1><button id="split">Split / join the text units</button><small id="note"></small></main>
+<script>
+const phrase='Hello World',heading=document.querySelector('h1');let mode='word',units=[];
+// Native segmentation supplies boundaries. Whitespace is preserved as a unit
+// so visual fragmentation never silently changes the phrase's actual text.
+function render(){units=[...new Intl.Segmenter('en',{granularity:mode}).segment(phrase)];heading.replaceChildren(...units.map(unit=>{const span=document.createElement('span');span.textContent=unit.segment;if(!unit.segment.trim())span.className='space';return span}));heading.className=mode;document.querySelector('#note').textContent=mode.toUpperCase()+' / '+units.length+' UNITS INCLUDING WHITESPACE'}
+render();document.querySelector('#split').onclick=()=>{mode=mode==='word'?'grapheme':'word';render()};
+window.labScenario={kind:'click',selector:'#split'};
+window.labEvidence=()=>({subject:'Hello World',passed:mode==='word'&&units.length===3&&units.filter(u=>u.isWordLike).length===2&&heading.textContent===phrase,
+mechanism:'Intl word boundaries -> word tiles -> Hello World units',measurements:{mode,units:units.map(u=>u.segment),wordCount:units.filter(u=>u.isWordLike).length}});
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:mode==='grapheme'&&units.length===11&&heading.children.length===11&&heading.textContent===phrase,
+mechanism:'Native grapheme boundaries -> eleven tiles -> letter-level greeting',measurements:{mode,unitCount:units.length,units:units.map(u=>u.segment),reconstructed:heading.textContent}});
+</script></body></html>

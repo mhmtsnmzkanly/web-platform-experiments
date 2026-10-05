@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Slices</title><style>
+body{margin:0;background:#294f84;color:#ffcfb0;font-family:monospace}main{height:100vh;display:flex;align-items:center;justify-content:center}canvas{width:1120px;max-width:94vw;height:auto}small{position:absolute;bottom:40px;left:70px}
+</style></head><body><main><canvas width="1120" height="500" aria-label="Hello World reconstructed from cropped ImageBitmap slices">Hello World</canvas><small>027 / ASYNCHRONOUS IMAGE SLICES</small></main><script>
+const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d'),source=document.createElement('canvas');source.width=1080;source.height=500;
+const ink=source.getContext('2d');ink.fillStyle='#ffcfb0';ink.font='bold 165px Georgia';ink.textAlign='center';ink.textBaseline='middle';ink.fillText('Hello World',540,250);
+let count=0,dimensions=[],closed=0;
+// Each crop is a native bitmap object, not a drawImage source rectangle.
+// All slices are decoded before reconstruction, then released explicitly.
+window.labReady=(async()=>{const bitmaps=await Promise.all(Array.from({length:12},(_,i)=>createImageBitmap(source,i*90,0,90,500)));for(let i=0;i<bitmaps.length;i++){const bitmap=bitmaps[i];dimensions.push([bitmap.width,bitmap.height]);ctx.drawImage(bitmap,20+i*90,(i%3-1)*16);count++;bitmap.close();if(bitmap.width===0)closed++}})();
+window.labEvidence=()=>({subject:'Hello World',passed:count===12&&closed===12&&dimensions.every(d=>d[0]===90&&d[1]===500),mechanism:'Generated glyph canvas -> cropped ImageBitmaps -> offset greeting slices',measurements:{slices:count,closedBitmaps:closed,cropDimensions:dimensions,sourceText:'Hello World'}});
+</script></body></html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Woven</title>
+  <style>
+    :root {
+      background: #3b1f2b;
+      color: #f8d8c2;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(135deg, transparent 0 49.8%, #5e8aa8 50% 50.2%, transparent 50.4%),
+        #3b1f2b;
+    }
+
+    .loom {
+      width: min(92vw, 1120px);
+      padding: 42px 50px 48px;
+      border: 1px solid #f8d8c2;
+      background: #55283b;
+    }
+
+    .label {
+      margin: 0 0 34px;
+      color: #f08c6d;
+      font: 12px/1.2 monospace;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .frame {
+      fill: none;
+      stroke: #f08c6d;
+      stroke-width: 2;
+    }
+
+    .note {
+      margin: 12px 0 0;
+      color: #b9cada;
+      font: 13px/1.4 monospace;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <main class="loom">
+    <p class="label">016 / woven / masked pattern</p>
+    <svg viewBox="0 0 1000 430" role="img" aria-label="Hello World woven from a procedural pattern">
+      <defs>
+        <pattern id="threads" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(32)">
+          <rect width="24" height="24" fill="#5e8aa8"></rect>
+          <path d="M 0 0 V 24 M 12 0 V 24" stroke="#f8d8c2" stroke-width="5"></path>
+        </pattern>
+        <mask id="word-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="430">
+          <rect width="1000" height="430" fill="black"></rect>
+          <text x="500" y="280" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="146" font-weight="700">Hello World</text>
+        </mask>
+      </defs>
+      <rect x="40" y="48" width="920" height="300" class="frame"></rect>
+      <rect x="40" y="48" width="920" height="300" fill="url(#threads)" mask="url(#word-mask)"></rect>
+    </svg>
+    <p class="note">pattern field / glyph mask / one woven greeting</p>
+  </main>
+</body>
+</html>

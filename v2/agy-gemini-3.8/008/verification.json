@@ -1,0 +1,82 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello\n        World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 366.6,
+        "timeline": "DocumentTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 366.6,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Hello World — Web Animations API Countermotion"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello\n        World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 1116.6000000000001,
+        "timeline": "DocumentTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 1116.6000000000001,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Hello World — Web Animations API Countermotion"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Dual WAAPI Element.animate() timelines -> opposing phase translation & tracking interpolation -> dynamic countermotion -> kinetic Hello World",
+    "measurements": {
+      "activeAnimationsCount": 2,
+      "helloPlayState": "running",
+      "worldPlayState": "running",
+      "helloCurrentTime": 1267,
+      "worldCurrentTime": 1267,
+      "durationMs": 2400,
+      "easing": "cubic-bezier(0.45, 0, 0.55, 1)"
+    }
+  },
+  "dynamic": true,
+  "interaction": null
+}

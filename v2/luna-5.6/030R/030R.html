@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Ambient Prism</title>
+<style>
+:root{font-family:Arial,sans-serif;--ink:#1d2630;--paper:#fff6e5;--glow:#c24f3f;color:var(--ink);background:#f5e9d0}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 25% 25%,var(--glow),transparent 22%),linear-gradient(135deg,#f5e9d0,#d88862);transition:.5s}.prism{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid var(--ink);background:var(--paper);transition:.5s;overflow:hidden}.prism:before{position:absolute;right:-12%;bottom:-30%;width:55%;height:70%;border:1px solid var(--glow);border-radius:50%;content:""}.label,.state{position:relative;z-index:1;margin:0;color:var(--glow);font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:12px;letter-spacing:.08em;text-transform:none}.prism h1{position:relative;z-index:1;margin:17vh 0 0;font-size:clamp(70px,15vw,178px);line-height:.78;letter-spacing:-.1em}.swatch{position:absolute;z-index:1;right:28px;top:28px;width:64px;height:64px;border:1px solid var(--ink);background:var(--glow);box-shadow:10px 10px 0 var(--ink)}@media (prefers-color-scheme:dark){:root{--ink:#f5e9d0;--paper:#1b2633;--glow:#f3af72;background:#111923}body{background:radial-gradient(circle at 25% 25%,var(--glow),transparent 22%),linear-gradient(135deg,#111923,#4d293c)}.prism{background:var(--paper);border-color:var(--ink)}} </style>
+</head><body><main class="prism"><span class="swatch"></span><p class="label">030R / ambient prism / media query</p><p class="state" id="state">scheme / reading</p><h1>Hello World</h1></main><script>
+const query=matchMedia('(prefers-color-scheme: dark)'),state=document.querySelector('#state');function render(){state.textContent=`scheme / ${query.matches?'dark':'light'} / native media state`}query.addEventListener('change',render);render();
+</script></body></html>

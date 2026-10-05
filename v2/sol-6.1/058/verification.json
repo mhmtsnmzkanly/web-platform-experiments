@@ -1,0 +1,89 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Bounded Ink"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Bounded Ink"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS scope root/limit -> selective greeting cascade",
+    "measurements": {
+      "styles": [
+        {
+          "id": "eligible",
+          "color": "rgb(176, 71, 57)",
+          "font": "105px",
+          "family": "Georgia"
+        },
+        {
+          "id": "limited",
+          "color": "rgb(54, 83, 78)",
+          "font": "70px",
+          "family": "monospace"
+        },
+        {
+          "id": "outside",
+          "color": "rgb(54, 83, 78)",
+          "font": "70px",
+          "family": "monospace"
+        }
+      ]
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

@@ -1,0 +1,58 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — CSS Subgrid Lockup"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — CSS Subgrid Lockup"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS Grid parent tracks -> subgrid column inheritance -> offset typographic lockup",
+    "measurements": {
+      "subgridSupported": true,
+      "parentWidth": 1018,
+      "helloWidth": 672,
+      "worldWidth": 672,
+      "worldOffsetLeft": 346
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

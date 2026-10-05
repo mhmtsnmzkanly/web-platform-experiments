@@ -1,0 +1,9 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Focal Plane</title><style>body{margin:0;background:#41444a;color:#e2e3d9}main{padding:60px 100px}label{display:block;font:20px Georgia}input{width:800px;accent-color:#c3c8d0;margin:20px 0 55px}h1{font:170px/1.1 Georgia;font-weight:400;margin:0}span{display:block}</style></head><body><main><label for="focus">Find the focal plane</label><input id="focus" type="range" min="0" max="8" value="0"><h1><span>Hello</span> <span>World</span></h1></main><script>
+const slider=document.querySelector('input'),heading=document.querySelector('h1');let radius=4,inputs=0,trusted=false;
+// Symmetric defocus makes the center, not either endpoint, sharp. The native
+// slider selects the numeric focal distance; CSS filters the actual glyphs.
+function render(){radius=Math.abs(slider.valueAsNumber-4);heading.style.filter=`blur(${radius}px)`}render();slider.oninput=event=>{inputs++;trusted=event.isTrusted;render()};
+window.labEvidence=()=>({subject:'Hello World',passed:radius===4&&getComputedStyle(heading).filter==='blur(4px)',mechanism:'Distance from focal value -> CSS glyph blur',measurements:{radius}});
+window.labScenario={kind:'click',selector:'#focus'};
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:trusted&&inputs>0&&radius===0&&getComputedStyle(heading).filter==='blur(0px)',mechanism:'Trusted center-range input -> zero defocus -> sharp greeting',measurements:{value:slider.valueAsNumber,radius,inputs,trusted}});
+</script></body></html>

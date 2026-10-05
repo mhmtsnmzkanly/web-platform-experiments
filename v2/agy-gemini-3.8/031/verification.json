@@ -1,0 +1,59 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 031: DOM MutationObserver Level 2 Telemetry Engine"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 031: DOM MutationObserver Level 2 Telemetry Engine"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "DOM MutationObserver Level 2 reactive mutation tracking with characterDataOldValue, attributeOldValue, and childList",
+    "measurements": {
+      "totalRecords": 7,
+      "batchCount": 4,
+      "hasAttributes": true,
+      "hasChildList": true,
+      "hasCharacterData": true,
+      "observedTarget": "main > div#stage > h1#subject-hello-world"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

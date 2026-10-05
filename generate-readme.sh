@@ -101,12 +101,90 @@ primary_screenshot_file() {
 }
 
 
+write_package_showcase() {
+    local version="$1"
+    local model="$2"
+    local model_dir="$ROOT_DIR/$version/$model"
+    local readme_path="$model_dir/README.md"
+    local rel_model_dir="$version/$model"
+    local rel_readme="$rel_model_dir/README.md"
+
+    {
+        echo "## $model"
+        echo
+    } >> "$README"
+
+    local summary=""
+    if [[ -f "$readme_path" ]]; then
+        summary="$(python3 -c '
+import sys, re
+
+path = sys.argv[1]
+try:
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+    content = re.sub(r"<[^>]+>", "", content)
+    content = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", content)
+    content = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", content)
+    content = re.sub(r"```.*?```", "", content, flags=re.DOTALL)
+    lines = []
+    for line in content.splitlines():
+        line = line.strip()
+        if not line or line.startswith(("#", "---", ">", "*", "-", "|")):
+            if lines:
+                break
+            continue
+        lines.append(line)
+    text = " ".join(lines)
+    text = re.sub(r"\s+", " ", text).strip()
+    max_len = 300
+    if len(text) > max_len:
+        truncated = text[:max_len]
+        last_space = truncated.rfind(" ")
+        if last_space > 180:
+            truncated = truncated[:last_space]
+        text = truncated.rstrip(".,;:- ")
+    print(text)
+except Exception:
+    pass
+' "$readme_path" 2>/dev/null || true)"
+    fi
+
+    local dist_html="$model_dir/dist/index.html"
+    local demo_link=""
+    if [[ -f "$dist_html" ]]; then
+        demo_link="$(make_demo_link "$rel_model_dir/dist/index.html")"
+    fi
+
+    {
+        if [[ -n "$summary" ]]; then
+            if [[ -f "$readme_path" ]]; then
+                echo "${summary%.}... [Devamını oku]($rel_readme)"
+            else
+                echo "$summary"
+            fi
+            echo
+        fi
+
+        if [[ -n "$demo_link" ]]; then
+            echo "[Demo]($demo_link)"
+            echo
+        fi
+    } >> "$README"
+}
+
+
 write_model_gallery() {
     local version="$1"
     local model="$2"
     local model_dir="$ROOT_DIR/$version/$model"
 
     [[ -d "$model_dir" ]] || return 0
+
+    if [[ -f "$model_dir/package.json" ]]; then
+        write_package_showcase "$version" "$model"
+        return 0
+    fi
 
     mapfile -t experiments < <(
         find "$model_dir" \

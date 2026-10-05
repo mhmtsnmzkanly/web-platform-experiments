@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — DOM Laboratory</title>
+<style>
+:root{color:#f2f0e8;background:#171717;font-family:ui-monospace,monospace}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#171717}.lab{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #8ee3c2;background:#232323}.lab:before{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 38px,rgba(142,227,194,.08) 39px);content:""}.label,.trace,.controls{position:relative;z-index:1}.label{margin:0;color:#8ee3c2;font-size:11px;letter-spacing:.18em;text-transform:uppercase}.sample{position:relative;z-index:1;margin:12vh 8% 0;padding:34px;border-left:5px solid #f0b35b;background:#1a1a1a}h1{margin:0;font-size:clamp(64px,13vw,158px);line-height:.82;letter-spacing:-.12em}.trace{margin-top:32px;color:#f0b35b;font-size:13px}.controls{display:flex;gap:12px;margin-top:34px}button{border:1px solid #8ee3c2;padding:9px 14px;color:#8ee3c2;background:transparent;font:12px monospace;cursor:pointer}button:hover{background:#8ee3c2;color:#171717}</style>
+</head><body><main class="lab"><p class="label">025R / dom laboratory / mutation observer</p><section class="sample" id="sample"><h1>Hello World</h1><div class="trace" id="trace">mutations / 0 / idle</div></section><div class="controls"><button id="pulse" type="button">mutate sample</button><button id="reset" type="button">reset trace</button></div></main><script>
+const sample=document.querySelector('#sample'),trace=document.querySelector('#trace');let count=0;new MutationObserver(records=>{count+=records.length;trace.textContent=`mutations / ${count} / observed`;trace.animate([{transform:'translateX(0)'},{transform:'translateX(12px)'},{transform:'translateX(0)'}],{duration:350})}).observe(sample,{attributes:true,subtree:true,attributeFilter:['data-phase','data-ready']});
+document.querySelector('#pulse').addEventListener('click',()=>{sample.dataset.phase=Date.now();sample.querySelector('h1').dataset.ready='true'});document.querySelector('#reset').addEventListener('click',()=>{count=0;trace.textContent='mutations / 0 / idle'});
+</script></body></html>

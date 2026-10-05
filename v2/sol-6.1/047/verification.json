@@ -1,0 +1,76 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1180,
+        "height": 650,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 2,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Knockout"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1180,
+        "height": 650,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 2,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Knockout"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Destination-out glyph coverage -> alpha subtraction -> knockout greeting",
+    "measurements": {
+      "removed": 33750,
+      "retained": 395195,
+      "added": 0
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

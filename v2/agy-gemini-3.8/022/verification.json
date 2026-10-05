@@ -1,0 +1,67 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "span",
+        "text": "\"Hello World\" (MATCH)"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Compression Streams API Pipeline"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "span",
+        "text": "\"Hello World\" (MATCH)"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Compression Streams API Pipeline"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "TextEncoder byte stream -> CompressionStream('gzip') piping -> compressed binary chunk extraction -> DecompressionStream('gzip') roundtrip verification -> compressed byte frame Hello World display",
+    "measurements": {
+      "format": "gzip",
+      "magicValid": true,
+      "rawBytesLength": 11,
+      "compressedBytesLength": 31,
+      "decompressedText": "Hello World",
+      "roundtripVerified": true
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

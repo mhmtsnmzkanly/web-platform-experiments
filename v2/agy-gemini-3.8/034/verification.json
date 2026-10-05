@@ -1,0 +1,60 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 034: CSS Masking Level 1 Holographic X-Ray Proscenium"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 034: CSS Masking Level 1 Holographic X-Ray Proscenium"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS Masking Level 1 radial-gradient alpha stencil aperture revealing underlying wireframe substrate",
+    "measurements": {
+      "maskImageComputed": "radial-gradient(150px at 32% 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 85%, rgb...",
+      "hasRadialMask": true,
+      "apertureRadiusPx": 150,
+      "apertureCenterX": "32%",
+      "apertureCenterY": "50%",
+      "subjectComputedColor": "rgb(248, 250, 252)",
+      "subjectFontSize": "82px"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

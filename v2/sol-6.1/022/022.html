@@ -1,0 +1,14 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Remembered</title><style>
+body{margin:0;background:#eee8e0;color:#305ba4;font-family:Georgia,serif}main{padding:80px 130px}h1{font-size:160px;line-height:.9;letter-spacing:-8px;font-weight:normal;margin:60px 0}h1 span{display:block}
+body.remembered{background:#e0d3e8;color:#753760}body.remembered h1{font-style:italic}
+button{background:none;border:1px solid;color:inherit;padding:16px 24px;font:15px monospace}p{font:14px monospace}
+</style></head><body><main><p>022 / A GREETING THAT REMEMBERS</p><h1><span>Hello </span><span>World</span></h1><button id="save">Remember the plum edition</button><p id="state"></p></main><script>
+const key='hello-lab-022';let saved=sessionStorage.getItem(key)==='plum';
+// Storage, rather than a transient class toggle, is the source of truth.
+// Initialization reconstructs the impression after a real browser reload.
+function paint(){document.body.classList.toggle('remembered',saved);document.querySelector('#state').textContent=saved?'PLUM EDITION / RESTORED FROM SESSION STORAGE':'BLUE EDITION / NOT SAVED'}
+paint();document.querySelector('#save').onclick=()=>{sessionStorage.setItem(key,'plum');saved=true;paint()};
+window.labScenario={kind:'click',selector:'#save',reload:true};
+window.labEvidence=()=>({subject:'Hello World',passed:typeof sessionStorage.getItem==='function',mechanism:'Session storage state -> initialization -> remembered greeting',measurements:{initialStored:sessionStorage.getItem(key),initialEdition:saved?'plum':'blue'}});
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:saved&&sessionStorage.getItem(key)==='plum'&&getComputedStyle(document.body).color==='rgb(117, 55, 96)'&&getComputedStyle(document.querySelector('h1')).fontStyle==='italic',mechanism:'Save palette -> real reload -> restored plum greeting',measurements:{stored:sessionStorage.getItem(key),color:getComputedStyle(document.body).color,fontStyle:getComputedStyle(document.querySelector('h1')).fontStyle}});
+</script></body></html>

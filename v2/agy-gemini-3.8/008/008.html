@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Web Animations API Countermotion</title>
+  <style>
+    /*
+      EXPERIMENT 008: Web Animations API (WAAPI) Typographic Countermotion
+
+      Architecture:
+      Utilizes the native Web Animations API (`element.animate()`).
+      Two independent Animation instances drive "HELLO" and "WORLD" in
+      opposing horizontal phases with harmonic cubic-bezier easing.
+      The timelines dynamically interpolate both translation vectors and
+      letter-spacing, causing the words to compress and expand in counter-rhythm.
+
+      Design System:
+      - Style: Kinetic Neo-Grotesque / Chrono-typographic Motion
+      - Palette: Midnight violet (#0b071a), electric mint (#4cc9f0),
+                 blazing magenta (#f72585), ultramarine (#3a0ca3), pure white (#ffffff)
+      - Typography: Bold Neo-Grotesque display sans-serif (system-ui / -apple-system)
+    */
+
+    :root {
+      --bg-midnight: #0b071a;
+      --color-mint: #4cc9f0;
+      --color-magenta: #f72585;
+      --color-ultramarine: #3a0ca3;
+      --color-white: #ffffff;
+      --color-border: #231b40;
+      --color-muted: #7d729e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: var(--bg-midnight);
+      color: var(--color-white);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .kinetic-stage {
+      width: 100%;
+      max-width: 1100px;
+      height: 720px;
+      background: #0e0922;
+      border: 2px solid var(--color-border);
+      box-shadow: 0 0 60px rgba(58, 12, 163, 0.35);
+      padding: 36px 44px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .kinetic-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 14px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+    }
+
+    .badge-timeline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--color-mint);
+    }
+
+    .timeline-pulse {
+      width: 8px;
+      height: 8px;
+      background: var(--color-mint);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--color-mint);
+    }
+
+    /* Motion Arena */
+    .motion-arena {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* The Primary Semantic Subject */
+    h1.motion-subject {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      font-size: inherit;
+      font-weight: inherit;
+    }
+
+    /* Track 1: HELLO */
+    .track-hello {
+      display: inline-block;
+      font-size: clamp(80px, 13vw, 140px);
+      font-weight: 900;
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      color: var(--color-mint);
+      text-shadow: 0 0 30px rgba(76, 201, 240, 0.45);
+      border-bottom: 4px solid var(--color-mint);
+      padding-bottom: 8px;
+      will-change: transform, letter-spacing;
+    }
+
+    /* Track 2: WORLD */
+    .track-world {
+      display: inline-block;
+      font-size: clamp(80px, 13vw, 140px);
+      font-weight: 900;
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      color: var(--color-magenta);
+      text-shadow: 0 0 30px rgba(247, 37, 133, 0.45);
+      border-bottom: 4px solid var(--color-magenta);
+      padding-bottom: 8px;
+      will-change: transform, letter-spacing;
+    }
+
+    .kinetic-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--color-border);
+      padding-top: 14px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+    }
+
+    .telemetry-status {
+      font-family: monospace;
+      color: var(--color-mint);
+    }
+  </style>
+</head>
+<body>
+  <main class="kinetic-stage">
+    <header class="kinetic-header">
+      <div>EXP 008 // WAAPI DUAL-PHASE COUNTERMOTION</div>
+      <div class="badge-timeline"><span class="timeline-pulse"></span>ACTIVE WAAPI TIMELINES · 2 CHANNELS</div>
+      <div>SPEC: WEB ANIMATIONS API</div>
+    </header>
+
+    <div class="motion-arena">
+      <!-- The Primary Subject: Hello World driven by dual WAAPI timelines -->
+      <h1 class="motion-subject">
+        <span class="track-hello">Hello</span>
+        <span class="track-world">World</span>
+      </h1>
+    </div>
+
+    <footer class="kinetic-footer">
+      <span>TIMELINE A: TRANSLATE-X [-100PX ➔ +100PX]</span>
+      <span class="telemetry-status" id="waapi-stats">EASING: CUBIC-BEZIER(0.45, 0, 0.55, 1)</span>
+      <span>TIMELINE B: TRANSLATE-X [+100PX ➔ -100PX]</span>
+    </footer>
+  </main>
+
+  <script>
+    // Programmatic Web Animations API Setup
+    const helloEl = document.querySelector('.track-hello');
+    const worldEl = document.querySelector('.track-world');
+
+    // Dual opposed keyframe animations
+    const animOptions = {
+      duration: 2400,
+      iterations: Infinity,
+      direction: 'alternate',
+      easing: 'cubic-bezier(0.45, 0, 0.55, 1)'
+    };
+
+    const helloAnim = helloEl.animate([
+      { transform: 'translateX(-90px)', letterSpacing: '-0.04em' },
+      { transform: 'translateX(90px)', letterSpacing: '0.08em' }
+    ], animOptions);
+
+    const worldAnim = worldEl.animate([
+      { transform: 'translateX(90px)', letterSpacing: '0.08em' },
+      { transform: 'translateX(-90px)', letterSpacing: '-0.04em' }
+    ], animOptions);
+
+    // Runtime Evidence
+    window.labEvidence = () => {
+      const animations = document.getAnimations();
+      const helloCurrentTime = helloAnim.currentTime;
+      const worldCurrentTime = worldAnim.currentTime;
+
+      const isRunning = helloAnim.playState === 'running' && worldAnim.playState === 'running';
+
+      return {
+        subject: 'Hello World',
+        passed: isRunning && animations.length >= 2,
+        mechanism: 'Dual WAAPI Element.animate() timelines -> opposing phase translation & tracking interpolation -> dynamic countermotion -> kinetic Hello World',
+        measurements: {
+          activeAnimationsCount: animations.length,
+          helloPlayState: helloAnim.playState,
+          worldPlayState: worldAnim.playState,
+          helloCurrentTime: Math.round(helloCurrentTime || 0),
+          worldCurrentTime: Math.round(worldCurrentTime || 0),
+          durationMs: animOptions.duration,
+          easing: animOptions.easing
+        }
+      };
+    };
+  </script>
+</body>
+</html>

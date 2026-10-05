@@ -1,0 +1,136 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "p",
+        "text": "Hello World"
+      },
+      {
+        "tag": "p",
+        "text": "Hello World"
+      },
+      {
+        "tag": "p",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Echo Records"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "p",
+        "text": "Hello World"
+      },
+      {
+        "tag": "p",
+        "text": "Hello World"
+      },
+      {
+        "tag": "p",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Echo Records"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Source attribute -> MutationObserver records -> echo impressions",
+    "measurements": {
+      "initialRecords": 0,
+      "echoCount": 3
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#stamp"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Attribute delivery -> three restyled echoes without direct handler writes",
+      "measurements": {
+        "records": 1,
+        "oldValue": "plain",
+        "impressions": [
+          "green",
+          "green",
+          "green"
+        ],
+        "colors": [
+          "rgb(71, 107, 54)",
+          "rgb(71, 107, 54)",
+          "rgb(71, 107, 54)"
+        ]
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        },
+        {
+          "tag": "p",
+          "text": "Hello World"
+        },
+        {
+          "tag": "p",
+          "text": "Hello World"
+        },
+        {
+          "tag": "p",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Hello World — Echo Records"
+    },
+    "late": null
+  }
+}

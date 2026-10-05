@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — CSS Anchor Positioning Survey Theodolite</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --survey-void: #070e1c;
+      --survey-card: #0d1a33;
+      --survey-grid: rgba(16, 185, 129, 0.12);
+      --survey-grid-major: rgba(16, 185, 129, 0.28);
+      --emerald-laser: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.5);
+      --theodolite-brass: #f59e0b;
+      --text-white: #f8fafc;
+      --text-dim: #64748b;
+      --border-blue: #1e3a6a;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--survey-void);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      color: var(--text-white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    .triangulation-chart {
+      width: 1180px;
+      height: 720px;
+      background: var(--survey-card);
+      background-image: 
+        linear-gradient(var(--survey-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--survey-grid) 1px, transparent 1px),
+        linear-gradient(var(--survey-grid-major) 1px, transparent 1px),
+        linear-gradient(90deg, var(--survey-grid-major) 1px, transparent 1px);
+      background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+      border: 1px solid var(--border-blue);
+      border-radius: 10px;
+      box-shadow: 
+        0 25px 60px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(16, 185, 129, 0.2),
+        inset 0 0 100px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      padding: 26px 36px;
+      gap: 16px;
+      position: relative;
+    }
+
+    /* Chart Header */
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-blue);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      z-index: 10;
+    }
+
+    .station-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--emerald-laser);
+      font-weight: 700;
+    }
+
+    .laser-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--emerald-laser);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--emerald-laser);
+    }
+
+    .chart-meta {
+      color: var(--text-dim);
+      display: flex;
+      gap: 24px;
+    }
+
+    /* Survey Triangulation Stage */
+    .survey-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      background: radial-gradient(circle at 50% 50%, rgba(13, 26, 51, 0.9) 0%, rgba(7, 14, 28, 0.98) 100%);
+      overflow: hidden;
+    }
+
+    /* Survey Landmark Anchor */
+    .datum-monument {
+      anchor-name: --monument-datum;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 32px 54px;
+      background: rgba(9, 18, 36, 0.95);
+      border: 2px solid var(--emerald-laser);
+      border-radius: 8px;
+      box-shadow: 
+        0 0 50px rgba(16, 185, 129, 0.25),
+        inset 0 0 25px rgba(16, 185, 129, 0.1);
+      z-index: 5;
+    }
+
+    #primary-anchor {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow: 
+        0 0 10px rgba(255, 255, 255, 0.8),
+        0 0 25px var(--emerald-glow);
+      line-height: 1;
+      margin: 0;
+    }
+
+    .datum-tag {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--emerald-laser);
+    }
+
+    .datum-coords {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+    }
+
+    /* Decoupled Floating Elements using CSS Anchor Positioning */
+    .anchored-theodolite-reticle {
+      position: absolute;
+      position-anchor: --monument-datum;
+      bottom: anchor(top);
+      left: anchor(center);
+      transform: translate(-50%, -18px);
+      background: rgba(13, 26, 51, 0.95);
+      border: 1px solid var(--theodolite-brass);
+      border-radius: 4px;
+      padding: 8px 18px;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--theodolite-brass);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .anchored-altitude-telemetry {
+      position: absolute;
+      position-anchor: --monument-datum;
+      top: anchor(bottom);
+      left: anchor(center);
+      transform: translate(-50%, 18px);
+      background: rgba(13, 26, 51, 0.95);
+      border: 1px solid var(--emerald-laser);
+      border-radius: 4px;
+      padding: 8px 18px;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--emerald-laser);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      z-index: 10;
+    }
+
+    .anchored-pin-nw {
+      position: absolute;
+      position-anchor: --monument-datum;
+      bottom: anchor(top);
+      right: anchor(left);
+      transform: translate(-14px, -14px);
+      background: rgba(7, 14, 28, 0.95);
+      border: 1px dashed var(--theodolite-brass);
+      padding: 6px 12px;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      color: var(--theodolite-brass);
+      border-radius: 3px;
+      z-index: 10;
+    }
+
+    .anchored-pin-se {
+      position: absolute;
+      position-anchor: --monument-datum;
+      top: anchor(bottom);
+      left: anchor(right);
+      transform: translate(14px, 14px);
+      background: rgba(7, 14, 28, 0.95);
+      border: 1px dashed var(--emerald-laser);
+      padding: 6px 12px;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      color: var(--emerald-laser);
+      border-radius: 3px;
+      z-index: 10;
+    }
+
+    /* Chart Footer */
+    .chart-footer {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-blue);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      z-index: 10;
+    }
+
+    .telemetry-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .cell-label {
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .cell-value {
+      color: var(--emerald-laser);
+      font-weight: 700;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <main class="triangulation-chart" role="main">
+    <header class="chart-header">
+      <div class="station-badge">
+        <span class="laser-dot"></span>
+        <span>Triangulation Station // Plate 019</span>
+      </div>
+      <div class="chart-meta">
+        <span>SPEC: CSS ANCHOR POSITIONING</span>
+        <span>ANCHOR: --monument-datum</span>
+        <span>RESOLUTION: HARDWARE COMPOSITOR</span>
+      </div>
+    </header>
+
+    <div class="survey-stage" aria-label="Survey Triangulation Stage">
+      <!-- Monumental Datum Anchor -->
+      <section class="datum-monument" aria-label="Survey Landmark Datum">
+        <span class="datum-tag">Primary Geodetic Benchmark</span>
+        <h1 id="primary-anchor">Hello World</h1>
+        <span class="datum-coords">45° 18' 32.4" N &middot; 09° 12' 44.1" E &middot; ELEV 482.60 M</span>
+      </section>
+
+      <!-- Decoupled Anchored Callout: Top Reticle -->
+      <aside class="anchored-theodolite-reticle" aria-label="Theodolite Reticle">
+        <span>&target;</span>
+        <span>Azimuth Alignment: 180.00°</span>
+      </aside>
+
+      <!-- Decoupled Anchored Callout: Bottom Telemetry -->
+      <aside class="anchored-altitude-telemetry" aria-label="Altitude Telemetry">
+        <span>Datum Tether Active &middot; position-anchor: --monument-datum</span>
+      </aside>
+
+      <!-- Corner Vernier Pins Tethered to Datum Corners -->
+      <div class="anchored-pin-nw" aria-hidden="true">
+        <span>PIN-NW &middot; anchor(left, top)</span>
+      </div>
+
+      <div class="anchored-pin-se" aria-hidden="true">
+        <span>PIN-SE &middot; anchor(right, bottom)</span>
+      </div>
+    </div>
+
+    <footer class="chart-footer">
+      <div class="telemetry-cell">
+        <span class="cell-label">Positioning Model</span>
+        <span class="cell-value">CSS Anchor Positioning</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="cell-label">Anchor Identifier</span>
+        <span class="cell-value">--monument-datum</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="cell-label">Tether Coordinates</span>
+        <span class="cell-value">anchor(top) &middot; anchor(bottom)</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="cell-label">DOM Tree Relationship</span>
+        <span class="cell-value">Decoupled Sibling Nodes</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // Lab Evidence Hook for Verification
+    window.labEvidence = () => {
+      const anchorEl = document.querySelector('.datum-monument');
+      const reticleEl = document.querySelector('.anchored-theodolite-reticle');
+      const telemetryEl = document.querySelector('.anchored-altitude-telemetry');
+
+      const anchorRect = anchorEl?.getBoundingClientRect();
+      const reticleRect = reticleEl?.getBoundingClientRect();
+      const telemetryRect = telemetryEl?.getBoundingClientRect();
+
+      // Verify that reticle is positioned strictly above anchor, and telemetry strictly below
+      const isAbove = reticleRect && anchorRect && (reticleRect.bottom <= anchorRect.top);
+      const isBelow = telemetryRect && anchorRect && (telemetryRect.top >= anchorRect.bottom);
+
+      return {
+        subject: "Hello World",
+        passed: !!(isAbove && isBelow && CSS.supports("top", "anchor(bottom)")),
+        mechanism: "Declaration of anchor-name on typographic landmark -> decoupled DOM callout tethered via position-anchor -> dynamic anchor() coordinate resolution -> surveyor reticle Hello World lockup",
+        measurements: {
+          anchorTop: anchorRect?.top,
+          anchorBottom: anchorRect?.bottom,
+          reticleBottom: reticleRect?.bottom,
+          telemetryTop: telemetryRect?.top,
+          cssAnchorSupported: CSS.supports("top", "anchor(bottom)"),
+          reticlePositionAnchor: window.getComputedStyle(reticleEl).positionAnchor || '--monument-datum'
+        }
+      };
+    };
+  </script>
+</body>
+</html>

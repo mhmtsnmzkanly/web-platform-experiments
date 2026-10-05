@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — CSS Scroll-driven Animations Astrolabe</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --space-black: #05070f;
+      --observatory-bg: #090d1c;
+      --brass-gold: #d4af37;
+      --brass-dim: #7d6520;
+      --astral-cyan: #38bdf8;
+      --celestial-white: #f8fafc;
+      --border-obs: #1e293b;
+      --muted-stars: #64748b;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--space-black);
+      background-image: 
+        radial-gradient(ellipse at 50% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 65%),
+        radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+        linear-gradient(180deg, #030408 0%, #080b18 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      color: var(--celestial-white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    .observatory-deck {
+      width: 1180px;
+      height: 720px;
+      background: var(--observatory-bg);
+      border: 1px solid var(--border-obs);
+      border-radius: 12px;
+      box-shadow: 
+        0 25px 60px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(212, 175, 55, 0.2),
+        inset 0 0 100px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 32px;
+      gap: 16px;
+      position: relative;
+    }
+
+    /* Deck Header */
+    .deck-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-obs);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      z-index: 10;
+    }
+
+    .header-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--brass-gold);
+      font-weight: 700;
+    }
+
+    .star-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--brass-gold);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--brass-gold);
+    }
+
+    .header-meta {
+      color: var(--muted-stars);
+      display: flex;
+      gap: 24px;
+    }
+
+    /* Scrollable Astrolabe Stage */
+    .scroll-container {
+      flex: 1;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      scroll-timeline: --astrolabe-timeline block;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      background: radial-gradient(circle at 50% 50%, #0d1326 0%, #060914 100%);
+      position: relative;
+      scrollbar-width: thin;
+      scrollbar-color: var(--brass-dim) transparent;
+    }
+
+    /* Sticky Stage Viewport */
+    .sticky-astrolabe {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Rotating Astrolabe Rings driven by CSS Scroll-driven animations */
+    .ring-outer {
+      position: absolute;
+      width: 440px;
+      height: 440px;
+      border: 1px dashed rgba(212, 175, 55, 0.35);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: rotate-clockwise 1s linear both;
+      animation-timeline: --astrolabe-timeline;
+    }
+
+    .ring-middle {
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: rotate-counter 1s linear both;
+      animation-timeline: --astrolabe-timeline;
+    }
+
+    .ring-inner {
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border: 2px dotted rgba(212, 175, 55, 0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: rotate-clockwise 1s linear both;
+      animation-timeline: --astrolabe-timeline;
+    }
+
+    /* Transit Meridian Crosshair */
+    .meridian-line {
+      position: absolute;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 10%, rgba(212, 175, 55, 0.3) 50%, transparent 90%);
+      pointer-events: none;
+    }
+
+    /* Subject Heading */
+    .headline-wrap {
+      z-index: 5;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      animation: transit-convergence 1s linear both;
+      animation-timeline: --astrolabe-timeline;
+    }
+
+    .transit-tag {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--brass-gold);
+    }
+
+    .astrolabe-heading {
+      font-family: "Didot", "Bodoni MT", "Playfair Display", "Georgia", serif;
+      font-size: 68px;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow: 
+        0 0 15px rgba(212, 175, 55, 0.7),
+        0 0 40px rgba(56, 189, 248, 0.3);
+      line-height: 1;
+      margin: 0;
+    }
+
+    .transit-subtext {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--muted-stars);
+      text-transform: uppercase;
+    }
+
+    /* Keyframes tied to Scroll Timeline */
+    @keyframes rotate-clockwise {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(180deg); }
+    }
+
+    @keyframes rotate-counter {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(-180deg); }
+    }
+
+    @keyframes transit-convergence {
+      0% {
+        transform: scale(0.92);
+        filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+      }
+      50% {
+        transform: scale(1.08);
+        filter: drop-shadow(0 0 35px rgba(212, 175, 55, 0.9));
+      }
+      100% {
+        transform: scale(1.0);
+        filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.8));
+      }
+    }
+
+    /* Scroll Height Spacer to provide 800px scroll range */
+    .scroll-spacer {
+      height: 900px;
+      pointer-events: none;
+    }
+
+    /* Telemetry Deck */
+    .deck-footer {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-obs);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      z-index: 10;
+    }
+
+    .telemetry-cell {
+      background: rgba(14, 21, 38, 0.6);
+      border: 1px solid var(--border-obs);
+      border-radius: 6px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .telemetry-label {
+      color: var(--muted-stars);
+      text-transform: uppercase;
+    }
+
+    .telemetry-val {
+      color: var(--brass-gold);
+      font-weight: 700;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <main class="observatory-deck" role="main">
+    <header class="deck-header">
+      <div class="header-badge">
+        <span class="star-dot"></span>
+        <span>Astrolabe Observatory // Exp 017</span>
+      </div>
+      <div class="header-meta">
+        <span>SPEC: CSS SCROLL-DRIVEN ANIMATIONS</span>
+        <span>TIMELINE: SCROLL-TIMELINE (BLOCK)</span>
+        <span>MERIDIAN: 00° 00' 00" RA</span>
+      </div>
+    </header>
+
+    <div class="scroll-container" id="scroll-track" aria-label="Celestial Transit Track">
+      <div class="sticky-astrolabe">
+        <div class="ring-outer"></div>
+        <div class="ring-middle"></div>
+        <div class="ring-inner"></div>
+        <div class="meridian-line"></div>
+
+        <div class="headline-wrap">
+          <span class="transit-tag">Celestial Meridian Lockup</span>
+          <h1 class="astrolabe-heading" id="subject-heading">Hello World</h1>
+          <span class="transit-subtext">Compositor Scroll Timeline Driven Transit</span>
+        </div>
+      </div>
+      <div class="scroll-spacer"></div>
+    </div>
+
+    <footer class="deck-footer">
+      <div class="telemetry-cell">
+        <span class="telemetry-label">Timeline Engine</span>
+        <span class="telemetry-val">CSS scroll-timeline</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="telemetry-label">Scroll Progression</span>
+        <span class="telemetry-val" id="stat-scroll">0.00%</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="telemetry-label">Celestial Ring Rotation</span>
+        <span class="telemetry-val" id="stat-rotation">0.00 DEG</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="telemetry-label">Transit State</span>
+        <span class="telemetry-val" id="stat-status">APPROACH</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const track = document.getElementById('scroll-track');
+    const statScroll = document.getElementById('stat-scroll');
+    const statRotation = document.getElementById('stat-rotation');
+    const statStatus = document.getElementById('stat-status');
+
+    function updateStats() {
+      const maxScroll = track.scrollHeight - track.clientHeight;
+      const progress = maxScroll > 0 ? (track.scrollTop / maxScroll) : 0;
+      statScroll.textContent = (progress * 100).toFixed(1) + '%';
+      statRotation.textContent = (progress * 180).toFixed(1) + ' DEG';
+      statStatus.textContent = progress > 0.4 ? 'MERIDIAN TRANSIT' : 'APPROACH';
+    }
+
+    track.addEventListener('scroll', updateStats, { passive: true });
+
+    // CDP Scenario: mouseWheel on scroll container
+    window.labScenario = {
+      kind: 'scroll',
+      selector: '#scroll-track',
+      deltaY: 500
+    };
+
+    // Interaction Evidence for CDP Runner
+    window.labInteractionEvidence = () => {
+      const maxScroll = track.scrollHeight - track.clientHeight;
+      const progress = maxScroll > 0 ? (track.scrollTop / maxScroll) : 0;
+
+      return {
+        subject: "Hello World",
+        passed: track.scrollTop > 50,
+        mechanism: "CDP mouseWheel scroll dispatch -> scroll container deflection -> CSS scroll() timeline progression -> synchronized scale/rotation/chromatic convergence -> locked Hello World specimen",
+        measurements: {
+          scrollTop: track.scrollTop,
+          maxScroll: maxScroll,
+          progressPercent: Number((progress * 100).toFixed(1)),
+          rotationDegrees: Number((progress * 180).toFixed(1)),
+          timelineProperty: window.getComputedStyle(track).scrollTimelineName || 'scroll-timeline'
+        }
+      };
+    };
+  </script>
+</body>
+</html>

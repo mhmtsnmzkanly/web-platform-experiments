@@ -1,0 +1,83 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1180,
+        "height": 700,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 5,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World",
+      "Hello World",
+      "Hello World",
+      "Hello World",
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Fan"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1180,
+        "height": 700,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 5,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World",
+      "Hello World",
+      "Hello World",
+      "Hello World",
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Fan"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "DOMMatrix composition -> affine greeting fan",
+    "measurements": {
+      "impressions": 5,
+      "inverseError": 2.842170943040401e-14
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

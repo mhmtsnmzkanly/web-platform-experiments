@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Chronometer</title>
+<style>
+:root{color:#f6ebcf;background:#151515;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle,#514d3e,#151515 70%)}.clock{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #e2b85e}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#e2b85e;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#cbc1a9;font:12px monospace}.face{position:relative;z-index:1;margin:8vh auto 0;width:min(63vw,700px);aspect-ratio:1;border:8px double #e2b85e;border-radius:50%;display:grid;place-items:center}.face:before,.face:after{position:absolute;content:"";background:#e2b85e;left:50%;top:50%;transform-origin:left center}.face:before{width:32%;height:3px;transform:rotate(25deg)}.face:after{width:22%;height:5px;transform:rotate(290deg)}.face h1{position:relative;margin:0;text-align:center;font-size:clamp(50px,9vw,110px);line-height:.8;letter-spacing:-.1em}.controls{position:absolute;right:28px;bottom:28px}button{border:1px solid #e2b85e;padding:9px 14px;color:#e2b85e;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="clock"><p class="label">073R / chronometer / time origin</p><p class="state" id="state">clock / origin sealed</p><section class="face"><h1>Hello World</h1></section><div class="controls"><button id="measure" type="button">measure origin</button></div></main><script>
+const state=document.querySelector('#state');document.querySelector('#measure').addEventListener('click',()=>{const age=performance.now();state.textContent=`clock / origin ${Math.round(performance.timeOrigin)} / page age ${Math.round(age)} ms`});
+</script></body></html>

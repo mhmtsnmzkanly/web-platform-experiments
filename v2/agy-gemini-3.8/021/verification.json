@@ -1,0 +1,59 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Web Cryptography API SHA-256 Ledger"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Web Cryptography API SHA-256 Ledger"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "TextEncoder buffer encoding -> crypto.subtle.digest('SHA-256') -> byte array extraction -> cryptographic hash matrix & signature Hello World verification",
+    "measurements": {
+      "algorithm": "SHA-256",
+      "digestHex": "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e",
+      "byteLength": 32,
+      "bitLength": 256,
+      "inputLength": 11,
+      "verified": true
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

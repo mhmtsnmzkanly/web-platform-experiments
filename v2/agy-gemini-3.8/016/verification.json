@@ -1,0 +1,59 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — CSS Shapes Polygon Exclusion"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — CSS Shapes Polygon Exclusion"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Dual floating polygon shapes -> shape-outside line-box exclusion -> contour-hugging typography -> negative-space Hello World amphora",
+    "measurements": {
+      "leftShapeOutside": "polygon(0px 0px, 100% 0px, 45% 25%, 15% 50%, 55% 75%, 100% 100%, 0px 100%)",
+      "rightShapeOutside": "polygon(100% 0px, 0px 0px, 55% 25%, 85% 50%, 45% 75%, 0px 100%, 100% 100%)",
+      "shapeMargin": "16px",
+      "leftFloat": "left",
+      "rightFloat": "right",
+      "headlineVisible": "Hello World"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

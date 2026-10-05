@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Spine</title>
+<style>
+body{margin:0;background:#f3eee2;color:#202a58;font-family:Georgia,serif}
+main{height:100vh;display:flex;justify-content:center;gap:90px;align-items:center}
+/* Vertical flow uses the browser's writing model, not a rotated bitmap.
+   Latin glyphs stay upright while the inline axis runs down the page. */
+h1{writing-mode:vertical-rl;text-orientation:upright;font-size:48px;letter-spacing:8px;line-height:1.25;margin:0;height:680px;word-spacing:22px}
+.rail{height:680px;width:12px;background:#202a58}
+aside{writing-mode:vertical-rl;font-size:13px;letter-spacing:3px;border-left:1px solid;padding-left:18px;height:680px}
+@media(max-height:740px){h1{font-size:35px;letter-spacing:3px;height:90vh}.rail,aside{height:90vh}}
+</style></head><body><main><aside>003 / THE VERTICAL READING ROOM</aside><h1>Hello World</h1><div class="rail" aria-hidden="true"></div></main>
+<script>
+window.labEvidence=()=>{const el=document.querySelector('h1'),s=getComputedStyle(el),r=el.getBoundingClientRect();
+return {subject:'Hello World',passed:s.writingMode==='vertical-rl'&&s.textOrientation==='upright'&&r.height>r.width,
+mechanism:'Vertical inline axis -> upright glyph placement -> book-spine Hello World',measurements:{writingMode:s.writingMode,textOrientation:s.textOrientation,width:r.width,height:r.height}}};
+</script></body></html>

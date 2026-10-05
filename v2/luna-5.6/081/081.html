@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Number Press</title>
+<style>
+:root{color:#fff1d7;background:#291a16;font-family:Georgia,serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#291a16,#713e31)}.press{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #f0c06a}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#f0c06a;font:11px monospace;letter-spacing:.18em}.state{margin-top:10px;color:#dcb69b;font:12px monospace}.paper{position:relative;z-index:1;margin:12vh auto 0;width:min(78vw,900px);padding:38px 28px;border-block:6px solid #f0c06a;background:#f6e5bc;color:#3a221b}.paper h1{margin:0;font:700 clamp(58px,12vw,145px)/.8 Arial,sans-serif;letter-spacing:-.1em}.paper output{display:block;margin-top:30px;font:24px monospace;color:#8c4c3c}.controls{position:absolute;right:28px;bottom:28px;display:flex;align-items:center;gap:10px}input{width:180px;accent-color:#f0c06a}</style>
+</head><body><main class="press"><p class="label">081 / number press / number format</p><p class="state" id="state">press / choose an edition</p><section class="paper"><h1>Hello World</h1><output id="output">1,000,000</output></section><div class="controls"><label for="amount">edition <input id="amount" type="range" min="1000" max="10000000" step="1000" value="1000000"></label></div></main><script>
+const amount=document.querySelector('#amount'),output=document.querySelector('#output'),state=document.querySelector('#state'),formatter=new Intl.NumberFormat(undefined,{notation:'compact',maximumFractionDigits:1});amount.addEventListener('input',()=>{output.value=formatter.format(Number(amount.value));state.textContent=`press / ${formatter.resolvedOptions().locale} / ${output.value} impressions`});
+</script></body></html>

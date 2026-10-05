@@ -1,0 +1,123 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello\n        World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — CSS :has() Relational Stencil"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello\n        World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — CSS :has() Relational Stencil"
+  },
+  "technology": null,
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#action-lever"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Native checkbox input -> CSS :has(:checked) relational ancestor matching -> dual-plate registration shift & chromatic inversion -> transformed Hello World",
+      "measurements": {
+        "checkboxChecked": true,
+        "bedBackgroundColor": "rgb(15, 7, 32)",
+        "helloColor": "rgb(104, 15, 44)",
+        "blendMode": "normal"
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello\n        World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 66.60000000001887,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 66.60000000001887,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 66.60000000001887,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 66.60000000001887,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "Hello World — CSS :has() Relational Stencil"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello\n        World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Hello World — CSS :has() Relational Stencil"
+    }
+  }
+}

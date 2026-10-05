@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Clone Press</title>
+<style>
+:root{color:#f8e5ec;background:#28131e;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 70% 20%,#853f62,#28131e 66%)}.press{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #f49a9c}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#f49a9c;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#d9bdd0;font:12px monospace}.plate{position:relative;z-index:1;margin:12vh auto 0;width:min(78vw,900px);padding:32px;border:1px solid #f6ce7b;background:#54253b;transform:rotate(-2deg)}.plate h1{margin:0;font-size:clamp(66px,13vw,158px);line-height:.8;letter-spacing:-.1em}.controls{position:absolute;right:28px;bottom:28px;display:flex;gap:12px}button{border:1px solid #f49a9c;padding:9px 14px;color:#f49a9c;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="press"><p class="label">048R / clone press / html template</p><p class="state" id="state">press / master plate ready</p><section id="output" class="plate"><h1>Hello World</h1></section><template id="stamp"><article class="plate"><h1>Hello World</h1></article></template><div class="controls"><button id="clone" type="button">press a clone</button></div></main><script>
+const output=document.querySelector('#output'),template=document.querySelector('#stamp'),state=document.querySelector('#state');document.querySelector('#clone').addEventListener('click',()=>{const clone=template.content.cloneNode(true);clone.querySelector('h1').style.color='#f6ce7b';output.replaceWith(clone);state.textContent='press / template fragment cloned into the gallery'});
+</script></body></html>

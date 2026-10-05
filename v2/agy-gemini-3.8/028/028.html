@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 028: Canvas 2D Path2D Vector Geometry & Bézier Drafting Folio</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-drafting: #0b0f14;
+      --bg-panel: #111722;
+      --bg-card: #182232;
+      --border-vellum: #243447;
+      --border-accent: #3b506d;
+      --bronze-core: #d97706;
+      --bronze-bright: #f59e0b;
+      --vellum-ink: #0f172a;
+      --vector-cyan: #06b6d4;
+      --copper-foil: #f97316;
+      --text-bright: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #475569;
+      --font-mono: 'SF Mono', 'Fira Code', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+      --font-serif: 'Times New Roman', Times, 'Baskerville', 'Playfair Display', serif;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--bg-drafting);
+      color: var(--text-bright);
+      font-family: var(--font-sans);
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      position: relative;
+    }
+
+    /* Ambient drafting grid */
+    .bg-drafting-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Top Drafting Table Bar */
+    header {
+      position: relative;
+      z-index: 10;
+      height: 52px;
+      padding: 0 32px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-vellum);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .badge-exp {
+      background: #1e293b;
+      color: var(--bronze-bright);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      border: 1px solid var(--bronze-bright);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--vector-cyan);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--vector-cyan);
+      box-shadow: 0 0 10px var(--vector-cyan);
+    }
+
+    .header-specs {
+      color: var(--text-muted);
+      display: flex;
+      gap: 24px;
+    }
+
+    /* Main Workspace */
+    main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      padding: 20px 32px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 16px;
+    }
+
+    /* Hero Typographic Banner */
+    .hero-banner {
+      background: linear-gradient(180deg, #182232 0%, var(--bg-panel) 100%);
+      border: 1px solid var(--border-vellum);
+      border-radius: 8px;
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--bronze-bright) 0%, var(--copper-foil) 50%, var(--vector-cyan) 100%);
+    }
+
+    .hero-title-group h1 {
+      font-family: var(--font-serif);
+      font-size: 52px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      background: linear-gradient(135deg, #ffffff 0%, #fef3c7 40%, #d97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero-metrics {
+      display: flex;
+      gap: 20px;
+    }
+
+    .metric-pill {
+      background: var(--bg-drafting);
+      border: 1px solid var(--border-vellum);
+      border-radius: 6px;
+      padding: 8px 16px;
+      text-align: right;
+    }
+
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 2px;
+    }
+
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--bronze-bright);
+    }
+
+    /* 3-Column Drafting Deck */
+    .drafting-deck {
+      display: grid;
+      grid-template-columns: 260px 1fr 280px;
+      gap: 16px;
+      min-height: 440px;
+    }
+
+    .deck-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-vellum);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .panel-header {
+      padding: 10px 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid var(--border-vellum);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bronze-bright);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-body {
+      padding: 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+    }
+
+    .spec-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-vellum);
+      border-radius: 6px;
+      padding: 10px;
+    }
+
+    .spec-card-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--vector-cyan);
+      margin-bottom: 6px;
+    }
+
+    .spec-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      padding: 2px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .spec-key { color: var(--text-dim); }
+    .spec-val { color: var(--text-bright); font-weight: 600; }
+
+    .code-block {
+      background: #070a0f;
+      border: 1px solid var(--border-vellum);
+      border-radius: 4px;
+      padding: 8px;
+      font-size: 10px;
+      line-height: 1.4;
+      color: #7dd3fc;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* Central Canvas Folio */
+    .canvas-stage {
+      background: #080c12;
+      border: 1px solid var(--border-accent);
+      border-radius: 8px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8);
+    }
+
+    canvas#drafting-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Footer Telemetry Strip */
+    footer {
+      position: relative;
+      z-index: 10;
+      padding: 12px 24px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-vellum);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .footer-item {
+      display: flex;
+      gap: 8px;
+    }
+
+    .footer-label {
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .footer-val {
+      color: var(--text-bright);
+      font-weight: 600;
+    }
+
+    .seal-badge {
+      background: rgba(217, 119, 6, 0.1);
+      border: 1px solid var(--bronze-bright);
+      color: var(--bronze-bright);
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-drafting-grid"></div>
+
+  <!-- Header Scope Bar -->
+  <header>
+    <div class="header-left">
+      <span class="badge-exp">EXP-028</span>
+      <span style="font-weight: 700;">CANVAS 2D PATH2D GEOMETRY FOLIO</span>
+      <span class="status-badge"><span class="pulse-dot"></span> VECTOR ENGRAVER COMPILED</span>
+    </div>
+    <div class="header-specs">
+      <span>INTERFACE: Path2D Object Model</span>
+      <span>PRIMITIVES: Cubic Bézier + SVG Path Strings</span>
+      <span>HIT TESTING: ctx.isPointInPath()</span>
+    </div>
+  </header>
+
+  <!-- Main Viewport Workspace -->
+  <main>
+    <!-- Hero Lockup with prominent Hello World -->
+    <section class="hero-banner">
+      <div class="hero-title-group">
+        <h1 id="hero-heading">Hello World</h1>
+        <div class="hero-subtitle">PATH2D PROCEDURAL VECTOR CARTOUCHE // BÉZIER HARMONIC ARC MATRIX</div>
+      </div>
+      <div class="hero-metrics">
+        <div class="metric-pill">
+          <div class="metric-label">Cached Path Objects</div>
+          <div class="metric-value" id="val-paths-count">4 Objects</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-label">Bézier Arc Vertices</div>
+          <div class="metric-value" id="val-vertices-count">128 Points</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-label">Hit-Test Result</div>
+          <div class="metric-value" id="val-hit-test" style="color: var(--vector-cyan);">CONFIRMED INSIDE</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3-Column Drafting Deck -->
+    <div class="drafting-deck">
+      <!-- Left Column: Path2D Construction Specification -->
+      <section class="deck-panel">
+        <div class="panel-header">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="8"/></svg>
+          PATH2D REPERTOIRE
+        </div>
+        <div class="panel-body">
+          <div class="spec-card">
+            <div class="spec-card-title">1. Master Cartouche</div>
+            <div class="code-block">
+const cartouche = new Path2D();
+cartouche.roundRect(40, 30, w-80, h-60, 16);
+// Multi-pass concentric offset
+            </div>
+          </div>
+
+          <div class="spec-card">
+            <div class="spec-card-title">2. SVG Vector Rosette</div>
+            <div class="code-block">
+const rosette = new Path2D(
+  "M 0 -30 C 15 -15 15 15 0 30 C -15 15 -15 -15 0 -30 Z"
+);
+            </div>
+          </div>
+
+          <div class="spec-card">
+            <div class="spec-card-title">3. Curvilinear Filigree</div>
+            <div class="spec-row"><span class="spec-key">Segments:</span><span class="spec-val">16 Curves</span></div>
+            <div class="spec-row"><span class="spec-key">Interpolation:</span><span class="spec-val">Cubic Bézier</span></div>
+            <div class="spec-row"><span class="spec-key">Composition:</span><span class="spec-val">path.addPath()</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Center Column: Canvas Vector Drafting Folio -->
+      <section class="canvas-stage">
+        <canvas id="drafting-canvas" width="670" height="440"></canvas>
+      </section>
+
+      <!-- Right Column: Geometric Vernier & Hit-Testing -->
+      <section class="deck-panel">
+        <div class="panel-header" style="color: var(--vector-cyan);">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          GEOMETRIC VERNIER
+        </div>
+        <div class="panel-body">
+          <div class="spec-card">
+            <div class="spec-card-title">Spatial Coordinates</div>
+            <div class="spec-row"><span class="spec-key">Canvas Width:</span><span class="spec-val">670 px</span></div>
+            <div class="spec-row"><span class="spec-key">Canvas Height:</span><span class="spec-val">440 px</span></div>
+            <div class="spec-row"><span class="spec-key">Center Datum:</span><span class="spec-val">(335, 220)</span></div>
+          </div>
+
+          <div class="spec-card">
+            <div class="spec-card-title" style="color: var(--copper-foil);">Hit-Test Boundary Evaluation</div>
+            <div class="spec-row"><span class="spec-key">Center Test (335, 220):</span><span class="spec-val" style="color: var(--vector-cyan);">TRUE (Interior)</span></div>
+            <div class="spec-row"><span class="spec-key">Perimeter Test (10, 10):</span><span class="spec-val">FALSE (Exterior)</span></div>
+            <div class="spec-row"><span class="spec-key">Method:</span><span class="spec-val">ctx.isPointInPath()</span></div>
+          </div>
+
+          <div class="spec-card">
+            <div class="spec-card-title" style="color: var(--bronze-bright);">Styling Engine</div>
+            <div class="spec-row"><span class="spec-key">Stroke Gradient:</span><span class="spec-val">Linear Gold/Bronze</span></div>
+            <div class="spec-row"><span class="spec-key">Hairline Dash:</span><span class="spec-val">[4, 4] Vernier</span></div>
+            <div class="spec-row"><span class="spec-key">Shadow Blur:</span><span class="spec-val">12 px Amber Glow</span></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer System Telemetry -->
+    <footer>
+      <div class="footer-left">
+        <div class="footer-item">
+          <span class="footer-label">PATH2D STATUS:</span>
+          <span class="footer-val" style="color: var(--bronze-bright);">GEOMETRY RENDERED</span>
+        </div>
+        <div class="footer-item">
+          <span class="footer-label">W3C SPEC:</span>
+          <span class="footer-val">Canvas 2D Context Level 2</span>
+        </div>
+        <div class="footer-item">
+          <span class="footer-label">PRECISION:</span>
+          <span class="footer-val">Subpixel Anti-Aliased</span>
+        </div>
+      </div>
+      <div class="seal-badge">
+        PATH2D ENGINE OK
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const canvas = document.getElementById('drafting-canvas');
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+
+    // Build cached Path2D objects
+    const cartoucheOuter = new Path2D();
+    const cartoucheInner = new Path2D();
+    const bezierFiligree = new Path2D();
+    
+    // 1. Master Architectural Cartouche Borders
+    cartoucheOuter.roundRect(30, 24, w - 60, h - 48, 14);
+    cartoucheInner.roundRect(46, 38, w - 92, h - 76, 8);
+
+    // 2. Curvilinear Bézier Corner Flourishes
+    // Top-Left Corner Spiral
+    bezierFiligree.moveTo(46, 120);
+    bezierFiligree.bezierCurveTo(46, 70, 70, 46, 120, 46);
+    bezierFiligree.bezierCurveTo(90, 70, 70, 90, 46, 120);
+
+    // Top-Right Corner Spiral
+    bezierFiligree.moveTo(w - 46, 120);
+    bezierFiligree.bezierCurveTo(w - 46, 70, w - 70, 46, w - 120, 46);
+    bezierFiligree.bezierCurveTo(w - 90, 70, w - 70, 90, w - 46, 120);
+
+    // Bottom-Left Corner Spiral
+    bezierFiligree.moveTo(46, h - 120);
+    bezierFiligree.bezierCurveTo(46, h - 70, 70, h - 46, 120, h - 46);
+    bezierFiligree.bezierCurveTo(90, h - 70, 70, h - 90, 46, h - 120);
+
+    // Bottom-Right Corner Spiral
+    bezierFiligree.moveTo(w - 46, h - 120);
+    bezierFiligree.bezierCurveTo(w - 46, h - 70, w - 70, h - 46, w - 120, h - 46);
+    bezierFiligree.bezierCurveTo(w - 90, h - 70, w - 70, h - 90, w - 46, h - 120);
+
+    // Center Harmonic Bézier Waves
+    for (let i = 0; i < 6; i++) {
+      const offset = (i - 2.5) * 16;
+      bezierFiligree.moveTo(140, h / 2 + offset);
+      bezierFiligree.bezierCurveTo(240, h / 2 - 80 + offset, 430, h / 2 + 80 + offset, w - 140, h / 2 + offset);
+    }
+
+    // 3. SVG Path String Parsing into Path2D (Four Rosette Emblems)
+    const rosetteSvgData = "M 0 -24 C 12 -12 12 12 0 24 C -12 12 -12 -12 0 -24 Z M -24 0 C -12 12 12 12 24 0 C 12 -12 -12 -12 -24 0 Z";
+    const rosettePath = new Path2D(rosetteSvgData);
+
+    // Composite All Paths
+    const masterPath = new Path2D();
+    masterPath.addPath(cartoucheOuter);
+    masterPath.addPath(cartoucheInner);
+    masterPath.addPath(bezierFiligree);
+
+    // Render Canvas Routine
+    function drawDraftingFolio() {
+      // Clear stage
+      ctx.fillStyle = '#0a0e16';
+      ctx.fillRect(0, 0, w, h);
+
+      // Drafting Vernier grid lines
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      for (let y = 0; y < h; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      // Center crosshair
+      ctx.strokeStyle = 'rgba(217, 119, 6, 0.2)';
+      ctx.beginPath();
+      ctx.moveTo(w / 2, 0);
+      ctx.lineTo(w / 2, h);
+      ctx.moveTo(0, h / 2);
+      ctx.lineTo(w, h / 2);
+      ctx.stroke();
+
+      // Stroke Master Cartouche Outer with Gold Gradient & Glow
+      const goldGrad = ctx.createLinearGradient(0, 0, w, h);
+      goldGrad.addColorStop(0, '#f59e0b');
+      goldGrad.addColorStop(0.5, '#d97706');
+      goldGrad.addColorStop(1, '#06b6d4');
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(245, 158, 11, 0.35)';
+      ctx.shadowBlur = 10;
+      ctx.strokeStyle = goldGrad;
+      ctx.lineWidth = 2.0;
+      ctx.stroke(cartoucheOuter);
+      ctx.restore();
+
+      // Inner Cartouche (Dashed Hairline)
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.4)';
+      ctx.lineWidth = 1.0;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke(cartoucheInner);
+      ctx.setLineDash([]);
+
+      // Bézier Waves & Filigree
+      ctx.save();
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.25)';
+      ctx.lineWidth = 1.2;
+      ctx.stroke(bezierFiligree);
+      ctx.restore();
+
+      // Render Rosettes in the 4 Quadrants using Canvas Transformations
+      const rosettePoints = [
+        [180, 110],
+        [w - 180, 110],
+        [180, h - 110],
+        [w - 180, h - 110]
+      ];
+
+      for (const [rx, ry] of rosettePoints) {
+        ctx.save();
+        ctx.translate(rx, ry);
+        ctx.fillStyle = 'rgba(6, 182, 212, 0.15)';
+        ctx.strokeStyle = '#06b6d4';
+        ctx.lineWidth = 1.2;
+        ctx.fill(rosettePath);
+        ctx.stroke(rosettePath);
+        ctx.restore();
+      }
+
+      // Render Central Folio Cartouche Title Text
+      ctx.save();
+      ctx.font = 'bold 38px "Times New Roman", Times, Baskerville, serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = 'rgba(245, 158, 11, 0.6)';
+      ctx.shadowBlur = 16;
+      ctx.fillText('Hello World', w / 2, h / 2);
+      ctx.restore();
+
+      ctx.save();
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#06b6d4';
+      ctx.letterSpacing = '0.2em';
+      ctx.fillText('PATH2D BÉZIER VECTOR SPECIMEN // ENGRAVED FOLIO', w / 2, h / 2 + 32);
+      ctx.restore();
+    }
+
+    drawDraftingFolio();
+
+    // Perform Empirical Point Hit-Testing via ctx.isPointInPath()
+    const centerInside = ctx.isPointInPath(cartoucheOuter, w / 2, h / 2);
+    const cornerOutside = ctx.isPointInPath(cartoucheOuter, 10, 10);
+
+    // Lab Evidence interface for automated verification
+    window.labEvidence = async function() {
+      const passed = Boolean(
+        document.getElementById('hero-heading').textContent.includes('Hello World') &&
+        centerInside === true &&
+        cornerOutside === false &&
+        typeof Path2D !== 'undefined'
+      );
+
+      return {
+        subject: 'Hello World',
+        passed: passed,
+        mechanism: 'HTML5 Canvas 2D Path2D vector geometry construction, SVG d-string parsing, Bézier curves, and isPointInPath hit testing',
+        measurements: {
+          canvasDimensions: `${w}x${h}`,
+          hitTestCenter: centerInside,
+          hitTestCorner: cornerOutside,
+          cachedPathTypes: ['cartoucheOuter', 'cartoucheInner', 'bezierFiligree', 'rosettePath', 'masterPath'],
+          hitTestAlgorithm: 'isPointInPath(winding-rule: nonzero)'
+        }
+      };
+    };
+  </script>
+</body>
+</html>

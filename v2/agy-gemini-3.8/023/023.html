@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 023: Inline Blob Web Worker & Thread Telemetry</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-base: #080a0f;
+      --bg-panel: #0f131c;
+      --bg-card: #151b27;
+      --border-subtle: #20293a;
+      --border-active: #334155;
+      --main-amber: #f59e0b;
+      --main-amber-glow: rgba(245, 158, 11, 0.15);
+      --worker-emerald: #10b981;
+      --worker-emerald-glow: rgba(16, 185, 129, 0.15);
+      --bus-cyan: #06b6d4;
+      --text-bright: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #475569;
+      --font-mono: 'SF Mono', 'Fira Code', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--bg-base);
+      color: var(--text-bright);
+      font-family: var(--font-sans);
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      position: relative;
+    }
+
+    /* Ambient background grid */
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Header Bar */
+    header {
+      position: relative;
+      z-index: 10;
+      height: 56px;
+      padding: 0 32px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(15, 19, 28, 0.85);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-tagline {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .badge-exp {
+      background: #1e293b;
+      color: var(--text-bright);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      border: 1px solid var(--border-active);
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--worker-emerald);
+      font-weight: 600;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--worker-emerald);
+      box-shadow: 0 0 8px var(--worker-emerald);
+    }
+
+    .header-specs {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Main Console Workspace */
+    main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      padding: 24px 32px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 20px;
+    }
+
+    /* Core Hero Banner */
+    .hero-lockup {
+      background: linear-gradient(180deg, rgba(21, 27, 39, 0.7) 0%, rgba(15, 19, 28, 0.9) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-lockup::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--main-amber) 0%, var(--bus-cyan) 50%, var(--worker-emerald) 100%);
+    }
+
+    .hero-title-group h1 {
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .hero-metrics {
+      display: flex;
+      gap: 24px;
+    }
+
+    .metric-pill {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 10px 16px;
+      text-align: right;
+    }
+
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 2px;
+    }
+
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--bus-cyan);
+    }
+
+    /* Thread Architecture Grid: 2 Columns + Central Transfer Bus */
+    .threads-container {
+      display: grid;
+      grid-template-columns: 1fr 140px 1fr;
+      gap: 16px;
+      min-height: 380px;
+    }
+
+    .thread-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .thread-panel.main-thread {
+      border-top: 3px solid var(--main-amber);
+    }
+
+    .thread-panel.worker-thread {
+      border-top: 3px solid var(--worker-emerald);
+    }
+
+    .panel-header {
+      padding: 12px 18px;
+      background: rgba(0, 0, 0, 0.2);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-header-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .main-thread .panel-header-title { color: var(--main-amber); }
+    .worker-thread .panel-header-title { color: var(--worker-emerald); }
+
+    .tag-state {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .main-thread .tag-state { background: var(--main-amber-glow); color: var(--main-amber); }
+    .worker-thread .tag-state { background: var(--worker-emerald-glow); color: var(--worker-emerald); }
+
+    .panel-body {
+      padding: 16px 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+    }
+
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 11px;
+      font-family: var(--font-mono);
+    }
+
+    .telemetry-key {
+      color: var(--text-muted);
+    }
+
+    .telemetry-val {
+      font-weight: 600;
+      color: var(--text-bright);
+    }
+
+    .code-inspect-block {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.5;
+      color: #93c5fd;
+      flex: 1;
+      overflow: hidden;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* Central Bridge/Bus */
+    .bus-channel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 12px 6px;
+      background: rgba(15, 19, 28, 0.4);
+      border: 1px dashed var(--border-active);
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .bus-title {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--bus-cyan);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .bus-vector-track {
+      width: 100%;
+      height: 140px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .bus-line {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--main-amber), var(--bus-cyan), var(--worker-emerald));
+      position: relative;
+    }
+
+    .bus-badge {
+      background: #1e293b;
+      border: 1px solid var(--bus-cyan);
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--bus-cyan);
+      text-align: center;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+    }
+
+    .transfer-arrow {
+      font-size: 14px;
+      color: var(--bus-cyan);
+      animation: pulse-arrow 1.5s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulse-arrow {
+      0% { opacity: 0.4; transform: translateY(-2px); }
+      100% { opacity: 1; transform: translateY(2px); }
+    }
+
+    /* Footer Telemetry Strip */
+    footer {
+      position: relative;
+      z-index: 10;
+      padding: 14px 24px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .footer-item {
+      display: flex;
+      gap: 8px;
+    }
+
+    .footer-label {
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .footer-value {
+      color: var(--text-bright);
+      font-weight: 600;
+    }
+
+    .footer-status-badge {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--worker-emerald);
+      color: var(--worker-emerald);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <!-- Header System Strip -->
+  <header>
+    <div class="header-tagline">
+      <span class="badge-exp">EXP-023</span>
+      <span>WEB PLATFORM WORKER CONCURRENCY CORE</span>
+      <span class="badge-status"><span class="pulse-dot"></span> THREAD ISOLATION ACTIVE</span>
+    </div>
+    <div class="header-specs">
+      <span>PROTOCOL: STRUCTURED_CLONE_V2</span>
+      <span>RUNTIME: CHROMIUM_CDP</span>
+      <span>THREAD_MODEL: DEDICATED_WORKER</span>
+    </div>
+  </header>
+
+  <!-- Main Viewport Area -->
+  <main>
+    <!-- Primary Hero Lockup with prominent Hello World -->
+    <section class="hero-lockup">
+      <div class="hero-title-group">
+        <h1 id="hero-display">Hello World</h1>
+        <div class="hero-subtitle" id="hero-subtitle">PARALLEL THREAD CONCURRENCY MATRIX // WORKER RESOLVED</div>
+      </div>
+      <div class="hero-metrics">
+        <div class="metric-pill">
+          <div class="metric-label">Thread RTT</div>
+          <div class="metric-value" id="val-rtt">0.00 ms</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-label">Clone Depth</div>
+          <div class="metric-value" id="val-clone-depth">3 Levels</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-label">Compute Hash</div>
+          <div class="metric-value" id="val-hash">0x00000000</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Concurrent Dual-Thread Architecture Layout -->
+    <div class="threads-container">
+      <!-- Left Panel: Main Thread (DOM / UI Controller) -->
+      <section class="thread-panel main-thread">
+        <div class="panel-header">
+          <div class="panel-header-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            MAIN UI THREAD (DOM)
+          </div>
+          <span class="tag-state" id="main-state">DISPATCHING</span>
+        </div>
+        <div class="panel-body">
+          <div class="telemetry-row">
+            <span class="telemetry-key">Execution Realm:</span>
+            <span class="telemetry-val">Window / GlobalScope</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-key">DOM Access:</span>
+            <span class="telemetry-val" style="color: var(--main-amber);">Enabled (Document / CSSOM)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-key">Hardware Cores:</span>
+            <span class="telemetry-val" id="val-concurrency">--</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-key">Dispatch Timestamp:</span>
+            <span class="telemetry-val" id="val-dispatch-ts">--</span>
+          </div>
+          <div class="code-inspect-block" id="main-payload-view">
+// Main Thread Outbound Payload:
+{
+  "command": "TRANSFORM_SUBJECT",
+  "subject": "Hello World",
+  "meta": { "priority": "high", "source": "main_thread" }
+}
+          </div>
+        </div>
+      </section>
+
+      <!-- Center: Message Channel Transfer Bus -->
+      <div class="bus-channel">
+        <div class="bus-title">IPC BUS</div>
+        <div class="bus-vector-track">
+          <div class="transfer-arrow">&#8594; postMessage</div>
+          <div class="bus-line"></div>
+          <div class="bus-badge">STRUCTURED CLONE</div>
+          <div class="bus-line"></div>
+          <div class="transfer-arrow">&#8592; onmessage</div>
+        </div>
+        <div class="bus-title" id="val-bus-state">ACTIVE_SYNC</div>
+      </div>
+
+      <!-- Right Panel: Dedicated Worker Thread -->
+      <section class="thread-panel worker-thread">
+        <div class="panel-header">
+          <div class="panel-header-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            DEDICATED WORKER THREAD
+          </div>
+          <span class="tag-state" id="worker-state">ISOLATED_COMPUTE</span>
+        </div>
+        <div class="panel-body">
+          <div class="telemetry-row">
+            <span class="telemetry-key">Worker Realm:</span>
+            <span class="telemetry-val">DedicatedWorkerGlobalScope</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-key">DOM Access:</span>
+            <span class="telemetry-val" style="color: var(--worker-emerald);">Disabled (Thread Isolated)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-key">Worker Script Origin:</span>
+            <span class="telemetry-val" id="val-worker-origin">blob:self</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-key">Worker Processing Time:</span>
+            <span class="telemetry-val" id="val-worker-duration">--</span>
+          </div>
+          <div class="code-inspect-block" id="worker-payload-view" style="color: #6ee7b7;">
+// Awaiting worker response...
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Telemetry Status Bar -->
+    <footer>
+      <div class="footer-left">
+        <div class="footer-item">
+          <span class="footer-label">STATUS:</span>
+          <span class="footer-value" id="footer-status">WORKER INITIALIZING...</span>
+        </div>
+        <div class="footer-item">
+          <span class="footer-label">BLOB URL:</span>
+          <span class="footer-value" id="footer-blob-url">--</span>
+        </div>
+      </div>
+      <div class="footer-status-badge" id="footer-badge">
+        ISOLATION VERIFIED OK
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // Inline Worker script definition
+    const workerSource = `
+      self.onmessage = function(e) {
+        const start = performance.now();
+        const data = e.data;
+        
+        // Confirm DOM isolation
+        const hasWindow = typeof window !== 'undefined';
+        const hasDocument = typeof document !== 'undefined';
+        const realmType = self.constructor ? self.constructor.name : 'DedicatedWorkerGlobalScope';
+        
+        // Compute letterform transform and matrix
+        const subject = data.subject || 'Hello World';
+        const charCodes = Array.from(subject).map(c => c.charCodeAt(0));
+        
+        // Compute simple 32-bit checksum hash
+        let hash = 0x811c9dc5;
+        for (let i = 0; i < charCodes.length; i++) {
+          hash ^= charCodes[i];
+          hash = (hash * 0x01000193) >>> 0;
+        }
+        const hexHash = '0x' + hash.toString(16).toUpperCase().padStart(8, '0');
+        
+        // Simulate computational work (character frequency analysis)
+        const charFreq = {};
+        for (const char of subject) {
+          charFreq[char] = (charFreq[char] || 0) + 1;
+        }
+
+        const duration = performance.now() - start;
+
+        // Structured clone response back to main thread
+        self.postMessage({
+          status: 'COMPUTATION_COMPLETE',
+          subject: subject,
+          hexHash: hexHash,
+          charCodes: charCodes,
+          charFreq: charFreq,
+          isolation: {
+            hasWindow: hasWindow,
+            hasDocument: hasDocument,
+            realmType: realmType,
+            workerConcurrency: navigator.hardwareConcurrency || 4
+          },
+          workerDurationMs: parseFloat(duration.toFixed(3)),
+          timestamp: Date.now()
+        });
+      };
+    `;
+
+    // Global state container
+    window.__labState = {
+      initialized: false,
+      completed: false,
+      rttMs: 0,
+      workerData: null,
+      error: null
+    };
+
+    const workerBlob = new Blob([workerSource], { type: 'application/javascript' });
+    const blobUrl = URL.createObjectURL(workerBlob);
+    document.getElementById('footer-blob-url').textContent = blobUrl.slice(0, 32) + '...';
+    document.getElementById('val-worker-origin').textContent = 'blob:inline-worker';
+    document.getElementById('val-concurrency').textContent = (navigator.hardwareConcurrency || 4) + ' Logical Cores';
+
+    let workerInstance = null;
+    let dispatchTimestamp = 0;
+
+    function runWorkerPipeline() {
+      return new Promise((resolve, reject) => {
+        try {
+          workerInstance = new Worker(URL.createObjectURL(workerBlob));
+          
+          workerInstance.onmessage = function(event) {
+            const rtt = performance.now() - dispatchTimestamp;
+            const data = event.data;
+            
+            window.__labState.completed = true;
+            window.__labState.rttMs = parseFloat(rtt.toFixed(2));
+            window.__labState.workerData = data;
+
+            // Update DOM telemetry
+            document.getElementById('val-rtt').textContent = window.__labState.rttMs + ' ms';
+            document.getElementById('val-hash').textContent = data.hexHash;
+            document.getElementById('val-worker-duration').textContent = data.workerDurationMs + ' ms';
+            
+            document.getElementById('main-state').textContent = 'EVENT_LOOP_IDLE';
+            document.getElementById('worker-state').textContent = 'RESULT_COMMITTED';
+            
+            document.getElementById('worker-payload-view').textContent = 
+              `// Worker Inbound Structured Response:\n` +
+              JSON.stringify({
+                status: data.status,
+                subject: data.subject,
+                hexHash: data.hexHash,
+                isolation: data.isolation,
+                workerDurationMs: data.workerDurationMs
+              }, null, 2);
+
+            document.getElementById('footer-status').textContent = 'CONCURRENCY THREAD CYCLE COMPLETED (RTT: ' + window.__labState.rttMs + 'ms)';
+            document.getElementById('val-bus-state').textContent = 'CHANNEL_STEADY';
+
+            resolve(data);
+          };
+
+          workerInstance.onerror = function(err) {
+            window.__labState.error = err.message;
+            reject(err);
+          };
+
+          // Dispatch message from main thread
+          dispatchTimestamp = performance.now();
+          document.getElementById('val-dispatch-ts').textContent = new Date().toISOString().substring(11, 23);
+          
+          workerInstance.postMessage({
+            command: 'TRANSFORM_SUBJECT',
+            subject: 'Hello World',
+            seed: 0xCAFEBABE,
+            timestamp: Date.now()
+          });
+          
+        } catch (e) {
+          window.__labState.error = e.message;
+          reject(e);
+        }
+      });
+    }
+
+    // Auto-run pipeline immediately
+    const pipelinePromise = runWorkerPipeline();
+
+    // Lab Evidence interface for automated verification
+    window.labEvidence = async function() {
+      try {
+        await pipelinePromise;
+        const res = window.__labState.workerData;
+        const passed = Boolean(
+          window.__labState.completed &&
+          res &&
+          res.subject === 'Hello World' &&
+          res.isolation.hasWindow === false &&
+          res.isolation.hasDocument === false &&
+          res.hexHash.length === 10
+        );
+
+        return {
+          subject: 'Hello World',
+          passed: passed,
+          mechanism: 'Inline Blob URL Web Worker dispatch, thread isolation, and structured clone messaging',
+          measurements: {
+            roundTripLatencyMs: window.__labState.rttMs,
+            workerDurationMs: res ? res.workerDurationMs : 0,
+            checksumHash: res ? res.hexHash : null,
+            threadIsolationConfirmed: res ? !res.isolation.hasWindow && !res.isolation.hasDocument : false,
+            realmType: res ? res.isolation.realmType : null
+          }
+        };
+      } catch (err) {
+        return {
+          subject: 'Hello World',
+          passed: false,
+          error: err.message
+        };
+      }
+    };
+  </script>
+</body>
+</html>

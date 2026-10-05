@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 041: MathML Core Level 4 Mathematical Typographical Folio</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #070c18;
+      color: #e2e8f0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 24px;
+      gap: 16px;
+      user-select: none;
+    }
+
+    /* Top MathML Header */
+    .math-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-left: 4px solid #eab308;
+      padding: 10px 18px;
+      border-radius: 4px;
+    }
+
+    .math-header .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand .label {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .brand .title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #facc15;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-strip {
+      display: flex;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 3px;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+    }
+
+    .badge.gold {
+      background: rgba(234, 179, 8, 0.15);
+      color: #facc15;
+      border-color: #ca8a04;
+      font-weight: 700;
+    }
+
+    .badge.cyan {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border-color: #0284c7;
+    }
+
+    /* Proscenium Stage */
+    .proscenium-stage {
+      background: radial-gradient(circle at center, #101c36 0%, #080f1e 100%);
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .proscenium-stage::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px dashed rgba(234, 179, 8, 0.25);
+      pointer-events: none;
+      border-radius: 4px;
+    }
+
+    .math-corner {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: #eab308;
+      border-style: solid;
+      pointer-events: none;
+    }
+    .math-corner.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+    .math-corner.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+    .math-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+    .math-corner.br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+    main {
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    #subject-hello-world {
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      font-size: 3.4rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      text-shadow: 0 0 24px rgba(234, 179, 8, 0.5), 0 0 4px #facc15;
+      margin-bottom: 6px;
+      display: inline-block;
+      line-height: 1.1;
+    }
+
+    /* MathML Display Styling */
+    math {
+      font-family: "Latin Modern Math", "STIX Two Math", "Cambria Math", serif;
+      color: #f8fafc;
+    }
+
+    math[display="block"] {
+      margin: 8px 0;
+      font-size: 1.55rem;
+    }
+
+    .hero-math {
+      color: #facc15;
+      text-shadow: 0 0 12px rgba(234, 179, 8, 0.4);
+    }
+
+    .hero-math mtext {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .hero-math mi {
+      color: #facc15;
+      font-style: italic;
+    }
+
+    .hero-math mo {
+      color: #94a3b8;
+    }
+
+    .stage-subline {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 8px;
+      font-size: 0.72rem;
+    }
+
+    .subline-chip {
+      display: flex;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.8);
+      padding: 4px 10px;
+      border-radius: 3px;
+      border: 1px solid #1e293b;
+    }
+
+    .subline-chip .chip-label {
+      color: #64748b;
+    }
+
+    .subline-chip .chip-val {
+      color: #facc15;
+      font-weight: 700;
+    }
+
+    /* Matrix Tensor Equation Ribbon */
+    .tensor-section {
+      background: #0b1222;
+      border: 1px solid #1e293b;
+      border-radius: 4px;
+      padding: 10px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tensor-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .tensor-label .t-name {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tensor-label .t-sub {
+      font-size: 0.62rem;
+      color: #64748b;
+    }
+
+    .tensor-math-box {
+      font-size: 1.15rem;
+    }
+
+    .tensor-math-box mtable {
+      border-spacing: 4px 2px;
+    }
+
+    .tensor-math-box mtd {
+      padding: 2px 6px;
+      text-align: center;
+      color: #e2e8f0;
+    }
+
+    .tensor-math-box mo {
+      color: #ca8a04;
+      font-size: 1.3em;
+    }
+
+    /* Bottom 3-Card Deck */
+    .deck-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1.1fr;
+      gap: 14px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .deck-card {
+      background: #0d1527;
+      border: 1px solid #1e293b;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .deck-card-header {
+      background: #141f38;
+      padding: 8px 14px;
+      border-bottom: 1px solid #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .deck-card-badge {
+      font-size: 0.62rem;
+      padding: 2px 6px;
+      border-radius: 2px;
+      background: #090f1d;
+      color: #facc15;
+      border: 1px solid #1e293b;
+    }
+
+    .deck-card-body {
+      padding: 10px 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.72rem;
+    }
+
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 8px;
+      background: #070d1a;
+      border: 1px solid #162238;
+      border-radius: 3px;
+    }
+
+    .data-row .title {
+      color: #94a3b8;
+    }
+
+    .data-row .val {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .data-row .val.gold {
+      color: #facc15;
+    }
+
+    .data-row .val.green {
+      color: #34d399;
+    }
+
+    .table-ast {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.68rem;
+    }
+
+    .table-ast th {
+      text-align: left;
+      color: #64748b;
+      padding: 4px 6px;
+      border-bottom: 1px solid #1e293b;
+      font-weight: 600;
+    }
+
+    .table-ast td {
+      padding: 5px 6px;
+      border-bottom: 1px solid #0f182c;
+      color: #cbd5e1;
+    }
+
+    .table-ast tr:last-child td {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top MathML Header -->
+  <header class="math-header">
+    <div class="brand">
+      <span class="label">Mathematical Typographical Folio</span>
+      <span class="title">W3C MathML Core Level 4 Typesetting Engine MK-XLI</span>
+    </div>
+    <div class="badge-strip">
+      <span class="badge gold" id="badge-nodes-count">NODES: 36 MATHML</span>
+      <span class="badge cyan">ENGINE: CHROMIUM MATHML CORE</span>
+      <span class="badge" id="badge-radical-status">&radic; RADICAL: OK</span>
+    </div>
+  </header>
+
+  <!-- Proscenium Monument Stage -->
+  <section class="proscenium-stage">
+    <div class="math-corner tl"></div>
+    <div class="math-corner tr"></div>
+    <div class="math-corner bl"></div>
+    <div class="math-corner br"></div>
+
+    <main>
+      <h1 id="subject-hello-world">Hello World</h1>
+    </main>
+
+    <!-- Block Mathematical Equation -->
+    <math display="block" class="hero-math" id="equation-monument">
+      <mrow>
+        <munder>
+          <mo movablelimits="true">lim</mo>
+          <mrow><mi>t</mi><mo>&rarr;</mo><mo>&infin;</mo></mrow>
+        </munder>
+        <mrow>
+          <mo>[</mo>
+          <msqrt>
+            <mfrac>
+              <mrow><mtext>Hello</mtext></mrow>
+              <mrow><mi mathvariant="normal">&Delta;</mi><mi>t</mi></mrow>
+            </mfrac>
+          </msqrt>
+          <mo>&otimes;</mo>
+          <msubsup>
+            <mi mathvariant="script">W</mi>
+            <mi mathvariant="normal">world</mi>
+            <mrow><mo>(</mo><mi>k</mi><mo>)</mo></mrow>
+          </msubsup>
+          <mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo>
+          <mo>]</mo>
+        </mrow>
+        <mo>=</mo>
+        <msub>
+          <mi mathvariant="bold">&Omega;</mi>
+          <mtext>universal</mtext>
+        </msub>
+      </mrow>
+    </math>
+
+    <div class="stage-subline">
+      <div class="subline-chip">
+        <span class="chip-label">FRACTION_BAR:</span>
+        <span class="chip-val">&lt;mfrac&gt; NATIVE</span>
+      </div>
+      <div class="subline-chip">
+        <span class="chip-label">SURD_ROOT:</span>
+        <span class="chip-val">&lt;msqrt&gt; NATIVE</span>
+      </div>
+      <div class="subline-chip">
+        <span class="chip-label">OPERATOR_STRETCH:</span>
+        <span class="chip-val">DYNAMIC BRACKETS</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Matrix Tensor Equation Ribbon -->
+  <section class="tensor-section">
+    <div class="tensor-label">
+      <span class="t-name">2D Linear State Matrix Transformation</span>
+      <span class="t-sub">&lt;mtable&gt; structured 2x2 coordinate projection</span>
+    </div>
+    <div class="tensor-math-box">
+      <math display="inline" id="equation-matrix">
+        <mrow>
+          <mo>[</mo>
+          <mtable>
+            <mtr><mtd><mn>1</mn></mtd><mtd><mi>H</mi></mtd></mtr>
+            <mtr><mtd><mn>0</mn></mtd><mtd><mi>W</mi></mtd></mtr>
+          </mtable>
+          <mo>]</mo>
+          <mo>&times;</mo>
+          <mo>[</mo>
+          <mtable>
+            <mtr><mtd><msub><mi>x</mi><mn>1</mn></msub></mtd></mtr>
+            <mtr><mtd><msub><mi>x</mi><mn>2</mn></msub></mtd></mtr>
+          </mtable>
+          <mo>]</mo>
+          <mo>=</mo>
+          <mo>[</mo>
+          <mtable>
+            <mtr><mtd><mtext style="color: #38bdf8; font-weight: bold;">Hello</mtext></mtd></mtr>
+            <mtr><mtd><mtext style="color: #facc15; font-weight: bold;">World</mtext></mtd></mtr>
+          </mtable>
+          <mo>]</mo>
+        </mrow>
+      </math>
+    </div>
+  </section>
+
+  <!-- Bottom 3-Card Deck -->
+  <div class="deck-grid">
+    <!-- Card 1: MathML Element Inventory -->
+    <div class="deck-card">
+      <div class="deck-card-header">
+        <span>MathML Element Taxonomy</span>
+        <span class="deck-card-badge">DOM TREE AUDIT</span>
+      </div>
+      <div class="deck-card-body">
+        <table class="table-ast">
+          <thead>
+            <tr>
+              <th>Tag Name</th>
+              <th>Category</th>
+              <th style="text-align: right;">Count</th>
+            </tr>
+          </thead>
+          <tbody id="table-taxonomy-body">
+            <!-- Dynamically populated from MathML elements -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Card 2: Layout Metrology -->
+    <div class="deck-card">
+      <div class="deck-card-header">
+        <span>Typographical Geometry</span>
+        <span class="deck-card-badge">SUBPIXEL BOUNDS</span>
+      </div>
+      <div class="deck-card-body">
+        <div class="data-row">
+          <span class="title">Hero MathML Width</span>
+          <span class="val gold" id="val-hero-width">0.00 px</span>
+        </div>
+        <div class="data-row">
+          <span class="title">Hero MathML Height</span>
+          <span class="val" id="val-hero-height">0.00 px</span>
+        </div>
+        <div class="data-row">
+          <span class="title">Matrix Table Width</span>
+          <span class="val cyan" id="val-matrix-width">0.00 px</span>
+        </div>
+        <div class="data-row">
+          <span class="title">Matrix Table Height</span>
+          <span class="val green" id="val-matrix-height">0.00 px</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: MathML Engine Spec -->
+    <div class="deck-card">
+      <div class="deck-card-header">
+        <span>Specification Telemetry</span>
+        <span class="deck-card-badge">W3C REC</span>
+      </div>
+      <div class="deck-card-body">
+        <div class="data-row">
+          <span class="title">Standard Specification</span>
+          <span class="val gold">W3C MathML Core</span>
+        </div>
+        <div class="data-row">
+          <span class="title">Chromium Native Engine</span>
+          <span class="val green">Blink MathML Subsystem</span>
+        </div>
+        <div class="data-row">
+          <span class="title">External Font Dependency</span>
+          <span class="val">Zero (Native Fallback)</span>
+        </div>
+        <div class="data-row">
+          <span class="title">Display Modes Verified</span>
+          <span class="val green">block + inline</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const mathElements = document.querySelectorAll('math, math *');
+    const heroMath = document.getElementById('equation-monument');
+    const matrixMath = document.getElementById('equation-matrix');
+
+    const heroRect = heroMath ? heroMath.getBoundingClientRect() : { width: 0, height: 0 };
+    const matrixRect = matrixMath ? matrixMath.getBoundingClientRect() : { width: 0, height: 0 };
+
+    document.getElementById('val-hero-width').textContent = `${heroRect.width.toFixed(2)} px`;
+    document.getElementById('val-hero-height').textContent = `${heroRect.height.toFixed(2)} px`;
+    document.getElementById('val-matrix-width').textContent = `${matrixRect.width.toFixed(2)} px`;
+    document.getElementById('val-matrix-height').textContent = `${matrixRect.height.toFixed(2)} px`;
+
+    // Count tag frequency
+    const tagCounts = {};
+    mathElements.forEach(el => {
+      const tag = el.localName;
+      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+    });
+
+    const categoryMap = {
+      math: 'Top Container',
+      mrow: 'Horizontal Row',
+      mfrac: 'Fractions',
+      msqrt: 'Radical Surds',
+      msubsup: 'Sub/Superscript',
+      munder: 'Under-limits',
+      mtable: '2D Matrix Table',
+      mtr: 'Matrix Row',
+      mtd: 'Matrix Cell',
+      mo: 'Operators',
+      mi: 'Identifiers',
+      mn: 'Numbers',
+      mtext: 'Text Slugs'
+    };
+
+    const tbody = document.getElementById('table-taxonomy-body');
+    if (tbody) {
+      for (const [tag, count] of Object.entries(tagCounts).sort((a, b) => b[1] - a[1])) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><code>&lt;${tag}&gt;</code></td><td>${categoryMap[tag] || 'MathML Primitive'}</td><td style="text-align: right; color: #facc15; font-weight: 700;">${count}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+
+    const totalNodes = mathElements.length;
+    document.getElementById('badge-nodes-count').textContent = `NODES: ${totalNodes} MATHML`;
+
+    window.labEvidence = () => ({
+      subject: "Hello World",
+      passed: Boolean(heroMath && heroRect.width > 100 && heroRect.height > 20 && tagCounts.mfrac > 0 && tagCounts.msqrt > 0),
+      mechanism: "W3C MathML Core Level 4 mathematical typesetting (<math>, <mrow>, <mfrac>, <msqrt>, <msubsup>, <mtable>)",
+      measurements: {
+        totalMathNodes: totalNodes,
+        heroMathWidth: heroRect.width,
+        heroMathHeight: heroRect.height,
+        matrixTableWidth: matrixRect.width,
+        matrixTableHeight: matrixRect.height,
+        tagBreakdown: tagCounts
+      }
+    });
+
+    window.labReady = Promise.resolve(true);
+  </script>
+</body>
+</html>

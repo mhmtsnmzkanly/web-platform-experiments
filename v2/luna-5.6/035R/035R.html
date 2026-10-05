@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Parcel Desk</title>
+<style>
+:root{color:#29251f;background:#e8d8bb;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#e8d8bb,#bd7b58)}.desk{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #29251f;background:#f5e7ce}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#b6503d;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#695745;font:12px monospace}.parcel{position:relative;z-index:1;margin:10vh 8% 0;padding:30px;border:2px solid #b6503d;background:#efd2b0;transform:rotate(-2deg)}.parcel h1{margin:0;font-size:clamp(64px,13vw,158px);line-height:.8;letter-spacing:-.1em}.fields{display:flex;gap:10px;margin-top:30px}.fields input{width:160px;border:1px solid #695745;padding:9px;color:#29251f;background:#f5e7ce;font:12px monospace}.controls{display:flex;gap:12px;margin-top:30px}button{border:1px solid #b6503d;padding:9px 14px;color:#b6503d;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="desk"><p class="label">035R / parcel desk / formdata</p><p class="state" id="state">manifest / awaiting seal</p><form class="parcel" id="form"><h1>Hello World</h1><div class="fields"><input name="from" value="browser" aria-label="From"><input name="to" value="future" aria-label="To"></div><div class="controls"><button type="submit">seal parcel</button></div></form></main><script>
+const form=document.querySelector('#form'),state=document.querySelector('#state');form.addEventListener('submit',event=>{event.preventDefault();const data=new FormData(form),params=new URLSearchParams(data);state.textContent=`manifest / ${params.toString()} / sealed`;});
+</script></body></html>

@@ -1,0 +1,12 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Distributed Sheets</title><style>body{margin:0;background:#d6d19b;color:#344737}main{padding:60px}button{font:18px Georgia;padding:15px 22px;background:#344737;color:#f5f0c7;border:0}greeting-sheets{display:block;margin-top:65px}h1{margin:0}.mono{font-family:monospace!important}</style></head><body><main><button id="swap">Trade the sheets</button><greeting-sheets><h1 slot="front">Hello World</h1><h1 slot="back" class="mono">Hello World</h1></greeting-sheets></main><script>
+let changes=0,connected=0;
+// Upgrade existing light-DOM content. Named slots, not manual cloning/reordering,
+// choose the visual hierarchy while preserving original heading identity.
+class GreetingSheets extends HTMLElement{constructor(){super();this.attachShadow({mode:'open'}).innerHTML=`<style>section{padding:40px;background:#f4edc7}aside{padding:35px;background:#96aa83;margin-left:190px}slot[name=front]::slotted(h1){font:110px Georgia}slot[name=back]::slotted(h1){font:55px Georgia}</style><section><slot name="front"></slot></section><aside><slot name="back"></slot></aside>`;this.shadowRoot.addEventListener('slotchange',()=>changes++)}connectedCallback(){connected++}}
+customElements.define('greeting-sheets',GreetingSheets);
+const host=document.querySelector('greeting-sheets'),nodes=[...host.children],initial=nodes.slice();
+document.querySelector('#swap').onclick=()=>{nodes[0].slot='back';nodes[1].slot='front'};
+window.labEvidence=()=>({subject:'Hello World',passed:host instanceof GreetingSheets&&connected===1&&host.shadowRoot.querySelector('slot').assignedElements().length===1,mechanism:'Custom element upgrade -> named slot distribution -> greeting sheets',measurements:{connected,changes}});
+window.labScenario={kind:'click',selector:'#swap'};
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:changes>=4&&host.shadowRoot.querySelector('slot[name=front]').assignedElements()[0]===initial[1]&&host.shadowRoot.querySelector('slot[name=back]').assignedElements()[0]===initial[0],mechanism:'Slot reassignment -> slotchange -> reversed greeting hierarchy',measurements:{changes,frontIsOriginalSecond:host.shadowRoot.querySelector('slot[name=front]').assignedElements()[0]===initial[1],connected}});
+</script></body></html>

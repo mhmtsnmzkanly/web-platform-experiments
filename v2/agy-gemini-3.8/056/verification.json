@@ -1,0 +1,59 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 056: CSS View Transitions API Level 1 State Morphing"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 056: CSS View Transitions API Level 1 State Morphing"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS View Transitions API Level 1 (document.startViewTransition and view-transition-name)",
+    "measurements": {
+      "supportsViewTransitions": true,
+      "currentLayoutState": "stage-arena state-hero",
+      "transitionCount": 0,
+      "subjectViewTransitionName": "hero-subject",
+      "stageViewTransitionName": "main-stage",
+      "fontSize": "67.2px"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

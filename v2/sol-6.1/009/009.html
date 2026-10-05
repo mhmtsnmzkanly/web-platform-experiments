@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Impression</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif}main{height:100vh;background:#f6d54a;color:#15191d;display:flex;flex-direction:column;justify-content:center;padding:0 7vw;box-sizing:border-box}
+h1{font-size:clamp(55px,10.8vw,150px);letter-spacing:-.07em;margin:0;line-height:1.1}
+header{position:absolute;top:42px;font-size:13px;letter-spacing:2px}
+label{position:absolute;bottom:55px;display:flex;align-items:center;gap:15px;font-size:15px}input{width:28px;height:28px;accent-color:#15191d}
+/* The native checked state flows through a relational selector. No JavaScript
+   toggles classes or paints the effect; CSS derives the whole impression. */
+main:has(#ink:checked){background:#1d43bc;color:#f6d54a}
+main:has(#ink:checked) h1{transform:rotate(-4deg);text-shadow:7px 7px 0 #0c246e}
+.rule{height:20px;width:140px;background:currentColor;margin-top:40px}
+</style></head><body><main><header>009 / IMPRESSION</header><h1>Hello World</h1><div class="rule" aria-hidden="true"></div><label><input id="ink" type="checkbox">Print the second impression</label></main>
+<script>
+window.labScenario={kind:'click',selector:'#ink'};
+window.labEvidence=()=>({subject:'Hello World',passed:CSS.supports('selector(:has(input:checked))')&&!document.querySelector('#ink').checked,
+ mechanism:'Native checked state -> CSS :has -> new Hello World impression',measurements:{initialChecked:document.querySelector('#ink').checked,initialColor:getComputedStyle(document.querySelector('main')).backgroundColor}});
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:document.querySelector('#ink').checked&&getComputedStyle(document.querySelector('main')).backgroundColor==='rgb(29, 67, 188)'&&getComputedStyle(document.querySelector('h1')).transform!=='none',
+ mechanism:'Trusted native checkbox input -> relational restyling',measurements:{checked:document.querySelector('#ink').checked,background:getComputedStyle(document.querySelector('main')).backgroundColor,transform:getComputedStyle(document.querySelector('h1')).transform}});
+</script></body></html>

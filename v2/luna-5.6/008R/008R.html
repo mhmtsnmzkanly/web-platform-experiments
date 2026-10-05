@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — Portal Stage</title>
+  <style>
+    :root { color: #f8edda; background: #11131c; font-family: Georgia, "Times New Roman", serif; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 42%, #413655 0 9%, transparent 30%), #11131c; }
+    .stage { position: relative; width: min(94vw, 1180px); height: min(88vh, 720px); display: grid; grid-template-rows: auto 1fr auto; padding: 26px 30px; border-block: 1px solid #8b789d; }
+    .stage::before, .stage::after { position: absolute; left: 50%; width: 1px; height: 72%; background: linear-gradient(#e07962, transparent); content: ""; opacity: .7; }
+    .stage::before { top: 0; transform: rotate(22deg); transform-origin: top; }
+    .stage::after { top: 0; transform: rotate(-22deg); transform-origin: top; }
+    .label, .instruction { position: relative; z-index: 1; margin: 0; color: #e07962; font: 11px/1.4 monospace; letter-spacing: .18em; text-transform: uppercase; }
+    .instruction { color: #b7abc1; letter-spacing: .08em; text-transform: none; }
+    .teaser { position: relative; z-index: 1; align-self: center; text-align: center; }
+    h1 { margin: 0; color: #f8edda; font-size: clamp(64px, 14vw, 168px); line-height: .82; letter-spacing: -.1em; }
+    .open { margin-top: 34px; border: 1px solid #e07962; padding: 11px 18px; color: #e07962; background: transparent; font: 12px monospace; cursor: pointer; }
+    .open:hover, .open:focus-visible { color: #11131c; background: #e07962; }
+    dialog { width: min(78vw, 620px); aspect-ratio: 1; padding: 70px; border: 1px solid #e07962; border-radius: 50%; color: #f8edda; background: radial-gradient(circle at 50% 36%, #514267, #252238 70%); box-shadow: 0 0 0 14px #252238, 0 0 0 15px #e07962, 0 0 80px rgba(224,121,98,.4); text-align: center; }
+    dialog::backdrop { background: rgba(10, 11, 17, .82); backdrop-filter: blur(8px); }
+    dialog h2 { margin: 20% 0 12px; font-size: clamp(38px, 8vw, 86px); line-height: .85; letter-spacing: -.08em; }
+    dialog p { margin: 0 auto 26px; max-width: 25ch; color: #c6b8ca; font: 12px/1.5 monospace; }
+    dialog button { border: 1px solid #f8edda; padding: 9px 14px; color: #f8edda; background: transparent; font: 12px monospace; cursor: pointer; }
+    dialog button:hover, dialog button:focus-visible { color: #252238; background: #f8edda; }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <p class="label">008R / portal stage / native top layer</p>
+    <section class="teaser">
+      <h1>Hello World</h1>
+      <button class="open" id="openPortal" type="button">open the portal</button>
+    </section>
+    <p class="instruction">the greeting can leave the page and return through a native dialog</p>
+  </main>
+  <dialog id="portal">
+    <h2>Hello World</h2>
+    <p>Above the document, the subject becomes a focused scene. Close the portal to return to the stage.</p>
+    <form method="dialog"><button type="submit">close portal</button></form>
+  </dialog>
+  <script>
+    const portal = document.querySelector('#portal');
+    const openPortal = document.querySelector('#openPortal');
+    openPortal.addEventListener('click', () => portal.showModal());
+    portal.addEventListener('click', (event) => {
+      if (event.target === portal) portal.close();
+    });
+    portal.showModal();
+  </script>
+</body>
+</html>

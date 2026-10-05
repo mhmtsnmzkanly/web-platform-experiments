@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — Scope Orchestra</title>
+  <style>
+    :root { color: #eef1f3; background: #1a232b; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: radial-gradient(circle at 50% 50%, #465864, #1a232b 68%); }
+    .orchestra { width: min(94vw, 1180px); min-height: min(84vh, 680px); padding: 30px; border: 1px solid #d99a64; }
+    .label, .hint { margin: 0; color: #d99a64; font: 11px/1.4 monospace; letter-spacing: .18em; text-transform: uppercase; }
+    .hint { margin-top: 12px; color: #b9cada; letter-spacing: .08em; text-transform: none; }
+    .stages { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: end; margin-top: 14vh; }
+    greeting-plate, greeting-note { display: block; }
+    greeting-note { grid-column: 1 / -1; }
+    .controls { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 38px; color: #b9cada; font: 12px monospace; }
+    button { border: 1px solid #d99a64; padding: 9px 14px; color: #eef1f3; background: transparent; font: inherit; cursor: pointer; }
+    button:hover, button:focus-visible { color: #1a232b; background: #d99a64; }
+    @media (max-width: 700px) { .stages { grid-template-columns: 1fr; } greeting-note { grid-column: auto; } }
+  </style>
+</head>
+<body>
+  <main class="orchestra">
+    <p class="label">013R / scope orchestra / shadow roots</p>
+    <p class="hint">one shared sheet, two isolated stages, one live recast</p>
+    <section class="stages">
+      <greeting-plate>Hello World</greeting-plate>
+      <greeting-plate>World Hello</greeting-plate>
+      <greeting-note>constructable stylesheet / adopted twice</greeting-note>
+    </section>
+    <div class="controls"><span>change the shared visual score</span><button id="recast" type="button">recast scopes</button></div>
+  </main>
+  <script>
+    const shared = new CSSStyleSheet();
+    shared.replaceSync(`
+      :host { display: block; }
+      .plate { min-height: 230px; display: grid; place-items: end start; padding: 24px; border: 1px solid #d99a64; background: #27343d; color: #eef1f3; transition: transform 400ms ease, background 400ms ease; }
+      .plate > slot { font: 700 clamp(52px, 9vw, 112px)/.8 Arial, sans-serif; letter-spacing: -.1em; }
+      .note { margin: 0; color: #d99a64; font: 12px/1.4 monospace; letter-spacing: .14em; text-transform: uppercase; transition: letter-spacing 400ms ease; }
+      .note > slot { font: inherit; }
+      :host(.recast) .plate { transform: rotate(-3deg) translateY(-10px); background: #d99a64; color: #1a232b; }
+      :host(.recast) .note { letter-spacing: .28em; }
+    `);
+    class GreetingPlate extends HTMLElement {
+      connectedCallback() {
+        const root = this.attachShadow({ mode: 'open' });
+        root.adoptedStyleSheets = [shared];
+        root.innerHTML = '<div class="plate"><slot></slot></div>';
+      }
+    }
+    class GreetingNote extends HTMLElement {
+      connectedCallback() {
+        const root = this.attachShadow({ mode: 'open' });
+        root.adoptedStyleSheets = [shared];
+        root.innerHTML = '<p class="note"><slot></slot></p>';
+      }
+    }
+    customElements.define('greeting-plate', GreetingPlate);
+    customElements.define('greeting-note', GreetingNote);
+    document.querySelector('#recast').addEventListener('click', () => {
+      document.querySelectorAll('greeting-plate, greeting-note').forEach((node) => node.classList.toggle('recast'));
+    });
+  </script>
+</body>
+</html>

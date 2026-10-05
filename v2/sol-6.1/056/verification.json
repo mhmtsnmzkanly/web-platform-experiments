@@ -1,0 +1,111 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Byte Weight"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Byte Weight"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "DataView byte readback -> bit population -> glyph weight",
+    "measurements": {
+      "byteLength": 11,
+      "records": [
+        {
+          "value": 72,
+          "bits": "01001000",
+          "ones": 2
+        },
+        {
+          "value": 101,
+          "bits": "01100101",
+          "ones": 4
+        },
+        {
+          "value": 108,
+          "bits": "01101100",
+          "ones": 4
+        },
+        {
+          "value": 108,
+          "bits": "01101100",
+          "ones": 4
+        },
+        {
+          "value": 111,
+          "bits": "01101111",
+          "ones": 6
+        },
+        {
+          "value": 32,
+          "bits": "00100000",
+          "ones": 1
+        },
+        {
+          "value": 87,
+          "bits": "01010111",
+          "ones": 5
+        },
+        {
+          "value": 111,
+          "bits": "01101111",
+          "ones": 6
+        },
+        {
+          "value": 114,
+          "bits": "01110010",
+          "ones": 4
+        },
+        {
+          "value": 108,
+          "bits": "01101100",
+          "ones": 4
+        },
+        {
+          "value": 100,
+          "bits": "01100100",
+          "ones": 3
+        }
+      ]
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

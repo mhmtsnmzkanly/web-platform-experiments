@@ -1,0 +1,60 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — SVG Filter Displacement & Prismatic Refraction"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — SVG Filter Displacement & Prismatic Refraction"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "SVG feTurbulence noise generation -> feDisplacementMap vector warping -> feColorMatrix chromatic split -> prismatic fluid Hello World",
+    "measurements": {
+      "filterId": "prismatic-fluid",
+      "turbulenceFrequency": "0.015 0.025",
+      "turbulenceOctaves": 3,
+      "displacementScale": 28,
+      "xChannel": "R",
+      "yChannel": "G",
+      "computedFilter": "url(\"#prismatic-fluid\")"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

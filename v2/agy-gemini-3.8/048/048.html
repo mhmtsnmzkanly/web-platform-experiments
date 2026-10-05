@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 048: CSS Font Loading API Level 3</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #080c14;
+      --panel: #0e1522;
+      --border: #1c2738;
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.35);
+      --cyan: #06b6d4;
+      --emerald: #10b981;
+      --text: #f8fafc;
+      --muted: #64748b;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .foundry-container {
+      width: 100%;
+      max-width: 1040px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Top Metrology Header */
+    .foundry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .header-badge {
+      color: var(--amber);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .header-status {
+      color: var(--cyan);
+      letter-spacing: 0.05em;
+    }
+
+    /* Proscenium Specimen Stage */
+    .specimen-proscenium {
+      position: relative;
+      background: radial-gradient(circle at 50% 50%, #1e1b13 0%, #0a0e16 100%);
+      border: 1px solid #78350f;
+      border-radius: 12px;
+      padding: 56px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      box-shadow: 0 0 50px rgba(245, 158, 11, 0.08);
+      overflow: hidden;
+    }
+
+    /* Caliper Guides Grid */
+    .caliper-guides {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(245, 158, 11, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(245, 158, 11, 0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    .specimen-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      z-index: 2;
+    }
+
+    /* Primary Typographic Subject */
+    #subject-hello-world {
+      font-size: 68px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: #ffffff;
+      text-shadow: 0 0 24px var(--amber-glow);
+      text-align: center;
+      white-space: nowrap;
+      z-index: 2;
+      font-family: 'FoundryDisplay', system-ui, sans-serif;
+    }
+
+    .specimen-meta {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #94a3b8;
+      letter-spacing: 0.05em;
+      z-index: 2;
+    }
+
+    /* Font Selector Strip */
+    .foundry-controls {
+      display: flex;
+      gap: 12px;
+      z-index: 2;
+      margin-top: 8px;
+    }
+
+    .foundry-btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #0f172a;
+      color: #cbd5e1;
+      border: 1px solid var(--border);
+    }
+
+    .foundry-btn:hover {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .foundry-btn.active {
+      background: #451a03;
+      color: #fef3c7;
+      border-color: var(--amber);
+    }
+
+    /* Telemetry Deck */
+    .telemetry-deck {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .telemetry-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: var(--font-mono);
+    }
+
+    .card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--amber);
+    }
+
+    .card-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .card-sub {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* Font Registry Table */
+    .registry-deck {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .registry-title {
+      color: var(--amber);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .registry-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .registry-table th {
+      text-align: left;
+      padding: 6px 8px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .registry-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #141c2b;
+      color: #cbd5e1;
+    }
+
+    .registry-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #022c22;
+      color: #6ee7b7;
+      border: 1px solid #059669;
+      font-size: 9px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="foundry-container">
+    <!-- Header -->
+    <header class="foundry-header">
+      <span class="header-badge">CSS Font Loading API Level 3 &mdash; Programmatic Typefoundry</span>
+      <span class="header-status" id="header-status">DOCUMENT.FONTS.READY: VERIFYING...</span>
+    </header>
+
+    <!-- Proscenium Specimen Stage -->
+    <section class="specimen-proscenium" aria-label="Typefoundry Specimen Stage">
+      <div class="caliper-guides"></div>
+
+      <span class="specimen-eyebrow" id="specimen-meta-eyebrow">Programmatic Face: 'FoundryDisplay' (900)</span>
+
+      <h1 id="subject-hello-world">Hello World</h1>
+
+      <span class="specimen-meta" id="specimen-meta-details">Resolved Family: 'FoundryDisplay' &bull; Weight: 900 &bull; Status: Loaded</span>
+
+      <div class="foundry-controls">
+        <button type="button" class="foundry-btn active" id="btn-display" onclick="switchFont('FoundryDisplay', '900', 'Sans-Serif')">FoundryDisplay (Sans 900)</button>
+        <button type="button" class="foundry-btn" id="btn-serif" onclick="switchFont('FoundrySerif', '700', 'Serif')">FoundrySerif (Serif 700)</button>
+        <button type="button" class="foundry-btn" id="btn-mono" onclick="switchFont('FoundryMono', '600', 'Monospace')">FoundryMono (Mono 600)</button>
+      </div>
+    </section>
+
+    <!-- Telemetry Cards -->
+    <div class="telemetry-deck">
+      <div class="telemetry-card">
+        <span class="card-label">FontFaceSet Status</span>
+        <div class="card-val" id="tel-status">loaded</div>
+        <span class="card-sub">document.fonts.status</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Registered Faces</span>
+        <div class="card-val" id="tel-count">3 Faces</div>
+        <span class="card-sub">document.fonts.size</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Active Specimen</span>
+        <div class="card-val" id="tel-family">'FoundryDisplay'</div>
+        <span class="card-sub" id="tel-weight">Weight: 900</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Glyph Verification</span>
+        <div class="card-val" id="tel-check">MATCHED</div>
+        <span class="card-sub">document.fonts.check()</span>
+      </div>
+    </div>
+
+    <!-- Font Registry Table -->
+    <div class="registry-deck">
+      <span class="registry-title">FontFaceSet Inventory Registry</span>
+      <table class="registry-table">
+        <thead>
+          <tr>
+            <th>Font Family</th>
+            <th>Weight</th>
+            <th>Style</th>
+            <th>Status</th>
+            <th>Source Strategy</th>
+          </tr>
+        </thead>
+        <tbody id="registry-body">
+          <!-- Populated by JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    const faces = [
+      { family: 'FoundryDisplay', src: 'local(DejaVu Sans), local(Liberation Sans), sans-serif', weight: '900', style: 'normal' },
+      { family: 'FoundrySerif', src: 'local(DejaVu Serif), local(Liberation Serif), serif', weight: '700', style: 'normal' },
+      { family: 'FoundryMono', src: 'local(DejaVu Sans Mono), local(Liberation Mono), monospace', weight: '600', style: 'normal' }
+    ];
+
+    let registeredFaces = [];
+
+    function switchFont(family, weight, genre) {
+      const subject = document.getElementById('subject-hello-world');
+      subject.style.fontFamily = `'${family}', system-ui, sans-serif`;
+      subject.style.fontWeight = weight;
+
+      document.getElementById('specimen-meta-eyebrow').textContent = `Programmatic Face: '${family}' (${weight})`;
+      document.getElementById('specimen-meta-details').textContent = `Resolved Family: '${family}' • Weight: ${weight} (${genre}) • Status: Loaded`;
+      document.getElementById('tel-family').textContent = `'${family}'`;
+      document.getElementById('tel-weight').textContent = `Weight: ${weight}`;
+
+      const isChecked = document.fonts.check(`${weight} 68px "${family}"`);
+      document.getElementById('tel-check').textContent = isChecked ? 'MATCHED' : 'FALLBACK';
+
+      document.querySelectorAll('.foundry-btn').forEach(b => b.classList.remove('active'));
+      const activeId = family === 'FoundryDisplay' ? 'btn-display' : family === 'FoundrySerif' ? 'btn-serif' : 'btn-mono';
+      const btn = document.getElementById(activeId);
+      if (btn) btn.classList.add('active');
+    }
+
+    window.labReady = new Promise(async (resolve) => {
+      setTimeout(async () => {
+        // Instantiate and load FontFaces programmatically
+        for (const item of faces) {
+          const face = new FontFace(item.family, item.src, { weight: item.weight, style: item.style });
+          await face.load();
+          document.fonts.add(face);
+          registeredFaces.push(face);
+        }
+
+        // Await entire FontFaceSet resolution
+        await document.fonts.ready;
+
+        // Populate Table
+        const tbody = document.getElementById('registry-body');
+        tbody.innerHTML = registeredFaces.map(f => `
+          <tr>
+            <td><strong>${f.family}</strong></td>
+            <td>${f.weight}</td>
+            <td>${f.style}</td>
+            <td><span class="status-badge">${f.status.toUpperCase()}</span></td>
+            <td>Local Hardware Glyph Fallback</td>
+          </tr>
+        `).join('');
+
+        document.getElementById('header-status').textContent = 'DOCUMENT.FONTS.READY: SYNCHRONIZED';
+        document.getElementById('tel-status').textContent = document.fonts.status;
+        document.getElementById('tel-count').textContent = document.fonts.size + ' Faces';
+
+        switchFont('FoundryDisplay', '900', 'Sans-Serif');
+
+        const computed = window.getComputedStyle(document.getElementById('subject-hello-world'));
+
+        window.labEvidence = () => {
+          return {
+            subject: 'Hello World',
+            passed: document.fonts.check('900 68px "FoundryDisplay"'),
+            mechanism: 'CSS Font Loading API Level 3 (document.fonts, FontFaceSet, FontFace, document.fonts.ready)',
+            measurements: {
+              fontFaceSetStatus: document.fonts.status,
+              registeredFacesCount: document.fonts.size,
+              activeFamily: 'FoundryDisplay',
+              activeWeight: '900',
+              computedFontFamily: computed.fontFamily,
+              computedFontSize: computed.fontSize
+            }
+          };
+        };
+
+        resolve();
+      }, 50);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Fold</title>
+  <style>
+    :root {
+      background: #efe3d1;
+      color: #332d2b;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #efe3d1;
+    }
+
+    .sheet {
+      width: min(92vw, 1080px);
+      padding: 40px 48px 50px;
+      border: 1px solid #a64d3b;
+      background: #f7efdf;
+      container-type: inline-size;
+      perspective: 900px;
+    }
+
+    .label {
+      margin: 0 0 54px;
+      color: #a64d3b;
+      font: 12px/1.2 monospace;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .fold {
+      --fold-gap: 0px;
+      --world-turn: 0deg;
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--fold-gap);
+      align-items: center;
+      min-height: 280px;
+      border-block: 1px solid #a64d3b;
+    }
+
+    .word {
+      margin: 0;
+      font-size: clamp(62px, 11cqw, 144px);
+      line-height: 0.84;
+      letter-spacing: -0.09em;
+      white-space: nowrap;
+    }
+
+    .word:first-child {
+      color: #332d2b;
+      text-align: right;
+      padding: 26px 28px 26px 0;
+    }
+
+    .word:last-child {
+      color: #a64d3b;
+      padding: 26px 0 26px 28px;
+      transform: rotateY(var(--world-turn)) skewY(var(--world-turn));
+      transform-origin: left center;
+    }
+
+    .crease {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 1px;
+      height: 250px;
+      background: #a64d3b;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    @container (max-width: 720px) {
+      .fold {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .word:first-child,
+      .word:last-child {
+        padding-inline: 0;
+        text-align: left;
+      }
+
+      .crease {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="sheet">
+    <p class="label">010 / fold / measured container</p>
+    <section class="fold">
+      <p class="word">Hello </p><p class="word">World</p>
+      <span class="crease" aria-hidden="true"></span>
+    </section>
+  </main>
+  <script>
+    const sheet = document.querySelector('.sheet');
+    const fold = document.querySelector('.fold');
+    const resizeObserver = new ResizeObserver(([entry]) => {
+      const width = entry.contentRect.width;
+      const gap = Math.max(0, Math.min(34, Math.round((width - 620) / 10)));
+      const turn = Math.max(-8, Math.min(8, (width - 760) / 42));
+      fold.style.setProperty('--fold-gap', `${gap}px`);
+      fold.style.setProperty('--world-turn', `${turn}deg`);
+    });
+    resizeObserver.observe(sheet);
+  </script>
+</body>
+</html>

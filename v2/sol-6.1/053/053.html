@@ -1,0 +1,7 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Expanded Ink</title><style>body{margin:0;background:#343450}main{height:100vh;display:grid;place-items:center}svg{width:1150px;max-width:95vw}text{font:bold 200px Georgia;fill:#ebbb9d}</style></head><body><main><svg viewBox="0 0 1150 650" aria-label="Hello World as dilated alpha rings" role="img"><defs><filter id="ring" x="-10%" y="-20%" width="120%" height="140%">
+<!-- Dilation expands glyph alpha; subtracting the original leaves a ring,
+     rather than applying a decorative rectangular border. -->
+<feMorphology in="SourceAlpha" operator="dilate" radius="5" result="expanded"/><feComposite in="expanded" in2="SourceAlpha" operator="out" result="ring"/><feFlood flood-color="#ebbb9d"/><feComposite in2="ring" operator="in"/>
+</filter></defs><text x="90" y="280" filter="url(#ring)">Hello</text><text x="330" y="530" filter="url(#ring)">World</text></svg></main><script>
+window.labEvidence=()=>{const node=document.querySelector('feMorphology');return {subject:'Hello World',passed:node.radiusX.baseVal===5&&node.radiusY.baseVal===5&&node.operator.baseVal===2&&document.querySelectorAll('feComposite').length===2,mechanism:'Glyph alpha dilation -> alpha subtraction -> expanded rings',measurements:{radius:node.radiusX.baseVal,operator:node.operator.baseVal,words:[...document.querySelectorAll('text')].map(n=>n.textContent)}}};
+</script></body></html>

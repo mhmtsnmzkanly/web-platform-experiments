@@ -1,0 +1,9 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Stone Light</title><style>body{margin:0;background:#333c40}main{height:100vh;display:grid;place-items:center}svg{width:1180px;max-width:96vw}text{font:bold 150px Georgia;fill:#b8c9cf}</style></head><body><main><svg viewBox="0 0 1180 650" role="img" aria-label="Hello World in diffuse-lit stone"><defs><filter id="stone" x="-10%" y="-20%" width="120%" height="140%" color-interpolation-filters="sRGB">
+<!-- Softened glyph alpha is a height field; the final composite prevents
+     lighting from painting the empty rectangular filter region. -->
+<feGaussianBlur in="SourceAlpha" stdDeviation="3" result="height"/>
+<feDiffuseLighting in="height" surfaceScale="9" diffuseConstant="1.2" lighting-color="#d7e4e8" result="light"><feDistantLight azimuth="225" elevation="35"/></feDiffuseLighting>
+<feComposite in="light" in2="SourceAlpha" operator="in"/>
+</filter></defs><text x="100" y="280" filter="url(#stone)">Hello</text><text x="440" y="470" filter="url(#stone)">World</text></svg></main><script>
+window.labEvidence=()=>{const light=document.querySelector('feDiffuseLighting'),source=document.querySelector('feDistantLight'),texts=[...document.querySelectorAll('text')];return {subject:'Hello World',passed:light.in1.baseVal==='height'&&light.surfaceScale.baseVal===9&&source.elevation.baseVal===35&&texts.every(text=>text.getBBox().width>300&&getComputedStyle(text).filter.includes('#stone')),mechanism:'Glyph alpha height field -> diffuse light -> clipped stone type',measurements:{surfaceScale:light.surfaceScale.baseVal,elevation:source.elevation.baseVal,widths:texts.map(text=>text.getBBox().width)}}};
+</script></body></html>

@@ -1,0 +1,114 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "div",
+        "text": "// Main Thread Outbound Payload:\n{\n  \"command\": \"TRANSFORM_SUBJECT\",\n  \"subject\": \"Hello World\",\n  \""
+      },
+      {
+        "tag": "div",
+        "text": "// Worker Inbound Structured Response:\n{\n  \"status\": \"COMPUTATION_COMPLETE\",\n  \"subject\": \"Hello Wor"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      },
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 216.73399999973586,
+        "timeline": "DocumentTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 216.73399999973586,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Experiment 023: Inline Blob Web Worker & Thread Telemetry"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "div",
+        "text": "// Main Thread Outbound Payload:\n{\n  \"command\": \"TRANSFORM_SUBJECT\",\n  \"subject\": \"Hello World\",\n  \""
+      },
+      {
+        "tag": "div",
+        "text": "// Worker Inbound Structured Response:\n{\n  \"status\": \"COMPUTATION_COMPLETE\",\n  \"subject\": \"Hello Wor"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      },
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 1483.293999999736,
+        "timeline": "DocumentTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 1483.293999999736,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Experiment 023: Inline Blob Web Worker & Thread Telemetry"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Inline Blob URL Web Worker dispatch, thread isolation, and structured clone messaging",
+    "measurements": {
+      "roundTripLatencyMs": 193.1,
+      "workerDurationMs": 1.8,
+      "checksumHash": "0xB3C78C70",
+      "threadIsolationConfirmed": true,
+      "realmType": "DedicatedWorkerGlobalScope"
+    }
+  },
+  "dynamic": true,
+  "interaction": null
+}

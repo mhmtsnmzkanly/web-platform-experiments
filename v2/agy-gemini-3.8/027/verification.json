@@ -1,0 +1,88 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      },
+      {
+        "tag": "svg",
+        "id": ""
+      },
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 027: IndexedDB Transactional Object Store & Ledger Inspector"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      },
+      {
+        "tag": "svg",
+        "id": ""
+      },
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 027: IndexedDB Transactional Object Store & Ledger Inspector"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "IndexedDB Level 2 transactional object store with autoIncrement keys, B-tree indexes, and cursor range iteration",
+    "measurements": {
+      "databaseName": "LabLedger_027",
+      "databaseVersion": 1,
+      "recordsCommitted": 13,
+      "writeDurationMs": 2.9,
+      "queryDurationMs": 4,
+      "tokensRetrieved": [
+        "Hello",
+        "World"
+      ]
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

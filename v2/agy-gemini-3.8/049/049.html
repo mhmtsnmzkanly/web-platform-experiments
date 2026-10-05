@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 049: CSS Motion Path Module Level 1</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #060911;
+      --panel: #0c121e;
+      --border: #1a2538;
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.4);
+      --amber: #f59e0b;
+      --violet: #a855f7;
+      --emerald: #10b981;
+      --text: #f8fafc;
+      --muted: #64748b;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --font-sans: system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .astronomy-frame {
+      width: 100%;
+      max-width: 1040px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Top Astrometry Header */
+    .astronomy-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .header-tag {
+      color: var(--cyan);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .header-sub {
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* Proscenium Orbital Plane Stage */
+    .proscenium-stage {
+      position: relative;
+      height: 460px;
+      background: radial-gradient(circle at 50% 50%, #0c182b 0%, #04070d 100%);
+      border: 1px solid #1e3a5f;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.08);
+      overflow: hidden;
+    }
+
+    /* Background Vector Orbit Track (SVG representation) */
+    .orbit-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Primary Typographic Subject (Celestial Central Mass) */
+    .celestial-core {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+      background: rgba(6, 12, 22, 0.8);
+      padding: 20px 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), 0 0 20px var(--cyan-glow);
+    }
+
+    .core-caption {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+    }
+
+    #subject-hello-world {
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: #ffffff;
+      text-shadow: 0 0 24px var(--cyan-glow);
+      white-space: nowrap;
+    }
+
+    .core-subtext {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #94a3b8;
+      letter-spacing: 0.05em;
+    }
+
+    /* Parametric Orbital Satellites guided via CSS Motion Path */
+    .orbital-satellite {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 110px;
+      height: 38px;
+      /* The master path: smooth 800x300 ellipse centered in 1040x460 stage */
+      offset-path: path("M 120,230 C 120,80 920,80 920,230 C 920,380 120,380 120,230 Z");
+      offset-rotate: auto;
+      offset-anchor: 50% 50%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(12, 20, 34, 0.9);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text);
+      z-index: 5;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .sat-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Satellite 1: Alpha (Cyan) */
+    #sat-alpha {
+      offset-distance: 12.5%;
+      border-color: var(--cyan);
+    }
+    #sat-alpha .sat-dot {
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    /* Satellite 2: Beta (Amber) */
+    #sat-beta {
+      offset-distance: 37.5%;
+      border-color: var(--amber);
+    }
+    #sat-beta .sat-dot {
+      background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+    }
+
+    /* Satellite 3: Gamma (Violet) */
+    #sat-gamma {
+      offset-distance: 62.5%;
+      border-color: var(--violet);
+    }
+    #sat-gamma .sat-dot {
+      background: var(--violet);
+      box-shadow: 0 0 8px var(--violet);
+    }
+
+    /* Satellite 4: Delta (Emerald) */
+    #sat-delta {
+      offset-distance: 87.5%;
+      border-color: var(--emerald);
+    }
+    #sat-delta .sat-dot {
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+    }
+
+    /* Telemetry Deck */
+    .telemetry-deck {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .telemetry-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: var(--font-mono);
+    }
+
+    .card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+    }
+
+    .card-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .card-sub {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* Trajectory Ledger */
+    .trajectory-ledger {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .ledger-title {
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .code-preview {
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+
+    .stat-name {
+      color: var(--muted);
+    }
+
+    .stat-val {
+      color: var(--cyan);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="astronomy-frame">
+    <!-- Header -->
+    <header class="astronomy-header">
+      <span class="header-tag">CSS Motion Path Module Level 1 &mdash; Orbital Cartography</span>
+      <span class="header-sub">offset-path: path(...) &bull; offset-distance &bull; offset-rotate: auto</span>
+    </header>
+
+    <!-- Proscenium Stage with orbital path and satellites -->
+    <section class="proscenium-stage" aria-label="Parametric Orbital Plane">
+      <!-- Underlying SVG guideline matching offset-path geometry -->
+      <svg class="orbit-svg" viewBox="0 0 1040 460" preserveAspectRatio="none">
+        <path d="M 120,230 C 120,80 920,80 920,230 C 920,380 120,380 120,230 Z" 
+              stroke="rgba(0, 240, 255, 0.25)" stroke-width="2" stroke-dasharray="6 8" fill="none" />
+        <ellipse cx="520" cy="230" rx="420" ry="170" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1" fill="none" />
+      </svg>
+
+      <!-- Satellite 1 (Alpha) -->
+      <div class="orbital-satellite" id="sat-alpha">
+        <div class="sat-dot"></div>
+        <div><strong>SAT-&alpha;</strong><br><span style="color:#64748b;">D: 12.5%</span></div>
+      </div>
+
+      <!-- Satellite 2 (Beta) -->
+      <div class="orbital-satellite" id="sat-beta">
+        <div class="sat-dot"></div>
+        <div><strong>SAT-&beta;</strong><br><span style="color:#64748b;">D: 37.5%</span></div>
+      </div>
+
+      <!-- Celestial Central Core: Primary Subject Hello World -->
+      <div class="celestial-core">
+        <span class="core-caption">Focal Orbital Attractor</span>
+        <h1 id="subject-hello-world">Hello World</h1>
+        <span class="core-subtext">Curvilinear Coordinate Origin &bull; Parametric Apex</span>
+      </div>
+
+      <!-- Satellite 3 (Gamma) -->
+      <div class="orbital-satellite" id="sat-gamma">
+        <div class="sat-dot"></div>
+        <div><strong>SAT-&gamma;</strong><br><span style="color:#64748b;">D: 62.5%</span></div>
+      </div>
+
+      <!-- Satellite 4 (Delta) -->
+      <div class="orbital-satellite" id="sat-delta">
+        <div class="sat-dot"></div>
+        <div><strong>SAT-&delta;</strong><br><span style="color:#64748b;">D: 87.5%</span></div>
+      </div>
+    </section>
+
+    <!-- Telemetry Cards -->
+    <div class="telemetry-deck">
+      <div class="telemetry-card">
+        <span class="card-label">Motion Path Spec</span>
+        <div class="card-val" id="tel-spec">path() Spline</div>
+        <span class="card-sub">B&eacute;zier Cubic Loop</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Rotation Mode</span>
+        <div class="card-val" id="tel-rotate">auto (Tangential)</div>
+        <span class="card-sub">offset-rotate: auto</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Orbital Constellation</span>
+        <div class="card-val" id="tel-count">4 Satellites</div>
+        <span class="card-sub">Equal Arc Intervals</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Cartesian Precision</span>
+        <div class="card-val" id="tel-coords">Resolved</div>
+        <span class="card-sub">Subpixel Viewport Nodes</span>
+      </div>
+    </div>
+
+    <!-- Trajectory Ledger -->
+    <div class="trajectory-ledger">
+      <div>
+        <div class="ledger-title">Parametric Motion Path Rule</div>
+        <div class="code-preview">
+          .orbital-satellite {<br>
+          &nbsp;&nbsp;offset-path: path("M 120,230 C 120,80 920,80 920,230 C 920,380 120,380 120,230 Z");<br>
+          &nbsp;&nbsp;offset-rotate: auto;<br>
+          &nbsp;&nbsp;offset-anchor: 50% 50%;<br>
+          }
+        </div>
+      </div>
+      <div>
+        <div class="ledger-title">Constellation Telemetry</div>
+        <div class="stat-row"><span class="stat-name">Sat Alpha Pos</span><span class="stat-val" id="stat-alpha-pos">Resolving...</span></div>
+        <div class="stat-row"><span class="stat-name">Sat Beta Pos</span><span class="stat-val" id="stat-beta-pos">Resolving...</span></div>
+        <div class="stat-row"><span class="stat-name">Path Supported</span><span class="stat-val" id="stat-supported">true</span></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    window.labReady = new Promise((resolve) => {
+      setTimeout(() => {
+        const satA = document.getElementById('sat-alpha');
+        const satB = document.getElementById('sat-beta');
+        const rectA = satA.getBoundingClientRect();
+        const rectB = satB.getBoundingClientRect();
+
+        document.getElementById('stat-alpha-pos').textContent = `${Math.round(rectA.left)}, ${Math.round(rectA.top)}`;
+        document.getElementById('stat-beta-pos').textContent = `${Math.round(rectB.left)}, ${Math.round(rectB.top)}`;
+
+        const isSupported = CSS.supports('offset-path: path("M 0 0 L 10 10")');
+        document.getElementById('stat-supported').textContent = String(isSupported);
+
+        window.labEvidence = () => {
+          return {
+            subject: 'Hello World',
+            passed: isSupported && rectA.width > 0,
+            mechanism: 'CSS Motion Path Module Level 1 (offset-path: path(...), offset-distance, offset-rotate: auto)',
+            measurements: {
+              cssSupportsMotionPath: isSupported,
+              satAlphaX: rectA.left,
+              satAlphaY: rectA.top,
+              satBetaX: rectB.left,
+              satBetaY: rectB.top,
+              satelliteCount: 4
+            }
+          };
+        };
+
+        resolve();
+      }, 50);
+    });
+  </script>
+</body>
+</html>

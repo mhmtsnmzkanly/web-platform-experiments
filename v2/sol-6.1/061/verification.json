@@ -1,0 +1,55 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Scan Cut"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Scan Cut"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Repeating CSS alpha mask -> scan-cut live greeting glyphs",
+    "measurements": {
+      "mask": "repeating-linear-gradient(rgb(0, 0, 0) 0px, rgb(0, 0, 0) 12px, rgba(0, 0, 0, 0) 12px, rgba(0, 0, 0, 0) 16px)",
+      "text": "Hello World"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

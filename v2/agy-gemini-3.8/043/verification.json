@@ -1,0 +1,57 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 043: CSS Container Style Queries Level 3"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 043: CSS Container Style Queries Level 3"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS Container Style Queries Level 3 (@container style-reactor style(--reactor-theme: cryogenic))",
+    "measurements": {
+      "computedColor": "rgb(255, 255, 255)",
+      "textShadow": "rgba(0, 240, 255, 0.7) 0px 0px 16px",
+      "fontSize": "38px",
+      "fontWeight": "900"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

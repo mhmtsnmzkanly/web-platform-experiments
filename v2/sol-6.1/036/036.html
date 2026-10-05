@@ -1,0 +1,12 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Tether</title><style>
+body{margin:0;background-color:#eceee7;background-image:linear-gradient(#a6aaa630 1px,transparent 1px),linear-gradient(90deg,#a6aaa630 1px,transparent 1px);background-size:40px 40px;color:#252725}button{margin:60px;padding:15px 25px;font:18px monospace;background:#252725;color:white;border:0}#origin{position:absolute;left:120px;top:220px;width:60px;height:20px;background:#c64e3e;anchor-name:--origin}body.moved #origin{left:560px;top:440px}h1{position:absolute;position-anchor:--origin;left:anchor(left);top:calc(anchor(bottom) + 20px);margin:0;font:bold 86px Arial;width:600px}
+</style></head><body><main><button id="move">Move the origin</button><div id="origin" aria-label="Red layout origin"></div><h1>Hello World</h1></main><script>
+const title=document.querySelector('h1'),origin=document.querySelector('#origin');let initial;
+// CSS alone resolves the follower's coordinates. JavaScript changes only the
+// anchor's state, then measures both boxes to test native dependency tracking.
+function geometry(){const a=origin.getBoundingClientRect(),b=title.getBoundingClientRect();return {anchorLeft:a.left,anchorBottom:a.bottom,textLeft:b.left,textTop:b.top,error:Math.abs(a.left-b.left)+Math.abs(a.bottom+20-b.top)}}
+initial=geometry();document.querySelector('#move').onclick=()=>document.body.classList.add('moved');
+window.labEvidence=()=>({subject:'Hello World',passed:CSS.supports('left','anchor(left)')&&geometry().error<1,mechanism:'Named anchor geometry -> native greeting layout',measurements:geometry()});
+window.labScenario={kind:'click',selector:'#move'};
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:geometry().error<1&&geometry().textLeft-initial.textLeft===440&&geometry().textTop-initial.textTop===220,mechanism:'Anchor relocation -> automatically tethered greeting',measurements:{initial,after:geometry()}});
+</script></body></html>

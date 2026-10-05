@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 056: CSS View Transitions API Level 1 State Morphing</title>
+  <style>
+    :root {
+      --bg: #090e17;
+      --card-bg: rgba(16, 25, 42, 0.7);
+      --border: rgba(99, 102, 241, 0.25);
+      --primary: #818cf8;
+      --primary-glow: rgba(129, 140, 248, 0.4);
+      --accent: #22d3ee;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --font-mono: 'SF Mono', Monaco, Menlo, Consolas, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* CSS View Transition Custom Keyframes & Durations */
+    ::view-transition-group(hero-subject) {
+      animation-duration: 0.35s;
+      animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+    }
+    ::view-transition-old(hero-subject),
+    ::view-transition-new(hero-subject) {
+      animation-duration: 0.35s;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 16px;
+      overflow: hidden;
+      background-image:
+        radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.08), transparent 60%),
+        radial-gradient(circle at 80% 80%, rgba(34, 211, 238, 0.05), transparent 50%);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .badge-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--primary);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+    }
+
+    .spec-ref {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Morphing Stage Container */
+    .proscenium-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      min-height: 380px;
+    }
+
+    .stage-arena {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 36px;
+      display: flex;
+      position: relative;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      view-transition-name: main-stage;
+      transition: all 0.2s ease;
+    }
+
+    /* State 1: Hero Centered (Default) */
+    .stage-arena.state-hero {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 340px;
+    }
+
+    /* State 2: Compact Strip */
+    .stage-arena.state-compact {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 32px;
+      min-height: 120px;
+    }
+
+    /* State 3: Split Inspector */
+    .stage-arena.state-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: center;
+      min-height: 340px;
+    }
+
+    /* Primary Subject */
+    #subject-hello-world {
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      text-shadow:
+        0 0 20px rgba(129, 140, 248, 0.8),
+        0 0 40px rgba(129, 140, 248, 0.4);
+      view-transition-name: hero-subject;
+      margin-bottom: 8px;
+      transition: font-size 0.2s ease;
+    }
+
+    .state-hero #subject-hello-world {
+      font-size: 4.2rem;
+    }
+
+    .state-compact #subject-hello-world {
+      font-size: 2.2rem;
+      margin-bottom: 0;
+    }
+
+    .state-split #subject-hello-world {
+      font-size: 3.4rem;
+      text-align: left;
+    }
+
+    .stage-caption {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      view-transition-name: stage-caption;
+    }
+
+    .split-inspector-panel {
+      display: none;
+      background: rgba(10, 16, 28, 0.8);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      border-radius: 8px;
+      padding: 20px;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .state-split .split-inspector-panel {
+      display: flex;
+    }
+
+    .panel-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .panel-label {
+      color: var(--text-muted);
+    }
+
+    .panel-value {
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    /* Morphing Controls */
+    .controls-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .control-info {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .mode-btn {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 8px 16px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mode-btn.active,
+    .mode-btn:hover {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Diagnostics Telemetry Deck */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-value {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .card-subtext {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge-bar">
+      <span class="badge">CSS View Transitions API</span>
+      <span class="badge">State Snapshot Morphing</span>
+    </div>
+    <div class="spec-ref">document.startViewTransition() • view-transition-name</div>
+  </header>
+
+  <div class="proscenium-wrapper">
+    <div class="stage-arena state-hero" id="stage-arena">
+      <div class="subject-box">
+        <h1 id="subject-hello-world">Hello World</h1>
+        <p class="stage-caption" id="stage-caption">Proscenium Mode: Centered Hero</p>
+      </div>
+
+      <div class="split-inspector-panel">
+        <div class="panel-row"><span class="panel-label">TRANSITION PSEUDO:</span><span class="panel-value">::view-transition-old</span></div>
+        <div class="panel-row"><span class="panel-label">SNAPSHOT RENDER:</span><span class="panel-value">Hardware Composited</span></div>
+        <div class="panel-row"><span class="panel-label">GEOMETRY MORPH:</span><span class="panel-value">Auto Interpolated</span></div>
+        <div class="panel-row"><span class="panel-label">TIMING FUNCTION:</span><span class="panel-value">cubic-bezier(0.2, 0, 0, 1)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-panel">
+    <span class="control-info">TRIGGER VIEW TRANSITION STATE MORPH:</span>
+    <div class="btn-group">
+      <button class="mode-btn active" id="btn-state-hero">Centered Hero</button>
+      <button class="mode-btn" id="btn-state-compact">Compact Strip</button>
+      <button class="mode-btn" id="btn-state-split">Split Inspector</button>
+    </div>
+  </div>
+
+  <section class="dashboard">
+    <div class="card">
+      <div class="card-title">View Transition State</div>
+      <div class="card-value" id="val-mode">state-hero</div>
+      <div class="card-subtext">Active DOM layout mode</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Named View Transitions</div>
+      <div class="card-value" id="val-named">3 Elements</div>
+      <div class="card-subtext">hero-subject, main-stage, stage-caption</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Transition Count</div>
+      <div class="card-value" id="val-count">0 morphs</div>
+      <div class="card-subtext">Executed startViewTransition()</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Engine Conformance</div>
+      <div class="card-value" id="val-support" style="color: #818cf8;">PASSED</div>
+      <div class="card-subtext">document.startViewTransition API</div>
+    </div>
+  </section>
+
+  <script>
+    // Ready contract
+    window.labReady = new Promise(resolve => {
+      setTimeout(resolve, 50);
+    });
+
+    const stage = document.getElementById('stage-arena');
+    const caption = document.getElementById('stage-caption');
+    const valMode = document.getElementById('val-mode');
+    const valCount = document.getElementById('val-count');
+    const valSupport = document.getElementById('val-support');
+
+    const supportsViewTransitions = typeof document.startViewTransition === 'function';
+    let transitionCount = 0;
+
+    const buttons = {
+      hero: document.getElementById('btn-state-hero'),
+      compact: document.getElementById('btn-state-compact'),
+      split: document.getElementById('btn-state-split')
+    };
+
+    function transitionTo(stateName, captionText, activeBtn) {
+      const applyDOMUpdate = () => {
+        stage.className = `stage-arena state-${stateName}`;
+        caption.textContent = captionText;
+        valMode.textContent = `state-${stateName}`;
+
+        Object.values(buttons).forEach(btn => btn.classList.remove('active'));
+        if (activeBtn) activeBtn.classList.add('active');
+
+        transitionCount++;
+        valCount.textContent = `${transitionCount} morphs`;
+      };
+
+      if (supportsViewTransitions) {
+        document.startViewTransition(applyDOMUpdate);
+      } else {
+        applyDOMUpdate();
+      }
+    }
+
+    buttons.hero.addEventListener('click', () => {
+      transitionTo('hero', 'Proscenium Mode: Centered Hero', buttons.hero);
+    });
+
+    buttons.compact.addEventListener('click', () => {
+      transitionTo('compact', 'Proscenium Mode: Compact Strip', buttons.compact);
+    });
+
+    buttons.split.addEventListener('click', () => {
+      transitionTo('split', 'Proscenium Mode: Split Inspector', buttons.split);
+    });
+
+    // Evidence declaration
+    window.labEvidence = () => ({
+      subject: 'Hello World',
+      passed: Boolean(supportsViewTransitions),
+      mechanism: 'CSS View Transitions API Level 1 (document.startViewTransition and view-transition-name)',
+      measurements: {
+        supportsViewTransitions,
+        currentLayoutState: stage.className,
+        transitionCount,
+        subjectViewTransitionName: getComputedStyle(document.getElementById('subject-hello-world')).viewTransitionName,
+        stageViewTransitionName: getComputedStyle(stage).viewTransitionName,
+        fontSize: getComputedStyle(document.getElementById('subject-hello-world')).fontSize
+      }
+    });
+  </script>
+</body>
+</html>

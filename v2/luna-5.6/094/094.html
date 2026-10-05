@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Palette Picker</title>
+<style>
+:root{color:#edf5ff;background:#101b2b;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#101b2b,#315f7a)}.picker{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #8fd6d2}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#8fd6d2;font:11px monospace;letter-spacing:.18em}.state{margin-top:10px;color:#f0c26d;font:12px monospace}.swatch{position:relative;z-index:1;margin:11vh auto 0;width:min(76vw,880px);height:340px;background:#e86c78;display:grid;place-items:center;transition:background .25s;clip-path:polygon(0 12%,88% 0,100% 82%,14% 100%)}.swatch h1{margin:0;color:#f4f0dc;font-size:clamp(60px,12vw,145px);line-height:.8;letter-spacing:-.1em}.controls{position:absolute;right:28px;bottom:28px;display:flex;gap:10px;align-items:center}input{width:74px;height:38px;border:1px solid #f0c26d;background:transparent}button{border:1px solid #f0c26d;padding:9px 14px;color:#f0c26d;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="picker"><p class="label">094 / palette picker / show picker</p><p class="state" id="state">palette / choose an ink</p><section class="swatch" id="swatch"><h1>Hello World</h1></section><div class="controls"><input id="color" type="color" value="#e86c78"><button id="open" type="button">open native picker</button></div></main><script>
+const color=document.querySelector('#color'),swatch=document.querySelector('#swatch'),state=document.querySelector('#state');function apply(){swatch.style.background=color.value;state.textContent=`palette / native color ${color.value} applied`}color.addEventListener('input',apply);document.querySelector('#open').addEventListener('click',()=>{if(color.showPicker)color.showPicker();else state.textContent='palette / native picker unavailable'});apply();
+</script></body></html>

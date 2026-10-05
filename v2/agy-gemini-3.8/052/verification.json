@@ -1,0 +1,58 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 052: CSS Color Module Level 4 & 5 OKLCH Spectral Mixer"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 052: CSS Color Module Level 4 & 5 OKLCH Spectral Mixer"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS Color Module Level 4 & 5 (color-mix in oklch)",
+    "measurements": {
+      "supportsColorMix": true,
+      "supportsOKLCH": true,
+      "activeMixRatio": "50%",
+      "step50ComputedColor": "oklch(0.75 0.24 262.5)",
+      "headingFontSize": "72px"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

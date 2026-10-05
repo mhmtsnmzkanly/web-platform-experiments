@@ -1,0 +1,96 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "metric-canvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "metric-canvas",
+        "width": 1222,
+        "height": 350,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 12,
+      "webgl": 0
+    },
+    "drawnText": [
+      "CAP-HEIGHT ASCENT: +58.00px",
+      "ALPHABETIC BASELINE: Y = 0.00px",
+      "ACTUAL DESCENT: -1.00px",
+      "ADVANCE WIDTH: 586.80px"
+    ],
+    "animations": [],
+    "title": "Experiment 035: Canvas 2D TextMetrics Typographic Anatomy Folio"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "metric-canvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "metric-canvas",
+        "width": 1222,
+        "height": 350,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 12,
+      "webgl": 0
+    },
+    "drawnText": [
+      "CAP-HEIGHT ASCENT: +58.00px",
+      "ALPHABETIC BASELINE: Y = 0.00px",
+      "ACTUAL DESCENT: -1.00px",
+      "ADVANCE WIDTH: 586.80px"
+    ],
+    "animations": [],
+    "title": "Experiment 035: Canvas 2D TextMetrics Typographic Anatomy Folio"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "W3C Canvas 2D Context Level 2 Advanced TextMetrics subpixel font metrology and baseline drafting",
+    "measurements": {
+      "advanceWidth": 586.7994384765625,
+      "actualBoundingBoxAscent": 58,
+      "actualBoundingBoxDescent": 1,
+      "fontBoundingBoxAscent": 86,
+      "fontBoundingBoxDescent": 23,
+      "canvasWidth": 1222,
+      "canvasHeight": 350
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

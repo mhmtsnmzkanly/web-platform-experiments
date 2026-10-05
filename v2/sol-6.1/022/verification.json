@@ -1,0 +1,101 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Remembered"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Remembered"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Session storage state -> initialization -> remembered greeting",
+    "measurements": {
+      "initialStored": null,
+      "initialEdition": "blue"
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#save",
+      "reload": true
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Save palette -> real reload -> restored plum greeting",
+      "measurements": {
+        "stored": "plum",
+        "color": "rgb(117, 55, 96)",
+        "fontStyle": "italic"
+      }
+    },
+    "reloaded": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Save palette -> real reload -> restored plum greeting",
+      "measurements": {
+        "stored": "plum",
+        "color": "rgb(117, 55, 96)",
+        "fontStyle": "italic"
+      }
+    },
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Hello World — Remembered"
+    },
+    "late": null
+  }
+}

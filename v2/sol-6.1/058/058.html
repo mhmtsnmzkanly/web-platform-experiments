@@ -1,0 +1,9 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Bounded Ink</title><style>
+body{margin:0;background:#efe1c4;color:#36534e}main{padding:90px}h1{font:70px monospace;font-weight:400;margin:0}
+/* The limit stops the rule at a nested subtree without needing stronger
+   selectors or a shadow boundary. All three headings share one document. */
+@scope (.edition) to (.limit){h1{font:105px Georgia;color:#b04739}}
+.limit{margin:100px 0 0 180px}.limit h1{font-style:italic}.unscoped{margin:100px 0 0 370px}
+</style></head><body><main><section class="edition"><h1 id="eligible">Hello World</h1><div class="limit"><h1 id="limited">Hello World</h1></div></section><h1 class="unscoped" id="outside">Hello World</h1></main><script>
+window.labEvidence=()=>{const styles=['eligible','limited','outside'].map(id=>{const s=getComputedStyle(document.getElementById(id));return {id,color:s.color,font:s.fontSize,family:s.fontFamily}});return {subject:'Hello World',passed:styles[0].color==='rgb(176, 71, 57)'&&styles[0].font==='105px'&&styles.slice(1).every(s=>s.color==='rgb(54, 83, 78)'&&s.font==='70px'),mechanism:'CSS scope root/limit -> selective greeting cascade',measurements:{styles}}};
+</script></body></html>

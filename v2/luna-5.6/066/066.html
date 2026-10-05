@@ -1,0 +1,4 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Hello World — Language</title><style>
+:root{font-family:Arial;background:#171c17;color:#edfff0}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#171c17,#4d7652)}main{width:min(90vw,1080px);padding:46px;border:1px solid #a7e9ad;background:#213b25}p{color:#a7e9ad;font:12px monospace;letter-spacing:.2em;text-transform:uppercase}h1{margin:45px 0;font-size:clamp(72px,15vw,178px);line-height:.8;letter-spacing:-.1em}.state{color:#ffd378;font:14px monospace}</style><main><p>066 / navigator language / locale surface</p><h1>Hello World</h1><div class="state">language / reading</div></main><script>
+const lang=navigator.language||'unknown';document.querySelector('.state').textContent=`language / ${lang} / browser locale`;
+</script>

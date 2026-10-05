@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Sealed Gallery</title>
+<style>
+:root{color:#e9efff;background:#10182a;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#10182a,#304b82)}.gallery{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #9dc0ff}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#9dc0ff;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#f4c46b;font:12px monospace}.vault{position:relative;z-index:1;margin:8vh auto 0;width:min(78vw,900px);height:400px;contain:layout paint;content-visibility:auto;border:18px solid #263c68;background:#192640}.vault:before{position:absolute;inset:18px;border:1px dashed #9dc0ff;content:""}.vault h1{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:#f4f0dc;font-size:clamp(62px,13vw,156px);line-height:.8;letter-spacing:-.1em}.controls{position:absolute;right:28px;bottom:28px;display:flex;gap:12px}button{border:1px solid #f4c46b;padding:9px 14px;color:#f4c46b;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="gallery"><p class="label">047R / sealed gallery / containment</p><p class="state" id="state">vault / content-visible surface isolated</p><section class="vault"><h1>Hello World</h1></section><div class="controls"><button id="inspect" type="button">inspect boundary</button></div></main><script>
+const state=document.querySelector('#state'),vault=document.querySelector('.vault');document.querySelector('#inspect').addEventListener('click',()=>{const box=vault.getBoundingClientRect();state.textContent=`vault / ${Math.round(box.width)}×${Math.round(box.height)} / isolated paint boundary`});
+</script></body></html>

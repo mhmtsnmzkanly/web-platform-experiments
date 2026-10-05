@@ -1,0 +1,9 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Shared Space</title><style>body{margin:0;background:#252926;color:#252926}main{padding:90px 100px}label{color:#e4d9bd;font:20px Arial}input{accent-color:#ef9a46}h1{display:flex;width:1000px;margin-top:120px;font-weight:400}section{flex:1 1 600px;min-width:0;container-type:inline-size;background:#ef9a46;padding:70px 0;box-sizing:border-box}section:last-child{flex-shrink:3;background:#bbc6a3}span{display:block;font:24cqw Georgia;text-align:center}body:has(input:checked) section:first-child{flex-shrink:4}body:has(input:checked) section:last-child{flex-shrink:1}</style></head><body><main><label><input id="weight" type="checkbox">Shift the shrink weights</label><h1><section><span>Hello</span></section> <section><span>World</span></section></h1></main><script>
+// Equal bases expose weighted negative-space distribution. Container units
+// turn native allocated widths into glyph sizes without ResizeObserver writes.
+const panes=[...document.querySelectorAll('section')];
+function widths(){return panes.map(pane=>pane.getBoundingClientRect().width)}
+window.labEvidence=()=>({subject:'Hello World',passed:Math.abs(widths()[0]-550)<1&&Math.abs(widths()[1]-450)<1,mechanism:'Negative free space -> weighted flex shrink -> greeting type sizes',measurements:{widths:widths()}});
+window.labScenario={kind:'click',selector:'#weight'};
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:Math.abs(widths()[0]-440)<1&&Math.abs(widths()[1]-560)<1&&panes[0].querySelector('span').getBoundingClientRect().width<panes[1].querySelector('span').getBoundingClientRect().width,mechanism:'Changed shrink factors -> redistributed widths -> relative word sizes',measurements:{widths:widths(),fonts:panes.map(pane=>getComputedStyle(pane.querySelector('span')).fontSize)}});
+</script></body></html>

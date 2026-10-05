@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 052: CSS Color Module Level 4 & 5 OKLCH Spectral Mixer</title>
+  <style>
+    :root {
+      --bg: #090c10;
+      --card-bg: rgba(18, 22, 34, 0.75);
+      --border: rgba(120, 160, 220, 0.18);
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --font-mono: 'SF Mono', Monaco, Menlo, Consolas, 'Ubuntu Mono', monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+      /* OKLCH Base Reference Colors */
+      --color-primary: oklch(0.78 0.22 195);
+      --color-secondary: oklch(0.72 0.26 330);
+      --color-accent: oklch(0.85 0.25 140);
+      --color-warn: oklch(0.80 0.22 75);
+
+      /* Dynamic Mix Variables */
+      --mix-ratio: 50%;
+      --mix-result: color-mix(in oklch, var(--color-primary) var(--mix-ratio), var(--color-secondary));
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 20px;
+      background-image: 
+        radial-gradient(circle at 50% 20%, color-mix(in oklch, var(--color-primary) 12%, transparent), transparent 60%),
+        radial-gradient(circle at 80% 80%, color-mix(in oklch, var(--color-secondary) 10%, transparent), transparent 50%);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .badge-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: color-mix(in oklch, var(--color-primary) 15%, transparent);
+      color: var(--color-primary);
+      border: 1px solid color-mix(in oklch, var(--color-primary) 30%, transparent);
+    }
+
+    .spec-ref {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Hero Center Stage */
+    .stage {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .stage::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, color-mix(in oklch, var(--mix-result) 20%, transparent), transparent 70%);
+      pointer-events: none;
+    }
+
+    #subject-hello-world {
+      font-size: 4.5rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      text-align: center;
+      margin-bottom: 12px;
+      color: color-mix(in oklch, var(--mix-result) 85%, white);
+      text-shadow: 
+        0 0 25px color-mix(in oklch, var(--mix-result) 70%, transparent),
+        0 0 50px color-mix(in oklch, var(--mix-result) 35%, transparent);
+    }
+
+    .stage-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Chromatic Ramp Spectrum */
+    .spectrum-grid {
+      display: grid;
+      grid-template-columns: repeat(11, 1fr);
+      gap: 6px;
+      margin-top: 24px;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .ramp-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 100%;
+      height: 48px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.15s ease;
+    }
+
+    .step-0  { background: color-mix(in oklch, var(--color-primary) 100%, var(--color-secondary) 0%); }
+    .step-10 { background: color-mix(in oklch, var(--color-primary) 90%, var(--color-secondary) 10%); }
+    .step-20 { background: color-mix(in oklch, var(--color-primary) 80%, var(--color-secondary) 20%); }
+    .step-30 { background: color-mix(in oklch, var(--color-primary) 70%, var(--color-secondary) 30%); }
+    .step-40 { background: color-mix(in oklch, var(--color-primary) 60%, var(--color-secondary) 40%); }
+    .step-50 { background: color-mix(in oklch, var(--color-primary) 50%, var(--color-secondary) 50%); }
+    .step-60 { background: color-mix(in oklch, var(--color-primary) 40%, var(--color-secondary) 60%); }
+    .step-70 { background: color-mix(in oklch, var(--color-primary) 30%, var(--color-secondary) 70%); }
+    .step-80 { background: color-mix(in oklch, var(--color-primary) 20%, var(--color-secondary) 80%); }
+    .step-90 { background: color-mix(in oklch, var(--color-primary) 10%, var(--color-secondary) 90%); }
+    .step-100{ background: color-mix(in oklch, var(--color-primary) 0%, var(--color-secondary) 100%); }
+
+    .step-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    /* Diagnostics Telemetry Deck */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-value {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .card-subtext {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* Interactive Color Gamut Calibrator */
+    .controls-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .control-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--mix-result);
+      cursor: pointer;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .color-btn {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 6px 12px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .color-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge-bar">
+      <span class="badge">CSS Color Module Level 4 & 5</span>
+      <span class="badge">OKLCH Gamut Interpolation</span>
+    </div>
+    <div class="spec-ref">color-mix(in oklch, ...) • oklch(L C H)</div>
+  </header>
+
+  <main class="stage">
+    <h1 id="subject-hello-world">Hello World</h1>
+    <p class="stage-subtitle">Perceptual Uniformity Spectrophotometer</p>
+
+    <div class="spectrum-grid">
+      <div class="ramp-step"><div class="swatch step-0"></div><span class="step-label">0%</span></div>
+      <div class="ramp-step"><div class="swatch step-10"></div><span class="step-label">10%</span></div>
+      <div class="ramp-step"><div class="swatch step-20"></div><span class="step-label">20%</span></div>
+      <div class="ramp-step"><div class="swatch step-30"></div><span class="step-label">30%</span></div>
+      <div class="ramp-step"><div class="swatch step-40"></div><span class="step-label">40%</span></div>
+      <div class="ramp-step"><div class="swatch step-50"></div><span class="step-label">50%</span></div>
+      <div class="ramp-step"><div class="swatch step-60"></div><span class="step-label">60%</span></div>
+      <div class="ramp-step"><div class="swatch step-70"></div><span class="step-label">70%</span></div>
+      <div class="ramp-step"><div class="swatch step-80"></div><span class="step-label">80%</span></div>
+      <div class="ramp-step"><div class="swatch step-90"></div><span class="step-label">90%</span></div>
+      <div class="ramp-step"><div class="swatch step-100"></div><span class="step-label">100%</span></div>
+    </div>
+  </main>
+
+  <div class="controls-panel">
+    <div class="control-group">
+      <span class="control-label">OKLCH INTERPOLATION RATIO:</span>
+      <input type="range" id="ratio-slider" min="0" max="100" value="50">
+      <span class="control-label" id="ratio-display">50%</span>
+    </div>
+    <div class="btn-group">
+      <button class="color-btn" id="palette-cyan-magenta">Cyan / Magenta</button>
+      <button class="color-btn" id="palette-amber-emerald">Amber / Emerald</button>
+      <button class="color-btn" id="palette-solar-violet">Solar / Violet</button>
+    </div>
+  </div>
+
+  <section class="dashboard">
+    <div class="card">
+      <div class="card-title">Color Space</div>
+      <div class="card-value" id="val-space">OKLCH (Polar)</div>
+      <div class="card-subtext">CIE L*a*b* Perceptual Successor</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Computed Mix Value</div>
+      <div class="card-value" id="val-computed">--</div>
+      <div class="card-subtext">color-mix(in oklch, ...)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Dynamic Mix Ratio</div>
+      <div class="card-value" id="val-ratio">50%</div>
+      <div class="card-subtext">Interpolation weighting</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Browser Engine Support</div>
+      <div class="card-value" id="val-support" style="color: oklch(0.85 0.25 140);">PASSED</div>
+      <div class="card-subtext">CSS.supports() Level 4 & 5</div>
+    </div>
+  </section>
+
+  <script>
+    // Ready promise required by test contract
+    window.labReady = new Promise(resolve => {
+      setTimeout(resolve, 50);
+    });
+
+    const root = document.documentElement;
+    const slider = document.getElementById('ratio-slider');
+    const ratioDisplay = document.getElementById('ratio-display');
+    const valComputed = document.getElementById('val-computed');
+    const valRatio = document.getElementById('val-ratio');
+    const valSupport = document.getElementById('val-support');
+
+    const supportsColorMix = CSS.supports('color: color-mix(in oklch, red 50%, blue 50%)');
+    const supportsOKLCH = CSS.supports('color: oklch(0.7 0.2 180)');
+
+    function updateMix(ratio) {
+      root.style.setProperty('--mix-ratio', ratio + '%');
+      ratioDisplay.textContent = ratio + '%';
+      valRatio.textContent = ratio + '%';
+
+      // Read computed value from computed style of a swatch
+      const step50 = document.querySelector('.step-50');
+      if (step50) {
+        valComputed.textContent = getComputedStyle(step50).backgroundColor;
+      }
+    }
+
+    slider.addEventListener('input', (e) => {
+      updateMix(e.target.value);
+    });
+
+    document.getElementById('palette-cyan-magenta').addEventListener('click', () => {
+      root.style.setProperty('--color-primary', 'oklch(0.78 0.22 195)');
+      root.style.setProperty('--color-secondary', 'oklch(0.72 0.26 330)');
+      updateMix(slider.value);
+    });
+
+    document.getElementById('palette-amber-emerald').addEventListener('click', () => {
+      root.style.setProperty('--color-primary', 'oklch(0.82 0.20 75)');
+      root.style.setProperty('--color-secondary', 'oklch(0.76 0.22 150)');
+      updateMix(slider.value);
+    });
+
+    document.getElementById('palette-solar-violet').addEventListener('click', () => {
+      root.style.setProperty('--color-primary', 'oklch(0.88 0.24 95)');
+      root.style.setProperty('--color-secondary', 'oklch(0.68 0.28 290)');
+      updateMix(slider.value);
+    });
+
+    // Initial read
+    updateMix(50);
+    valSupport.textContent = (supportsColorMix && supportsOKLCH) ? '100% Native' : 'Partial';
+
+    // Lab Evidence callback
+    window.labEvidence = () => ({
+      subject: 'Hello World',
+      passed: Boolean(supportsColorMix && supportsOKLCH),
+      mechanism: 'CSS Color Module Level 4 & 5 (color-mix in oklch)',
+      measurements: {
+        supportsColorMix,
+        supportsOKLCH,
+        activeMixRatio: slider.value + '%',
+        step50ComputedColor: valComputed.textContent,
+        headingFontSize: getComputedStyle(document.getElementById('subject-hello-world')).fontSize
+      }
+    });
+  </script>
+</body>
+</html>

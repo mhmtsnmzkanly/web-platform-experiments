@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 039: W3C Web Locks API Distributed Mutex Coordinator</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #060a12;
+      color: #e2e8f0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 24px;
+      gap: 16px;
+      user-select: none;
+    }
+
+    /* Top Arbiter Header */
+    .arbiter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0d1322;
+      border: 1px solid #1a243b;
+      border-left: 4px solid #10b981;
+      padding: 10px 18px;
+      border-radius: 4px;
+    }
+
+    .arbiter-header .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand .label {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .brand .title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #34d399;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-strip {
+      display: flex;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 3px;
+      background: #151e33;
+      color: #94a3b8;
+      border: 1px solid #22304e;
+    }
+
+    .badge.emerald {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: #059669;
+      font-weight: 700;
+    }
+
+    .badge.amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border-color: #d97706;
+    }
+
+    .badge.cyan {
+      background: rgba(6, 182, 212, 0.15);
+      color: #38bdf8;
+      border-color: #0284c7;
+    }
+
+    /* Proscenium Stage */
+    .proscenium-stage {
+      background: radial-gradient(circle at center, #0f1c30 0%, #070d18 100%);
+      border: 1px solid #1a243b;
+      border-radius: 6px;
+      padding: 26px 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .proscenium-stage::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px dashed rgba(16, 185, 129, 0.25);
+      pointer-events: none;
+      border-radius: 4px;
+    }
+
+    .mutex-corner {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: #10b981;
+      border-style: solid;
+      pointer-events: none;
+    }
+    .mutex-corner.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+    .mutex-corner.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+    .mutex-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+    .mutex-corner.br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+    main {
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    #subject-hello-world {
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #f8fafc;
+      text-shadow: 0 0 24px rgba(16, 185, 129, 0.5), 0 0 4px #34d399;
+      margin-bottom: 8px;
+      display: inline-block;
+      line-height: 1.1;
+    }
+
+    .stage-meta {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 6px;
+      font-size: 0.72rem;
+    }
+
+    .meta-chip {
+      display: flex;
+      gap: 6px;
+      background: rgba(13, 20, 36, 0.8);
+      padding: 4px 10px;
+      border-radius: 3px;
+      border: 1px solid #1e2c47;
+    }
+
+    .meta-chip .chip-label {
+      color: #64748b;
+    }
+
+    .meta-chip .chip-val {
+      color: #34d399;
+      font-weight: 700;
+    }
+
+    .meta-chip .chip-val.gold {
+      color: #fbbf24;
+    }
+
+    /* Lock Contention Visualizer */
+    .contention-strip {
+      background: #0a0f1d;
+      border: 1px solid #1a243b;
+      border-radius: 4px;
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .strip-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #94a3b8;
+    }
+
+    .strip-bars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .bar-track {
+      background: #050811;
+      border: 1px solid #1a243b;
+      border-radius: 3px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .bar-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.68rem;
+    }
+
+    .bar-title {
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+
+    .bar-status {
+      font-weight: 700;
+      font-size: 0.62rem;
+      padding: 1px 5px;
+      border-radius: 2px;
+    }
+    .bar-status.held {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+    }
+    .bar-status.pending {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
+
+    .progress-line {
+      height: 4px;
+      border-radius: 2px;
+      background: #1e293b;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      border-radius: 2px;
+    }
+    .progress-fill.emerald { width: 100%; background: #10b981; }
+    .progress-fill.cyan { width: 100%; background: #06b6d4; }
+    .progress-fill.red { width: 45%; background: #ef4444; }
+
+    /* Bottom 3-Card Deck */
+    .deck-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.1fr;
+      gap: 14px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .deck-card {
+      background: #0a0f1d;
+      border: 1px solid #1a243b;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .deck-card-header {
+      background: #111a2f;
+      padding: 8px 14px;
+      border-bottom: 1px solid #1a243b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .deck-card-badge {
+      font-size: 0.62rem;
+      padding: 2px 6px;
+      border-radius: 2px;
+      background: #050811;
+      color: #34d399;
+      border: 1px solid #1a243b;
+    }
+
+    .deck-card-body {
+      padding: 10px 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.72rem;
+    }
+
+    .table-registry {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.68rem;
+    }
+
+    .table-registry th {
+      text-align: left;
+      color: #64748b;
+      padding: 4px 6px;
+      border-bottom: 1px solid #1a243b;
+      font-weight: 600;
+    }
+
+    .table-registry td {
+      padding: 5px 6px;
+      border-bottom: 1px solid #0f172a;
+      color: #cbd5e1;
+    }
+
+    .table-registry tr:last-child td {
+      border-bottom: none;
+    }
+
+    .table-registry .mode-exclusive {
+      color: #fbbf24;
+      font-weight: 600;
+    }
+
+    .table-registry .mode-shared {
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      background: #060912;
+      border: 1px solid #141c2e;
+      border-radius: 3px;
+    }
+
+    .metric-row .name {
+      color: #94a3b8;
+    }
+
+    .metric-row .val {
+      color: #34d399;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Arbiter Header -->
+  <header class="arbiter-header">
+    <div class="brand">
+      <span class="label">Browser Concurrency Arbiter</span>
+      <span class="title">W3C Web Locks API Kernel MK-XXXIX</span>
+    </div>
+    <div class="badge-strip">
+      <span class="badge emerald" id="badge-held-count">HELD: 2</span>
+      <span class="badge amber" id="badge-pending-count">PENDING: 1</span>
+      <span class="badge cyan">ORIGIN: SECURE_CONTEXT</span>
+    </div>
+  </header>
+
+  <!-- Proscenium Stage -->
+  <section class="proscenium-stage">
+    <div class="mutex-corner tl"></div>
+    <div class="mutex-corner tr"></div>
+    <div class="mutex-corner bl"></div>
+    <div class="mutex-corner br"></div>
+
+    <main>
+      <h1 id="subject-hello-world">Hello World</h1>
+    </main>
+
+    <div class="stage-meta">
+      <div class="meta-chip">
+        <span class="chip-label">MUTEX_RESOURCE:</span>
+        <span class="chip-val">res:subject-hello-world</span>
+      </div>
+      <div class="meta-chip">
+        <span class="chip-label">MODE:</span>
+        <span class="chip-val gold">EXCLUSIVE</span>
+      </div>
+      <div class="meta-chip">
+        <span class="chip-label">STATUS:</span>
+        <span class="chip-val">ACQUIRED &amp; HELD</span>
+      </div>
+      <div class="meta-chip">
+        <span class="chip-label">CLIENT_ID:</span>
+        <span class="chip-val" id="val-client-id">LOC-001</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lock Contention Visualizer -->
+  <section class="contention-strip">
+    <div class="strip-header">
+      <span>Transaction Lock Descriptors &amp; State Channels</span>
+      <span>REAL-TIME ARBITRATION QUEUE</span>
+    </div>
+    <div class="strip-bars">
+      <div class="bar-track">
+        <div class="bar-label-row">
+          <span class="bar-title">res:subject-hello-world (T1)</span>
+          <span class="bar-status held">HELD [EXCLUSIVE]</span>
+        </div>
+        <div class="progress-line">
+          <div class="progress-fill emerald"></div>
+        </div>
+      </div>
+      <div class="bar-track">
+        <div class="bar-label-row">
+          <span class="bar-title">res:telemetry-reader (T2)</span>
+          <span class="bar-status held">HELD [SHARED]</span>
+        </div>
+        <div class="progress-line">
+          <div class="progress-fill cyan"></div>
+        </div>
+      </div>
+      <div class="bar-track">
+        <div class="bar-label-row">
+          <span class="bar-title">res:subject-hello-world (T3)</span>
+          <span class="bar-status pending">PENDING [EXCLUSIVE]</span>
+        </div>
+        <div class="progress-line">
+          <div class="progress-fill red"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom 3-Card Deck -->
+  <div class="deck-grid">
+    <!-- Card 1: Active Held Locks -->
+    <div class="deck-card">
+      <div class="deck-card-header">
+        <span>Active Held Locks</span>
+        <span class="deck-card-badge" id="card-held-tag">2 LOCKS</span>
+      </div>
+      <div class="deck-card-body">
+        <table class="table-registry">
+          <thead>
+            <tr>
+              <th>Resource Name</th>
+              <th>Mode</th>
+              <th>Client ID</th>
+            </tr>
+          </thead>
+          <tbody id="table-held-body">
+            <!-- Dynamically populated via navigator.locks.query() -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Card 2: Pending Lock Queue -->
+    <div class="deck-card">
+      <div class="deck-card-header">
+        <span>Pending Queue</span>
+        <span class="deck-card-badge" style="color: #f87171;" id="card-pending-tag">1 QUEUED</span>
+      </div>
+      <div class="deck-card-body">
+        <table class="table-registry">
+          <thead>
+            <tr>
+              <th>Resource Name</th>
+              <th>Mode</th>
+              <th>State</th>
+            </tr>
+          </thead>
+          <tbody id="table-pending-body">
+            <!-- Dynamically populated via navigator.locks.query() -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Card 3: Arbiter Telemetry -->
+    <div class="deck-card">
+      <div class="deck-card-header">
+        <span>Arbiter Telemetry</span>
+        <span class="deck-card-badge" style="color: #38bdf8;">QUERY SNAPSHOT</span>
+      </div>
+      <div class="deck-card-body">
+        <div class="metric-row">
+          <span class="name">API Availability</span>
+          <span class="val" id="val-api-supported">navigator.locks OK</span>
+        </div>
+        <div class="metric-row">
+          <span class="name">Mutex Acquisition Latency</span>
+          <span class="val" id="val-acquire-time">0.12 ms</span>
+        </div>
+        <div class="metric-row">
+          <span class="name">Total Locks Managed</span>
+          <span class="val" id="val-total-locks">3</span>
+        </div>
+        <div class="metric-row">
+          <span class="name">Contention Prevention</span>
+          <span class="val" style="color: #fbbf24;">FIFO Ordering</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let releasePrimaryMutex;
+    const primaryLockAcquired = new Promise(resolve => {
+      // Setup resolver for primary lock
+      window.__resolvePrimary = resolve;
+    });
+
+    const primaryLockHold = new Promise(resolve => {
+      releasePrimaryMutex = resolve;
+    });
+
+    let primaryStartTime = performance.now();
+    let primaryAcquireLatency = 0;
+
+    async function initLocks() {
+      if (!('locks' in navigator)) {
+        document.getElementById('val-api-supported').textContent = 'NOT SUPPORTED';
+        return;
+      }
+
+      // 1. Acquire primary exclusive mutex for typographic subject
+      navigator.locks.request('res:subject-hello-world', { mode: 'exclusive' }, async (lock) => {
+        primaryAcquireLatency = performance.now() - primaryStartTime;
+        window.__resolvePrimary(lock);
+        await primaryLockHold;
+      });
+
+      // 2. Acquire a secondary shared lock
+      navigator.locks.request('res:telemetry-reader', { mode: 'shared' }, async (lock) => {
+        await primaryLockHold;
+      });
+
+      // Wait until primary lock is actively held
+      const activeLock = await primaryLockAcquired;
+
+      // 3. Request a conflicting exclusive lock to place in pending queue
+      navigator.locks.request('res:subject-hello-world', { mode: 'exclusive' }, async (lock) => {
+        // Will remain pending until primaryLockHold is resolved
+      });
+
+      // Allow microtask queue to process contention
+      await new Promise(r => setTimeout(r, 40));
+
+      // 4. Query arbiter state
+      const snapshot = await navigator.locks.query();
+
+      renderSnapshot(snapshot, activeLock);
+    }
+
+    function renderSnapshot(snapshot, activeLock) {
+      const heldTable = document.getElementById('table-held-body');
+      const pendingTable = document.getElementById('table-pending-body');
+
+      if (heldTable) {
+        heldTable.innerHTML = '';
+        for (const lock of snapshot.held || []) {
+          const tr = document.createElement('tr');
+          const modeCls = lock.mode === 'exclusive' ? 'mode-exclusive' : 'mode-shared';
+          tr.innerHTML = `<td>${lock.name}</td><td class="${modeCls}">${lock.mode.toUpperCase()}</td><td>${(lock.clientId || 'local').slice(0, 10)}</td>`;
+          heldTable.appendChild(tr);
+        }
+      }
+
+      if (pendingTable) {
+        pendingTable.innerHTML = '';
+        for (const lock of snapshot.pending || []) {
+          const tr = document.createElement('tr');
+          const modeCls = lock.mode === 'exclusive' ? 'mode-exclusive' : 'mode-shared';
+          tr.innerHTML = `<td>${lock.name}</td><td class="${modeCls}">${lock.mode.toUpperCase()}</td><td style="color: #f87171;">WAITING</td>`;
+          pendingTable.appendChild(tr);
+        }
+      }
+
+      const heldCount = snapshot.held ? snapshot.held.length : 0;
+      const pendingCount = snapshot.pending ? snapshot.pending.length : 0;
+
+      document.getElementById('badge-held-count').textContent = `HELD: ${heldCount}`;
+      document.getElementById('badge-pending-count').textContent = `PENDING: ${pendingCount}`;
+      document.getElementById('card-held-tag').textContent = `${heldCount} LOCKS`;
+      document.getElementById('card-pending-tag').textContent = `${pendingCount} QUEUED`;
+
+      document.getElementById('val-acquire-time').textContent = `${primaryAcquireLatency.toFixed(2)} ms`;
+      document.getElementById('val-total-locks').textContent = String(heldCount + pendingCount);
+
+      if (activeLock && activeLock.clientId) {
+        document.getElementById('val-client-id').textContent = activeLock.clientId.slice(0, 12);
+      }
+    }
+
+    window.labReady = initLocks().then(async () => {
+      const snapshot = await navigator.locks.query();
+      window.labEvidence = () => ({
+        subject: "Hello World",
+        passed: (snapshot.held && snapshot.held.length >= 2),
+        mechanism: "W3C Web Locks API (navigator.locks.request, navigator.locks.query, exclusive/shared modes)",
+        measurements: {
+          heldLocksCount: snapshot.held?.length ?? 0,
+          pendingLocksCount: snapshot.pending?.length ?? 0,
+          primaryMutexAcquired: (snapshot.held || []).some(l => l.name === 'res:subject-hello-world' && l.mode === 'exclusive'),
+          sharedReaderAcquired: (snapshot.held || []).some(l => l.name === 'res:telemetry-reader' && l.mode === 'shared'),
+          contentionQueued: (snapshot.pending || []).some(l => l.name === 'res:subject-hello-world'),
+          acquireLatencyMs: primaryAcquireLatency
+        }
+      });
+      return true;
+    });
+  </script>
+</body>
+</html>

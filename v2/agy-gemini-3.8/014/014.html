@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Shadow DOM & Constructable Stylesheets</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-dark: #05080c;
+      --panel-bg: #090e15;
+      --border-line: #162436;
+      --neon-cyan: #00f2fe;
+      --neon-blue: #0072ff;
+      --warning-amber: #ffaa00;
+      --text-dim: #5c708a;
+      --text-bright: #e2eaf5;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(ellipse at 50% 30%, rgba(0, 242, 254, 0.08) 0%, transparent 65%),
+        linear-gradient(180deg, #040609 0%, #080c14 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-bright);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    .cleanroom-terminal {
+      width: 1180px;
+      height: 720px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-line);
+      border-radius: 12px;
+      box-shadow: 
+        0 25px 60px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(0, 242, 254, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 32px;
+      gap: 20px;
+      position: relative;
+    }
+
+    /* Terminal Header */
+    .terminal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-line);
+      font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .status-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pulse-emitter {
+      width: 8px;
+      height: 8px;
+      background: var(--neon-cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+
+    .header-title {
+      color: var(--neon-cyan);
+      font-weight: 600;
+    }
+
+    .header-specs {
+      color: var(--text-dim);
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Capsule Container Layout */
+    .chamber-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* External styling accessing Shadow DOM via ::part() */
+    specimen-capsule::part(capsule-heading) {
+      letter-spacing: 0.14em;
+      filter: drop-shadow(0 0 16px rgba(0, 242, 254, 0.7));
+    }
+
+    /* Terminal Telemetry Deck */
+    .terminal-footer {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-line);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+    }
+
+    .telemetry-card {
+      background: rgba(14, 22, 33, 0.6);
+      border: 1px solid rgba(22, 36, 54, 0.8);
+      border-radius: 6px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .telemetry-label {
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .telemetry-val {
+      color: var(--neon-cyan);
+      font-weight: 700;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <main class="cleanroom-terminal" role="main">
+    <header class="terminal-header">
+      <div class="status-group">
+        <span class="pulse-emitter"></span>
+        <span class="header-title">Shadow Isolation Chamber // Mk-14</span>
+      </div>
+      <div class="header-specs">
+        <span>ARCH: SHADOW DOM V1</span>
+        <span>ENGINE: CONSTRUCTABLE STYLESHEETS</span>
+        <span>SCOPED BOUNDARY: SEALED</span>
+      </div>
+    </header>
+
+    <section class="chamber-stage" aria-label="Cryogenic Specimen Chamber">
+      <!-- Custom Element with Encapsulated Shadow DOM -->
+      <specimen-capsule id="cryo-capsule"></specimen-capsule>
+    </section>
+
+    <footer class="terminal-footer">
+      <div class="telemetry-card">
+        <span class="telemetry-label">Boundary Root</span>
+        <span class="telemetry-val" id="root-status">SHADOW ROOT (OPEN)</span>
+      </div>
+      <div class="telemetry-card">
+        <span class="telemetry-label">Adopted Stylesheets</span>
+        <span class="telemetry-val" id="sheets-status">2 ACTIVE SHEETS</span>
+      </div>
+      <div class="telemetry-card">
+        <span class="telemetry-label">Part Interface</span>
+        <span class="telemetry-val">::part(capsule-heading)</span>
+      </div>
+      <div class="telemetry-card">
+        <span class="telemetry-label">Containment Integrity</span>
+        <span class="telemetry-val">100% NOMINAL</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // 1. Create Constructable Stylesheet for Custom Element
+    const capsuleStyleSheet = new CSSStyleSheet();
+    capsuleStyleSheet.replaceSync(`
+      :host {
+        display: block;
+        width: 100%;
+        max-width: 1000px;
+      }
+
+      .capsule-hull {
+        position: relative;
+        background: radial-gradient(circle at 50% 50%, #0d1624 0%, #060a10 85%);
+        border: 2px solid rgba(0, 242, 254, 0.4);
+        border-radius: 14px;
+        padding: 50px 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 
+          0 0 60px rgba(0, 242, 254, 0.12),
+          inset 0 0 50px rgba(0, 242, 254, 0.08);
+        overflow: hidden;
+      }
+
+      /* Horizontal laser containment bands */
+      .laser-barrier {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent 5%, rgba(0, 242, 254, 0.8) 50%, transparent 95%);
+        box-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+      }
+      .barrier-top { top: 24px; }
+      .barrier-bottom { bottom: 24px; }
+
+      .specimen-tag {
+        font-family: ui-monospace, "SF Mono", monospace;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: #00f2fe;
+        background: rgba(0, 242, 254, 0.1);
+        border: 1px solid rgba(0, 242, 254, 0.3);
+        padding: 4px 14px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+      }
+
+      /* Encapsulated Subject Headline */
+      .capsule-title {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        font-size: 64px;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: #ffffff;
+        text-align: center;
+        line-height: 1.1;
+        margin: 10px 0 24px;
+        text-shadow: 
+          0 0 10px rgba(255, 255, 255, 0.9),
+          0 0 25px rgba(0, 242, 254, 0.7),
+          0 0 50px rgba(0, 114, 255, 0.4);
+      }
+
+      .containment-metrics {
+        display: flex;
+        gap: 32px;
+        font-family: ui-monospace, "SF Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.15em;
+        color: #7b94ad;
+        text-transform: uppercase;
+      }
+
+      .metric-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .metric-dot {
+        width: 6px;
+        height: 6px;
+        background: #00ffaa;
+        border-radius: 50%;
+        box-shadow: 0 0 6px #00ffaa;
+      }
+    `);
+
+    // 2. Define Autonomous Custom Element
+    class SpecimenCapsule extends HTMLElement {
+      constructor() {
+        super();
+        const shadow = this.attachShadow({ mode: 'open' });
+        shadow.adoptedStyleSheets = [capsuleStyleSheet];
+
+        shadow.innerHTML = `
+          <div class="capsule-hull" part="hull">
+            <div class="laser-barrier barrier-top"></div>
+            <div class="specimen-tag" part="tag">ISOLATED SPECIMEN // CLASS-A</div>
+            <h1 class="capsule-title" part="capsule-heading">Hello World</h1>
+            <div class="containment-metrics">
+              <div class="metric-badge">
+                <span class="metric-dot"></span>
+                <span>ENCAPSULATION: SHADOW ROOT</span>
+              </div>
+              <div class="metric-badge">
+                <span class="metric-dot"></span>
+                <span>CONSTRUCTABLE STYLESHEET: LINKED</span>
+              </div>
+              <div class="metric-badge">
+                <span class="metric-dot"></span>
+                <span>CSS SCOPE LEAKAGE: 0.00%</span>
+              </div>
+            </div>
+            <div class="laser-barrier barrier-bottom"></div>
+          </div>
+        `;
+      }
+    }
+
+    customElements.define('specimen-capsule', SpecimenCapsule);
+
+    // 3. Adopt Constructable Stylesheet at Document Level as well
+    const docSheet = new CSSStyleSheet();
+    docSheet.replaceSync(`
+      specimen-capsule {
+        filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.8));
+      }
+    `);
+    document.adoptedStyleSheets = [docSheet];
+
+    // 4. Lab Evidence Hook for Verification
+    window.labEvidence = () => {
+      const capsule = document.getElementById('cryo-capsule');
+      const shadow = capsule?.shadowRoot;
+      const h1 = shadow?.querySelector('h1.capsule-title');
+
+      return {
+        subject: "Hello World",
+        passed: !!(shadow && h1 && shadow.adoptedStyleSheets.length === 1 && document.adoptedStyleSheets.length === 1),
+        mechanism: "Autonomous Custom Element + Shadow DOM v1 + Constructable Stylesheets (adoptedStyleSheets) + CSS ::part styling",
+        measurements: {
+          customElementDefined: !!customElements.get('specimen-capsule'),
+          hasShadowRoot: !!shadow,
+          shadowMode: shadow?.mode,
+          shadowAdoptedSheets: shadow?.adoptedStyleSheets.length,
+          documentAdoptedSheets: document.adoptedStyleSheets.length,
+          encapsulatedText: h1?.textContent.trim()
+        }
+      };
+    };
+  </script>
+</body>
+</html>

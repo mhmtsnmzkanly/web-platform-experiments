@@ -1,0 +1,8 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Measured Arc</title><style>body{margin:0;background:#e3e5df}main{height:100vh;display:grid;place-items:center}svg{width:1180px;max-width:96vw}text{font:76px Georgia;fill:#925839;text-anchor:middle}path{stroke:#92583944;stroke-width:1;fill:none}</style></head><body><main><svg viewBox="0 0 1180 650" role="img" aria-label="Hello World with individually measured path tangents"><path id="arc" d="M100 450 C300 80 880 80 1080 450"/></svg></main><script>
+const path=document.querySelector('path'),svg=document.querySelector('svg'),length=path.getTotalLength(),positions=[];
+// Arc-length sampling gives equal travel intervals, not equal parameter t.
+// A small symmetric distance difference estimates the local orientation.
+[...'Hello World'].forEach((char,i)=>{const distance=length*(.05+i*.09),point=path.getPointAtLength(distance),before=path.getPointAtLength(distance-1),after=path.getPointAtLength(distance+1),angle=Math.atan2(after.y-before.y,after.x-before.x)*180/Math.PI;
+const glyph=document.createElementNS(svg.namespaceURI,'text');glyph.setAttribute('transform',`translate(${point.x} ${point.y}) rotate(${angle})`);glyph.textContent=char;svg.append(glyph);positions.push({distance,x:point.x,y:point.y,angle})});
+window.labEvidence=()=>({subject:'Hello World',passed:length>1000&&positions.length===11&&positions[0].angle<-30&&positions[10].angle>30&&Math.abs(positions[5].angle)<1&&svg.querySelectorAll('text').length===11,mechanism:'SVG arc length -> sampled points/tangents -> oriented greeting glyphs',measurements:{length,positions}});
+</script></body></html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Pointer Events & Pointer Capture Caliper</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bench-dark: #0a0e17;
+      --bench-surface: #101624;
+      --steel-base: #1e293b;
+      --steel-bright: #cbd5e1;
+      --steel-beam: #334155;
+      --amber-laser: #f59e0b;
+      --ruby-red: #ef4444;
+      --emerald-ok: #10b981;
+      --text-white: #f8fafc;
+      --text-muted: #64748b;
+      --border-gauge: #28354d;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--bench-dark);
+      background-image: 
+        radial-gradient(ellipse at 50% 15%, rgba(245, 158, 11, 0.08) 0%, transparent 60%),
+        linear-gradient(180deg, #070a12 0%, #0d121f 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    /* Caliper Metrology Workbench */
+    .caliper-workbench {
+      width: 1180px;
+      height: 720px;
+      background: var(--bench-surface);
+      border: 1px solid var(--border-gauge);
+      border-radius: 10px;
+      box-shadow: 
+        0 25px 60px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        inset 0 0 80px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 36px;
+      gap: 18px;
+      position: relative;
+    }
+
+    /* Workbench Header */
+    .bench-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-gauge);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .header-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--amber-laser);
+      font-weight: 700;
+    }
+
+    .ruby-indicator {
+      width: 8px;
+      height: 8px;
+      background: var(--ruby-red);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--ruby-red);
+    }
+
+    .header-meta {
+      color: var(--text-muted);
+      display: flex;
+      gap: 24px;
+    }
+
+    /* Primary Heading Stage (Subject Anchor) */
+    .headline-stage {
+      background: rgba(14, 21, 35, 0.9);
+      border: 1px solid var(--border-gauge);
+      border-radius: 8px;
+      padding: 24px 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .headline-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .caliper-tag {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--amber-laser);
+    }
+
+    .caliper-title {
+      font-family: "Didot", "Bodoni MT", "Playfair Display", "Georgia", serif;
+      font-size: 58px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #ffffff;
+      line-height: 1;
+      text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+    }
+
+    .caliper-digital-readout {
+      background: #060911;
+      border: 2px solid var(--border-gauge);
+      border-radius: 6px;
+      padding: 10px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      min-width: 170px;
+    }
+
+    .readout-label {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .readout-value {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--amber-laser);
+      letter-spacing: 0.1em;
+    }
+
+    /* Main Caliper Scale & Vernier Jaw Mechanism */
+    .caliper-mechanism-track {
+      flex: 1;
+      position: relative;
+      background: #090e18;
+      border: 1px solid var(--border-gauge);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px 40px;
+      overflow: hidden;
+    }
+
+    /* Fixed Steel Beam Scale */
+    .steel-beam {
+      width: 100%;
+      height: 110px;
+      background: linear-gradient(180deg, #2b3548 0%, #1a2233 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      position: relative;
+      box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.1),
+        0 8px 25px rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: flex-end;
+      padding: 0 20px 10px;
+    }
+
+    /* Scale Millimeter Markings */
+    .beam-graduations {
+      width: 100%;
+      height: 36px;
+      background-image: 
+        repeating-linear-gradient(90deg, #94a3b8 0px, #94a3b8 1px, transparent 1px, transparent 10px),
+        repeating-linear-gradient(90deg, #cbd5e1 0px, #cbd5e1 2px, transparent 2px, transparent 50px);
+      background-size: 100% 18px, 100% 36px;
+      background-repeat: no-repeat;
+      background-position: bottom;
+    }
+
+    .scale-legend {
+      position: absolute;
+      top: 12px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.1em;
+    }
+
+    /* Movable Vernier Slider Jaw */
+    .vernier-slider {
+      position: absolute;
+      top: 35px;
+      left: 60px;
+      width: 160px;
+      height: 170px;
+      background: linear-gradient(135deg, #3d4a61 0%, #202838 100%);
+      border: 2px solid var(--amber-laser);
+      border-radius: 8px;
+      box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.8),
+        0 0 25px rgba(245, 158, 11, 0.3);
+      cursor: grab;
+      touch-action: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
+      z-index: 20;
+      transition: box-shadow 0.2s ease;
+    }
+
+    .vernier-slider:active {
+      cursor: grabbing;
+      box-shadow: 
+        0 20px 45px rgba(0, 0, 0, 0.9),
+        0 0 35px rgba(245, 158, 11, 0.6);
+    }
+
+    .slider-handle-ribs {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .grip-rib {
+      width: 36px;
+      height: 2px;
+      background: var(--amber-laser);
+      border-radius: 1px;
+    }
+
+    .slider-vernier-window {
+      background: rgba(10, 14, 23, 0.9);
+      border: 1px solid var(--border-gauge);
+      border-radius: 4px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .vernier-index-line {
+      position: absolute;
+      width: 2px;
+      height: 100%;
+      background: var(--ruby-red);
+      box-shadow: 0 0 8px var(--ruby-red);
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .vernier-tag {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 8px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--amber-laser);
+      text-align: center;
+    }
+
+    /* Workbench Footer */
+    .bench-footer {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-gauge);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+    }
+
+    .footer-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .cell-label {
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .cell-val {
+      color: var(--amber-laser);
+      font-weight: 700;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <main class="caliper-workbench" role="main">
+    <header class="bench-header">
+      <div class="header-badge">
+        <span class="ruby-indicator"></span>
+        <span>Precision Vernier Gauge // Plate 020</span>
+      </div>
+      <div class="header-meta">
+        <span>SPEC: POINTER EVENTS LEVEL 3</span>
+        <span>METHOD: SETPOINTERCAPTURE</span>
+        <span>TOLERANCE: &plusmn;0.02 MM</span>
+      </div>
+    </header>
+
+    <section class="headline-stage" aria-label="Metrology Measurement Specimen">
+      <div class="headline-left">
+        <span class="caliper-tag">Precision Optical Benchmark</span>
+        <h1 class="caliper-title" id="specimen-headline">Hello World</h1>
+      </div>
+      <div class="caliper-digital-readout">
+        <span class="readout-label">Displacement</span>
+        <span class="readout-value" id="digital-mm">00.00 mm</span>
+      </div>
+    </section>
+
+    <div class="caliper-mechanism-track" aria-label="Vernier Scale Slide Bed">
+      <!-- Fixed Steel Scale Beam -->
+      <div class="steel-beam">
+        <div class="scale-legend">
+          <span>0 mm</span>
+          <span>25 mm</span>
+          <span>50 mm</span>
+          <span>75 mm</span>
+          <span>100 mm</span>
+        </div>
+        <div class="beam-graduations"></div>
+      </div>
+
+      <!-- Draggable Vernier Slider Jaw with Hardware Pointer Capture -->
+      <div id="vernier-slider" class="vernier-slider" role="slider" aria-label="Movable Vernier Jaw" tabindex="0">
+        <div class="slider-handle-ribs">
+          <div class="grip-rib"></div>
+          <div class="grip-rib"></div>
+          <div class="grip-rib"></div>
+        </div>
+        <div class="slider-vernier-window">
+          <div class="vernier-index-line"></div>
+        </div>
+        <span class="vernier-tag">DRAG SLIDER</span>
+      </div>
+    </div>
+
+    <footer class="bench-footer">
+      <div class="footer-cell">
+        <span class="cell-label">Pointer Capture</span>
+        <span class="cell-val" id="stat-capture">STANDBY</span>
+      </div>
+      <div class="footer-cell">
+        <span class="cell-label">Displacement Delta</span>
+        <span class="cell-val" id="stat-displacement">0.0 PX</span>
+      </div>
+      <div class="footer-cell">
+        <span class="cell-label">Metrology Status</span>
+        <span class="cell-val" id="stat-status">UNCALIBRATED</span>
+      </div>
+      <div class="footer-cell">
+        <span class="cell-label">Event Pipeline</span>
+        <span class="cell-val">pointerdown &rarr; setPointerCapture</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const slider = document.getElementById('vernier-slider');
+    const readout = document.getElementById('digital-mm');
+    const statCapture = document.getElementById('stat-capture');
+    const statDisplacement = document.getElementById('stat-displacement');
+    const statStatus = document.getElementById('stat-status');
+
+    let isDragging = false;
+    let startPointerX = 0;
+    let currentTranslateX = 0;
+    let baseTranslateX = 0;
+    let totalMovedDistance = 0;
+    let hasCaptureActive = false;
+
+    slider.addEventListener('pointerdown', (e) => {
+      isDragging = true;
+      startPointerX = e.clientX;
+      baseTranslateX = currentTranslateX;
+      slider.setPointerCapture(e.pointerId);
+      hasCaptureActive = slider.hasPointerCapture(e.pointerId);
+      statCapture.textContent = hasCaptureActive ? `CAPTURED (#${e.pointerId})` : 'FAILED';
+    });
+
+    slider.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const deltaX = e.clientX - startPointerX;
+      currentTranslateX = Math.max(0, Math.min(500, baseTranslateX + deltaX));
+      totalMovedDistance = currentTranslateX;
+
+      slider.style.transform = `translateX(${currentTranslateX}px)`;
+
+      // Convert pixels to millimeters (5 px = 1 mm)
+      const mm = (currentTranslateX / 10).toFixed(2);
+      readout.textContent = `${String(mm).padStart(5, '0')} mm`;
+      statDisplacement.textContent = `${currentTranslateX.toFixed(1)} PX`;
+
+      if (currentTranslateX > 100) {
+        statStatus.textContent = 'CALIBRATED LOCK';
+        statStatus.style.color = 'var(--emerald-ok)';
+      }
+    });
+
+    function endDrag(e) {
+      if (!isDragging) return;
+      if (slider.hasPointerCapture(e.pointerId)) {
+        slider.releasePointerCapture(e.pointerId);
+      }
+      isDragging = false;
+      hasCaptureActive = false;
+      statCapture.textContent = 'RELEASED';
+    }
+
+    slider.addEventListener('pointerup', endDrag);
+    slider.addEventListener('pointercancel', endDrag);
+
+    // CDP Scenario: Drag slider across the scale by 280px
+    window.labScenario = {
+      kind: 'drag',
+      selector: '#vernier-slider',
+      deltaX: 280
+    };
+
+    // Interaction Evidence Hook for Verification
+    window.labInteractionEvidence = () => {
+      return {
+        subject: "Hello World",
+        passed: totalMovedDistance > 150,
+        mechanism: "CDP drag gesture dispatch -> pointerdown hardware pointer capture -> continuous pointermove coordinate translation -> vernier index alignment -> illuminated calibrated Hello World lockup",
+        measurements: {
+          sliderDisplacementPx: totalMovedDistance,
+          calibratedMm: (totalMovedDistance / 10).toFixed(2),
+          sliderStyleTransform: slider.style.transform,
+          caliperTitleText: document.getElementById('specimen-headline').textContent.trim()
+        }
+      };
+    };
+  </script>
+</body>
+</html>

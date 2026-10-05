@@ -1,0 +1,60 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 038: CSS Typed Object Model API Level 1 Algebraic Typography"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 038: CSS Typed Object Model API Level 1 Algebraic Typography"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS Typed Object Model API Level 1 (attributeStyleMap, CSSUnitValue, CSSMathSum, CSSTransformValue)",
+    "measurements": {
+      "attributeStyleMapSize": 3,
+      "computedFontSizePx": 61.119998931884766,
+      "computedLetterSpacingPx": 1.7999999523162842,
+      "fontSizeSumTermsCount": 2,
+      "hasFontSize": true,
+      "hasLetterSpacing": true,
+      "hasTransform": true
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

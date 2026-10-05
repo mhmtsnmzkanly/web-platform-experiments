@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — State Theatre</title>
+  <style>
+    :root { color: #f5e9d2; background: #17131f; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #17131f; }
+    .theatre { position: relative; width: min(94vw, 1180px); min-height: min(84vh, 680px); display: grid; place-items: center; overflow: hidden; border: 1px solid #ff9b71; background: #281d35; }
+    .theatre::before, .theatre::after { position: absolute; top: -16%; width: 34%; height: 140%; background: #ff9b71; opacity: .16; filter: blur(12px); content: ""; transform: rotate(24deg); }
+    .theatre::before { left: 12%; } .theatre::after { right: 12%; transform: rotate(-24deg); }
+    .label, .mode { position: absolute; z-index: 2; margin: 0; color: #ff9b71; font: 11px/1.4 monospace; letter-spacing: .18em; text-transform: uppercase; }
+    .label { top: 26px; left: 30px; } .mode { right: 30px; bottom: 26px; color: #c6b7d6; letter-spacing: .08em; text-transform: none; }
+    h1 { position: relative; z-index: 1; margin: 0; color: #f5e9d2; font-size: clamp(72px, 15vw, 176px); line-height: .8; letter-spacing: -.1em; view-transition-name: greeting; transition: color 300ms ease, transform 300ms ease; }
+    body.settled h1 { color: #8fe0c1; transform: translate(18px, -10px) rotate(-2deg); }
+    body.settled .theatre { background: #1b3040; }
+    ::view-transition-old(greeting), ::view-transition-new(greeting) { animation-duration: 650ms; }
+    .controls { position: absolute; z-index: 2; left: 30px; bottom: 24px; display: flex; gap: 10px; }
+    button { border: 1px solid #ff9b71; padding: 9px 14px; color: #f5e9d2; background: transparent; font: 12px monospace; cursor: pointer; }
+    button:hover, button:focus-visible { color: #281d35; background: #ff9b71; }
+  </style>
+</head>
+<body>
+  <main class="theatre">
+    <p class="label">019R / state theatre / view transition</p>
+    <h1>Hello World</h1>
+    <p class="mode" id="mode">draft state / named snapshot ready</p>
+    <div class="controls"><button id="toggle" type="button">settle the scene</button></div>
+  </main>
+  <script>
+    const toggle = document.querySelector('#toggle');
+    const mode = document.querySelector('#mode');
+    function transitionScene() {
+      const update = () => {
+        const settled = document.body.classList.toggle('settled');
+        toggle.textContent = settled ? 'return to draft' : 'settle the scene';
+        mode.textContent = settled ? 'settled state / native interpolation' : 'draft state / named snapshot ready';
+      };
+      if (document.startViewTransition) document.startViewTransition(update);
+      else update();
+    }
+    toggle.addEventListener('click', transitionScene);
+  </script>
+</body>
+</html>

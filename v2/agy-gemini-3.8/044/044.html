@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 044: W3C Selection API Level 1 Typographic Caliper</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #090d16;
+      --card-bg: #0f172a;
+      --border: #1e293b;
+      --text: #f8fafc;
+      --text-dim: #94a3b8;
+      --cyan: #06b6d4;
+      --cyan-bright: #22d3ee;
+      --selection-bg: #06b6d4;
+      --selection-color: #030712;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --font-display: "Cabinet Grotesk", system-ui, -apple-system, sans-serif;
+    }
+
+    /* Native CSS Selection Pseudo-Element */
+    ::selection {
+      background: var(--selection-bg);
+      color: var(--selection-color);
+      text-shadow: none;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-display);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+    }
+
+    .workbench-container {
+      width: 100%;
+      max-width: 1040px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Top Metrology Bar */
+    .metrology-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .spec-indicator {
+      color: var(--cyan-bright);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .caliper-coords {
+      color: var(--text-dim);
+    }
+
+    /* Proscenium Typographic Inspection Stage */
+    .proscenium-stage {
+      position: relative;
+      background: radial-gradient(circle at 50% 50%, #172554 0%, #0c1222 100%);
+      border: 1px solid #1e3a8a;
+      border-radius: 12px;
+      padding: 64px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px rgba(6, 182, 212, 0.12);
+      overflow: hidden;
+    }
+
+    /* Graticule Background Grid */
+    .graticule-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* Primary Typographic Landmark */
+    .subject-wrapper {
+      position: relative;
+      display: inline-block;
+      user-select: text;
+    }
+
+    #subject-hello-world {
+      font-size: 72px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: #ffffff;
+      text-align: center;
+      white-space: nowrap;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Caliper Bracket Overlay */
+    .caliper-brackets {
+      position: absolute;
+      pointer-events: none;
+      z-index: 1;
+      border: 1px dashed rgba(6, 182, 212, 0.4);
+      border-radius: 4px;
+      transition: none;
+    }
+
+    .caliper-dimension-top {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--cyan-bright);
+      background: #090d16;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid #1e3a8a;
+      white-space: nowrap;
+    }
+
+    /* Controls Strip */
+    .controls-strip {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      margin-top: 24px;
+    }
+
+    .range-btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: #0f172a;
+      color: #cbd5e1;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+    }
+
+    .range-btn:hover, .range-btn.active {
+      background: #1e293b;
+      color: var(--cyan-bright);
+      border-color: var(--cyan);
+    }
+
+    /* Telemetry Diagnostics Grid */
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .telemetry-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--cyan);
+    }
+
+    .card-value {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      word-break: break-all;
+    }
+
+    .card-subtext {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* Bottom Technical Ledger */
+    .technical-ledger {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .ledger-section-title {
+      color: var(--cyan-bright);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .code-snippet {
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    .prop-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .prop-row:last-child {
+      border-bottom: none;
+    }
+
+    .prop-name {
+      color: var(--text-dim);
+    }
+
+    .prop-val {
+      color: var(--cyan-bright);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="workbench-container">
+    <!-- Metrology Header -->
+    <header class="metrology-header">
+      <span class="spec-indicator">W3C Selection API Level 1 &mdash; Caliper Workbench</span>
+      <span class="caliper-coords" id="viewport-telemetry">RANGE BOUNDS: EVALUATING...</span>
+    </header>
+
+    <!-- Proscenium Inspection Stage -->
+    <section class="proscenium-stage" aria-label="Typographic Caliper Proscenium">
+      <div class="graticule-grid"></div>
+
+      <div class="subject-wrapper" id="subject-wrapper">
+        <h1 id="subject-hello-world">Hello World</h1>
+        <div class="caliper-brackets" id="caliper-box">
+          <div class="caliper-dimension-top" id="caliper-metric">&Delta;W: 0.00px &times; &Delta;H: 0.00px</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-strip">
+        <button type="button" class="range-btn active" id="btn-full" onclick="selectRange('full')">Full Range [0..11]</button>
+        <button type="button" class="range-btn" id="btn-hello" onclick="selectRange('hello')">Segment [0..5] "Hello"</button>
+        <button type="button" class="range-btn" id="btn-world" onclick="selectRange('world')">Segment [6..11] "World"</button>
+        <button type="button" class="range-btn" id="btn-caret" onclick="selectRange('caret')">Caret [5..5]</button>
+      </div>
+    </section>
+
+    <!-- Telemetry Cards -->
+    <div class="telemetry-grid">
+      <div class="telemetry-card">
+        <span class="card-label">Selection State</span>
+        <div class="card-value" id="sel-type">Range</div>
+        <span class="card-subtext" id="sel-collapsed">isCollapsed: false</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Range Boundaries</span>
+        <div class="card-value" id="sel-offsets">[0 &rarr; 11]</div>
+        <span class="card-subtext" id="sel-text">"Hello World"</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Anchor / Focus Node</span>
+        <div class="card-value" id="sel-node">#text</div>
+        <span class="card-subtext" id="sel-ancestor">H1#subject-hello-world</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Geometry Envelope</span>
+        <div class="card-value" id="sel-rect">0 &times; 0 px</div>
+        <span class="card-subtext" id="sel-clientrects">1 ClientRect</span>
+      </div>
+    </div>
+
+    <!-- Technical Ledger -->
+    <div class="technical-ledger">
+      <div>
+        <div class="ledger-section-title">Programmatic Range Construction</div>
+        <div class="code-snippet">
+          const sel = window.getSelection();<br>
+          const range = document.createRange();<br>
+          range.setStart(textNode, 0);<br>
+          range.setEnd(textNode, 11);<br>
+          sel.removeAllRanges();<br>
+          sel.addRange(range);
+        </div>
+      </div>
+      <div>
+        <div class="ledger-section-title">Selection API Introspection</div>
+        <div class="prop-row"><span class="prop-name">rangeCount</span><span class="prop-val" id="telemetry-ranges">1</span></div>
+        <div class="prop-row"><span class="prop-name">anchorOffset</span><span class="prop-val" id="telemetry-anchor">0</span></div>
+        <div class="prop-row"><span class="prop-name">focusOffset</span><span class="prop-val" id="telemetry-focus">11</span></div>
+        <div class="prop-row"><span class="prop-name">direction</span><span class="prop-val">forward</span></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let activeMode = 'full';
+
+    function selectRange(mode) {
+      activeMode = mode;
+      const subject = document.getElementById('subject-hello-world');
+      const textNode = subject.firstChild;
+      const sel = window.getSelection();
+      const range = document.createRange();
+
+      if (mode === 'full') {
+        range.setStart(textNode, 0);
+        range.setEnd(textNode, 11);
+      } else if (mode === 'hello') {
+        range.setStart(textNode, 0);
+        range.setEnd(textNode, 5);
+      } else if (mode === 'world') {
+        range.setStart(textNode, 6);
+        range.setEnd(textNode, 11);
+      } else if (mode === 'caret') {
+        range.setStart(textNode, 5);
+        range.setEnd(textNode, 5);
+      }
+
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      updateTelemetry(sel, range);
+
+      document.querySelectorAll('.range-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById('btn-' + mode);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function updateTelemetry(sel, range) {
+      const rect = range.getBoundingClientRect();
+      const subjectWrapper = document.getElementById('subject-wrapper');
+      const wrapperRect = subjectWrapper.getBoundingClientRect();
+
+      const caliperBox = document.getElementById('caliper-box');
+      const caliperMetric = document.getElementById('caliper-metric');
+
+      if (rect.width > 0 || rect.height > 0) {
+        caliperBox.style.display = 'block';
+        caliperBox.style.left = (rect.left - wrapperRect.left - 4) + 'px';
+        caliperBox.style.top = (rect.top - wrapperRect.top - 4) + 'px';
+        caliperBox.style.width = (rect.width + 8) + 'px';
+        caliperBox.style.height = (rect.height + 8) + 'px';
+        caliperMetric.textContent = `ΔW: ${rect.width.toFixed(1)}px × ΔH: ${rect.height.toFixed(1)}px`;
+      } else {
+        caliperBox.style.display = 'none';
+      }
+
+      document.getElementById('sel-type').textContent = sel.type;
+      document.getElementById('sel-collapsed').textContent = `isCollapsed: ${sel.isCollapsed}`;
+      document.getElementById('sel-offsets').textContent = `[${range.startOffset} → ${range.endOffset}]`;
+      document.getElementById('sel-text').textContent = `"${sel.toString()}"`;
+      document.getElementById('sel-node').textContent = sel.anchorNode ? sel.anchorNode.nodeName : 'null';
+      document.getElementById('sel-ancestor').textContent = range.commonAncestorContainer.parentNode ? range.commonAncestorContainer.parentNode.nodeName : 'H1';
+      document.getElementById('sel-rect').textContent = `${rect.width.toFixed(1)} × ${rect.height.toFixed(1)} px`;
+      document.getElementById('sel-clientrects').textContent = `${range.getClientRects().length} ClientRect(s)`;
+
+      document.getElementById('telemetry-ranges').textContent = sel.rangeCount;
+      document.getElementById('telemetry-anchor').textContent = sel.anchorOffset;
+      document.getElementById('telemetry-focus').textContent = sel.focusOffset;
+
+      const viewportTel = document.getElementById('viewport-telemetry');
+      viewportTel.textContent = `RANGE BOUNDS: X=${rect.left.toFixed(1)}, Y=${rect.top.toFixed(1)}, W=${rect.width.toFixed(1)}, H=${rect.height.toFixed(1)}`;
+    }
+
+    window.labReady = new Promise((resolve) => {
+      setTimeout(() => {
+        selectRange('full');
+
+        const sel = window.getSelection();
+        const range = sel.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+
+        window.labEvidence = () => {
+          return {
+            subject: 'Hello World',
+            passed: sel.toString() === 'Hello World' && sel.rangeCount === 1,
+            mechanism: 'W3C Selection API Level 1 (window.getSelection(), Selection.addRange, Range, ::selection)',
+            measurements: {
+              selectionType: sel.type,
+              isCollapsed: sel.isCollapsed,
+              rangeCount: sel.rangeCount,
+              selectedText: sel.toString(),
+              anchorOffset: sel.anchorOffset,
+              focusOffset: sel.focusOffset,
+              boundingWidth: rect.width,
+              boundingHeight: rect.height
+            }
+          };
+        };
+
+        resolve();
+      }, 50);
+    });
+  </script>
+</body>
+</html>

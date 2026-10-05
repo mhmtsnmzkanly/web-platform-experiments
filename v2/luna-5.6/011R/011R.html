@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — Reading Light</title>
+  <style>
+    :root { color: #f4e9ef; background: #241b2c; font-family: Georgia, "Times New Roman", serif; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: radial-gradient(circle at 28% 40%, #553e5d, #241b2c 62%); }
+    .desk { position: relative; width: min(94vw, 1180px); min-height: min(84vh, 680px); padding: 42px 7vw 54px; border-block: 1px solid #d9a8c3; }
+    .desk::before { position: absolute; top: 0; bottom: 0; left: 4%; width: 1px; background: #b7d35a; box-shadow: 12px 0 #b7d35a, 24px 0 #b7d35a; content: ""; opacity: .45; }
+    .label, .note { margin: 0; color: #b7d35a; font: 11px/1.4 monospace; letter-spacing: .18em; text-transform: uppercase; }
+    .note { margin-top: 50px; color: #d9a8c3; letter-spacing: .08em; text-transform: none; }
+    .manuscript { position: relative; max-width: 900px; margin: 14vh auto 0; }
+    h1 { margin: 0; color: #f4e9ef; font-size: clamp(68px, 15vw, 176px); line-height: .82; letter-spacing: -.09em; }
+    ::highlight(greeting-mark) { color: #241b2c; background: #b7d35a; text-decoration: underline 6px #d9a8c3; text-decoration-skip-ink: none; }
+    .controls { display: flex; align-items: center; gap: 16px; margin-top: 38px; color: #d9a8c3; font: 12px monospace; }
+    input { width: min(310px, 45vw); accent-color: #b7d35a; }
+  </style>
+</head>
+<body>
+  <main class="desk">
+    <p class="label">011R / reading light / custom highlight</p>
+    <section class="manuscript">
+      <h1 id="greeting">Hello World</h1>
+      <div class="controls">
+        <label for="focus">move the annotation window</label>
+        <input id="focus" type="range" min="0" max="11" value="5">
+      </div>
+    </section>
+    <p class="note">a registered range follows the reader instead of changing the document</p>
+  </main>
+  <script>
+    const heading = document.querySelector('#greeting');
+    const focus = document.querySelector('#focus');
+    const text = heading.firstChild;
+    function markRange() {
+      const start = Number(focus.value);
+      const range = new Range();
+      range.setStart(text, start);
+      range.setEnd(text, Math.min(text.length, start + 5));
+      CSS.highlights.set('greeting-mark', new Highlight(range));
+    }
+    focus.addEventListener('input', markRange);
+    markRange();
+  </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "text",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 16,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Rocking Inscription"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "text",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 54,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Rocking Inscription"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Declarative SVG SMIL clock -> animated transform -> rocking greeting",
+    "measurements": {
+      "samples": 59,
+      "angle": -0.010399818420410158,
+      "min": -7.743999958038331,
+      "max": -0.010399818420410158,
+      "time": 0.9987000226974487
+    }
+  },
+  "dynamic": true,
+  "interaction": null
+}

@@ -1,0 +1,79 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "span",
+        "text": "Hello World"
+      },
+      {
+        "tag": "span",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Reading Notes"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "span",
+        "text": "Hello World"
+      },
+      {
+        "tag": "span",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Reading Notes"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Ruby base association -> native over/under annotation layout",
+    "measurements": {
+      "records": [
+        {
+          "id": "over",
+          "baseTop": 139,
+          "baseBottom": 261,
+          "noteTop": 124,
+          "noteBottom": 154,
+          "centerDelta": -61
+        },
+        {
+          "id": "under",
+          "baseTop": 386,
+          "baseBottom": 508,
+          "noteTop": 502,
+          "noteBottom": 532,
+          "centerDelta": 70
+        }
+      ]
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

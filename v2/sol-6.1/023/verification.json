@@ -1,0 +1,57 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hell"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Packed"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hell"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Packed"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Greeting bytes -> gzip -> decompression -> restored text field",
+    "measurements": {
+      "originalBytes": 419,
+      "compressedBytes": 37,
+      "exactRoundTrip": true,
+      "repetitions": 35
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

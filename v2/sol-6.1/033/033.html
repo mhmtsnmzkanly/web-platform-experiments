@@ -1,0 +1,16 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Editions</title><style>
+body{margin:0;background:#c8bdae;color:#3c251e}main{padding:65px 80px}button{font:18px Georgia;background:#3c251e;color:#eee0cc;border:0;padding:16px 25px}#shelf{margin-top:55px}article{padding:24px 0;border-bottom:8px solid #8e7460;display:flex;align-items:baseline;gap:45px}h1{font:80px Georgia;margin:0}article:nth-child(2) h1{font-style:italic;color:#6a4032}small{font:16px monospace}
+</style></head><body><main><button id="commit">Commit another edition</button><section id="shelf"></section></main><script>
+let db,records=[],reopened=false;
+const request=req=>new Promise((resolve,reject)=>{req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)});
+const open=()=>{const req=indexedDB.open('hello-world-editions',1);req.onupgradeneeded=()=>req.result.createObjectStore('editions',{keyPath:'id'});return request(req)};
+function transaction(work){return new Promise((resolve,reject)=>{const tx=db.transaction('editions','readwrite');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('Edition transaction aborted'));work(tx.objectStore('editions'))})}
+async function display(){records=await request(db.transaction('editions').objectStore('editions').getAll());document.querySelector('#shelf').replaceChildren(...records.map(record=>{const row=document.createElement('article'),label=document.createElement('small'),title=document.createElement('h1');label.textContent=`EDITION ${record.id}`;title.textContent=record.phrase;row.append(label,title);return row}))}
+// A fresh demonstration resets its store explicitly. Acceptance requires a
+// completed transaction followed by a new connection, not an optimistic DOM edit.
+window.labReady=(async()=>{db=await open();await transaction(store=>{store.clear();store.put({id:1,phrase:'Hello World'})});await display()})();
+document.querySelector('#commit').onclick=async()=>{await transaction(store=>store.put({id:2,phrase:'Hello World'}));db.close();db=await open();reopened=true;await display()};
+window.labEvidence=()=>({subject:'Hello World',passed:records.length>=1&&records.every(r=>r.phrase==='Hello World'),mechanism:'IndexedDB committed records -> greeting shelves',measurements:{records}});
+window.labScenario={kind:'click',selector:'#commit'};
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:reopened&&records.length===2&&document.querySelectorAll('article').length===2,mechanism:'Commit -> close/reopen -> stored second greeting',measurements:{reopened,records,rows:document.querySelectorAll('article').length}});
+</script></body></html>

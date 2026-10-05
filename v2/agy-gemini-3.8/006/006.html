@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — 3D Spatial Perspective</title>
+  <style>
+    /*
+      EXPERIMENT 006: CSS 3D Transforms & Spatial Perspective Projection
+
+      Architecture:
+      Utilizes the CSS Transforms Module Level 2 specification.
+      The parent stage defines a 3D perspective projection cone (`perspective: 850px`).
+      Child elements exist in a true 3D spatial coordinate space (`transform-style: preserve-3d`).
+      "HELLO" and "WORLD" are mapped onto distinct spatial planes rotated in 3-axis space,
+      creating dramatic foreshortening, isometric depth planes, and spatial relief.
+
+      Design System:
+      - Style: Brutalist Architectural Monolith / Constructivist Spatial Typography
+      - Palette: Cast concrete charcoal (#14161a), vivid safety cobalt (#255ff4),
+                 neon safety orange (#ff5500), raw plaster white (#eae7df), steel slate (#4d535e)
+      - Typography: Massive industrial grotesque sans-serif (Impact / Arial Black / sans-serif)
+    */
+
+    :root {
+      --bg-concrete: #14161a;
+      --color-cobalt: #255ff4;
+      --color-orange: #ff5500;
+      --color-plaster: #eae7df;
+      --color-steel: #3d434d;
+      --color-dim: #1e2229;
+      --color-muted: #727b8a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: var(--bg-concrete);
+      color: var(--color-plaster);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .monolith-enclosure {
+      width: 100%;
+      max-width: 1100px;
+      height: 720px;
+      background: #111317;
+      border: 2px solid var(--color-steel);
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.65);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 36px 44px;
+      position: relative;
+    }
+
+    .plate-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--color-steel);
+      padding-bottom: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      z-index: 10;
+    }
+
+    .status-axis {
+      color: var(--color-orange);
+    }
+
+    /* 3D Viewport Stage */
+    .perspective-stage {
+      flex: 1;
+      perspective: 850px;
+      perspective-origin: 50% 45%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Spatial 3D Coordinate Anchor */
+    .spatial-assembly {
+      transform-style: preserve-3d;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    /* The Primary Semantic Subject */
+    h1.monolith-h1 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      transform-style: preserve-3d;
+      margin: 0;
+      padding: 0;
+      font-size: inherit;
+      font-weight: inherit;
+    }
+
+    /* "HELLO" Plane: Inclined with leftward yaw and upward tilt */
+    .plane-hello {
+      display: inline-block;
+      font-family: "Impact", "Arial Black", "Trebuchet MS", sans-serif;
+      font-size: clamp(84px, 14vw, 150px);
+      line-height: 0.88;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--color-cobalt);
+      background: #171b22;
+      border: 3px solid var(--color-cobalt);
+      padding: 10px 48px;
+      transform: rotateX(24deg) rotateY(-26deg) rotateZ(6deg) translateZ(30px);
+      box-shadow:
+        -12px 16px 0px rgba(0, 0, 0, 0.8),
+        -24px 32px 0px rgba(37, 95, 244, 0.25);
+      transform-origin: center center;
+    }
+
+    /* "WORLD" Plane: Opposing forward thrust with rightward yaw and negative roll */
+    .plane-world {
+      display: inline-block;
+      font-family: "Impact", "Arial Black", "Trebuchet MS", sans-serif;
+      font-size: clamp(84px, 14vw, 150px);
+      line-height: 0.88;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--color-plaster);
+      background: var(--color-orange);
+      color: #111317;
+      border: 3px solid var(--color-plaster);
+      padding: 10px 48px;
+      transform: rotateX(-12deg) rotateY(24deg) rotateZ(-6deg) translateZ(90px);
+      box-shadow:
+        16px 20px 0px rgba(0, 0, 0, 0.9),
+        32px 40px 0px rgba(255, 85, 0, 0.25);
+      transform-origin: center center;
+    }
+
+    /* Background Architectural Depth Grid */
+    .grid-underlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right, rgba(61, 67, 77, 0.15) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(61, 67, 77, 0.15) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .plate-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 2px solid var(--color-steel);
+      padding-top: 12px;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      z-index: 10;
+    }
+
+    .matrix-values {
+      font-family: monospace;
+      color: var(--color-cobalt);
+    }
+  </style>
+</head>
+<body>
+  <main class="monolith-enclosure">
+    <div class="grid-underlay" aria-hidden="true"></div>
+
+    <header class="plate-header">
+      <div>EXP 006 // BRUTALIST 3D PROJECTION</div>
+      <div class="status-axis">SPATIAL CONE · PERSPECTIVE: 850PX</div>
+      <div>SPEC: CSS TRANSFORMS 2</div>
+    </header>
+
+    <div class="perspective-stage">
+      <div class="spatial-assembly">
+        <!-- The Primary Subject: Hello World rendered across 3D planes -->
+        <h1 class="monolith-h1">
+          <span class="plane-hello">Hello</span>
+          <span class="plane-world">World</span>
+        </h1>
+      </div>
+    </div>
+
+    <footer class="plate-footer">
+      <span>PLANE A: ROTATE-Y(-26DEG) // ROTATE-X(24DEG)</span>
+      <span class="matrix-values">MATRICES: HARDWARE 3D INTERPOLATED</span>
+      <span>PLANE B: ROTATE-Y(24DEG) // TRANSLATE-Z(90PX)</span>
+    </footer>
+  </main>
+
+  <script>
+    // Verify CSS 3D transform matrices and bounding boxes
+    window.labEvidence = () => {
+      const hEl = document.querySelector('.plane-hello');
+      const wEl = document.querySelector('.plane-world');
+
+      const hTransform = window.getComputedStyle(hEl).transform;
+      const wTransform = window.getComputedStyle(wEl).transform;
+
+      const hRect = hEl.getBoundingClientRect();
+      const wRect = wEl.getBoundingClientRect();
+
+      // CSS 3D transforms resolve to matrix3d(...) in computed style
+      const is3D = hTransform.includes('matrix3d') || wTransform.includes('matrix3d');
+
+      return {
+        subject: 'Hello World',
+        passed: is3D && hRect.width > 200 && wRect.width > 200,
+        mechanism: 'CSS perspective 3D matrix -> preserve-3d spatial coordinate planes -> rotational foreshortening -> isometric Hello World monument',
+        measurements: {
+          helloTransformType: hTransform.slice(0, 8),
+          worldTransformType: wTransform.slice(0, 8),
+          helloBox: { width: Math.round(hRect.width), height: Math.round(hRect.height) },
+          worldBox: { width: Math.round(wRect.width), height: Math.round(wRect.height) },
+          depthOffsetZ: 90
+        }
+      };
+    };
+  </script>
+</body>
+</html>

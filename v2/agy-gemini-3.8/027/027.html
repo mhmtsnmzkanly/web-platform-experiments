@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 027: IndexedDB Transactional Object Store & Ledger Inspector</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-terminal: #07090e;
+      --bg-chassis: #0d121c;
+      --bg-card: #131b28;
+      --border-dim: #1e293b;
+      --border-accent: #2e3d54;
+      --db-emerald: #10b981;
+      --db-emerald-dim: rgba(16, 185, 129, 0.15);
+      --db-cyan: #06b6d4;
+      --db-amber: #f59e0b;
+      --db-purple: #a855f7;
+      --text-pure: #ffffff;
+      --text-muted: #94a3b8;
+      --text-dim: #475569;
+      --font-mono: 'SF Mono', 'Fira Code', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+      --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--bg-terminal);
+      color: var(--text-pure);
+      font-family: var(--font-display);
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      position: relative;
+    }
+
+    /* Ambient background grid */
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Top Console Bar */
+    header {
+      position: relative;
+      z-index: 10;
+      height: 52px;
+      padding: 0 32px;
+      background: var(--bg-chassis);
+      border-bottom: 1px solid var(--border-dim);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .badge-exp {
+      background: #1e293b;
+      color: var(--db-emerald);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      border: 1px solid var(--db-emerald);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--db-emerald);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .dot-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--db-emerald);
+      box-shadow: 0 0 10px var(--db-emerald);
+    }
+
+    .header-specs {
+      color: var(--text-muted);
+      display: flex;
+      gap: 24px;
+      letter-spacing: 0.04em;
+    }
+
+    /* Main Console Workspace */
+    main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      padding: 20px 32px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+    }
+
+    /* Hero Lockup with prominent Hello World */
+    .hero-banner {
+      background: linear-gradient(180deg, #131b28 0%, var(--bg-chassis) 100%);
+      border: 1px solid var(--border-dim);
+      border-radius: 8px;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--db-emerald) 0%, var(--db-cyan) 50%, var(--db-amber) 100%);
+    }
+
+    .hero-title-group h1 {
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero-metrics {
+      display: flex;
+      gap: 20px;
+    }
+
+    .metric-pill {
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-dim);
+      border-radius: 6px;
+      padding: 8px 16px;
+      text-align: right;
+    }
+
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 2px;
+    }
+
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--db-cyan);
+    }
+
+    /* 3-Column Database Deck */
+    .db-deck {
+      display: grid;
+      grid-template-columns: 260px 1fr 280px;
+      gap: 16px;
+      min-height: 440px;
+    }
+
+    .deck-panel {
+      background: var(--bg-chassis);
+      border: 1px solid var(--border-dim);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .panel-top {
+      padding: 10px 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid var(--border-dim);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .panel-title {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--db-emerald);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-body {
+      padding: 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+    }
+
+    /* Schema Tree */
+    .schema-node {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: 6px;
+      padding: 10px;
+    }
+
+    .node-header {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--db-cyan);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .node-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      padding: 2px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .node-key { color: var(--text-dim); }
+    .node-val { color: var(--text-pure); font-weight: 600; }
+
+    /* Ledger Table (Center Panel) */
+    .table-container {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-dim);
+      border-radius: 6px;
+    }
+
+    table.ledger-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-align: left;
+    }
+
+    table.ledger-table th {
+      position: sticky;
+      top: 0;
+      background: #111827;
+      color: var(--text-dim);
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-dim);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      z-index: 5;
+    }
+
+    table.ledger-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+    }
+
+    table.ledger-table tr:hover td {
+      background: rgba(16, 185, 129, 0.05);
+      color: var(--text-pure);
+    }
+
+    .pill-id {
+      background: #1e293b;
+      color: var(--db-cyan);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+
+    .pill-token {
+      color: var(--db-emerald);
+      font-weight: 700;
+    }
+
+    /* Right Panel: Transaction Telemetry */
+    .acid-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: 6px;
+      padding: 10px;
+    }
+
+    .acid-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--db-amber);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    /* Footer System Strip */
+    footer {
+      position: relative;
+      z-index: 10;
+      padding: 12px 24px;
+      background: var(--bg-chassis);
+      border: 1px solid var(--border-dim);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .footer-item {
+      display: flex;
+      gap: 8px;
+    }
+
+    .footer-label {
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .footer-val {
+      color: var(--text-pure);
+      font-weight: 600;
+    }
+
+    .seal-badge {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--db-emerald);
+      color: var(--db-emerald);
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <!-- Header Scope Bar -->
+  <header>
+    <div class="header-left">
+      <span class="badge-exp">EXP-027</span>
+      <span style="font-weight: 700;">INDEXEDDB ACID TRANSACTION ENGINE</span>
+      <span class="status-badge"><span class="dot-pulse"></span> STORE OPEN / COMMITTED</span>
+    </div>
+    <div class="header-specs">
+      <span>DATABASE: LabLedger_027</span>
+      <span>STORE: records</span>
+      <span>INDEXES: [by_token, by_category]</span>
+    </div>
+  </header>
+
+  <!-- Main Database Workstation -->
+  <main>
+    <!-- Hero Lockup with prominent Hello World -->
+    <section class="hero-banner">
+      <div class="hero-title-group">
+        <h1 id="hero-heading">Hello World</h1>
+        <div class="hero-subtitle">INDEXEDDB TRANSACTIONAL RECORD LEDGER // ATOMIC COMMIT VERIFIED</div>
+      </div>
+      <div class="hero-metrics">
+        <div class="metric-pill">
+          <div class="metric-label">Write Latency</div>
+          <div class="metric-value" id="val-write-latency">0.0 ms</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-label">Committed Records</div>
+          <div class="metric-value" id="val-record-count">0</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-label">Storage Quota</div>
+          <div class="metric-value" id="val-quota">IndexedDB OK</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Database 3-Column Deck -->
+    <div class="db-deck">
+      <!-- Left Column: Schema Tree & B-Tree Indexes -->
+      <section class="deck-panel">
+        <div class="panel-top">
+          <div class="panel-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            OBJECT STORE SCHEMA
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="schema-node">
+            <div class="node-header">Store: records</div>
+            <div class="node-row"><span class="node-key">Key Path:</span><span class="node-val">id</span></div>
+            <div class="node-row"><span class="node-key">Auto Increment:</span><span class="node-val">true</span></div>
+            <div class="node-row"><span class="node-key">Record Type:</span><span class="node-val">Structured Clone</span></div>
+          </div>
+
+          <div class="schema-node">
+            <div class="node-header" style="color: var(--db-emerald);">Index: by_token</div>
+            <div class="node-row"><span class="node-key">Index Key:</span><span class="node-val">token</span></div>
+            <div class="node-row"><span class="node-key">Unique:</span><span class="node-val">false</span></div>
+            <div class="node-row"><span class="node-key">Multi-entry:</span><span class="node-val">false</span></div>
+          </div>
+
+          <div class="schema-node">
+            <div class="node-header" style="color: var(--db-amber);">Index: by_category</div>
+            <div class="node-row"><span class="node-key">Index Key:</span><span class="node-val">category</span></div>
+            <div class="node-row"><span class="node-key">Unique:</span><span class="node-val">false</span></div>
+            <div class="node-row"><span class="node-key">Filter Query:</span><span class="node-val">IDBKeyRange.only()</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Center Column: Transactional Ledger Table -->
+      <section class="deck-panel">
+        <div class="panel-top">
+          <div class="panel-title" style="color: var(--db-cyan);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            CURSOR RANGE LEDGER (IDBKeyRange.bound(1, 13))
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="table-container">
+            <table class="ledger-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Token</th>
+                  <th>Category</th>
+                  <th>Codepoints / ASCII</th>
+                  <th>Checksum</th>
+                </tr>
+              </thead>
+              <tbody id="ledger-rows">
+                <!-- Dynamically populated from IndexedDB cursor -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: ACID Transaction Telemetry -->
+      <section class="deck-panel">
+        <div class="panel-top">
+          <div class="panel-title" style="color: var(--db-amber);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            TRANSACTION ENGINE
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="acid-card">
+            <div class="acid-title">Transaction Lifecycle</div>
+            <div class="node-row"><span class="node-key">Tx Mode:</span><span class="node-val" style="color: var(--db-emerald);">readwrite</span></div>
+            <div class="node-row"><span class="node-key">Durability:</span><span class="node-val">strict</span></div>
+            <div class="node-row"><span class="node-key">Isolation:</span><span class="node-val">Snapshot Isolation</span></div>
+            <div class="node-row"><span class="node-key">Commit Event:</span><span class="node-val" style="color: var(--db-emerald);">oncomplete OK</span></div>
+          </div>
+
+          <div class="acid-card">
+            <div class="acid-title" style="color: var(--db-cyan);">Cursor Traversal</div>
+            <div class="node-row"><span class="node-key">Method:</span><span class="node-val">openCursor()</span></div>
+            <div class="node-row"><span class="node-key">Direction:</span><span class="node-val">next</span></div>
+            <div class="node-row"><span class="node-key">Range Bound:</span><span class="node-val">[1, 13]</span></div>
+            <div class="node-row"><span class="node-key">Batch Status:</span><span class="node-val" style="color: var(--db-emerald);">RESOLVED</span></div>
+          </div>
+
+          <div class="acid-card">
+            <div class="acid-title" style="color: var(--db-purple);">Database Info</div>
+            <div class="node-row"><span class="node-key">DB Version:</span><span class="node-val">1</span></div>
+            <div class="node-row"><span class="node-key">Connection:</span><span class="node-val" id="val-conn">ACTIVE</span></div>
+            <div class="node-row"><span class="node-key">Origin:</span><span class="node-val">Local Workspace</span></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer System Telemetry -->
+    <footer>
+      <div class="footer-left">
+        <div class="footer-item">
+          <span class="footer-label">DB STATUS:</span>
+          <span class="footer-val" style="color: var(--db-emerald);">TRANSACTIONS COMMITTED</span>
+        </div>
+        <div class="footer-item">
+          <span class="footer-label">STORAGE ENGINE:</span>
+          <span class="footer-val">IndexedDB Level 2</span>
+        </div>
+        <div class="footer-item">
+          <span class="footer-label">QUERY RESOLUTION:</span>
+          <span class="footer-val" id="val-query-time">0.0 ms</span>
+        </div>
+      </div>
+      <div class="seal-badge">
+        INDEXEDDB ENGINE OK
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // Global database state
+    window.__idbState = {
+      initialized: false,
+      committed: false,
+      writeDurationMs: 0,
+      queryDurationMs: 0,
+      recordCount: 0,
+      records: []
+    };
+
+    const DB_NAME = 'LabLedger_027';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'records';
+
+    function initDatabase() {
+      return new Promise((resolve, reject) => {
+        // Clear old instance if exists
+        const deleteReq = indexedDB.deleteDatabase(DB_NAME);
+        deleteReq.onsuccess = deleteReq.onerror = () => {
+          const req = indexedDB.open(DB_NAME, DB_VERSION);
+
+          req.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+            store.createIndex('by_token', 'token', { unique: false });
+            store.createIndex('by_category', 'category', { unique: false });
+          };
+
+          req.onsuccess = async (event) => {
+            const db = event.target.result;
+            try {
+              await populateAndQuery(db);
+              resolve();
+            } catch (err) {
+              reject(err);
+            }
+          };
+
+          req.onerror = (e) => reject(e.target.error);
+        };
+      });
+    }
+
+    async function populateAndQuery(db) {
+      const recordsToInsert = [
+        { token: 'Hello', category: 'word', codepoints: [72, 101, 108, 108, 111], hexHash: '0x48656C6C' },
+        { token: 'World', category: 'word', codepoints: [87, 111, 114, 108, 100], hexHash: '0x576F726C' },
+        { token: 'H', category: 'char', codepoints: [72], hexHash: '0x00000048' },
+        { token: 'e', category: 'char', codepoints: [101], hexHash: '0x00000065' },
+        { token: 'l', category: 'char', codepoints: [108], hexHash: '0x0000006C' },
+        { token: 'l', category: 'char', codepoints: [108], hexHash: '0x0000006C' },
+        { token: 'o', category: 'char', codepoints: [111], hexHash: '0x0000006F' },
+        { token: ' ', category: 'char', codepoints: [32], hexHash: '0x00000020' },
+        { token: 'W', category: 'char', codepoints: [87], hexHash: '0x00000057' },
+        { token: 'o', category: 'char', codepoints: [111], hexHash: '0x0000006F' },
+        { token: 'r', category: 'char', codepoints: [114], hexHash: '0x00000072' },
+        { token: 'l', category: 'char', codepoints: [108], hexHash: '0x0000006C' },
+        { token: 'd', category: 'char', codepoints: [100], hexHash: '0x00000064' }
+      ];
+
+      // Atomic write transaction
+      const t0 = performance.now();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction([STORE_NAME], 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+
+        for (const item of recordsToInsert) {
+          store.add(item);
+        }
+
+        tx.oncomplete = () => {
+          window.__idbState.writeDurationMs = parseFloat((performance.now() - t0).toFixed(2));
+          resolve();
+        };
+        tx.onerror = (e) => reject(e.target.error);
+      });
+
+      // Cursor query transaction
+      const t1 = performance.now();
+      const loadedRecords = [];
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction([STORE_NAME], 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const range = IDBKeyRange.bound(1, 13);
+        const req = store.openCursor(range);
+
+        req.onsuccess = (e) => {
+          const cursor = e.target.result;
+          if (cursor) {
+            loadedRecords.push(cursor.value);
+            cursor.continue();
+          } else {
+            window.__idbState.queryDurationMs = parseFloat((performance.now() - t1).toFixed(2));
+            resolve();
+          }
+        };
+        req.onerror = (e) => reject(e.target.error);
+      });
+
+      window.__idbState.initialized = true;
+      window.__idbState.committed = true;
+      window.__idbState.recordCount = loadedRecords.length;
+      window.__idbState.records = loadedRecords;
+
+      // Update DOM
+      document.getElementById('val-write-latency').textContent = window.__idbState.writeDurationMs + ' ms';
+      document.getElementById('val-record-count').textContent = loadedRecords.length + ' Records';
+      document.getElementById('val-query-time').textContent = window.__idbState.queryDurationMs + ' ms';
+
+      const tbody = document.getElementById('ledger-rows');
+      tbody.innerHTML = '';
+      for (const rec of loadedRecords) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="pill-id">#${rec.id}</span></td>
+          <td><span class="pill-token">${rec.token}</span></td>
+          <td>${rec.category}</td>
+          <td>[${rec.codepoints.join(', ')}]</td>
+          <td><code>${rec.hexHash}</code></td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    const dbPromise = initDatabase();
+
+    // Lab Evidence interface for automated verification
+    window.labEvidence = async function() {
+      try {
+        await dbPromise;
+        const st = window.__idbState;
+        const passed = Boolean(
+          st.initialized &&
+          st.committed &&
+          st.recordCount === 13 &&
+          document.getElementById('hero-heading').textContent.includes('Hello World')
+        );
+
+        return {
+          subject: 'Hello World',
+          passed: passed,
+          mechanism: 'IndexedDB Level 2 transactional object store with autoIncrement keys, B-tree indexes, and cursor range iteration',
+          measurements: {
+            databaseName: DB_NAME,
+            databaseVersion: DB_VERSION,
+            recordsCommitted: st.recordCount,
+            writeDurationMs: st.writeDurationMs,
+            queryDurationMs: st.queryDurationMs,
+            tokensRetrieved: st.records.slice(0, 2).map(r => r.token)
+          }
+        };
+      } catch (err) {
+        return {
+          subject: 'Hello World',
+          passed: false,
+          error: err.message
+        };
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 3,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello",
+      "World"
+    ],
+    "animations": [],
+    "title": "Hello World — Fit the Proof"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 3,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello",
+      "World"
+    ],
+    "animations": [],
+    "title": "Hello World — Fit the Proof"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Intrinsic greeting ratio -> object-fit contain -> complete proof",
+    "measurements": {
+      "fit": "contain",
+      "box": [
+        1000,
+        360
+      ],
+      "intrinsic": [
+        1200,
+        600
+      ],
+      "expectedPaint": [
+        720,
+        360
+      ]
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#cover"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Native object-fit cover -> over-height image -> deliberate greeting crop",
+      "measurements": {
+        "fit": "cover",
+        "box": [
+          1000,
+          360
+        ],
+        "intrinsic": [
+          1200,
+          600
+        ],
+        "expectedPaint": [
+          1000,
+          500
+        ]
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 3,
+        "webgl": 0
+      },
+      "drawnText": [
+        "Hello",
+        "World"
+      ],
+      "animations": [],
+      "title": "Hello World — Fit the Proof"
+    },
+    "late": null
+  }
+}

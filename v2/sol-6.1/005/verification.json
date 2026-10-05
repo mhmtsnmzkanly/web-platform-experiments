@@ -1,0 +1,76 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1120,
+        "height": 560,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 1090,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Point Field"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1120,
+        "height": 560,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 1091,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Point Field"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Canvas text alpha -> lattice sampling -> stippled Hello World",
+    "measurements": {
+      "points": 1088,
+      "samplingStep": 7,
+      "span": 1085,
+      "maskText": "Hello World"
+    }
+  },
+  "dynamic": false
+}

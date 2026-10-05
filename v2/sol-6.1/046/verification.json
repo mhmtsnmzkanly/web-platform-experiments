@@ -1,0 +1,101 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 250,
+        "timeline": "DocumentTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 250,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Hello World — Procession"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 1133.3000000000002,
+        "timeline": "DocumentTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 1133.3000000000002,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Hello World — Procession"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Offset-distance interpolation -> path placement/tangent -> greeting procession",
+    "measurements": {
+      "distances": [
+        26.875,
+        61.875
+      ],
+      "rotations": [
+        "auto 0deg",
+        "auto 0deg"
+      ]
+    }
+  },
+  "dynamic": true,
+  "interaction": null
+}

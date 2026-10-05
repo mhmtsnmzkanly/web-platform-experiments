@@ -1,0 +1,7 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Fan</title><style>body{margin:0;background:#ece3ce}main{height:100vh;display:grid;place-items:center}canvas{width:1180px;max-width:98vw}</style></head><body><main><canvas width="1180" height="700" aria-label="Hello World affine fan">Hello World</canvas></main><script>
+const ctx=document.querySelector('canvas').getContext('2d'),matrices=[];
+// Matrix order keeps every impression hinged at the same origin.
+for(let i=0;i<5;i++){const matrix=new DOMMatrix().translate(100,550).rotate(-48+i*12);matrices.push(matrix);ctx.setTransform(matrix);ctx.font='70px Georgia';ctx.fillStyle=`rgb(35,${60+i*15},${120+i*15})`;ctx.fillText('Hello World',0,0)}
+const point=new DOMPoint(200,30),result=point.matrixTransform(matrices[0]).matrixTransform(matrices[0].inverse());
+window.labEvidence=()=>({subject:'Hello World',passed:matrices.length===5&&Math.abs(result.x-200)<1e-8&&Math.abs(result.y-30)<1e-8,mechanism:'DOMMatrix composition -> affine greeting fan',measurements:{impressions:matrices.length,inverseError:Math.hypot(result.x-200,result.y-30)}});
+</script></body></html>

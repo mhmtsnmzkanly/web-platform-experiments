@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Scroll Elevator</title>
+<style>
+:root{color:#e8f0ff;background:#08121c;font-family:Arial,sans-serif}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:320vh;background:linear-gradient(#08121c 0 30%,#173c50 55%,#d76d4d 100%)}.shaft{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none}.cabin{width:min(86vw,1060px);padding:32px;border:1px solid #9bd7e9;background:#102735;animation:lift linear both;animation-timeline:scroll(root);animation-range:0 75%}.tag{margin:0 0 20px;color:#f2bf63;font:11px monospace;letter-spacing:.2em;text-transform:uppercase}.meter{position:fixed;top:8vh;bottom:8vh;right:7vw;width:2px;background:rgba(242,191,99,.25)}.meter i{display:block;width:8px;height:8px;margin-left:-3px;background:#f2bf63;animation:mark linear both;animation-timeline:scroll(root)}h1{margin:0;font-size:clamp(70px,15vw,176px);line-height:.78;letter-spacing:-.1em}p{font:12px monospace}@keyframes lift{from{transform:translateY(16vh) scale(.82);filter:blur(5px);opacity:.35}to{transform:none;filter:none;opacity:1}}@keyframes mark{from{transform:translateY(0)}to{transform:translateY(88vh)}} </style>
+</head><body><div class="shaft"><main class="cabin"><p class="tag">021R / scroll elevator / native progress</p><h1>Hello World</h1><p>scroll to raise the greeting through the shaft</p></main></div><div class="meter"><i></i></div></body></html>

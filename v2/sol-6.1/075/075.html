@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Backfill</title><style>body{margin:0;background:#30333d;color:#e9ddc5}main{padding:65px 90px}label{font:20px Arial}input{accent-color:#d9896c}#grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:100px;gap:14px;width:1000px;margin-top:70px;grid-auto-flow:row}h1{font:40px Georgia;font-weight:400;margin:0;color:#30333d;background:#d9896c;display:grid;place-items:center}h1:nth-child(even){background:#b6c799}body:has(input:checked) #grid{grid-auto-flow:row dense}</style></head><body><main><label><input id="dense" type="checkbox">Backfill the greeting tiles</label><section id="grid"></section></main><script>
+const grid=document.querySelector('#grid'),nodes=[];
+// Spans intentionally leave early holes. Native dense placement searches them
+// for later items without changing source order or moving DOM nodes.
+for(const span of [3,2,1,2,2,1]){const tile=document.createElement('h1');tile.textContent='Hello World';tile.style.gridColumn=`span ${span}`;grid.append(tile);nodes.push(tile)}
+function state(){const tops=nodes.map(node=>node.getBoundingClientRect().top);return {rows:new Set(tops).size,tops,height:grid.getBoundingClientRect().height,flow:getComputedStyle(grid).gridAutoFlow}}
+const initial=state();
+window.labEvidence=()=>({subject:'Hello World',passed:initial.rows===4&&initial.height===442&&initial.tops[2]>initial.tops[0],mechanism:'Grid span constraints -> sparse greeting tile placement',measurements:initial});
+window.labScenario={kind:'click',selector:'#dense'};
+window.labInteractionEvidence=()=>{const after=state();return {subject:'Hello World',passed:after.rows===3&&after.height===328&&after.tops[2]===after.tops[0]&&[...grid.children].every((node,i)=>node===nodes[i]),mechanism:'Dense native backfill -> earlier hole use -> compact greeting rows',measurements:{initial,after,unchangedDOMOrder:[...grid.children].every((node,i)=>node===nodes[i])}}};
+</script></body></html>

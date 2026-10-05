@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — Weather Window</title>
+  <style>
+    :root { color: #f7f2e8; background: #10142c; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; overflow: hidden; background: #10142c; }
+    .window { position: relative; width: min(94vw, 1180px); min-height: min(84vh, 680px); overflow: hidden; border: 1px solid rgba(255,255,255,.7); background: rgba(255,255,255,.08); }
+    .orb { position: absolute; width: 260px; height: 260px; border-radius: 50%; background: #72d1b3; filter: blur(2px); transform: translate(-25vw, 18vh); transition: transform 500ms ease; }
+    .sun, .moon { position: absolute; border-radius: 50%; }
+    .sun { top: 12%; right: 16%; width: 150px; height: 150px; background: #e5b657; }
+    .moon { bottom: 9%; left: 12%; width: 220px; height: 220px; background: #d45c87; }
+    .glass { position: relative; z-index: 1; min-height: min(84vh, 680px); display: grid; grid-template-rows: auto 1fr auto; padding: 30px 5vw 34px; background: rgba(255,255,255,.14); backdrop-filter: blur(var(--blur, 22px)) saturate(140%); -webkit-backdrop-filter: blur(var(--blur, 22px)) saturate(140%); }
+    .label, .note { margin: 0; color: #f4c8dc; font: 11px/1.4 monospace; letter-spacing: .18em; text-transform: uppercase; }
+    .note { color: #d7e8ff; letter-spacing: .08em; text-transform: none; }
+    h1 { align-self: center; margin: 0; color: #f7f2e8; font-size: clamp(70px, 15vw, 176px); line-height: .8; letter-spacing: -.1em; text-shadow: 0 3px 24px rgba(16,20,44,.35); }
+    .controls { position: absolute; z-index: 2; right: 5vw; bottom: 34px; display: flex; align-items: center; gap: 12px; color: #d7e8ff; font: 12px monospace; }
+    input { width: min(210px, 30vw); accent-color: #72d1b3; }
+  </style>
+</head>
+<body>
+  <main class="window" id="window">
+    <div class="orb" id="orb" aria-hidden="true"></div>
+    <div class="sun" aria-hidden="true"></div>
+    <div class="moon" aria-hidden="true"></div>
+    <section class="glass">
+      <p class="label">017R / weather window / backdrop blur</p>
+      <h1>Hello World</h1>
+      <p class="note">move through the glass / change what the greeting sees</p>
+    </section>
+    <label class="controls" for="blur">glass depth <input id="blur" type="range" min="4" max="40" value="22"></label>
+  </main>
+  <script>
+    const windowFrame = document.querySelector('#window');
+    const orb = document.querySelector('#orb');
+    const blur = document.querySelector('#blur');
+    windowFrame.addEventListener('pointermove', (event) => {
+      const x = (event.clientX / innerWidth - .5) * 44;
+      const y = (event.clientY / innerHeight - .5) * 34;
+      orb.style.transform = `translate(${x}vw, ${y}vh)`;
+    });
+    blur.addEventListener('input', () => windowFrame.style.setProperty('--blur', `${blur.value}px`));
+  </script>
+</body>
+</html>

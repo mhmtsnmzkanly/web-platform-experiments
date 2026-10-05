@@ -1,0 +1,12 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Balanced Stanza</title><style>
+body{margin:0;background:#ecd5c6;color:#663c59}main{padding:60px 90px}label{font:20px Georgia;display:block}input{accent-color:#663c59;width:22px;height:22px;vertical-align:middle;margin-right:12px}h1{font:100px/1.12 Georgia;font-weight:400;width:900px;margin:65px 0 0;text-wrap:wrap}body:has(input:checked) h1{text-wrap:balance}
+</style></head><body><main><label><input id="balance" type="checkbox">Balance the stanza</label><h1>Hello World Hello World Hello World Hello World Hello World</h1></main><script>
+const heading=document.querySelector('h1'),original=heading.textContent;
+// Measure individual word ranges, grouping by rendered baseline. This verifies
+// actual line redistribution instead of trusting a supported CSS declaration.
+function measure(){const node=heading.firstChild,lines=new Map();for(const match of original.matchAll(/\S+/g)){const range=document.createRange();range.setStart(node,match.index);range.setEnd(node,match.index+match[0].length);const rect=range.getBoundingClientRect(),key=Math.round(rect.top),line=lines.get(key)||{left:rect.left,right:rect.right,words:0};line.left=Math.min(line.left,rect.left);line.right=Math.max(line.right,rect.right);line.words++;lines.set(key,line)}const widths=[...lines.values()].map(line=>line.right-line.left);return {widths,wordCounts:[...lines.values()].map(line=>line.words),spread:Math.max(...widths)-Math.min(...widths),box:heading.getBoundingClientRect().width}}
+const before=measure();
+window.labEvidence=()=>({subject:'Hello World',passed:before.widths.length===4&&before.spread>300&&heading.textContent===original,mechanism:'Native wrapping -> measured greeting stanza widths',measurements:before});
+window.labScenario={kind:'click',selector:'#balance'};
+window.labInteractionEvidence=()=>{const after=measure();return {subject:'Hello World',passed:document.querySelector('input').checked&&getComputedStyle(heading).textWrap==='balance'&&after.widths.length===before.widths.length&&after.spread<before.spread-100&&after.box===before.box&&heading.textContent===original,mechanism:'CSS text-wrap balance -> optimized line breaks -> greeting stanza',measurements:{before,after,unchangedText:heading.textContent===original}}};
+</script></body></html>

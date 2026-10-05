@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Contour</title>
+<style>
+body{margin:0;background:#e6edc8;color:#354727;font-family:Georgia,serif}main{height:100vh;display:flex;align-items:center;justify-content:center;position:relative}
+svg{width:94vw;height:80vh}text{font-family:Georgia,serif;font-size:116px;fill:#354727;letter-spacing:-4px}
+header{position:absolute;top:40px;left:48px;font:13px Arial,sans-serif;letter-spacing:3px}
+footer{position:absolute;bottom:40px;right:48px;font:14px Arial,sans-serif}
+</style></head><body><main><header>004 / CONTOUR</header>
+<svg viewBox="0 0 1200 650" role="img" aria-label="Hello World follows a rising curve">
+<!-- The same geometry drives the guide and glyph baselines: the technology
+     shapes the subject, rather than adding an unrelated decorative curve. -->
+<defs><path id="contour" d="M 140 480 C 300 480 350 160 580 200 S 880 490 1070 240"/></defs>
+<use href="#contour" fill="none" stroke="#9cac72" stroke-width="2" stroke-dasharray="3 9"/>
+<text><textPath href="#contour" startOffset="7%">Hello World</textPath></text>
+<circle cx="140" cy="480" r="6" fill="#354727"/><circle cx="1070" cy="240" r="6" fill="#354727"/>
+</svg><footer>A sentence finding its terrain.</footer></main>
+<script>
+window.labEvidence=()=>{const p=document.querySelector('#contour'),t=document.querySelector('text'),b=t.getBBox(),n=t.getNumberOfChars(),a=t.getStartPositionOfChar(0),z=t.getStartPositionOfChar(n-1);
+return {subject:'Hello World',passed:n===11&&p.getTotalLength()>900&&b.width>300&&Math.abs(a.y-z.y)>20,
+mechanism:'Cubic path geometry -> textPath baselines -> curved Hello World',measurements:{characters:n,pathLength:p.getTotalLength(),bounds:{width:b.width,height:b.height},firstY:a.y,lastY:z.y}}};
+</script></body></html>

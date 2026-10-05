@@ -1,0 +1,81 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1150,
+        "height": 650,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 2,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello",
+      "World"
+    ],
+    "animations": [],
+    "title": "Hello World — Stitched"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1150,
+        "height": 650,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 2,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello",
+      "World"
+    ],
+    "animations": [],
+    "title": "Hello World — Stitched"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Canvas dash pattern -> strokeText glyph contours -> stitched greeting",
+    "measurements": {
+      "dash": [
+        9,
+        5
+      ],
+      "lineWidth": 3,
+      "ink": 18315
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

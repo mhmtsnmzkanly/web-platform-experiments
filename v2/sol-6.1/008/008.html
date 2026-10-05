@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Countermotion</title>
+<style>
+body{margin:0;background:#d1f3df;color:#bb2463;font-family:Arial,sans-serif;overflow:hidden}main{height:100vh;display:flex;align-items:center;justify-content:center}
+h1{font-size:150px;letter-spacing:-10px;margin:0;line-height:.9;display:flex;flex-direction:column;gap:22px;align-items:center}h1 span{display:block}
+header{position:absolute;top:40px;right:50px;font-size:12px;letter-spacing:3px}footer{position:absolute;bottom:40px;left:50px;font-size:13px}
+@media(max-width:700px){h1{font-size:22vw;letter-spacing:-.06em}}
+</style></head><body><main><header>008 / COUNTERMOTION</header><h1><span id="hello">Hello </span><span id="world">World</span></h1><footer>Two words, opposing impulses.</footer></main>
+<script>
+// Independent native timelines oppose each other. Neither glyph content nor
+// reading order changes; the relationship between the words is the animation.
+const hello=document.querySelector('#hello'),world=document.querySelector('#world');
+const a=hello.animate([{transform:'translateX(-110px) rotate(-7deg)'},{transform:'translateX(110px) rotate(7deg)'}],{duration:1800,direction:'alternate',iterations:Infinity,easing:'ease-in-out'});
+const b=world.animate([{transform:'translateX(110px) rotate(7deg)'},{transform:'translateX(-110px) rotate(-7deg)'}],{duration:1800,direction:'alternate',iterations:Infinity,easing:'ease-in-out'});
+window.labEvidence=()=>({subject:'Hello World',passed:a.playState==='running'&&b.playState==='running'&&a.currentTime>0,
+mechanism:'Web Animations timelines -> opposing transforms -> counter-moving Hello World',
+measurements:{helloTime:a.currentTime,worldTime:b.currentTime,helloTransform:getComputedStyle(hello).transform,worldTransform:getComputedStyle(world).transform}});
+</script></body></html>

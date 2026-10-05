@@ -1,0 +1,67 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Delivered Score"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Delivered Score"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "MessageChannel ownership transfer -> delivered offsets -> greeting wave",
+    "measurements": {
+      "detached": true,
+      "received": [
+        0,
+        52.900672912597656,
+        85.59508514404297,
+        85.59508514404297,
+        52.900672912597656,
+        1.1021821408568715e-14,
+        -52.900672912597656,
+        -85.59508514404297,
+        -85.59508514404297,
+        -52.900672912597656,
+        -2.204364281713743e-14
+      ]
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

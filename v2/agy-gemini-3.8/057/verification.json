@@ -1,0 +1,60 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 057: CSS Content Visibility & Containment Level 2"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 057: CSS Content Visibility & Containment Level 2"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS Containment Level 2 Content Visibility (content-visibility: auto & contain-intrinsic-size)",
+    "measurements": {
+      "supportsContentVisibility": true,
+      "supportsIntrinsicSize": true,
+      "virtualNodeCount": 6,
+      "heroContentVisibility": "visible",
+      "node0ContentVisibility": "auto",
+      "node0ContainIntrinsicSize": "auto 90px",
+      "subjectFontSize": "64px"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Chronograph</title>
+<style>
+:root{color:#e9eef3;background:#0c1117;font-family:monospace}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0c1117}.clock{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #74d6c7;overflow:hidden}.clock:before{position:absolute;inset:18% 15%;border:1px solid rgba(116,214,199,.35);border-radius:50%;content:""}.clock:after{position:absolute;left:50%;top:18%;bottom:18%;width:1px;background:rgba(116,214,199,.25);content:""}.label,.readout,.controls{position:relative;z-index:1}.label{margin:0;color:#74d6c7;font-size:11px;letter-spacing:.18em;text-transform:uppercase}.readout{margin-top:10px;color:#f0b35b;font-size:12px}.face{position:relative;z-index:1;margin:17vh auto 0;text-align:center}.face h1{margin:0;font:700 clamp(68px,14vw,170px)/.8 Arial,sans-serif;letter-spacing:-.1em}.controls{position:absolute;right:28px;bottom:28px;display:flex;gap:12px}button{border:1px solid #f0b35b;padding:9px 14px;color:#f0b35b;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="clock"><p class="label">039R / chronograph / performance marks</p><p class="readout" id="readout">performance / waiting</p><section class="face"><h1>Hello World</h1></section><div class="controls"><button id="measure" type="button">measure a cycle</button></div></main><script>
+const readout=document.querySelector('#readout');document.querySelector('#measure').addEventListener('click',()=>{performance.mark('hello-start');for(let i=0;i<300000;i++)Math.sqrt(i);performance.mark('hello-end');performance.measure('hello-cycle','hello-start','hello-end');const entry=performance.getEntriesByName('hello-cycle').at(-1);readout.textContent=`performance / ${entry.duration.toFixed(2)} ms / cycle measured`});
+</script></body></html>

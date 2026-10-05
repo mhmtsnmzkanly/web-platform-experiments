@@ -1,0 +1,10 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Knockout</title><style>body{margin:0;background:#e8ca4d}main{height:100vh;display:grid;place-items:center}canvas{width:1180px;max-width:96vw}</style></head><body><main><canvas width="1180" height="650" aria-label="Hello World erased from cobalt ink">Hello World</canvas></main><script>
+const ctx=document.querySelector('canvas').getContext('2d');ctx.fillStyle='#343bbb';ctx.beginPath();ctx.ellipse(590,325,540,250,-.1,0,Math.PI*2);ctx.fill();
+const before=ctx.getImageData(0,0,1180,650).data;
+// Erasing glyph alpha reveals the page underneath. No yellow glyph fill is
+// drawn: destination-out removes existing ink in proportion to text coverage.
+ctx.globalCompositeOperation='destination-out';ctx.font='bold 140px Arial';ctx.textAlign='center';ctx.fillText('Hello World',590,375);ctx.globalCompositeOperation='source-over';
+const after=ctx.getImageData(0,0,1180,650).data;let removed=0,retained=0,added=0;
+for(let i=3;i<after.length;i+=4){if(before[i]>after[i])removed++;if(after[i])retained++;if(after[i]>before[i])added++}
+window.labEvidence=()=>({subject:'Hello World',passed:removed>30000&&retained>250000&&added===0&&ctx.globalCompositeOperation==='source-over',mechanism:'Destination-out glyph coverage -> alpha subtraction -> knockout greeting',measurements:{removed,retained,added}});
+</script></body></html>

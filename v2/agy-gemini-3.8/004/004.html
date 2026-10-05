@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Topographical Bézier Curve</title>
+  <style>
+    /*
+      EXPERIMENT 004: SVG Vector Geometry & Curvilinear Path Projection
+
+      Architecture:
+      Utilizes the SVG 2.0 specification to project text along an arbitrary
+      cubic Bézier curve. The `<textPath>` element binds the text baseline
+      directly to `<path id="river-contour">`. The letters dynamically orient,
+      rotate, and deform tangentially along the polynomial spline.
+
+      Design System:
+      - Style: Topographical Cartographic Engraving / Geological Survey
+      - Palette: Deep alpine spruce (#0b1c14), pale lichen celadon (#dbeef0),
+                 oxidized gold contour (#cca43b), slate spruce (#234a36)
+      - Typography: Flowing high-contrast display serif (Georgia / serif)
+    */
+
+    :root {
+      --bg-forest: #0b1c14;
+      --color-celadon: #e2f0e6;
+      --color-gold: #cca43b;
+      --color-spruce-mid: #224734;
+      --color-spruce-dim: #152e22;
+      --color-muted: #7fa890;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: var(--bg-forest);
+      color: var(--color-celadon);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .plate-container {
+      width: 100%;
+      max-width: 1100px;
+      height: 720px;
+      background: var(--bg-forest);
+      border: 1px solid var(--color-spruce-mid);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 36px 44px;
+      position: relative;
+    }
+
+    /* Topographical map border insets */
+    .plate-container::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgba(127, 168, 144, 0.2);
+      pointer-events: none;
+    }
+
+    .plate-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--color-spruce-mid);
+      padding-bottom: 14px;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      z-index: 2;
+    }
+
+    .badge-elevation {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--color-gold);
+      font-weight: 600;
+    }
+
+    .elevation-pip {
+      width: 8px;
+      height: 8px;
+      background: var(--color-gold);
+      border-radius: 50%;
+    }
+
+    /* Main SVG Canvas */
+    .vector-stage {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* Vector Path Typography */
+    .curve-text {
+      font-family: "Georgia", "Palatino", "Times New Roman", serif;
+      font-size: 112px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      fill: var(--color-celadon);
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+    }
+
+    .plate-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--color-spruce-mid);
+      padding-top: 14px;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      color: var(--color-muted);
+      z-index: 2;
+    }
+
+    .survey-scale {
+      font-family: monospace;
+      color: var(--color-gold);
+    }
+  </style>
+</head>
+<body>
+  <main class="plate-container">
+    <header class="plate-header">
+      <div>EXPERIMENT 004 — CARTOGRAPHIC PROJECTION</div>
+      <div class="badge-elevation"><span class="elevation-pip"></span>SURVEY TRANSECT · ELEV. 1420M</div>
+      <div>SPEC: SVG 2.0 TEXTPATH</div>
+    </header>
+
+    <svg class="vector-stage" viewBox="0 0 1100 520" role="img" aria-label="Hello World flowing along a topographical elevation contour">
+      <!--
+        Mathematical Curve Definition:
+        Cubic Bézier trajectory with smooth inflection:
+        M 100,380 -> C 280,380 340,110 560,150 -> S 840,430 1020,180
+      -->
+      <defs>
+        <path id="river-contour" d="M 90 390 C 270 390 340 100 560 140 S 840 450 1020 190" />
+        <path id="contour-echo-1" d="M 90 340 C 270 340 340 50 560 90 S 840 400 1020 140" />
+        <path id="contour-echo-2" d="M 90 440 C 270 440 340 150 560 190 S 840 500 1020 240" />
+        <path id="contour-echo-3" d="M 90 490 C 270 490 340 200 560 240 S 840 550 1020 290" />
+      </defs>
+
+      <!-- Auxiliary Topographical Contour Lines -->
+      <use href="#contour-echo-1" fill="none" stroke="#152e22" stroke-width="1.5" stroke-dasharray="4 8" />
+      <use href="#contour-echo-2" fill="none" stroke="#224734" stroke-width="1" />
+      <use href="#contour-echo-3" fill="none" stroke="#152e22" stroke-width="1" stroke-dasharray="2 6" />
+
+      <!-- The Primary Baseline Guide Path -->
+      <use href="#river-contour" fill="none" stroke="#cca43b" stroke-width="2.5" stroke-dasharray="6 8" />
+
+      <!-- Topological anchor survey points -->
+      <circle cx="90" cy="390" r="6" fill="#cca43b" />
+      <circle cx="560" cy="140" r="5" fill="#cca43b" />
+      <circle cx="1020" cy="190" r="6" fill="#cca43b" />
+
+      <!-- The Primary Subject: Hello World rendered along the Bézier path -->
+      <text class="curve-text">
+        <textPath href="#river-contour" startOffset="5%">Hello World</textPath>
+      </text>
+
+      <!-- Elevation Callout Markers -->
+      <text x="104" y="380" fill="#cca43b" font-size="11" font-family="monospace">1420m</text>
+      <text x="572" y="134" fill="#cca43b" font-size="11" font-family="monospace">1860m</text>
+      <text x="960" y="180" fill="#cca43b" font-size="11" font-family="monospace">1540m</text>
+    </svg>
+
+    <footer class="plate-footer">
+      <span>PATH ALGORITHM: CUBIC BÉZIER SPLINE</span>
+      <span class="survey-scale">SCALE 1 : 25,000</span>
+      <span>TANGENTIAL GLYPH ORIENTATION</span>
+    </footer>
+  </main>
+
+  <script>
+    // Verify native SVG geometry and textPath projection metrics
+    window.labEvidence = () => {
+      const pathEl = document.querySelector('#river-contour');
+      const textEl = document.querySelector('.curve-text');
+      const textPathEl = document.querySelector('textPath');
+
+      const totalLength = pathEl.getTotalLength();
+      const numChars = textEl.getNumberOfChars();
+      const bbox = textEl.getBBox();
+
+      const startPt = textEl.getStartPositionOfChar(0);
+      const endPt = textEl.getStartPositionOfChar(numChars - 1);
+      const deltaY = Math.abs(startPt.y - endPt.y);
+
+      return {
+        subject: 'Hello World',
+        passed: numChars === 11 && totalLength > 800 && bbox.width > 300 && deltaY > 30,
+        mechanism: 'Bézier path coordinate geometry -> SVG textPath parameterization -> curvilinear baseline deformation -> undulating Hello World vector field',
+        measurements: {
+          pathLength: Math.round(totalLength),
+          characterCount: numChars,
+          bbox: { width: Math.round(bbox.width), height: Math.round(bbox.height) },
+          startCoord: { x: Math.round(startPt.x), y: Math.round(startPt.y) },
+          endCoord: { x: Math.round(endPt.x), y: Math.round(endPt.y) },
+          verticalDeflection: Math.round(deltaY)
+        }
+      };
+    };
+  </script>
+</body>
+</html>

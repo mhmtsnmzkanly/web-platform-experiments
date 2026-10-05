@@ -1,0 +1,4 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Hello World — Computed</title><style>
+:root{font-family:Arial;background:#171a27;color:#f2f4ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#171a27,#4b5384)}main{width:min(90vw,1080px);padding:46px;border:1px solid #b4c0ff;background:#252d4b}p{color:#b4c0ff;font:12px monospace;letter-spacing:.2em;text-transform:uppercase}h1{margin:45px 0;font-size:clamp(72px,15vw,178px);line-height:.8;letter-spacing:-.1em}.state{color:#ffd57c;font:14px monospace}</style><main><p>053 / computed style / resolved values</p><h1 id="greeting">Hello World</h1><div class="state">style / reading</div></main><script>
+const style=getComputedStyle(document.querySelector('#greeting'));document.querySelector('.state').textContent=`style / ${style.fontSize} / ${style.lineHeight} resolved`;
+</script>

@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Time Postcard</title>
+<style>
+:root{color:#f7f0dc;background:#153348;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(145deg,#153348,#77a2a5)}.postcard{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #f1c26b}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#f1c26b;font:11px monospace;letter-spacing:.18em}.state{margin-top:10px;color:#d8e5df;font:12px monospace}.card{position:relative;z-index:1;margin:11vh auto 0;width:min(76vw,880px);padding:28px;background:#e8d9ad;color:#1e3645;transform:rotate(-2deg);box-shadow:14px 15px 0 rgba(0,0,0,.16)}.card h1{margin:0;font-size:clamp(60px,12vw,146px);line-height:.8;letter-spacing:-.1em}.card time{display:block;margin-top:34px;font:22px monospace;color:#95643e}.controls{position:absolute;right:28px;bottom:28px;display:flex;gap:10px}select{border:1px solid #f1c26b;padding:9px 12px;color:#f1c26b;background:transparent;font:12px monospace}</style>
+</head><body><main class="postcard"><p class="label">082 / time postcard / date format</p><p class="state" id="state">postcard / local date awaiting a destination</p><section class="card"><h1>Hello World</h1><time id="date"></time></section><div class="controls"><select id="zone"><option value="UTC">UTC</option><option value="America/New_York">New York</option><option value="Europe/Istanbul">Istanbul</option><option value="Asia/Tokyo">Tokyo</option></select></div></main><script>
+const zone=document.querySelector('#zone'),date=document.querySelector('#date'),state=document.querySelector('#state');function stamp(){const now=new Date(),format=new Intl.DateTimeFormat(undefined,{dateStyle:'full',timeStyle:'short',timeZone:zone.value});date.textContent=format.format(now);state.textContent=`postcard / ${zone.value} / ${format.resolvedOptions().locale}`}zone.addEventListener('change',stamp);stamp();
+</script></body></html>

@@ -1,0 +1,59 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 048: CSS Font Loading API Level 3"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 048: CSS Font Loading API Level 3"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS Font Loading API Level 3 (document.fonts, FontFaceSet, FontFace, document.fonts.ready)",
+    "measurements": {
+      "fontFaceSetStatus": "loaded",
+      "registeredFacesCount": 3,
+      "activeFamily": "FoundryDisplay",
+      "activeWeight": "900",
+      "computedFontFamily": "FoundryDisplay, system-ui, sans-serif",
+      "computedFontSize": "68px"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

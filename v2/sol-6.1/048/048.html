@@ -1,0 +1,9 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Reader's Mark</title><style>body{margin:0;background:#273b4e;color:#eee1bf}main{padding:120px 90px}p{font:20px Georgia;margin:0 0 90px}h1{font:120px Georgia;font-weight:400;width:800px;margin:0;user-select:text}h1::selection{background:#ed927b;color:#273b4e}output{display:block;font:24px Georgia;margin-top:90px;color:#b7c9ce}</style></head><body><main><p>Drag through the greeting to leave a reader's mark.</p><h1 id="phrase">Hello World</h1><output>No selection</output></main><script>
+let changes=0;const heading=document.querySelector('h1'),text=heading.firstChild;
+// The browser creates selection ranges from genuine mouse input. No
+// preventDefault, manual Range insertion or DOM span wrapping substitutes for it.
+document.addEventListener('selectionchange',()=>{changes++;document.querySelector('output').textContent=getSelection().toString()||'No selection'});
+window.labEvidence=()=>({subject:'Hello World',passed:heading.textContent==='Hello World'&&heading.childNodes.length===1,mechanism:'Native selectable greeting prepared for reader mark',measurements:{text:heading.textContent,nodes:heading.childNodes.length}});
+window.labScenario={kind:'drag',selector:'#phrase',deltaX:180};
+window.labInteractionEvidence=()=>{const selection=getSelection(),selected=selection.toString();return {subject:'Hello World',passed:changes>0&&selected.length>0&&'Hello World'.includes(selected)&&selection.anchorNode===text&&selection.focusNode===text&&heading.childNodes.length===1,mechanism:'Trusted text drag -> native selection range -> glyph selection paint',measurements:{changes,selected,anchorOffset:selection.anchorOffset,focusOffset:selection.focusOffset,unchangedText:heading.textContent}}};
+</script></body></html>

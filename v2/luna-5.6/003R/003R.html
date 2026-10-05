@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — Alignment Machine</title>
+  <style>
+    :root { color: #e6f2ff; background: #101826; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #101826; }
+    .machine {
+      width: min(92vw, 1160px);
+      padding: 28px;
+      border: 1px solid #5f82a8;
+      background:
+        linear-gradient(#1d3047 1px, transparent 1px),
+        linear-gradient(90deg, #1d3047 1px, transparent 1px),
+        #101826;
+      background-size: 32px 32px;
+    }
+    .topline {
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-column: 1 / -1;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: end;
+      margin-bottom: 32px;
+    }
+    .code, .readout {
+      margin: 0;
+      color: #9ebbe0;
+      font: 11px/1.4 monospace;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .readout { color: #f5ba58; text-align: right; }
+    .assembly {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: var(--gap, 18px);
+      padding: 30px 0;
+      border-block: 1px solid #5f82a8;
+    }
+    .headline {
+      margin: 0 0 28px;
+      color: #e6f2ff;
+      font-size: clamp(62px, 13vw, 164px);
+      line-height: .8;
+      letter-spacing: -.1em;
+    }
+    .rail {
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-column: 1 / -1;
+      align-items: center;
+      min-height: 230px;
+    }
+    .word {
+      display: flex;
+      align-items: center;
+      min-height: 150px;
+      padding: 12px;
+      color: #101826;
+      font-size: clamp(50px, 10vw, 138px);
+      font-weight: 800;
+      line-height: .8;
+      letter-spacing: -.1em;
+      white-space: nowrap;
+    }
+    .hello { grid-column: 1 / 8; justify-content: flex-end; background: #f5ba58; }
+    .world { grid-column: 7 / -1; color: #e6f2ff; border: 1px solid #e6f2ff; background: #254b70; }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      margin-top: 24px;
+      color: #9ebbe0;
+      font: 12px monospace;
+    }
+    input { width: min(300px, 45vw); accent-color: #f5ba58; }
+    @media (max-width: 680px) {
+      .assembly { grid-template-columns: repeat(6, 1fr); }
+      .rail { grid-column: 1 / -1; }
+      .hello { grid-column: 1 / -1; justify-content: flex-start; }
+      .world { grid-column: 1 / -1; margin-top: -12px; }
+      .topline { display: block; }
+      .readout { margin-top: 12px; text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <main class="machine">
+    <div class="topline">
+      <p class="code">003R / alignment machine / subgrid</p>
+      <p class="readout">gap <output id="gapValue">18</output> px</p>
+    </div>
+    <h1 class="headline">Hello World</h1>
+    <section class="assembly" id="assembly">
+      <div class="rail">
+        <span class="word hello">Hello </span>
+        <span class="word world">World</span>
+      </div>
+    </section>
+    <div class="controls">
+      <label for="gap">recalibrate shared tracks</label>
+      <input id="gap" type="range" min="0" max="60" value="18">
+    </div>
+  </main>
+  <script>
+    const assembly = document.querySelector('#assembly');
+    const gap = document.querySelector('#gap');
+    const gapValue = document.querySelector('#gapValue');
+    gap.addEventListener('input', () => {
+      assembly.style.setProperty('--gap', `${gap.value}px`);
+      gapValue.value = gap.value;
+    });
+  </script>
+</body>
+</html>

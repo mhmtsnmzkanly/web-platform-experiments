@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Tilt</title>
+<style>
+body{margin:0;background:#b9d4ea;color:#0c2f83;font-family:Arial,sans-serif}main{height:100vh;display:flex;align-items:center;justify-content:center;perspective:1000px;overflow:hidden}
+/* Perspective projects the actual text-bearing plane; no bitmap or fake skew
+   substitutes for the depth-dependent transformation. */
+.sign{width:850px;background:#143dbe;color:#fff1d2;border:18px solid #ff9d40;padding:50px 30px;transform:rotateY(-24deg) rotateX(12deg) rotateZ(-8deg);box-shadow:25px 35px 0 #08266a;transform-style:preserve-3d}
+h1{margin:0;font-size:112px;letter-spacing:-7px;line-height:1.1}p{margin:26px 0 0;letter-spacing:4px;font-size:13px;border-top:2px solid;padding-top:20px}
+header{position:absolute;top:40px;left:50px;font-size:13px;letter-spacing:2px}
+@media(max-width:800px){.sign{width:80vw;padding:30px 15px}h1{font-size:11vw;letter-spacing:-.05em}}
+</style></head><body><header>006 / TILT</header><main><section class="sign"><h1>Hello World</h1><p>A MESSAGE WITH A POINT OF VIEW</p></section></main>
+<script>
+window.labEvidence=()=>{const s=getComputedStyle(document.querySelector('.sign')),m=new DOMMatrix(s.transform);
+return {subject:'Hello World',passed:s.transform.startsWith('matrix3d')&&Math.abs(m.m13)>.1&&getComputedStyle(document.querySelector('main')).perspective==='1000px',
+mechanism:'CSS perspective -> rotated live-text plane -> foreshortened Hello World',measurements:{matrix:s.transform,perspective:1000,depthComponent:m.m13}}};
+</script></body></html>

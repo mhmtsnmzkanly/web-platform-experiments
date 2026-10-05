@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — CSS Custom Highlight API</title>
+  <style>
+    /*
+      EXPERIMENT 011: CSS Custom Highlight API & Non-Destructive Text Styling
+
+      Architecture:
+      Utilizes the CSS Custom Highlight API (`CSS.highlights`, `new Highlight()`,
+      and `::highlight()` pseudo-element).
+      DOM `Range` objects select character offset boundaries within a single,
+      unadorned text node ("Hello World"). The ranges are registered into the
+      global `CSS.highlights` map without injecting `<span>` wrappers or mutating
+      the underlying DOM tree. The browser's paint engine paints custom highlight
+      backgrounds and underlines directly over the glyph runs.
+
+      Design System:
+      - Style: Archival Scholarly Manuscript / Philological Specimen
+      - Palette: Aged rag vellum (#f5efe4), iron gall ink (#1a1815),
+                 illuminated saffron (#ffe66d), rose cinnabar (#ff758f), vellum rule (#d9d2c3)
+      - Typography: High-contrast literary serif (Palatino / Georgia / serif)
+    */
+
+    :root {
+      --bg-vellum: #f5efe4;
+      --color-ink: #1a1815;
+      --color-saffron: #ffe66d;
+      --color-rose: #ff758f;
+      --color-rule: #d9d2c3;
+      --color-marginalia: #665f55;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: var(--bg-vellum);
+      color: var(--color-ink);
+      font-family: "Palatino", "Palatino Linotype", "Georgia", serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .folio-sheet {
+      width: 100%;
+      max-width: 1060px;
+      height: 720px;
+      background: var(--bg-vellum);
+      border: 1px solid var(--color-rule);
+      box-shadow: 0 16px 44px rgba(26, 24, 21, 0.08);
+      padding: 40px 52px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    /* Fine parchment inner borderline */
+    .folio-sheet::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgba(217, 210, 195, 0.6);
+      pointer-events: none;
+    }
+
+    .folio-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--color-rule);
+      padding-bottom: 12px;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--color-marginalia);
+    }
+
+    /* Manuscript Body Layout */
+    .manuscript-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 40px;
+      align-items: center;
+      margin: 20px 0;
+    }
+
+    .passage-arena {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /*
+      THE CORE SUBJECT:
+      Rendered as a single continuous text node with NO inline spans.
+      Styled entirely via ::highlight(hl-hello) and ::highlight(hl-world).
+    */
+    h1#subject-node {
+      font-size: clamp(68px, 11vw, 120px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--color-ink);
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Non-destructive custom highlight rules */
+    ::highlight(hl-hello) {
+      background-color: var(--color-saffron);
+      color: #1a1815;
+      text-decoration: underline solid #c9a227 3px;
+    }
+
+    ::highlight(hl-world) {
+      background-color: var(--color-rose);
+      color: #0d0814;
+      text-decoration: underline wavy #a4133c 2px;
+    }
+
+    .passage-note {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--color-marginalia);
+      max-width: 600px;
+      border-left: 2px solid var(--color-rule);
+      padding-left: 16px;
+    }
+
+    /* Scholarly Marginalia Column */
+    .marginalia-column {
+      border-left: 1px dashed var(--color-rule);
+      padding-left: 20px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--color-marginalia);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .marginalia-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--color-ink);
+      border-bottom: 1px solid var(--color-rule);
+      padding-bottom: 4px;
+    }
+
+    .badge-saffron {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--color-saffron);
+      border: 1px solid #c9a227;
+      margin-right: 6px;
+    }
+
+    .badge-rose {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--color-rose);
+      border: 1px solid #a4133c;
+      margin-right: 6px;
+    }
+
+    .folio-footer {
+      border-top: 1px solid var(--color-rule);
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-marginalia);
+    }
+
+    .registry-status {
+      font-family: monospace;
+      color: var(--color-ink);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main class="folio-sheet">
+    <header class="folio-header">
+      <div>EXP 011 // NON-DESTRUCTIVE CUSTOM HIGHLIGHT</div>
+      <div>SPEC: CSS CUSTOM HIGHLIGHT API LEVEL 1</div>
+      <div>CODEX FOLIO NO. 11</div>
+    </header>
+
+    <div class="manuscript-body">
+      <div class="passage-arena">
+        <!--
+          Semantic Heading containing single pure text node:
+          No child elements, spans, or inline wrappers exist here.
+        -->
+        <h1 id="subject-node">Hello World</h1>
+
+        <p class="passage-note">
+          The typographic phrase above resides in a single, unaltered DOM text node. By querying text offsets through native Range objects and registering them into the CSS Custom Highlight registry, custom saffron and rose washes are painted dynamically without altering DOM hierarchy.
+        </p>
+      </div>
+
+      <aside class="marginalia-column">
+        <div>
+          <div class="marginalia-title">Highlight Registry</div>
+          <p><span class="badge-saffron"></span><strong>hl-hello</strong>: range [0…5]<br>Saffron fill + solid rule</p>
+          <p style="margin-top: 8px;"><span class="badge-rose"></span><strong>hl-world</strong>: range [6…11]<br>Rose wash + wavy rule</p>
+        </div>
+        <div>
+          <div class="marginalia-title">DOM Integrity</div>
+          <p>DOM Child count: 1 (text node). Zero structural wrappers injected.</p>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="folio-footer">
+      <span>REGISTER: CSS.HIGHLIGHTS.SET()</span>
+      <span class="registry-status" id="registry-readout">STATUS: REGISTRY ACTIVE</span>
+      <span>PSEUDO: ::HIGHLIGHT(HL-NAME)</span>
+    </footer>
+  </main>
+
+  <script>
+    // Programmatic Range creation and CSS.highlights registration
+    const h1El = document.getElementById('subject-node');
+    const textNode = h1El.firstChild;
+
+    // Range 1: "Hello" (indices 0 to 5)
+    const rangeHello = new Range();
+    rangeHello.setStart(textNode, 0);
+    rangeHello.setEnd(textNode, 5);
+
+    // Range 2: "World" (indices 6 to 11)
+    const rangeWorld = new Range();
+    rangeWorld.setStart(textNode, 6);
+    rangeWorld.setEnd(textNode, 11);
+
+    const hasHighlightApi = 'highlights' in CSS;
+    if (hasHighlightApi) {
+      const hlHello = new Highlight(rangeHello);
+      const hlWorld = new Highlight(rangeWorld);
+      CSS.highlights.set('hl-hello', hlHello);
+      CSS.highlights.set('hl-world', hlWorld);
+    }
+
+    // Verify runtime highlight evidence
+    window.labEvidence = () => {
+      const isRegistered = hasHighlightApi && CSS.highlights.has('hl-hello') && CSS.highlights.has('hl-world');
+      const h1Rect = h1El.getBoundingClientRect();
+      const nodeLength = textNode.textContent.length;
+      // Assert that h1 has only 1 child (the raw text node itself)
+      const zeroWrappers = h1El.childNodes.length === 1 && h1El.children.length === 0;
+
+      return {
+        subject: 'Hello World',
+        passed: isRegistered && zeroWrappers && nodeLength === 11,
+        mechanism: 'DOM Range text offsets -> CSS.highlights registry -> ::highlight pseudo-element painting -> non-destructive highlighted Hello World',
+        measurements: {
+          highlightApiSupported: hasHighlightApi,
+          registeredHighlights: Array.from(CSS.highlights.keys()),
+          domChildrenCount: h1El.children.length,
+          rawTextNodeLength: nodeLength,
+          helloRangeBounds: { start: rangeHello.startOffset, end: rangeHello.endOffset },
+          worldRangeBounds: { start: rangeWorld.startOffset, end: rangeWorld.endOffset },
+          headlineWidth: Math.round(h1Rect.width)
+        }
+      };
+    };
+  </script>
+</body>
+</html>

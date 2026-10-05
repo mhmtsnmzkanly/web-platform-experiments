@@ -1,0 +1,112 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      },
+      {
+        "tag": "canvas",
+        "id": "drafting-canvas"
+      },
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "drafting-canvas",
+        "width": 670,
+        "height": 440,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 43,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World",
+      "PATH2D BÉZIER VECTOR SPECIMEN // ENGRAVED FOLIO"
+    ],
+    "animations": [],
+    "title": "Experiment 028: Canvas 2D Path2D Vector Geometry & Bézier Drafting Folio"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      },
+      {
+        "tag": "canvas",
+        "id": "drafting-canvas"
+      },
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "drafting-canvas",
+        "width": 670,
+        "height": 440,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 43,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World",
+      "PATH2D BÉZIER VECTOR SPECIMEN // ENGRAVED FOLIO"
+    ],
+    "animations": [],
+    "title": "Experiment 028: Canvas 2D Path2D Vector Geometry & Bézier Drafting Folio"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "HTML5 Canvas 2D Path2D vector geometry construction, SVG d-string parsing, Bézier curves, and isPointInPath hit testing",
+    "measurements": {
+      "canvasDimensions": "670x440",
+      "hitTestCenter": true,
+      "hitTestCorner": false,
+      "cachedPathTypes": [
+        "cartoucheOuter",
+        "cartoucheInner",
+        "bezierFiligree",
+        "rosettePath",
+        "masterPath"
+      ],
+      "hitTestAlgorithm": "isPointInPath(winding-rule: nonzero)"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

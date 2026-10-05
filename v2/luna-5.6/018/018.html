@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Overprint</title>
+  <style>
+    :root {
+      background: #f4e7d0;
+      color: #1d2740;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 18% 28%, #e98b68 0 7%, transparent 7.2%),
+        radial-gradient(circle at 82% 72%, #73a9c7 0 12%, transparent 12.2%),
+        #f4e7d0;
+    }
+
+    .print {
+      width: min(92vw, 1120px);
+      padding: 42px 52px 54px;
+      border: 1px solid #1d2740;
+      background: rgba(255, 250, 240, 0.76);
+    }
+
+    .label {
+      margin: 0 0 48px;
+      color: #bd4f45;
+      font: 12px/1.2 monospace;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .registration {
+      position: relative;
+      min-height: 260px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    h1 {
+      position: absolute;
+      margin: 0;
+      color: #1d2740;
+      font-size: clamp(74px, 14vw, 174px);
+      line-height: 0.82;
+      letter-spacing: -0.1em;
+      white-space: nowrap;
+    }
+
+    h1:first-child {
+      transform: translate(-11px, -7px);
+      color: #e45c4f;
+      mix-blend-mode: multiply;
+    }
+
+    h1:last-child {
+      transform: translate(11px, 7px);
+      color: #2d79a2;
+      mix-blend-mode: multiply;
+    }
+
+    .note {
+      margin: 44px 0 0;
+      color: #52627d;
+      font: 13px/1.5 monospace;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <main class="print">
+    <p class="label">018 / overprint / blend mode</p>
+    <section class="registration" aria-label="Overprinted Hello World">
+      <h1>Hello World</h1>
+      <h1 aria-hidden="true">Hello World</h1>
+    </section>
+    <p class="note">two registration inks / one blended greeting</p>
+  </main>
+</body>
+</html>

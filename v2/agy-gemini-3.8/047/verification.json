@@ -1,0 +1,57 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 047: W3C Screen Wake Lock API Console"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 047: W3C Screen Wake Lock API Console"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "W3C Screen Wake Lock API (navigator.wakeLock.request(\"screen\"), WakeLockSentinel)",
+    "measurements": {
+      "apiSupported": true,
+      "sentinelReleased": false,
+      "lockType": "screen",
+      "visibilityState": "visible"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

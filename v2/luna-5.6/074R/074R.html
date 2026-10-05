@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Label Maker</title>
+<style>
+:root{color:#f6f0dc;background:#20231d;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#20231d,#59623d)}.maker{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #e5c368}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#e5c368;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#ccd1a9;font:12px monospace}.label-roll{position:relative;z-index:1;margin:13vh auto 0;width:min(78vw,900px);padding:40px 30px;background:#f1e3ac;color:#2d3225;border-left:28px dotted #aeb77f;border-right:28px dotted #aeb77f;transform:rotate(-2deg)}.label-roll h1{margin:0;font-size:clamp(62px,13vw,158px);line-height:.8;letter-spacing:-.1em}.label-roll code{display:block;margin-top:24px;font:12px monospace;word-break:break-all}.controls{position:absolute;right:28px;bottom:28px;display:flex;gap:10px}input,button{border:1px solid #e5c368;padding:9px 12px;color:#e5c368;background:transparent;font:12px monospace}button{cursor:pointer}</style>
+</head><body><main class="maker"><p class="label">074R / label maker / css escape</p><p class="state" id="state">maker / type a selector label</p><section class="label-roll"><h1>Hello World</h1><code id="output">escaped label waiting</code></section><div class="controls"><input id="raw" value="hello world / 2026"><button id="print" type="button">print label</button></div></main><script>
+const raw=document.querySelector('#raw'),output=document.querySelector('#output'),state=document.querySelector('#state');document.querySelector('#print').addEventListener('click',()=>{const escaped=CSS.escape(raw.value);output.textContent=escaped;state.textContent='maker / selector-safe label printed'});
+</script></body></html>

@@ -1,0 +1,82 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "mtable",
+        "text": "Hello\n            World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 041: MathML Core Level 4 Mathematical Typographical Folio"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "mtable",
+        "text": "Hello\n            World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 041: MathML Core Level 4 Mathematical Typographical Folio"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "W3C MathML Core Level 4 mathematical typesetting (<math>, <mrow>, <mfrac>, <msqrt>, <msubsup>, <mtable>)",
+    "measurements": {
+      "totalMathNodes": 72,
+      "heroMathWidth": 419.15625,
+      "heroMathHeight": 50.890625,
+      "matrixTableWidth": 262.90625,
+      "matrixTableHeight": 40.4375,
+      "tagBreakdown": {
+        "math": 2,
+        "mrow": 7,
+        "munder": 1,
+        "mo": 19,
+        "mi": 12,
+        "msqrt": 1,
+        "mfrac": 1,
+        "mtext": 4,
+        "msubsup": 1,
+        "msub": 3,
+        "mtable": 3,
+        "mtr": 6,
+        "mtd": 8,
+        "mn": 4
+      }
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

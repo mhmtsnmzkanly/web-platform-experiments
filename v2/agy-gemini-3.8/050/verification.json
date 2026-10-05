@@ -1,0 +1,75 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "div",
+        "text": "'Hello World'"
+      },
+      {
+        "tag": "div",
+        "text": "navigator.mediaSession.metadata = new MediaMetadata({\n            title: 'Hello World',\n            "
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 050: W3C Media Session API Broadcast Deck"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "div",
+        "text": "'Hello World'"
+      },
+      {
+        "tag": "div",
+        "text": "navigator.mediaSession.metadata = new MediaMetadata({\n            title: 'Hello World',\n            "
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 050: W3C Media Session API Broadcast Deck"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "W3C Media Session API (navigator.mediaSession, MediaMetadata, setActionHandler, playbackState)",
+    "measurements": {
+      "apiSupported": true,
+      "playbackState": "playing",
+      "metadataTitle": "Hello World",
+      "metadataArtist": "W3C Media Session Synthesizer",
+      "currentPositionSeconds": 165,
+      "totalDurationSeconds": 270
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

@@ -1,0 +1,69 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — CSS Custom Highlight API"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — CSS Custom Highlight API"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "DOM Range text offsets -> CSS.highlights registry -> ::highlight pseudo-element painting -> non-destructive highlighted Hello World",
+    "measurements": {
+      "highlightApiSupported": true,
+      "registeredHighlights": [
+        "hl-hello",
+        "hl-world"
+      ],
+      "domChildrenCount": 0,
+      "rawTextNodeLength": 11,
+      "helloRangeBounds": {
+        "start": 0,
+        "end": 5
+      },
+      "worldRangeBounds": {
+        "start": 6,
+        "end": 11
+      },
+      "headlineWidth": 694
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

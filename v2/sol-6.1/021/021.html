@@ -1,0 +1,8 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Fingerprint</title><style>
+body{margin:0;background:#ff8b42;color:#201a19;font-family:monospace}main{padding:210px 60px}h1{display:flex;font-size:110px;font-weight:normal;margin:0;gap:4px}h1 span{display:inline-block;white-space:pre}pre{font-size:16px;margin-top:110px;white-space:pre-wrap;max-width:900px;line-height:2}
+</style></head><body><main><h1>Hello World</h1><pre id="digest">021 / COMPUTING THE PHRASE FINGERPRINT</pre></main><script>
+let hex='',angles=[];
+// The SHA-256 bytes are the geometry seed, not a decorative unrelated checksum.
+window.labReady=(async()=>{const bytes=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('Hello World')));hex=[...bytes].map(b=>b.toString(16).padStart(2,'0')).join('');const h=document.querySelector('h1');h.replaceChildren(...[...'Hello World'].map((c,i)=>{const el=document.createElement('span');el.textContent=c;const angle=(bytes[i]%25)-12;angles.push(angle);el.style.transform='rotate('+angle+'deg) translateY('+(bytes[i]%31-15)+'px)';return el}));document.querySelector('#digest').textContent='SHA-256 / '+hex+'\nEach glyph carries one byte of its own fingerprint.'})();
+window.labEvidence=()=>({subject:'Hello World',passed:hex==='a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e'&&angles.length===11&&new Set(angles).size>4,mechanism:'UTF-8 phrase -> SHA-256 -> deterministic glyph angles',measurements:{sha256:hex,angles}});
+</script></body></html>

@@ -1,0 +1,149 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 0,
+        "timeline": "ScrollTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 0,
+        "timeline": "ScrollTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 0,
+        "timeline": "ScrollTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 0,
+        "timeline": "ScrollTimeline"
+      }
+    ],
+    "title": "Hello World — CSS Scroll-driven Animations Astrolabe"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 0,
+        "timeline": "ScrollTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 0,
+        "timeline": "ScrollTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 0,
+        "timeline": "ScrollTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 0,
+        "timeline": "ScrollTimeline"
+      }
+    ],
+    "title": "Hello World — CSS Scroll-driven Animations Astrolabe"
+  },
+  "technology": null,
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "scroll",
+      "selector": "#scroll-track",
+      "deltaY": 500
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "CDP mouseWheel scroll dispatch -> scroll container deflection -> CSS scroll() timeline progression -> synchronized scale/rotation/chromatic convergence -> locked Hello World specimen",
+      "measurements": {
+        "scrollTop": 500,
+        "maxScroll": 844,
+        "progressPercent": 59.2,
+        "rotationDegrees": 106.6,
+        "timelineProperty": "--astrolabe-timeline"
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 59.241706161137444,
+          "timeline": "ScrollTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 59.241706161137444,
+          "timeline": "ScrollTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 59.241706161137444,
+          "timeline": "ScrollTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 59.241706161137444,
+          "timeline": "ScrollTimeline"
+        }
+      ],
+      "title": "Hello World — CSS Scroll-driven Animations Astrolabe"
+    },
+    "late": null
+  }
+}

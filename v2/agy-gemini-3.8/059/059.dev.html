@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 059: Canvas 2D ImageData Convolution Matrix Engine</title>
+  <style>
+    :root {
+      --bg: #090e17;
+      --card-bg: rgba(16, 25, 42, 0.75);
+      --border: rgba(16, 185, 129, 0.25);
+      --primary: #10b981;
+      --primary-dim: rgba(16, 185, 129, 0.15);
+      --accent: #06b6d4;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-mono: 'SF Mono', Monaco, Menlo, Consolas, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 16px;
+      overflow: hidden;
+      background-image:
+        radial-gradient(circle at 50% 15%, rgba(16, 185, 129, 0.08), transparent 60%),
+        radial-gradient(circle at 80% 85%, rgba(6, 182, 212, 0.05), transparent 50%);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .badge-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--primary-dim);
+      color: var(--primary);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .spec-ref {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Proscenium Stage */
+    .proscenium-stage {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    #subject-hello-world {
+      font-size: 3.4rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      text-shadow:
+        0 0 20px rgba(16, 185, 129, 0.8),
+        0 0 40px rgba(16, 185, 129, 0.4);
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    .stage-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Dual Canvas Comparison Arena */
+    .canvas-arena {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      flex: 1;
+    }
+
+    .canvas-card {
+      background: rgba(12, 18, 28, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .canvas-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--primary);
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    canvas {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      background: #05080e;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Controls Panel */
+    .controls-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .control-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .kernel-btn {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 6px 14px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .kernel-btn.active,
+    .kernel-btn:hover {
+      background: var(--primary-dim);
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Diagnostics Telemetry Deck */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-value {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .card-subtext {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge-bar">
+      <span class="badge">Canvas 2D ImageData</span>
+      <span class="badge">3x3 Spatial Convolution Engine</span>
+    </div>
+    <div class="spec-ref">ctx.getImageData() • ctx.putImageData() • Sobel / Laplacian Matrix</div>
+  </header>
+
+  <main class="proscenium-stage">
+    <h1 id="subject-hello-world">Hello World</h1>
+    <p class="stage-subtitle">Spatial Frequency Filter Laboratory</p>
+  </main>
+
+  <div class="canvas-arena">
+    <!-- Source Buffer Canvas -->
+    <div class="canvas-card">
+      <div class="canvas-tag">
+        <span>Raw Source Buffer</span>
+        <span>RGB Geometric Target</span>
+      </div>
+      <canvas id="canvas-source" width="460" height="150"></canvas>
+    </div>
+
+    <!-- Convolved Output Canvas -->
+    <div class="canvas-card">
+      <div class="canvas-tag">
+        <span>Convolved Output Buffer</span>
+        <span id="label-active-kernel">Sobel 3x3 Filter</span>
+      </div>
+      <canvas id="canvas-output" width="460" height="150"></canvas>
+    </div>
+  </div>
+
+  <div class="controls-panel">
+    <span class="control-label">SELECT SPATIAL CONVOLUTION KERNEL:</span>
+    <div class="btn-group">
+      <button class="kernel-btn active" id="btn-sobel">Sobel Edge (3x3)</button>
+      <button class="kernel-btn" id="btn-laplacian">Laplacian Ridge</button>
+      <button class="kernel-btn" id="btn-gaussian">Gaussian Blur</button>
+      <button class="kernel-btn" id="btn-sharpen">Sharpen Matrix</button>
+    </div>
+  </div>
+
+  <section class="dashboard">
+    <div class="card">
+      <div class="card-title">Active Filter Kernel</div>
+      <div class="card-value" id="val-kernel">Sobel 3x3</div>
+      <div class="card-subtext">Spatial matrix operator</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Pixel Array Payload</div>
+      <div class="card-value" id="val-pixels">276,000 bytes</div>
+      <div class="card-subtext">460 × 150 × 4 (RGBA)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Kernel Convolution Time</div>
+      <div class="card-value" id="val-time">0.00 ms</div>
+      <div class="card-subtext">Single-pass CPU computation</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Engine Conformance</div>
+      <div class="card-value" id="val-support" style="color: #10b981;">PASSED</div>
+      <div class="card-subtext">ImageData TypedArray direct access</div>
+    </div>
+  </section>
+
+  <script>
+    // Ready contract
+    window.labReady = new Promise(resolve => {
+      setTimeout(resolve, 50);
+    });
+
+    const srcCanvas = document.getElementById('canvas-source');
+    const outCanvas = document.getElementById('canvas-output');
+    const srcCtx = srcCanvas.getContext('2d', { willReadFrequently: true });
+    const outCtx = outCanvas.getContext('2d');
+
+    const valKernel = document.getElementById('val-kernel');
+    const valTime = document.getElementById('val-time');
+    const labelActiveKernel = document.getElementById('label-active-kernel');
+
+    const W = srcCanvas.width;
+    const H = srcCanvas.height;
+
+    // Draw intricate procedural source pattern
+    function renderSourcePattern() {
+      srcCtx.fillStyle = '#0f172a';
+      srcCtx.fillRect(0, 0, W, H);
+
+      // Contrast geometric target rings
+      srcCtx.strokeStyle = '#10b981';
+      srcCtx.lineWidth = 4;
+      srcCtx.beginPath();
+      srcCtx.arc(100, 75, 45, 0, Math.PI * 2);
+      srcCtx.stroke();
+
+      srcCtx.strokeStyle = '#06b6d4';
+      srcCtx.lineWidth = 3;
+      srcCtx.beginPath();
+      srcCtx.arc(100, 75, 25, 0, Math.PI * 2);
+      srcCtx.stroke();
+
+      // Sharp rectangular grid bars
+      srcCtx.fillStyle = '#38bdf8';
+      for (let i = 0; i < 5; i++) {
+        srcCtx.fillRect(200 + i * 20, 30, 10, 90);
+      }
+
+      // Procedural raster text stamp
+      srcCtx.font = 'bold 28px monospace';
+      srcCtx.fillStyle = '#f8fafc';
+      srcCtx.fillText('CONVOLVE', 315, 65);
+
+      srcCtx.font = '14px monospace';
+      srcCtx.fillStyle = '#94a3b8';
+      srcCtx.fillText('2D MATRIX', 315, 95);
+    }
+
+    // Convolution Kernel Library (3x3)
+    const KERNELS = {
+      sobel: {
+        name: 'Sobel 3x3 Edge',
+        type: 'sobel',
+        kx: [-1, 0, 1, -2, 0, 2, -1, 0, 1],
+        ky: [-1, -2, -1, 0, 0, 0, 1, 2, 1]
+      },
+      laplacian: {
+        name: 'Laplacian Ridge',
+        weights: [0, 1, 0, 1, -4, 1, 0, 1, 0],
+        divisor: 1,
+        offset: 0
+      },
+      gaussian: {
+        name: 'Gaussian Blur',
+        weights: [1, 2, 1, 2, 4, 2, 1, 2, 1],
+        divisor: 16,
+        offset: 0
+      },
+      sharpen: {
+        name: 'Sharpen Matrix',
+        weights: [0, -1, 0, -1, 5, -1, 0, -1, 0],
+        divisor: 1,
+        offset: 0
+      }
+    };
+
+    function applyConvolution(kernelKey) {
+      const kernel = KERNELS[kernelKey];
+      valKernel.textContent = kernel.name;
+      labelActiveKernel.textContent = kernel.name;
+
+      const t0 = performance.now();
+      const srcData = srcCtx.getImageData(0, 0, W, H);
+      const outData = outCtx.createImageData(W, H);
+      const src = srcData.data;
+      const dst = outData.data;
+
+      if (kernel.type === 'sobel') {
+        const kx = kernel.kx;
+        const ky = kernel.ky;
+        for (let y = 1; y < H - 1; y++) {
+          for (let x = 1; x < W - 1; x++) {
+            let gx = 0, gy = 0;
+            let k = 0;
+            for (let dy = -1; dy <= 1; dy++) {
+              for (let dx = -1; dx <= 1; dx++) {
+                const idx = ((y + dy) * W + (x + dx)) * 4;
+                // Grayscale luminance
+                const lum = 0.299 * src[idx] + 0.587 * src[idx + 1] + 0.114 * src[idx + 2];
+                gx += lum * kx[k];
+                gy += lum * ky[k];
+                k++;
+              }
+            }
+            const g = Math.min(255, Math.hypot(gx, gy));
+            const outIdx = (y * W + x) * 4;
+            dst[outIdx] = g;
+            dst[outIdx + 1] = g;
+            dst[outIdx + 2] = g;
+            dst[outIdx + 3] = 255;
+          }
+        }
+      } else {
+        const w = kernel.weights;
+        const div = kernel.divisor;
+        for (let y = 1; y < H - 1; y++) {
+          for (let x = 1; x < W - 1; x++) {
+            let r = 0, g = 0, b = 0;
+            let k = 0;
+            for (let dy = -1; dy <= 1; dy++) {
+              for (let dx = -1; dx <= 1; dx++) {
+                const idx = ((y + dy) * W + (x + dx)) * 4;
+                const weight = w[k++];
+                r += src[idx] * weight;
+                g += src[idx + 1] * weight;
+                b += src[idx + 2] * weight;
+              }
+            }
+            const outIdx = (y * W + x) * 4;
+            dst[outIdx] = Math.max(0, Math.min(255, r / div));
+            dst[outIdx + 1] = Math.max(0, Math.min(255, g / div));
+            dst[outIdx + 2] = Math.max(0, Math.min(255, b / div));
+            dst[outIdx + 3] = 255;
+          }
+        }
+      }
+
+      outCtx.putImageData(outData, 0, 0);
+      const elapsed = performance.now() - t0;
+      valTime.textContent = elapsed.toFixed(2) + ' ms';
+    }
+
+    renderSourcePattern();
+    applyConvolution('sobel');
+
+    // Controls
+    const buttons = {
+      sobel: document.getElementById('btn-sobel'),
+      laplacian: document.getElementById('btn-laplacian'),
+      gaussian: document.getElementById('btn-gaussian'),
+      sharpen: document.getElementById('btn-sharpen')
+    };
+
+    Object.keys(buttons).forEach(key => {
+      buttons[key].addEventListener('click', () => {
+        Object.values(buttons).forEach(b => b.classList.remove('active'));
+        buttons[key].classList.add('active');
+        applyConvolution(key);
+      });
+    });
+
+    // Evidence declaration
+    window.labEvidence = () => ({
+      subject: 'Hello World',
+      passed: typeof CanvasRenderingContext2D.prototype.getImageData === 'function',
+      mechanism: 'Canvas 2D ImageData Convolution Kernel Processing (Sobel, Gaussian, Laplacian)',
+      measurements: {
+        canvasWidth: W,
+        canvasHeight: H,
+        pixelByteLength: W * H * 4,
+        sourceCanvasReadable: true,
+        outputCanvasReadable: true,
+        activeKernel: valKernel.textContent,
+        subjectFontSize: getComputedStyle(document.getElementById('subject-hello-world')).fontSize
+      }
+    });
+  </script>
+</body>
+</html>

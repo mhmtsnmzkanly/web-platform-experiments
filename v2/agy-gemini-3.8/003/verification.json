@@ -1,0 +1,63 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello\n        World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Orthogonal Writing Modes"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello\n        World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Orthogonal Writing Modes"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "writing-mode: vertical-rl -> upright glyph stacking -> orthogonal cross-axis greeting -> vertical-horizontal typographic lock",
+    "measurements": {
+      "verticalMode": "vertical-rl",
+      "textOrientation": "upright",
+      "verticalBox": {
+        "width": 79,
+        "height": 343
+      },
+      "horizontalBox": {
+        "width": 219,
+        "height": 94
+      }
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

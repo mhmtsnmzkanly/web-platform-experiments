@@ -1,0 +1,82 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 316.79999999999995,
+        "timeline": "DocumentTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 316.79999999999995,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Hello World — Added Motion"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 966.6999999999999,
+        "timeline": "DocumentTimeline"
+      },
+      {
+        "playState": "running",
+        "currentTime": 966.6999999999999,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Hello World — Added Motion"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Underlying rotation + additive translation/scale -> combined greeting matrix",
+    "measurements": {
+      "moveProgress": 0.35556666666666664,
+      "sizeProgress": 0.53335,
+      "actualScale": 1.0066746528427146,
+      "expectedScale": 1.00667,
+      "angle": -5.999991159652627,
+      "actualX": 56.579,
+      "expectedX": 56.579013642097976
+    }
+  },
+  "dynamic": true,
+  "interaction": null
+}

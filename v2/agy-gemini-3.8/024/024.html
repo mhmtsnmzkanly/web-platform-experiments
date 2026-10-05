@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 024: Web Audio Offline Acoustic Synthesis & Spectral Scope</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-dark: #07090e;
+      --bg-chassis: #0d121c;
+      --bg-card: #131b28;
+      --border-subtle: #1e293b;
+      --border-bright: #334155;
+      --scope-green: #10b981;
+      --scope-green-dim: rgba(16, 185, 129, 0.2);
+      --scope-amber: #f59e0b;
+      --scope-cyan: #06b6d4;
+      --scope-glow: rgba(16, 185, 129, 0.4);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #475569;
+      --font-mono: 'SF Mono', 'Fira Code', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+      --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-display);
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      position: relative;
+    }
+
+    /* Ambient CRT scanline overlay */
+    .crt-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 4px, 6px 100%;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    /* Top Acoustic Console Bar */
+    header {
+      position: relative;
+      z-index: 10;
+      height: 52px;
+      padding: 0 32px;
+      background: var(--bg-chassis);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .badge-exp {
+      background: #1e293b;
+      color: #38bdf8;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      border: 1px solid #0284c7;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--scope-green);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .green-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--scope-green);
+      box-shadow: 0 0 10px var(--scope-green);
+    }
+
+    .header-specs {
+      color: var(--text-muted);
+      display: flex;
+      gap: 24px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Main Laboratory Workspace */
+    main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      padding: 24px 32px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+    }
+
+    /* Hero Typographic Banner with Hello World */
+    .hero-banner {
+      background: linear-gradient(180deg, #111827 0%, var(--bg-chassis) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #10b981 0%, #06b6d4 50%, #f59e0b 100%);
+    }
+
+    .hero-text-lock h1 {
+      font-size: 50px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .hero-tagline {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero-quick-gauges {
+      display: flex;
+      gap: 20px;
+    }
+
+    .gauge-box {
+      background: var(--bg-dark);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 16px;
+      text-align: right;
+    }
+
+    .gauge-title {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 2px;
+    }
+
+    .gauge-value {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--scope-green);
+    }
+
+    /* Central Instrumentation Deck: Oscilloscope + Spectrum + Signal Path */
+    .deck-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 18px;
+      min-height: 420px;
+    }
+
+    .deck-panel {
+      background: var(--bg-chassis);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .panel-top {
+      padding: 10px 18px;
+      background: rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .panel-label {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--scope-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-meta {
+      color: var(--text-muted);
+      font-size: 10px;
+    }
+
+    /* Oscilloscope Screen Box */
+    .scope-screen-wrapper {
+      position: relative;
+      flex: 1;
+      background: #040808;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    canvas#oscilloscope-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Spectrum and Parameter Stack (Right Column) */
+    .telemetry-column {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .harmonic-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .harmonic-table th {
+      text-align: left;
+      color: var(--text-dim);
+      padding: 4px 6px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 9px;
+    }
+
+    .harmonic-table td {
+      padding: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+    }
+
+    .harmonic-table tr:hover td {
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .spec-bar-container {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .spec-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--scope-green), var(--scope-cyan));
+      border-radius: 3px;
+    }
+
+    .dsp-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dsp-card-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--scope-amber);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .dsp-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .dsp-label {
+      color: var(--text-muted);
+    }
+
+    .dsp-val {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Footer Telemetry Banner */
+    footer {
+      position: relative;
+      z-index: 10;
+      padding: 12px 24px;
+      background: var(--bg-chassis);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .footer-item {
+      display: flex;
+      gap: 8px;
+    }
+
+    .footer-label {
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .footer-val {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .pass-seal {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--scope-green);
+      color: var(--scope-green);
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+  </style>
+</head>
+<body>
+  <div class="crt-overlay"></div>
+
+  <!-- Header Scope Bar -->
+  <header>
+    <div class="header-left">
+      <span class="badge-exp">EXP-024</span>
+      <span style="font-weight: 700; letter-spacing: 0.08em;">WEB AUDIO OFFLINE SYNTHESIS CORE</span>
+      <span class="status-indicator"><span class="green-dot"></span> SYNTHESIS RESOLVED</span>
+    </div>
+    <div class="header-specs">
+      <span>SAMPLING: 44.1 kHz PCM</span>
+      <span>ENGINE: OfflineAudioContext</span>
+      <span>PRECISION: Float32Array</span>
+    </div>
+  </header>
+
+  <!-- Main Viewport Workspace -->
+  <main>
+    <!-- Hero Lockup with prominent Hello World -->
+    <section class="hero-banner">
+      <div class="hero-text-lock">
+        <h1 id="hero-title">Hello World</h1>
+        <div class="hero-tagline">HARMONIC ACOUSTIC SPECTRUM // 4-PART SINE/FILTER CASCADE</div>
+      </div>
+      <div class="hero-quick-gauges">
+        <div class="gauge-box">
+          <div class="gauge-title">Peak Amplitude</div>
+          <div class="gauge-value" id="val-peak">0.000 FS</div>
+        </div>
+        <div class="gauge-box">
+          <div class="gauge-title">RMS Energy</div>
+          <div class="gauge-value" id="val-rms">0.000 dB</div>
+        </div>
+        <div class="gauge-box">
+          <div class="gauge-title">Zero Crossings</div>
+          <div class="gauge-value" id="val-zc">0</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Instrumentation Deck: 2 Columns -->
+    <div class="deck-grid">
+      <!-- Left Column: High-Precision Oscilloscope Screen -->
+      <section class="deck-panel">
+        <div class="panel-top">
+          <div class="panel-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h5l3-8 4 16 3-8h5"/></svg>
+            CATHODE RAY OSCILLOSCOPE TRACE (PCM TIME-DOMAIN)
+          </div>
+          <div class="panel-meta">TIMEBASE: 25.0 ms/div // VOLTS: 0.2 V/div</div>
+        </div>
+        <div class="scope-screen-wrapper">
+          <canvas id="oscilloscope-canvas" width="760" height="360"></canvas>
+        </div>
+      </section>
+
+      <!-- Right Column: Harmonic Series & Filter Graph -->
+      <section class="deck-panel">
+        <div class="panel-top">
+          <div class="panel-label" style="color: var(--scope-amber);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            HARMONIC PROFILE
+          </div>
+          <div class="panel-meta">FOURIER DECOMPOSITION</div>
+        </div>
+        <div class="telemetry-column">
+          <!-- Harmonic Overtones Table -->
+          <table class="harmonic-table">
+            <thead>
+              <tr>
+                <th>Tier</th>
+                <th>Harmonic</th>
+                <th>Freq</th>
+                <th>Gain</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>f₀</td>
+                <td>Fundamental</td>
+                <td>220 Hz</td>
+                <td>0.50</td>
+              </tr>
+              <tr>
+                <td>f₁</td>
+                <td>2nd Harmonic</td>
+                <td>440 Hz</td>
+                <td>0.30</td>
+              </tr>
+              <tr>
+                <td>f₂</td>
+                <td>3rd Harmonic</td>
+                <td>660 Hz</td>
+                <td>0.15</td>
+              </tr>
+              <tr>
+                <td>f₃</td>
+                <td>4th Harmonic</td>
+                <td>880 Hz</td>
+                <td>0.08</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Filter & Envelope Parameters -->
+          <div class="dsp-card">
+            <div class="dsp-card-title">Lowpass Biquad Filter</div>
+            <div class="dsp-row">
+              <span class="dsp-label">Cutoff Frequency:</span>
+              <span class="dsp-val">1500 Hz</span>
+            </div>
+            <div class="dsp-row">
+              <span class="dsp-label">Resonance (Q):</span>
+              <span class="dsp-val">2.50</span>
+            </div>
+            <div class="dsp-row">
+              <span class="dsp-label">Rolloff Slope:</span>
+              <span class="dsp-val">-12 dB/oct</span>
+            </div>
+          </div>
+
+          <div class="dsp-card">
+            <div class="dsp-card-title">Exponential Gain Envelope</div>
+            <div class="dsp-row">
+              <span class="dsp-label">Attack Duration:</span>
+              <span class="dsp-val">20.0 ms</span>
+            </div>
+            <div class="dsp-row">
+              <span class="dsp-label">Decay Duration:</span>
+              <span class="dsp-val">230.0 ms</span>
+            </div>
+            <div class="dsp-row">
+              <span class="dsp-label">Total Synthesis Time:</span>
+              <span class="dsp-val">250.0 ms</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Telemetry Status Bar -->
+    <footer>
+      <div class="footer-left">
+        <div class="footer-item">
+          <span class="footer-label">RENDER SAMPLES:</span>
+          <span class="footer-val" id="val-total-samples">11,025</span>
+        </div>
+        <div class="footer-item">
+          <span class="footer-label">BUFFER MEMORY:</span>
+          <span class="footer-val">44.1 kB Float32</span>
+        </div>
+        <div class="footer-item">
+          <span class="footer-label">SYNTHESIS STATUS:</span>
+          <span class="footer-val" style="color: var(--scope-green);">DETERMINISTIC CONVERGENCE</span>
+        </div>
+      </div>
+      <div class="pass-seal">
+        ACOUSTIC ENGINE OK
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // Synthesis State Container
+    window.__acousticState = {
+      rendered: false,
+      sampleRate: 44100,
+      durationSeconds: 0.25,
+      totalSamples: 0,
+      peakAmplitude: 0,
+      rmsPower: 0,
+      zeroCrossings: 0,
+      channelData: null
+    };
+
+    async function synthesizeAcousticGraph() {
+      const sampleRate = 44100;
+      const duration = 0.25;
+      const totalFrames = Math.floor(sampleRate * duration); // 11,025 samples
+
+      // Instantiate native browser OfflineAudioContext
+      const offlineCtx = new OfflineAudioContext(1, totalFrames, sampleRate);
+
+      // Create Master Gain with exponential attack/decay envelope
+      const masterGain = offlineCtx.createGain();
+      masterGain.gain.setValueAtTime(0.0001, 0);
+      masterGain.gain.exponentialRampToValueAtTime(0.85, 0.02);
+      masterGain.gain.exponentialRampToValueAtTime(0.0001, duration);
+
+      // Create Biquad Lowpass Filter
+      const biquadFilter = offlineCtx.createBiquadFilter();
+      biquadFilter.type = 'lowpass';
+      biquadFilter.frequency.setValueAtTime(1500, 0);
+      biquadFilter.Q.setValueAtTime(2.5, 0);
+
+      // Connect Master Gain -> Biquad Filter -> Destination
+      masterGain.connect(biquadFilter);
+      biquadFilter.connect(offlineCtx.destination);
+
+      // Define 4-part Harmonic Chord (Fundamental 220Hz + overtones)
+      const harmonics = [
+        { freq: 220, gain: 0.50 },
+        { freq: 440, gain: 0.30 },
+        { freq: 660, gain: 0.15 },
+        { freq: 880, gain: 0.08 }
+      ];
+
+      harmonics.forEach(h => {
+        const osc = offlineCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(h.freq, 0);
+
+        const oscGain = offlineCtx.createGain();
+        oscGain.gain.setValueAtTime(h.gain, 0);
+
+        osc.connect(oscGain);
+        oscGain.connect(masterGain);
+
+        osc.start(0);
+        osc.stop(duration);
+      });
+
+      // Render audio offline
+      const renderedBuffer = await offlineCtx.startRendering();
+      const pcm = renderedBuffer.getChannelData(0);
+
+      // Analyze PCM metrics
+      let peak = 0;
+      let sumSquares = 0;
+      let zeroCrossings = 0;
+
+      for (let i = 0; i < pcm.length; i++) {
+        const sample = pcm[i];
+        const absVal = Math.abs(sample);
+        if (absVal > peak) peak = absVal;
+        sumSquares += sample * sample;
+
+        if (i > 0 && ((pcm[i - 1] >= 0 && sample < 0) || (pcm[i - 1] < 0 && sample >= 0))) {
+          zeroCrossings++;
+        }
+      }
+
+      const rms = Math.sqrt(sumSquares / pcm.length);
+      const rmsDb = 20 * Math.log10(Math.max(rms, 1e-5));
+
+      window.__acousticState.rendered = true;
+      window.__acousticState.totalSamples = pcm.length;
+      window.__acousticState.peakAmplitude = parseFloat(peak.toFixed(4));
+      window.__acousticState.rmsPower = parseFloat(rmsDb.toFixed(2));
+      window.__acousticState.zeroCrossings = zeroCrossings;
+      window.__acousticState.channelData = pcm;
+
+      // Update DOM gauges
+      document.getElementById('val-peak').textContent = peak.toFixed(3) + ' FS';
+      document.getElementById('val-rms').textContent = rmsDb.toFixed(1) + ' dB';
+      document.getElementById('val-zc').textContent = zeroCrossings.toLocaleString();
+      document.getElementById('val-total-samples').textContent = pcm.length.toLocaleString();
+
+      // Render Oscilloscope onto Canvas
+      renderOscilloscopeCanvas(pcm);
+
+      return window.__acousticState;
+    }
+
+    function renderOscilloscopeCanvas(pcm) {
+      const canvas = document.getElementById('oscilloscope-canvas');
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // Clear dark scope background
+      ctx.fillStyle = '#050a0a';
+      ctx.fillRect(0, 0, w, h);
+
+      // Draw phosphor graticule grid
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.12)';
+      ctx.lineWidth = 1;
+
+      // Vertical divisions (10 divisions)
+      const numCols = 10;
+      for (let c = 0; c <= numCols; c++) {
+        const x = (w / numCols) * c;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+
+      // Horizontal divisions (8 divisions)
+      const numRows = 8;
+      for (let r = 0; r <= numRows; r++) {
+        const y = (h / numRows) * r;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      // Center baseline crosshair
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.3)';
+      ctx.beginPath();
+      ctx.moveTo(0, h / 2);
+      ctx.lineTo(w, h);
+      ctx.moveTo(0, h / 2);
+      ctx.lineTo(w, h / 2);
+      ctx.stroke();
+
+      // Plot time-domain waveform
+      // Subsample PCM for display across canvas width
+      const step = pcm.length / w;
+      
+      // Phosphor glow pass
+      ctx.save();
+      ctx.shadowColor = '#10b981';
+      ctx.shadowBlur = 8;
+      ctx.strokeStyle = '#34d399';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+
+      for (let x = 0; x < w; x++) {
+        const sampleIndex = Math.floor(x * step);
+        const sampleValue = pcm[sampleIndex] || 0;
+        // Map [-1.0, 1.0] to [h - padding, padding]
+        const y = (h / 2) - (sampleValue * (h * 0.42));
+        if (x === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      // Core intense phosphor trace line
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.0;
+      ctx.beginPath();
+      for (let x = 0; x < w; x++) {
+        const sampleIndex = Math.floor(x * step);
+        const sampleValue = pcm[sampleIndex] || 0;
+        const y = (h / 2) - (sampleValue * (h * 0.42));
+        if (x === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.stroke();
+    }
+
+    // Execute synthesis pipeline immediately
+    const synthPromise = synthesizeAcousticGraph();
+
+    // Lab Evidence interface for automated verification
+    window.labEvidence = async function() {
+      try {
+        await synthPromise;
+        const st = window.__acousticState;
+        const passed = Boolean(
+          st.rendered &&
+          st.totalSamples === 11025 &&
+          st.peakAmplitude > 0.4 &&
+          st.zeroCrossings > 50
+        );
+
+        return {
+          subject: 'Hello World',
+          passed: passed,
+          mechanism: 'Web Audio OfflineAudioContext 4-part harmonic chord synthesis, biquad filtering, and PCM oscilloscope rendering',
+          measurements: {
+            sampleRate: st.sampleRate,
+            totalSamples: st.totalSamples,
+            peakAmplitude: st.peakAmplitude,
+            rmsPowerDb: st.rmsPower,
+            zeroCrossings: st.zeroCrossings,
+            harmonicFrequenciesHz: [220, 440, 660, 880]
+          }
+        };
+      } catch (err) {
+        return {
+          subject: 'Hello World',
+          passed: false,
+          error: err.message
+        };
+      }
+    };
+  </script>
+</body>
+</html>

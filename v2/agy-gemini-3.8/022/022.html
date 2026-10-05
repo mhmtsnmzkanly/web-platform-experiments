@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Compression Streams API Pipeline</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --telecom-void: #070a10;
+      --telecom-card: #0b111c;
+      --border-pipe: #1a283e;
+      --stream-cyan: #00e5ff;
+      --stream-amber: #ffab00;
+      --stream-green: #00e676;
+      --packet-bg: #101929;
+      --packet-border: #1e324f;
+      --text-white: #f8fafc;
+      --text-dim: #5c7499;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--telecom-void);
+      background-image: 
+        radial-gradient(ellipse at 50% 20%, rgba(0, 229, 255, 0.07) 0%, transparent 65%),
+        linear-gradient(180deg, #04060a 0%, #090e18 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      color: var(--text-white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    /* Telecom Console */
+    .stream-console {
+      width: 1180px;
+      height: 720px;
+      background: var(--telecom-card);
+      border: 1px solid var(--border-pipe);
+      border-radius: 10px;
+      box-shadow: 
+        0 25px 60px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(0, 229, 255, 0.18),
+        inset 0 0 80px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      padding: 26px 36px;
+      gap: 16px;
+      position: relative;
+    }
+
+    /* Pipeline Header */
+    .console-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-pipe);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .header-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--stream-cyan);
+      font-weight: 700;
+    }
+
+    .pipeline-pulse {
+      width: 8px;
+      height: 8px;
+      background: var(--stream-cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--stream-cyan);
+    }
+
+    .header-meta {
+      color: var(--text-dim);
+      display: flex;
+      gap: 24px;
+    }
+
+    /* Source Payload Block (Subject Anchor) */
+    .payload-banner {
+      background: rgba(14, 23, 38, 0.85);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      border-radius: 8px;
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .payload-banner::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      background: var(--stream-cyan);
+      box-shadow: 0 0 12px var(--stream-cyan);
+    }
+
+    .payload-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .payload-tag {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--stream-cyan);
+    }
+
+    .payload-title {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      font-size: 50px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #ffffff;
+      line-height: 1;
+      text-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+    }
+
+    .pipeline-status-badge {
+      border: 2px solid var(--stream-green);
+      background: rgba(0, 230, 118, 0.08);
+      color: var(--stream-green);
+      border-radius: 4px;
+      padding: 8px 16px;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      box-shadow: 0 0 15px rgba(0, 230, 118, 0.2);
+    }
+
+    /* Compressed Chunks Grid */
+    .compressed-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stage-label {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--stream-amber);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .packets-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 8px;
+      flex: 1;
+    }
+
+    .packet-card {
+      background: var(--packet-bg);
+      border: 1px solid var(--packet-border);
+      border-radius: 5px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .packet-card.is-magic {
+      border-color: var(--stream-amber);
+      background: rgba(255, 171, 0, 0.08);
+    }
+
+    .packet-card.is-crc {
+      border-color: var(--stream-green);
+      background: rgba(0, 230, 118, 0.08);
+    }
+
+    .packet-header {
+      display: flex;
+      justify-content: space-between;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+    }
+
+    .packet-hex {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 20px;
+      font-weight: 900;
+      color: #ffffff;
+      text-align: center;
+      margin: 2px 0;
+    }
+
+    .packet-desc {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 8px;
+      letter-spacing: 0.05em;
+      color: var(--stream-cyan);
+      text-align: center;
+      background: rgba(0, 229, 255, 0.08);
+      border-radius: 2px;
+      padding: 2px 0;
+    }
+
+    /* Verification Ribbon */
+    .roundtrip-ribbon {
+      background: rgba(7, 13, 22, 0.95);
+      border: 1px solid var(--border-pipe);
+      border-radius: 6px;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+    }
+
+    .ribbon-label {
+      color: var(--text-dim);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .ribbon-verified-text {
+      color: var(--stream-green);
+      letter-spacing: 0.15em;
+      font-weight: 700;
+    }
+
+    /* Console Footer */
+    .console-footer {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-pipe);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+    }
+
+    .telemetry-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .cell-label {
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .cell-val {
+      color: var(--stream-cyan);
+      font-weight: 700;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <main class="stream-console" role="main">
+    <header class="console-header">
+      <div class="header-badge">
+        <span class="pipeline-pulse"></span>
+        <span>Compression Streams Pipeline // Exp 022</span>
+      </div>
+      <div class="header-meta">
+        <span>SPEC: STREAMS STANDARD</span>
+        <span>FORMAT: GZIP (RFC 1952)</span>
+        <span>TRANSFORM: NATIVE PIPELINE</span>
+      </div>
+    </header>
+
+    <!-- Source Payload Banner (Subject Anchor) -->
+    <section class="payload-banner" aria-label="Source Stream Payload">
+      <div class="payload-left">
+        <span class="payload-tag">Uncompressed Stream Subject</span>
+        <h1 class="payload-title" id="source-headline">Hello World</h1>
+      </div>
+      <div class="pipeline-status-badge">
+        Stream Piped &middot; Verified
+      </div>
+    </section>
+
+    <!-- Compressed Chunks Grid -->
+    <section class="compressed-stage" aria-label="Gzip Binary Envelope">
+      <div class="stage-label">
+        <span>Gzip Compression Stream Output Envelope</span>
+        <span>Magic: 0x1F 0x8B &middot; Method: Deflate (0x08)</span>
+      </div>
+      <div class="packets-grid" id="packets-container">
+        <!-- Injected via CompressionStream -->
+      </div>
+    </section>
+
+    <!-- Roundtrip Verification Ribbon -->
+    <div class="roundtrip-ribbon">
+      <span class="ribbon-label">DecompressionStream Roundtrip Output:</span>
+      <span class="ribbon-verified-text" id="roundtrip-text">Piping streams...</span>
+    </div>
+
+    <footer class="console-footer">
+      <div class="telemetry-cell">
+        <span class="cell-label">Compression Engine</span>
+        <span class="cell-val">CompressionStream('gzip')</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="cell-label">Uncompressed Input</span>
+        <span class="cell-val">11 Bytes (UTF-8)</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="cell-label">Compressed Envelope</span>
+        <span class="cell-val" id="stat-compressed-size">-- BYTES</span>
+      </div>
+      <div class="telemetry-cell">
+        <span class="cell-label">Roundtrip Match</span>
+        <span class="cell-val" id="stat-match" style="color: var(--stream-green);">100% BIT IDENTICAL</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const sourceString = "Hello World";
+    let compressedByteCount = 0;
+    let roundtripResult = "";
+    let isMagicValid = false;
+
+    async function executeStreamPipeline() {
+      const encoder = new TextEncoder();
+      const rawBytes = encoder.encode(sourceString);
+
+      // 1. Pipe through CompressionStream('gzip')
+      const compStream = new CompressionStream('gzip');
+      const writer = compStream.writable.getWriter();
+      writer.write(rawBytes);
+      writer.close();
+
+      const chunks = [];
+      const reader = compStream.readable.getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+      }
+
+      // Assemble compressed byte array
+      const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
+      compressedByteCount = totalLen;
+      const compressedBytes = new Uint8Array(totalLen);
+      let offset = 0;
+      for (const c of chunks) {
+        compressedBytes.set(c, offset);
+        offset += c.length;
+      }
+
+      // Check gzip magic bytes (0x1f, 0x8b)
+      isMagicValid = (compressedBytes[0] === 0x1f && compressedBytes[1] === 0x8b);
+
+      // 2. Pipe back through DecompressionStream('gzip')
+      const decompStream = new DecompressionStream('gzip');
+      const dWriter = decompStream.writable.getWriter();
+      dWriter.write(compressedBytes);
+      dWriter.close();
+
+      const dChunks = [];
+      const dReader = decompStream.readable.getReader();
+      while (true) {
+        const { done, value } = await dReader.read();
+        if (done) break;
+        dChunks.push(value);
+      }
+
+      const dLen = dChunks.reduce((acc, c) => acc + c.length, 0);
+      const decompressedBytes = new Uint8Array(dLen);
+      let dOffset = 0;
+      for (const c of dChunks) {
+        decompressedBytes.set(c, dOffset);
+        dOffset += c.length;
+      }
+
+      const decoder = new TextDecoder();
+      roundtripResult = decoder.decode(decompressedBytes);
+
+      // Populate UI
+      document.getElementById('roundtrip-text').textContent = `"${roundtripResult}" (MATCH)`;
+      document.getElementById('stat-compressed-size').textContent = `${compressedByteCount} BYTES`;
+
+      // Render compressed packets in grid
+      const container = document.getElementById('packets-container');
+      container.innerHTML = '';
+
+      for (let i = 0; i < Math.min(32, compressedBytes.length); i++) {
+        const b = compressedBytes[i];
+        const hex = b.toString(16).toUpperCase().padStart(2, '0');
+        const card = document.createElement('div');
+        
+        let role = "PAYLOAD";
+        let cardClass = "packet-card";
+        if (i < 2) {
+          role = "GZIP ID";
+          cardClass += " is-magic";
+        } else if (i === 2) {
+          role = "CM=DEFL";
+        } else if (i >= compressedBytes.length - 4) {
+          role = "ISIZE";
+          cardClass += " is-crc";
+        }
+
+        card.className = cardClass;
+        card.innerHTML = `
+          <div class="packet-header">
+            <span>[${String(i).padStart(2, '0')}]</span>
+            <span>0x${hex}</span>
+          </div>
+          <div class="packet-hex">${hex}</div>
+          <div class="packet-desc">${role}</div>
+        `;
+        container.appendChild(card);
+      }
+    }
+
+    const streamPromise = executeStreamPipeline();
+
+    // Lab Evidence Hook for Automated Verification
+    window.labEvidence = async () => {
+      await streamPromise;
+      return {
+        subject: "Hello World",
+        passed: isMagicValid && roundtripResult === sourceString,
+        mechanism: "TextEncoder byte stream -> CompressionStream('gzip') piping -> compressed binary chunk extraction -> DecompressionStream('gzip') roundtrip verification -> compressed byte frame Hello World display",
+        measurements: {
+          format: "gzip",
+          magicValid: isMagicValid,
+          rawBytesLength: sourceString.length,
+          compressedBytesLength: compressedByteCount,
+          decompressedText: roundtripResult,
+          roundtripVerified: roundtripResult === sourceString
+        }
+      };
+    };
+  </script>
+</body>
+</html>

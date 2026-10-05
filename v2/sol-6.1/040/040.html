@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Facing Pages</title><style>
+body{margin:0;background:#ac858f;color:#392936}main{padding:60px 70px}button{padding:15px 25px;background:#392936;color:#f3e4d5;border:0;font:18px Georgia}h1{margin:60px 0 0;padding:35px;font:120px/1.1 Georgia;font-weight:400;height:430px;background:#e9d9cb;box-sizing:border-box}.spread h1{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:0;font-size:140px}.spread h1 span{display:grid;place-items:center}.spread h1 span:first-child{background:#d6c3dc;border-right:2px solid #392936}.spread h1 span:last-child{font-style:italic}
+</style></head><body><main><button id="turn">Open the history spread</button><h1><span>Hello</span> <span>World</span></h1></main><script>
+const origin=performance.timeOrigin,initialLength=history.length;let delivered=0,restored=null;
+history.replaceState({edition:1},'',location.pathname);
+// A sentinel entry ensures the automated traversal remains inside this file.
+// Only popstate-restored data chooses the final greeting composition.
+document.querySelector('#turn').onclick=()=>{history.pushState({edition:2},'','#spread');history.pushState({edition:3},'','#sentinel');history.back()};
+addEventListener('popstate',event=>{delivered++;restored=event.state;if(restored?.edition!==2)throw new Error('Unexpected restored greeting edition');document.body.classList.add('spread')});
+window.labEvidence=()=>({subject:'Hello World',passed:history.state.edition===1||history.state.edition===2,mechanism:'Same-document history state -> greeting edition',measurements:{edition:history.state.edition,timeOrigin:performance.timeOrigin}});
+window.labScenario={kind:'click',selector:'#turn'};
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:delivered===1&&restored?.edition===2&&location.hash==='#spread'&&history.length===initialLength+2&&performance.timeOrigin===origin&&document.body.classList.contains('spread'),mechanism:'Native back traversal -> popstate edition -> facing greeting pages',measurements:{delivered,restored,hash:location.hash,historyGrowth:history.length-initialLength,sameDocument:performance.timeOrigin===origin}});
+</script></body></html>

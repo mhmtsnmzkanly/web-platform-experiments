@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Capacity Gauge</title>
+<style>
+:root{color:#f0f5e8;background:#12251e;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#12251e,#47734a)}.gauge{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #dce879}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#dce879;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#c6dbb1;font:12px monospace}.face{position:relative;z-index:1;margin:9vh auto 0;width:min(75vw,860px);padding:32px;border:1px solid #e8b967;background:#1d3829}.face h1{margin:0;font-size:clamp(66px,13vw,158px);line-height:.8;letter-spacing:-.1em}.dial{display:flex;align-items:center;gap:16px;margin-top:34px}.dial meter{width:100%;height:20px}.dial output{color:#e8b967;font:12px monospace}.controls{position:absolute;right:28px;bottom:28px;display:flex;gap:12px}input{width:220px;accent-color:#e8b967}</style>
+</head><body><main class="gauge"><p class="label">049R / capacity gauge / native meter</p><p class="state" id="state">capacity / 11 characters loaded</p><section class="face"><h1>Hello World</h1><div class="dial"><meter id="meter" min="0" max="32" value="11"></meter><output id="value">11/32</output></div></section><div class="controls"><label for="load">load <input id="load" type="range" min="1" max="32" value="11"></label></div></main><script>
+const load=document.querySelector('#load'),meter=document.querySelector('#meter'),value=document.querySelector('#value'),state=document.querySelector('#state');load.addEventListener('input',()=>{meter.value=load.value;value.value=`${load.value}/32`;state.textContent=`capacity / ${load.value} characters loaded`});
+</script></body></html>

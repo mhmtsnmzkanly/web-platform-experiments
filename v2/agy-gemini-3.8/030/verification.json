@@ -1,0 +1,59 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 030: CSS Compositing and Blending Level 1"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 030: CSS Compositing and Blending Level 1"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS Compositing and Blending Level 1 isolated stacking context with difference, multiply, and screen transfer equations",
+    "measurements": {
+      "chamberIsolation": "isolate",
+      "subjectMixBlendMode": "difference",
+      "subtractiveMixBlendMode": "multiply",
+      "additiveMixBlendMode": "screen",
+      "ribbonLeftBackgroundBlend": "screen, screen, normal",
+      "ribbonRightBackgroundBlend": "multiply, multiply, normal"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

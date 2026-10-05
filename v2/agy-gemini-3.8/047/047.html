@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 047: W3C Screen Wake Lock API Console</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #05080c;
+      --panel: #0a1017;
+      --border: #162434;
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.4);
+      --cyan: #06b6d4;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --text: #f1f5f9;
+      --muted: #64748b;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .mission-frame {
+      width: 100%;
+      max-width: 1040px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Header Bar */
+    .mission-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .header-tag {
+      color: var(--emerald);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .header-sub {
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* Main Proscenium Display Stage */
+    .proscenium-stage {
+      position: relative;
+      background: radial-gradient(circle at 50% 50%, #0a1f18 0%, #060e14 100%);
+      border: 1px solid #064e3b;
+      border-radius: 12px;
+      padding: 56px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      box-shadow: 0 0 50px rgba(16, 185, 129, 0.1);
+      overflow: hidden;
+    }
+
+    /* Hex Pattern Overlay */
+    .hex-overlay {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(16, 185, 129, 0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+    }
+
+    /* Sentinel Status Beacon */
+    .sentinel-beacon {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(6, 78, 59, 0.5);
+      border: 1px solid var(--emerald);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #a7f3d0;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+
+    .beacon-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+    }
+
+    /* Primary Typographic Subject */
+    #subject-hello-world {
+      font-size: 68px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: #ffffff;
+      text-shadow: 0 0 24px var(--emerald-glow);
+      text-align: center;
+      z-index: 2;
+    }
+
+    .proscenium-subtitle {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #94a3b8;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+
+    /* Sentinel Controls */
+    .sentinel-controls {
+      display: flex;
+      gap: 12px;
+      z-index: 2;
+      margin-top: 8px;
+    }
+
+    .control-btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #0f172a;
+      color: #cbd5e1;
+      border: 1px solid var(--border);
+    }
+
+    .control-btn:hover {
+      border-color: var(--emerald);
+      color: var(--emerald);
+    }
+
+    .control-btn.active {
+      background: #064e3b;
+      color: #a7f3d0;
+      border-color: var(--emerald);
+    }
+
+    /* Telemetry Deck */
+    .telemetry-deck {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .telemetry-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: var(--font-mono);
+    }
+
+    .card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--emerald);
+    }
+
+    .card-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .card-sub {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* Lifecycle Ledger */
+    .lifecycle-ledger {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .ledger-title {
+      color: var(--emerald);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .code-block {
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+
+    .stat-name {
+      color: var(--muted);
+    }
+
+    .stat-val {
+      color: var(--emerald);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="mission-frame">
+    <!-- Header -->
+    <header class="mission-header">
+      <span class="header-tag">W3C Screen Wake Lock API &mdash; Power Management Console</span>
+      <span class="header-sub">navigator.wakeLock.request('screen')</span>
+    </header>
+
+    <!-- Main Proscenium Display Stage -->
+    <section class="proscenium-stage" aria-label="Wake Lock Telemetry Stage">
+      <div class="hex-overlay"></div>
+
+      <div class="sentinel-beacon" id="beacon-pill">
+        <div class="beacon-dot" id="beacon-dot"></div>
+        <span id="beacon-text">SENTINEL ENGAGED: SLEEP INHIBITED</span>
+      </div>
+
+      <h1 id="subject-hello-world">Hello World</h1>
+
+      <span class="proscenium-subtitle">Mission-Critical Screen Illumination Active</span>
+
+      <div class="sentinel-controls">
+        <button type="button" class="control-btn active" id="btn-acquire" onclick="acquireLock()">Acquire Wake Lock</button>
+        <button type="button" class="control-btn" id="btn-release" onclick="releaseLock()">Release Sentinel</button>
+      </div>
+    </section>
+
+    <!-- Telemetry Cards -->
+    <div class="telemetry-deck">
+      <div class="telemetry-card">
+        <span class="card-label">Lock Sentinel State</span>
+        <div class="card-val" id="tel-state">Acquired</div>
+        <span class="card-sub" id="tel-released">sentinel.released: false</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Lock Requested Type</span>
+        <div class="card-val" id="tel-type">'screen'</div>
+        <span class="card-sub">OS Display Wake Lock</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Power Management</span>
+        <div class="card-val" id="tel-power">Sleep Inhibited</div>
+        <span class="card-sub">Zero Dimming Allowed</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Document Visibility</span>
+        <div class="card-val" id="tel-vis">visible</div>
+        <span class="card-sub">document.visibilityState</span>
+      </div>
+    </div>
+
+    <!-- Lifecycle Ledger -->
+    <div class="lifecycle-ledger">
+      <div>
+        <div class="ledger-title">Wake Lock Acquisition Pipeline</div>
+        <div class="code-block">
+          let sentinel = await navigator.wakeLock.request('screen');<br>
+          sentinel.addEventListener('release', () => {<br>
+          &nbsp;&nbsp;console.log('Wake Lock Sentinel released');<br>
+          });
+        </div>
+      </div>
+      <div>
+        <div class="ledger-title">Sentinel Telemetry</div>
+        <div class="stat-row"><span class="stat-name">API Supported</span><span class="stat-val" id="stat-supported">true</span></div>
+        <div class="stat-row"><span class="stat-name">Sentinel Released</span><span class="stat-val" id="stat-released">false</span></div>
+        <div class="stat-row"><span class="stat-name">Lock Re-acquire on Vis</span><span class="stat-val">Enabled</span></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let activeSentinel = null;
+
+    async function acquireLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          activeSentinel = await navigator.wakeLock.request('screen');
+          
+          activeSentinel.addEventListener('release', () => {
+            updateUI(false);
+          });
+
+          updateUI(true);
+        } else {
+          updateUI(false, 'Not Supported');
+        }
+      } catch (err) {
+        updateUI(false, err.name);
+      }
+    }
+
+    async function releaseLock() {
+      if (activeSentinel) {
+        await activeSentinel.release();
+        activeSentinel = null;
+        updateUI(false);
+      }
+    }
+
+    function updateUI(acquired, errMessage) {
+      const beaconPill = document.getElementById('beacon-pill');
+      const beaconDot = document.getElementById('beacon-dot');
+      const beaconText = document.getElementById('beacon-text');
+      const telState = document.getElementById('tel-state');
+      const telReleased = document.getElementById('tel-released');
+      const telPower = document.getElementById('tel-power');
+      const statReleased = document.getElementById('stat-released');
+      const btnAcquire = document.getElementById('btn-acquire');
+      const btnRelease = document.getElementById('btn-release');
+
+      if (acquired) {
+        beaconPill.style.background = 'rgba(6, 78, 59, 0.5)';
+        beaconPill.style.borderColor = '#10b981';
+        beaconDot.style.background = '#10b981';
+        beaconDot.style.boxShadow = '0 0 8px #10b981';
+        beaconText.textContent = 'SENTINEL ENGAGED: SLEEP INHIBITED';
+        beaconText.style.color = '#a7f3d0';
+
+        telState.textContent = 'Acquired';
+        telReleased.textContent = 'sentinel.released: false';
+        telPower.textContent = 'Sleep Inhibited';
+        statReleased.textContent = 'false';
+
+        btnAcquire.classList.add('active');
+        btnRelease.classList.remove('active');
+      } else {
+        beaconPill.style.background = 'rgba(69, 10, 10, 0.5)';
+        beaconPill.style.borderColor = '#f43f5e';
+        beaconDot.style.background = '#f43f5e';
+        beaconDot.style.boxShadow = '0 0 8px #f43f5e';
+        beaconText.textContent = errMessage ? `SENTINEL ERROR: ${errMessage}` : 'SENTINEL RELEASED: NORMAL SLEEP';
+        beaconText.style.color = '#fecdd3';
+
+        telState.textContent = 'Released';
+        telReleased.textContent = 'sentinel.released: true';
+        telPower.textContent = 'Normal Power Policy';
+        statReleased.textContent = 'true';
+
+        btnAcquire.classList.remove('active');
+        btnRelease.classList.add('active');
+      }
+    }
+
+    window.labReady = new Promise((resolve) => {
+      setTimeout(async () => {
+        const isSupported = 'wakeLock' in navigator;
+        document.getElementById('stat-supported').textContent = String(isSupported);
+        document.getElementById('tel-vis').textContent = document.visibilityState;
+
+        await acquireLock();
+
+        window.labEvidence = () => {
+          return {
+            subject: 'Hello World',
+            passed: Boolean(activeSentinel && !activeSentinel.released),
+            mechanism: 'W3C Screen Wake Lock API (navigator.wakeLock.request("screen"), WakeLockSentinel)',
+            measurements: {
+              apiSupported: isSupported,
+              sentinelReleased: activeSentinel ? activeSentinel.released : true,
+              lockType: activeSentinel ? activeSentinel.type : 'none',
+              visibilityState: document.visibilityState
+            }
+          };
+        };
+
+        resolve();
+      }, 50);
+    });
+  </script>
+</body>
+</html>

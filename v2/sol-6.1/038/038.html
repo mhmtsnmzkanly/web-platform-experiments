@@ -1,0 +1,17 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Remote Press</title><style>
+body{margin:0;background:#b5cdc0}main{height:100vh;display:grid;place-items:center}canvas{width:1150px;max-width:96vw;height:auto}
+</style></head><body><main><canvas width="1150" height="650" aria-label="Three diagonal Hello World impressions printed in a worker">Hello World</canvas></main><script>
+let evidence={};
+// The worker owns the complete drawing surface. Only a transferable bitmap
+// crosses back; unlike 024, no main-thread glyph alpha is sent for analysis.
+const source=`onmessage=event=>{
+const surface=new OffscreenCanvas(1150,650),ctx=surface.getContext('2d');
+ctx.fillStyle='#6c2939';ctx.font='italic 120px Georgia';
+for(let i=0;i<3;i++){ctx.save();ctx.translate(50+i%2*120,190+i*175);ctx.rotate(-.08);ctx.fillText(event.data,0,0);ctx.restore()}
+const data=ctx.getImageData(0,0,1150,650).data;let ink=0;for(let i=3;i<data.length;i+=4)if(data[i])ink++;
+const bitmap=surface.transferToImageBitmap();postMessage({bitmap,ink,phrase:event.data,url:location.href},[bitmap]);
+}`;
+const worker=new Worker(URL.createObjectURL(new Blob([source],{type:'text/javascript'})));
+window.labReady=new Promise((resolve,reject)=>{worker.onerror=event=>reject(new Error(event.message));worker.onmessage=event=>{const {bitmap,ink,phrase,url}=event.data;const width=bitmap.width,height=bitmap.height;document.querySelector('canvas').getContext('2d').drawImage(bitmap,0,0);bitmap.close();evidence={width,height,ink,phrase,closed:bitmap.width===0};worker.terminate();URL.revokeObjectURL(url);resolve()};worker.postMessage('Hello World')});
+window.labEvidence=()=>({subject:'Hello World',passed:evidence.phrase==='Hello World'&&evidence.width===1150&&evidence.height===650&&evidence.ink>30000&&evidence.closed,mechanism:'Worker-owned OffscreenCanvas -> transferred bitmap -> greeting print',measurements:evidence});
+</script></body></html>

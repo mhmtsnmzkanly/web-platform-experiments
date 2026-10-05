@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Cascade Observatory</title>
+<style>
+:root{color:#edf0ff;background:#17162b;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#17162b,#493f85)}.observatory{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #b7a8ff}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#b7a8ff;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#f2cb6d;font:12px monospace}.specimen{position:relative;z-index:1;margin:10vh auto 0;width:min(76vw,860px);padding:30px;background:#211f3e;border:1px solid #f2cb6d}.specimen h1{margin:0;color:#eaf0ff;font-size:clamp(64px,13vw,158px);line-height:.8;letter-spacing:-.1em}.controls{position:absolute;right:28px;bottom:28px;display:flex;gap:12px}button{border:1px solid #b7a8ff;padding:9px 14px;color:#b7a8ff;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="observatory"><p class="label">053R / cascade observatory / computed style</p><p class="state" id="state">cascade / authored values waiting</p><section class="specimen" id="specimen"><h1 id="greeting">Hello World</h1></section><div class="controls"><button id="read" type="button">read computed style</button></div></main><script>
+const greeting=document.querySelector('#greeting'),state=document.querySelector('#state');document.querySelector('#read').addEventListener('click',()=>{const style=getComputedStyle(greeting);state.textContent=`cascade / ${style.fontFamily.split(',')[0]} / ${style.fontSize} / ${style.color}`});
+</script></body></html>

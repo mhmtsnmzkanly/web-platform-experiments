@@ -1,0 +1,64 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello\n          World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — 3D Spatial Perspective"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello\n          World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — 3D Spatial Perspective"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS perspective 3D matrix -> preserve-3d spatial coordinate planes -> rotational foreshortening -> isometric Hello World monument",
+    "measurements": {
+      "helloTransformType": "matrix3d",
+      "worldTransformType": "matrix3d",
+      "helloBox": {
+        "width": 605,
+        "height": 226
+      },
+      "worldBox": {
+        "width": 721,
+        "height": 359
+      },
+      "depthOffsetZ": 90
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

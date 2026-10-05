@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280, height=800, initial-scale=1.0">
+  <title>Experiment 030: CSS Compositing and Blending Level 1</title>
+  <style>
+    /* Reset & Base Styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: #f2f1ec;
+      color: #11141a;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Print Proof Background Graticules & Trim Guides */
+    .proof-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: 
+        radial-gradient(circle, rgba(17, 20, 26, 0.15) 1px, transparent 1px),
+        linear-gradient(to right, rgba(17, 20, 26, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(17, 20, 26, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px, 120px 120px, 120px 120px;
+      z-index: 0;
+    }
+
+    /* Outer Margins & Header Bar */
+    .folio-container {
+      position: relative;
+      z-index: 1;
+      width: 1280px;
+      height: 800px;
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    header.proof-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid #11141a;
+      padding-bottom: 12px;
+    }
+
+    .header-titles h2 {
+      font-size: 11px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #555d6b;
+      margin-bottom: 4px;
+    }
+
+    .header-titles .folio-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #11141a;
+      text-transform: uppercase;
+    }
+
+    .header-metadata {
+      display: flex;
+      gap: 20px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11px;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .meta-label {
+      color: #7a8494;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .meta-val {
+      font-weight: 700;
+      color: #11141a;
+    }
+
+    .badge-active {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #11141a;
+      color: #00f0ff;
+      padding: 3px 8px;
+      border-radius: 2px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #00f0ff;
+      box-shadow: 0 0 6px #00f0ff;
+    }
+
+    /* CMYK Calibration Density Wedge Strip */
+    .cmyk-wedge-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 14px;
+      margin-bottom: 14px;
+    }
+
+    .wedge-channel {
+      background: #ffffff;
+      border: 1px solid rgba(17, 20, 26, 0.2);
+      padding: 6px 8px;
+      border-radius: 3px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .channel-header {
+      display: flex;
+      justify-content: space-between;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: #333a46;
+    }
+
+    .density-steps {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      height: 14px;
+      border: 1px solid rgba(17, 20, 26, 0.25);
+    }
+
+    .density-cyan .s1 { background: #00f0ff1a; }
+    .density-cyan .s2 { background: #00f0ff4d; }
+    .density-cyan .s3 { background: #00f0ff80; }
+    .density-cyan .s4 { background: #00f0ffb3; }
+    .density-cyan .s5 { background: #00f0ffe6; }
+    .density-cyan .s6 { background: #00f0ff; }
+
+    .density-magenta .s1 { background: #ff007f1a; }
+    .density-magenta .s2 { background: #ff007f4d; }
+    .density-magenta .s3 { background: #ff007f80; }
+    .density-magenta .s4 { background: #ff007fb3; }
+    .density-magenta .s5 { background: #ff007fe6; }
+    .density-magenta .s6 { background: #ff007f; }
+
+    .density-yellow .s1 { background: #ffe6001a; }
+    .density-yellow .s2 { background: #ffe6004d; }
+    .density-yellow .s3 { background: #ffe60080; }
+    .density-yellow .s4 { background: #ffe600b3; }
+    .density-yellow .s5 { background: #ffe600e6; }
+    .density-yellow .s6 { background: #ffe600; }
+
+    .density-black .s1 { background: #11141a1a; }
+    .density-black .s2 { background: #11141a4d; }
+    .density-black .s3 { background: #11141a80; }
+    .density-black .s4 { background: #11141ab3; }
+    .density-black .s5 { background: #11141ae6; }
+    .density-black .s6 { background: #11141a; }
+
+    /* Central Optical Compositing Chamber */
+    .compositing-chamber {
+      position: relative;
+      width: 100%;
+      height: 360px;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 0 0 1px #11141a;
+      /* CSS Compositing & Blending Level 1: Isolation Root */
+      isolation: isolate;
+      display: flex;
+    }
+
+    /* Split Optical Field: Inversion Grounds */
+    .field-negative {
+      flex: 1;
+      height: 100%;
+      background-color: #0c0e12;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .field-positive {
+      flex: 1;
+      height: 100%;
+      background-color: #ffffff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* High-Precision Center Registration Line & Optical Reticle */
+    .optical-meridian {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: #ff007f;
+      z-index: 10;
+      transform: translateX(-50%);
+      mix-blend-mode: difference;
+    }
+
+    .optical-reticle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 80px;
+      height: 80px;
+      border: 1px solid #00f0ff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      mix-blend-mode: difference;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .optical-reticle::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ffe600;
+      mix-blend-mode: difference;
+    }
+
+    /* Chromatic Background Bands using background-blend-mode */
+    .chromatic-ribbon-left {
+      position: absolute;
+      inset: 0;
+      background: 
+        linear-gradient(45deg, rgba(0, 240, 255, 0.35) 0%, transparent 70%),
+        linear-gradient(135deg, rgba(255, 0, 127, 0.35) 0%, transparent 70%),
+        #0c0e12;
+      background-blend-mode: screen, screen, normal;
+    }
+
+    .chromatic-ribbon-right {
+      position: absolute;
+      inset: 0;
+      background: 
+        linear-gradient(45deg, rgba(0, 240, 255, 0.25) 0%, transparent 70%),
+        linear-gradient(135deg, rgba(255, 230, 0, 0.35) 0%, transparent 70%),
+        #ffffff;
+      background-blend-mode: multiply, multiply, normal;
+    }
+
+    /* Monumental Hero Typographic Lockup */
+    .hero-stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .hero-title-container {
+      position: relative;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    /* Registration Color Shift Ghost Plates */
+    .plate-cyan {
+      position: absolute;
+      top: -3px;
+      left: -5px;
+      color: #00f0ff;
+      font-size: 88px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      font-family: "Impact", -apple-system, "Arial Black", sans-serif;
+      mix-blend-mode: screen;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .plate-magenta {
+      position: absolute;
+      top: 3px;
+      left: 5px;
+      color: #ff007f;
+      font-size: 88px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      font-family: "Impact", -apple-system, "Arial Black", sans-serif;
+      mix-blend-mode: screen;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .plate-yellow {
+      position: absolute;
+      top: 2px;
+      left: -2px;
+      color: #ffe600;
+      font-size: 88px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      font-family: "Impact", -apple-system, "Arial Black", sans-serif;
+      mix-blend-mode: screen;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* Primary Master Subject Element: Target for CDP Verification */
+    h1.hero-master-subject {
+      position: relative;
+      font-size: 88px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      font-family: "Impact", -apple-system, "Arial Black", sans-serif;
+      color: #ffffff;
+      /* W3C CSS Compositing: Optical Inversion Transfer */
+      mix-blend-mode: difference;
+      line-height: 1;
+      cursor: crosshair;
+      z-index: 30;
+      white-space: nowrap;
+    }
+
+    .hero-subhead {
+      margin-top: 14px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 13px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #ffffff;
+      mix-blend-mode: difference;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 4px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 2px;
+    }
+
+    /* Corner Calibration Crosshairs on Chamber */
+    .chamber-corner {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      z-index: 40;
+      mix-blend-mode: difference;
+    }
+    .corner-tl { top: 12px; left: 12px; border-top: 2px solid #ffffff; border-left: 2px solid #ffffff; }
+    .corner-tr { top: 12px; right: 12px; border-top: 2px solid #ffffff; border-right: 2px solid #ffffff; }
+    .corner-bl { bottom: 12px; left: 12px; border-bottom: 2px solid #ffffff; border-left: 2px solid #ffffff; }
+    .corner-br { bottom: 12px; right: 12px; border-bottom: 2px solid #ffffff; border-right: 2px solid #ffffff; }
+
+    /* Bottom Diagnostic Bench: 3 Scientific Composite Panels */
+    .diagnostic-bench {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.35fr;
+      gap: 18px;
+      margin-top: 14px;
+    }
+
+    .diagnostic-card {
+      background: #ffffff;
+      border: 1px solid #11141a;
+      border-radius: 3px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #e2e4ea;
+      padding-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #11141a;
+    }
+
+    .card-mode-pill {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      color: #ff007f;
+      background: #fff0f5;
+      padding: 2px 6px;
+      border-radius: 2px;
+      border: 1px solid #ffd1e0;
+    }
+
+    /* Venn Diagrams for Blend Modes */
+    .venn-container {
+      position: relative;
+      height: 100px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      isolation: isolate;
+    }
+
+    .venn-multiply-bg {
+      background: #ffffff;
+    }
+
+    .venn-screen-bg {
+      background: #0c0e12;
+    }
+
+    /* Subtractive Multiply Circles */
+    .subtractive-circle {
+      position: absolute;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      mix-blend-mode: multiply;
+    }
+    .sc-cyan { background: #00f0ff; top: 12px; left: 100px; }
+    .sc-magenta { background: #ff007f; top: 12px; left: 140px; }
+    .sc-yellow { background: #ffe600; top: 44px; left: 120px; }
+
+    /* Additive Screen Circles */
+    .additive-circle {
+      position: absolute;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      mix-blend-mode: screen;
+    }
+    .ac-red { background: #ff0055; top: 12px; left: 100px; }
+    .ac-green { background: #00ff66; top: 12px; left: 140px; }
+    .ac-blue { background: #0066ff; top: 44px; left: 120px; }
+
+    .venn-formula {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 9px;
+      color: #64748b;
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Technical Specification Ledger (Rightmost Panel) */
+    .specs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 10px;
+    }
+
+    .specs-table tr {
+      border-bottom: 1px solid #f1f3f7;
+    }
+
+    .specs-table tr:last-child {
+      border-bottom: none;
+    }
+
+    .specs-table td {
+      padding: 4px 0;
+    }
+
+    .spec-prop {
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .spec-val {
+      text-align: right;
+      font-weight: 700;
+      color: #11141a;
+    }
+
+    .spec-val code {
+      background: #f1f5f9;
+      padding: 1px 4px;
+      border-radius: 2px;
+      color: #0f172a;
+    }
+
+    /* Footer Telemetry & Registration Bar */
+    footer.folio-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #11141a;
+      padding-top: 8px;
+      margin-top: 8px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 10px;
+      color: #555d6b;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      color: #11141a;
+    }
+
+    .reg-target {
+      width: 14px;
+      height: 14px;
+      border: 1px solid #11141a;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .reg-target::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 6px;
+      width: 1px;
+      background: #11141a;
+    }
+
+    .reg-target::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 6px;
+      height: 1px;
+      background: #11141a;
+    }
+  </style>
+</head>
+<body>
+  <!-- Print Calibration Graticules -->
+  <div class="proof-canvas" aria-hidden="true"></div>
+
+  <main class="folio-container">
+    <!-- Header Identification -->
+    <header class="proof-header">
+      <div class="header-titles">
+        <h2>W3C Compositing & Blending Level 1 // Prepress Calibration</h2>
+        <div class="folio-title">Chromatic Separation & Optical Blend Proof</div>
+      </div>
+      <div class="header-metadata">
+        <div class="meta-item">
+          <span class="meta-label">Stacking Context</span>
+          <span class="meta-val"><code>isolation: isolate</code></span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Active Modes</span>
+          <span class="meta-val"><code>difference | multiply | screen</code></span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Compositor Engine</span>
+          <span class="badge-active"><span class="badge-dot"></span> SKIA ACCELERATED</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- CMYK 4-Channel Halftone Density Wedge Strip -->
+    <section class="cmyk-wedge-strip" aria-label="CMYK Density Step Wedge Calibration">
+      <div class="wedge-channel">
+        <div class="channel-header"><span>CYAN (C)</span><span>100% PROCESS</span></div>
+        <div class="density-steps density-cyan">
+          <div class="s1"></div><div class="s2"></div><div class="s3"></div><div class="s4"></div><div class="s5"></div><div class="s6"></div>
+        </div>
+      </div>
+      <div class="wedge-channel">
+        <div class="channel-header"><span>MAGENTA (M)</span><span>100% PROCESS</span></div>
+        <div class="density-steps density-magenta">
+          <div class="s1"></div><div class="s2"></div><div class="s3"></div><div class="s4"></div><div class="s5"></div><div class="s6"></div>
+        </div>
+      </div>
+      <div class="wedge-channel">
+        <div class="channel-header"><span>YELLOW (Y)</span><span>100% PROCESS</span></div>
+        <div class="density-steps density-yellow">
+          <div class="s1"></div><div class="s2"></div><div class="s3"></div><div class="s4"></div><div class="s5"></div><div class="s6"></div>
+        </div>
+      </div>
+      <div class="wedge-channel">
+        <div class="channel-header"><span>KEY CARBON (K)</span><span>100% DENSITY</span></div>
+        <div class="density-steps density-black">
+          <div class="s1"></div><div class="s2"></div><div class="s3"></div><div class="s4"></div><div class="s5"></div><div class="s6"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Optical Compositing Chamber -->
+    <section class="compositing-chamber" aria-label="Optical Blend Chamber">
+      <!-- Corner Trim Markers -->
+      <div class="chamber-corner corner-tl" aria-hidden="true"></div>
+      <div class="chamber-corner corner-tr" aria-hidden="true"></div>
+      <div class="chamber-corner corner-bl" aria-hidden="true"></div>
+      <div class="chamber-corner corner-br" aria-hidden="true"></div>
+
+      <!-- Center Optical Reticle & Registration Line -->
+      <div class="optical-meridian" aria-hidden="true"></div>
+      <div class="optical-reticle" aria-hidden="true"></div>
+
+      <!-- Dual Split Optical Grounds -->
+      <div class="field-negative">
+        <div class="chromatic-ribbon-left"></div>
+      </div>
+      <div class="field-positive">
+        <div class="chromatic-ribbon-right"></div>
+      </div>
+
+      <!-- Central Typographic Subject Stage -->
+      <div class="hero-stage">
+        <div class="hero-title-container">
+          <!-- Offset Chromatic Registration Plates -->
+          <span class="plate-cyan" aria-hidden="true">Hello World</span>
+          <span class="plate-magenta" aria-hidden="true">Hello World</span>
+          <span class="plate-yellow" aria-hidden="true">Hello World</span>
+
+          <!-- Master Typographic Subject: Inverts optically across negative and positive grounds -->
+          <h1 class="hero-master-subject" id="subject-hello-world">Hello World</h1>
+        </div>
+        <div class="hero-subhead">
+          <span>mix-blend-mode: difference</span> &bull; <span>Transfer: Cm = |Dc - Sc|</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Diagnostic Proofing Bench -->
+    <section class="diagnostic-bench" aria-label="Diagnostic Blend Panels">
+      <!-- Panel 1: Subtractive Color Synthesis -->
+      <div class="diagnostic-card">
+        <div class="card-label-row">
+          <span class="card-title">Subtractive Synthesis</span>
+          <span class="card-mode-pill">multiply</span>
+        </div>
+        <div class="venn-container venn-multiply-bg">
+          <div class="subtractive-circle sc-cyan"></div>
+          <div class="subtractive-circle sc-magenta"></div>
+          <div class="subtractive-circle sc-yellow"></div>
+        </div>
+        <div class="venn-formula">
+          <span>Cm = Sc &times; Dc</span>
+          <span>CYM &rarr; Key Black</span>
+        </div>
+      </div>
+
+      <!-- Panel 2: Additive Color Synthesis -->
+      <div class="diagnostic-card">
+        <div class="card-label-row">
+          <span class="card-title">Additive Synthesis</span>
+          <span class="card-mode-pill">screen</span>
+        </div>
+        <div class="venn-container venn-screen-bg">
+          <div class="additive-circle ac-red"></div>
+          <div class="additive-circle ac-green"></div>
+          <div class="additive-circle ac-blue"></div>
+        </div>
+        <div class="venn-formula">
+          <span>Cm = 1 - (1-Sc)(1-Dc)</span>
+          <span>RGB &rarr; Peak White</span>
+        </div>
+      </div>
+
+      <!-- Panel 3: Technical Specifications & Telemetry -->
+      <div class="diagnostic-card">
+        <div class="card-label-row">
+          <span class="card-title">Compositing Specimen Telemetry</span>
+          <span class="card-mode-pill">W3C REC-2015</span>
+        </div>
+        <table class="specs-table">
+          <tbody>
+            <tr>
+              <td class="spec-prop">Stacking Isolation:</td>
+              <td class="spec-val"><code>isolation: isolate</code></td>
+            </tr>
+            <tr>
+              <td class="spec-prop">Primary Transfer:</td>
+              <td class="spec-val"><code>mix-blend-mode: difference</code></td>
+            </tr>
+            <tr>
+              <td class="spec-prop">Background Blending:</td>
+              <td class="spec-val"><code>background-blend-mode: multiply</code></td>
+            </tr>
+            <tr>
+              <td class="spec-prop">Plate Misregistration:</td>
+              <td class="spec-val">&plusmn;5.00px &Delta;X / &plusmn;3.00px &Delta;Y</td>
+            </tr>
+            <tr>
+              <td class="spec-prop">Target Resolution:</td>
+              <td class="spec-val">1280 &times; 800 px @ 100% Native</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Prepress Folio Footer Bar -->
+    <footer class="folio-footer">
+      <div class="footer-left">
+        <span>EXP-030 // CSS COMPOSITING LEVEL 1</span>
+        <span>&bull;</span>
+        <span>SHEET 030 OF 075</span>
+        <span>&bull;</span>
+        <span>PROOF BED: COATED ARCHIVAL MATTE</span>
+      </div>
+      <div class="footer-right">
+        <div class="reg-target" aria-hidden="true"></div>
+        <span>REGISTRATION LOCK: 100% COINCIDENT</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    window.labEvidence = async function() {
+      const chamber = document.querySelector('.compositing-chamber');
+      const subject = document.getElementById('subject-hello-world');
+      const subtractive = document.querySelector('.subtractive-circle');
+      const additive = document.querySelector('.additive-circle');
+      const ribbonLeft = document.querySelector('.chromatic-ribbon-left');
+      const ribbonRight = document.querySelector('.chromatic-ribbon-right');
+
+      const chamberStyle = getComputedStyle(chamber);
+      const subjectStyle = getComputedStyle(subject);
+      const subStyle = getComputedStyle(subtractive);
+      const addStyle = getComputedStyle(additive);
+      const rLeftStyle = getComputedStyle(ribbonLeft);
+      const rRightStyle = getComputedStyle(ribbonRight);
+
+      const passed = Boolean(
+        chamberStyle.isolation === 'isolate' &&
+        subjectStyle.mixBlendMode === 'difference' &&
+        subStyle.mixBlendMode === 'multiply' &&
+        addStyle.mixBlendMode === 'screen' &&
+        subject.textContent.trim() === 'Hello World'
+      );
+
+      return {
+        subject: 'Hello World',
+        passed: passed,
+        mechanism: 'CSS Compositing and Blending Level 1 isolated stacking context with difference, multiply, and screen transfer equations',
+        measurements: {
+          chamberIsolation: chamberStyle.isolation,
+          subjectMixBlendMode: subjectStyle.mixBlendMode,
+          subtractiveMixBlendMode: subStyle.mixBlendMode,
+          additiveMixBlendMode: addStyle.mixBlendMode,
+          ribbonLeftBackgroundBlend: rLeftStyle.backgroundBlendMode,
+          ribbonRightBackgroundBlend: rRightStyle.backgroundBlendMode
+        }
+      };
+    };
+  </script>
+</body>
+</html>

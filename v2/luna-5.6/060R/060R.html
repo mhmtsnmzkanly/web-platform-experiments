@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Reading Lamp</title>
+<style>
+:root{color:#f7e9c5;background:#17120e;font-family:Georgia,serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#17120e}.library{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #d9a75c;background:repeating-linear-gradient(0deg,transparent 0 34px,rgba(217,167,92,.08) 35px 36px)}.label,.state,.controls{position:relative;z-index:2}.label{margin:0;color:#d9a75c;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#c9bca0;font:12px monospace}.lamp{position:absolute;left:12%;top:18%;z-index:1;width:170px;height:170px;border-radius:50% 50% 44% 44%;background:#f6d77a;box-shadow:0 0 80px 35px rgba(246,215,122,.25)}.desk{position:relative;z-index:1;margin:20vh auto 0;width:min(78vw,900px);padding:28px 34px;border-bottom:12px solid #82512d;background:#2a2119;box-shadow:0 20px 0 #82512d}.desk h1{margin:0;color:#f7e9c5;font-size:clamp(64px,13vw,158px);line-height:.8;letter-spacing:-.1em}.controls{position:absolute;right:28px;bottom:28px}button{border:1px solid #d9a75c;padding:9px 14px;color:#d9a75c;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="library"><p class="label">060R / reading lamp / filereader</p><p class="state" id="state">library / page waiting</p><i class="lamp"></i><section class="desk"><h1>Hello World</h1></section><div class="controls"><button id="read" type="button">read page</button></div></main><script>
+const state=document.querySelector('#state');document.querySelector('#read').addEventListener('click',()=>{const reader=new FileReader();reader.addEventListener('load',()=>{state.textContent=`library / page read / ${reader.result.length} characters`});reader.addEventListener('error',()=>{state.textContent='library / page could not be read'});reader.readAsText(new Blob(['Hello World'],{type:'text/plain'}))});
+</script></body></html>

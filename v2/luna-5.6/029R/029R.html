@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Type Foundry</title>
+<style>
+:root{color:#1c2630;background:#b9c7d1;font-family:Georgia,serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#f3efe5,#b9c7d1)}.foundry{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #1c2630;background:#f8f5ec}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#547080;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#547080;font:13px monospace}.specimen{position:relative;z-index:1;margin:13vh 4% 0;padding-bottom:34px;border-bottom:1px solid #1c2630}.specimen:before{position:absolute;left:0;bottom:-5px;width:10px;height:10px;border-radius:50%;background:#c46d4f;content:""}.specimen h1{margin:0;font-size:clamp(72px,15vw,178px);line-height:.78;letter-spacing:-.1em}.controls{position:absolute;right:28px;bottom:28px;display:flex;gap:10px}button{border:1px solid #547080;padding:9px 14px;color:#1c2630;background:transparent;font:12px monospace;cursor:pointer}button:hover{background:#547080;color:#f8f5ec}</style>
+</head><body><main class="foundry"><p class="label">029R / type foundry / font loading</p><p class="state" id="state">fonts / inspecting the foundry</p><section class="specimen"><h1>Hello World</h1></section><div class="controls"><button id="inspect" type="button">inspect readiness</button></div></main><script>
+const state=document.querySelector('#state');async function inspect(){try{const fontSet=await document.fonts.ready;state.textContent=`fonts / ready / ${fontSet.status} / ${fontSet.size} faces visible`}catch{state.textContent='fonts / readiness error'}}document.querySelector('#inspect').addEventListener('click',inspect);inspect();
+</script></body></html>

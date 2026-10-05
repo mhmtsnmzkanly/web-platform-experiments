@@ -1,0 +1,87 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1100,
+        "height": 700,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 2,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello",
+      "World"
+    ],
+    "animations": [],
+    "title": "Hello World — Equal Spans"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1100,
+        "height": 700,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 2,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello",
+      "World"
+    ],
+    "animations": [],
+    "title": "Hello World — Equal Spans"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "TextMetrics ink bounds -> fitted font sizes -> equal greeting spans",
+    "measurements": {
+      "records": [
+        {
+          "word": "Hello",
+          "size": 391.4021045058009,
+          "inkWidth": 851.2185425758362
+        },
+        {
+          "word": "World",
+          "size": 344.882239198656,
+          "inkWidth": 853.443359375
+        }
+      ]
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

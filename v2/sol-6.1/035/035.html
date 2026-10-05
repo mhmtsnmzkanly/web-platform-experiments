@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Outside the Box</title><style>
+body{margin:0;background:#f2b474;color:#423140;font-family:Georgia}main{padding:70px}#box{width:400px;height:520px;overflow:hidden;border-left:12px solid #423140;padding-left:30px}button{font:18px Georgia;padding:15px;border:1px solid;background:transparent}h1{font-size:100px;font-weight:400;line-height:1.05;margin:110px 0 0;width:350px}#note{position:fixed;inset:auto;left:550px;top:200px;margin:0;border:0;padding:50px 35px;background:#344fcb;color:#fff;font:75px Georgia;width:570px;box-sizing:border-box}
+</style></head><body><main><div id="box"><button id="open" popovertarget="note">Lift the annotation</button><h1>Hello World</h1><div id="note" popover="auto">Hello World</div></div></main><script>
+const note=document.querySelector('#note'),box=document.querySelector('#box');let toggles=0;
+// The popover remains a descendant of the clipping box, yet native top-layer
+// placement escapes that ancestor. It does not make the rest of the page inert.
+note.addEventListener('toggle',event=>{if(event.newState==='open')toggles++});
+window.labEvidence=()=>({subject:'Hello World',passed:!note.matches(':popover-open')&&getComputedStyle(box).overflow==='hidden',mechanism:'Overflow-clipped descendant prepared for native popover',measurements:{open:note.matches(':popover-open'),overflow:getComputedStyle(box).overflow}});
+window.labScenario={kind:'click',selector:'#open'};
+window.labInteractionEvidence=()=>{const rect=note.getBoundingClientRect(),outer=box.getBoundingClientRect();return {subject:'Hello World',passed:note.matches(':popover-open')&&toggles===1&&rect.left>outer.right&&document.elementFromPoint(rect.left+30,rect.top+30)===note&&document.activeElement.id==='open',mechanism:'Declarative popover -> nonmodal top layer -> greeting beyond clip',measurements:{toggles,outside:rect.left>outer.right,hit:document.elementFromPoint(rect.left+30,rect.top+30)===note,focus:document.activeElement.id}}};
+</script></body></html>

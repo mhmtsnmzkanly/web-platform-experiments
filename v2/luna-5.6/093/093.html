@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Folding Archive</title>
+<style>
+:root{color:#f4ecd8;background:#251b13;font-family:Georgia,serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#251b13,#67432a)}.archive{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #e5b864}.label,.state{position:relative;z-index:1}.label{margin:0;color:#e5b864;font:11px monospace;letter-spacing:.18em}.state{margin-top:10px;color:#d7b898;font:12px monospace}.drawer{position:relative;z-index:1;margin:10vh auto 0;width:min(76vw,880px);padding:24px;border-block:1px solid #e5b864}.drawer summary{cursor:pointer;color:#e5b864;font:12px monospace;list-style:none}.drawer summary::-webkit-details-marker{display:none}.drawer summary:before{content:'＋ ';color:#e86b78}.drawer[open] summary:before{content:'－ '}.drawer h1{margin:45px 0 0;font-size:clamp(62px,13vw,156px);line-height:.8;letter-spacing:-.1em}.drawer p{color:#d7b898;font:12px monospace}.drawer[open]{background:rgba(229,184,100,.08)}</style>
+</head><body><main class="archive"><p class="label">093 / folding archive / details summary</p><p class="state" id="state">archive / drawer open</p><details open id="drawer" class="drawer"><summary>open the greeting archive</summary><h1>Hello World</h1><p>Native disclosure state reveals the archived print.</p></details></main><script>
+const drawer=document.querySelector('#drawer'),state=document.querySelector('#state');drawer.addEventListener('toggle',()=>{state.textContent=`archive / drawer ${drawer.open?'open':'closed'} / disclosure event received`});
+</script></body></html>

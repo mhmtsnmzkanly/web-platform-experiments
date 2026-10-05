@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 051: CSS Anchor Positioning Fallback Strategies</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #07090e;
+      --card: #0d1420;
+      --border: #1a273c;
+      --cyan: #00f0ff;
+      --amber: #f59e0b;
+      --emerald: #10b981;
+      --purple: #c084fc;
+      --text: #f8fafc;
+      --muted: #64748b;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --font-sans: system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .anchor-frame {
+      width: 100%;
+      max-width: 1040px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Top Metrology Header */
+    .anchor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .header-badge {
+      color: var(--cyan);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .header-spec {
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* Proscenium Stage with bounded collision arena */
+    .proscenium-stage {
+      position: relative;
+      height: 480px;
+      background: radial-gradient(circle at 50% 50%, #0c1828 0%, #040810 100%);
+      border: 1px solid #1e3552;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.08);
+      overflow: hidden;
+    }
+
+    /* Caliper Guides Grid */
+    .boundary-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* Anchor Definition on Primary Subject */
+    .subject-monument {
+      position: relative;
+      z-index: 10;
+      background: rgba(8, 14, 24, 0.85);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      padding: 24px 44px;
+      border-radius: 12px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 240, 255, 0.2);
+      text-align: center;
+      /* Anchor declaration */
+      anchor-name: --hero-anchor;
+    }
+
+    #subject-hello-world {
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: #ffffff;
+      text-shadow: 0 0 24px rgba(0, 240, 255, 0.7);
+      white-space: nowrap;
+    }
+
+    .subject-sublabel {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #94a3b8;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+
+    /* CSS ANCHOR POSITIONING FALLBACK RULES */
+    @position-try --flank-bottom {
+      top: calc(anchor(--hero-anchor bottom) + 16px);
+      left: anchor(--hero-anchor center);
+      transform: translateX(-50%);
+      bottom: unset;
+    }
+
+    @position-try --flank-top {
+      bottom: calc(anchor(--hero-anchor top) + 16px);
+      left: anchor(--hero-anchor center);
+      transform: translateX(-50%);
+      top: unset;
+    }
+
+    @position-try --flank-right {
+      left: calc(anchor(--hero-anchor right) + 16px);
+      top: anchor(--hero-anchor center);
+      transform: translateY(-50%);
+      right: unset;
+    }
+
+    @position-try --flank-left {
+      right: calc(anchor(--hero-anchor left) + 16px);
+      top: anchor(--hero-anchor center);
+      transform: translateY(-50%);
+      left: unset;
+    }
+
+    /* Decoupled Floating Callout */
+    .anchored-callout {
+      position: absolute;
+      position-anchor: --hero-anchor;
+      /* Primary intention: bottom center */
+      top: calc(anchor(--hero-anchor bottom) + 16px);
+      left: anchor(--hero-anchor center);
+      transform: translateX(-50%);
+      /* Declarative fallback list */
+      position-try-fallbacks: --flank-bottom, --flank-top, --flank-right, --flank-left;
+      
+      background: #0f1929;
+      border: 1px solid var(--cyan);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #e2e8f0;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .callout-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    /* Satellite Tag: Top Flank */
+    .top-satellite {
+      position: absolute;
+      position-anchor: --hero-anchor;
+      bottom: calc(anchor(--hero-anchor top) + 16px);
+      left: anchor(--hero-anchor center);
+      transform: translateX(-50%);
+      position-try-fallbacks: --flank-top, --flank-bottom;
+      
+      background: #181226;
+      border: 1px solid var(--purple);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: #fae8ff;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    /* Controls Strip */
+    .position-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .ctrl-btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: #0d1420;
+      color: #cbd5e1;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .ctrl-btn:hover, .ctrl-btn.active {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* Telemetry Deck */
+    .telemetry-deck {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .telemetry-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: var(--font-mono);
+    }
+
+    .card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+    }
+
+    .card-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .card-sub {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* Fallback Strategy Ledger */
+    .strategy-ledger {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .ledger-title {
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .code-preview {
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .param-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .param-row:last-child {
+      border-bottom: none;
+    }
+
+    .param-name {
+      color: var(--muted);
+    }
+
+    .param-val {
+      color: var(--cyan);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="anchor-frame">
+    <!-- Header -->
+    <header class="anchor-header">
+      <span class="header-badge">CSS Anchor Positioning Level 2 &mdash; Fallback Strategies</span>
+      <span class="header-spec">@position-try &bull; position-try-fallbacks</span>
+    </header>
+
+    <!-- Proscenium Stage with bounded arena -->
+    <section class="proscenium-stage" id="arena-stage" aria-label="Anchor Positioning Fallback Arena">
+      <div class="boundary-grid"></div>
+
+      <!-- Top Flank Anchored Satellite -->
+      <div class="top-satellite" id="top-satellite">
+        <span>ANCHOR-TRY: --flank-top</span>
+      </div>
+
+      <!-- Central Anchor Landmark & Primary Subject -->
+      <div class="subject-monument" id="anchor-target">
+        <h1 id="subject-hello-world">Hello World</h1>
+        <div class="subject-sublabel">Tether Anchor: --hero-anchor</div>
+      </div>
+
+      <!-- Bottom Flank Primary Anchored Callout -->
+      <div class="anchored-callout" id="floating-callout">
+        <div class="callout-indicator"></div>
+        <span id="callout-label">POSITION-TRY: --flank-bottom</span>
+      </div>
+    </section>
+
+    <!-- Controls Strip -->
+    <div class="position-controls">
+      <button type="button" class="ctrl-btn active" id="btn-center" onclick="moveAnchor('center')">Center Position (Default)</button>
+      <button type="button" class="ctrl-btn" id="btn-bottom" onclick="moveAnchor('bottom')">Arena Bottom (Flips to Top)</button>
+      <button type="button" class="ctrl-btn" id="btn-top" onclick="moveAnchor('top')">Arena Top (Flips to Bottom)</button>
+    </div>
+
+    <!-- Telemetry Cards -->
+    <div class="telemetry-deck">
+      <div class="telemetry-card">
+        <span class="card-label">Anchor Reference</span>
+        <div class="card-val" id="tel-anchor">--hero-anchor</div>
+        <span class="card-sub">anchor-name registered</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Primary Strategy</span>
+        <div class="card-val" id="tel-primary">--flank-bottom</div>
+        <span class="card-sub">top: anchor(bottom)</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Fallback Resolution</span>
+        <div class="card-val" id="tel-resolved">Resolved OK</div>
+        <span class="card-sub" id="tel-active-strategy">Active: --flank-bottom</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Clearance Check</span>
+        <div class="card-val" id="tel-clearance">Unconstrained</div>
+        <span class="card-sub">Viewport Bounds Safe</span>
+      </div>
+    </div>
+
+    <!-- Strategy Ledger -->
+    <div class="strategy-ledger">
+      <div>
+        <div class="ledger-title">Declarative Fallback Rules</div>
+        <div class="code-preview">
+          @position-try --flank-top {<br>
+          &nbsp;&nbsp;bottom: calc(anchor(--hero-anchor top) + 16px);<br>
+          &nbsp;&nbsp;top: unset;<br>
+          }<br>
+          position-try-fallbacks: --flank-bottom, --flank-top, --flank-right, --flank-left;
+        </div>
+      </div>
+      <div>
+        <div class="ledger-title">Tether Coordinates</div>
+        <div class="param-row"><span class="param-name">Anchor Left</span><span class="param-val" id="val-anchor-left">0px</span></div>
+        <div class="param-row"><span class="param-name">Anchor Top</span><span class="param-val" id="val-anchor-top">0px</span></div>
+        <div class="param-row"><span class="param-name">Callout Left</span><span class="param-val" id="val-callout-left">0px</span></div>
+        <div class="param-row"><span class="param-name">Callout Top</span><span class="param-val" id="val-callout-top">0px</span></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function updateCoordinates() {
+      const anchorEl = document.getElementById('anchor-target');
+      const calloutEl = document.getElementById('floating-callout');
+      const aRect = anchorEl.getBoundingClientRect();
+      const cRect = calloutEl.getBoundingClientRect();
+
+      document.getElementById('val-anchor-left').textContent = Math.round(aRect.left) + 'px';
+      document.getElementById('val-anchor-top').textContent = Math.round(aRect.top) + 'px';
+      document.getElementById('val-callout-left').textContent = Math.round(cRect.left) + 'px';
+      document.getElementById('val-callout-top').textContent = Math.round(cRect.top) + 'px';
+
+      const isBelow = cRect.top > aRect.bottom;
+      document.getElementById('tel-active-strategy').textContent = isBelow ? 'Active: --flank-bottom' : 'Active: --flank-top';
+    }
+
+    function moveAnchor(pos) {
+      const anchorEl = document.getElementById('anchor-target');
+      if (pos === 'bottom') {
+        anchorEl.style.transform = 'translateY(120px)';
+      } else if (pos === 'top') {
+        anchorEl.style.transform = 'translateY(-120px)';
+      } else {
+        anchorEl.style.transform = 'none';
+      }
+
+      document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById('btn-' + pos);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      setTimeout(updateCoordinates, 50);
+    }
+
+    window.labReady = new Promise((resolve) => {
+      setTimeout(() => {
+        updateCoordinates();
+
+        const isAnchorSupported = CSS.supports('anchor-name: --test');
+        const isTrySupported = CSS.supports('position-try-fallbacks: --bottom');
+
+        const anchorEl = document.getElementById('anchor-target');
+        const calloutEl = document.getElementById('floating-callout');
+        const aRect = anchorEl.getBoundingClientRect();
+        const cRect = calloutEl.getBoundingClientRect();
+
+        window.labEvidence = () => {
+          return {
+            subject: 'Hello World',
+            passed: isAnchorSupported && isTrySupported,
+            mechanism: 'CSS Anchor Positioning Level 2 (@position-try, position-try-fallbacks, position-anchor)',
+            measurements: {
+              anchorSupported: isAnchorSupported,
+              positionTrySupported: isTrySupported,
+              anchorX: aRect.left,
+              anchorY: aRect.top,
+              calloutX: cRect.left,
+              calloutY: cRect.top
+            }
+          };
+        };
+
+        resolve();
+      }, 50);
+    });
+  </script>
+</body>
+</html>

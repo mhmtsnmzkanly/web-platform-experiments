@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Letter Valley</title><style>
+body{margin:0;background:#252b32;color:#d6e994}main{height:100vh;display:grid;place-items:center}svg{width:1180px;max-width:96vw;height:auto}text{font:80px monospace;fill:#d6e994}
+</style></head><body><main><svg viewBox="0 0 1180 650" role="img" aria-label="Hello World arranged as an XML-controlled letter valley"></svg></main><script>
+const xml='<score><glyph x="40" y="160">H</glyph><glyph x="140" y="230">e</glyph><glyph x="240" y="290">l</glyph><glyph x="340" y="340">l</glyph><glyph x="440" y="380">o</glyph><glyph x="540" y="400"> </glyph><glyph x="640" y="380">W</glyph><glyph x="740" y="340">o</glyph><glyph x="840" y="290">r</glyph><glyph x="940" y="230">l</glyph><glyph x="1040" y="160">d</glyph></score>';
+const parser=new DOMParser(),score=parser.parseFromString(xml,'application/xml');
+if(score.querySelector('parsererror'))throw new Error('Invalid embedded greeting score');
+// XML is the layout authority: each parsed record controls one SVG glyph.
+// Round-trip serialization checks that whitespace carrying the word gap survives.
+const roundtrip=parser.parseFromString(new XMLSerializer().serializeToString(score),'application/xml');
+const records=[...roundtrip.querySelectorAll('glyph')],svg=document.querySelector('svg');
+for(const record of records){const x=Number(record.getAttribute('x')),y=Number(record.getAttribute('y'));if(!Number.isFinite(x)||!Number.isFinite(y))throw new Error('Invalid glyph coordinates');const text=document.createElementNS(svg.namespaceURI,'text');text.setAttribute('x',x);text.setAttribute('y',y);text.textContent=record.textContent;svg.append(text)}
+window.labEvidence=()=>({subject:'Hello World',passed:roundtrip.documentElement.textContent==='Hello World'&&records.length===11&&svg.querySelectorAll('text').length===11&&[...svg.querySelectorAll('text')].every((node,i)=>node.getAttribute('x')===records[i].getAttribute('x')&&node.getAttribute('y')===records[i].getAttribute('y')),mechanism:'Embedded XML -> parse/serialize records -> SVG glyph coordinates',measurements:{roundtrip:roundtrip.documentElement.textContent,glyphs:records.length,positions:records.map(record=>({x:record.getAttribute('x'),y:record.getAttribute('y')}))}});
+</script></body></html>

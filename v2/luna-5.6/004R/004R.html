@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — Parallax Object</title>
+  <style>
+    :root { background: #090c12; color: #f6f0de; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: radial-gradient(circle at 50% 45%, #263b61, #090c12 62%); perspective: 1200px; }
+    .scene { position: relative; width: min(88vw, 1050px); height: min(82vh, 650px); transform-style: preserve-3d; }
+    .scene::before, .scene::after { position: absolute; inset: 12% 8%; border: 1px solid #4d75aa; content: ""; transform: translateZ(-90px) rotate(4deg); }
+    .scene::after { inset: 18% 14%; border-color: #ee8e54; transform: translateZ(-150px) rotate(-5deg); }
+    .hud { position: absolute; inset: 0; display: grid; grid-template-rows: auto 1fr auto; padding: 24px; border: 1px solid #6b91c0; background: rgba(16, 27, 48, .65); transform-style: preserve-3d; transition: transform 120ms ease-out; }
+    .label, .hint { margin: 0; color: #ee8e54; font: 11px monospace; letter-spacing: .2em; text-transform: uppercase; }
+    .hint { color: #95b3d6; letter-spacing: .08em; text-transform: none; }
+    .core { display: grid; place-items: center; transform: translateZ(80px); }
+    h1 { margin: 0; color: #f6f0de; font-size: clamp(62px, 13vw, 164px); line-height: .8; letter-spacing: -.1em; white-space: nowrap; text-shadow: 12px 14px 0 #ee8e54, 24px 26px 0 #203f6d; }
+    .orb { position: absolute; right: 9%; bottom: 13%; width: 84px; height: 84px; border: 1px solid #ee8e54; border-radius: 50%; transform: translateZ(120px); box-shadow: inset 0 0 24px #ee8e54, 0 0 40px #ee8e54; }
+  </style>
+</head>
+<body>
+  <main class="scene" id="scene">
+    <section class="hud">
+      <p class="label">004R / parallax object / perspective</p>
+      <div class="core"><h1>Hello World</h1></div>
+      <p class="hint">move the pointer / inspect the depth stack</p>
+      <span class="orb" aria-hidden="true"></span>
+    </section>
+  </main>
+  <script>
+    const scene = document.querySelector('#scene');
+    const hud = document.querySelector('.hud');
+    scene.addEventListener('pointermove', (event) => {
+      const x = event.offsetX / scene.clientWidth - .5;
+      const y = event.offsetY / scene.clientHeight - .5;
+      hud.style.transform = `rotateX(${y * -12}deg) rotateY(${x * 16}deg)`;
+    });
+    scene.addEventListener('pointerleave', () => hud.style.transform = '');
+  </script>
+</body>
+</html>

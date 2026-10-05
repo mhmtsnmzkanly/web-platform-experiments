@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — Color Identity</title>
+  <style>
+    :root { --ink: #f5f1e8; --accent: #ed7d55; color: var(--ink); background: #171b24; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: linear-gradient(135deg, #171b24, var(--accent)); transition: background 500ms ease; }
+    .identity { position: relative; width: min(94vw, 1180px); min-height: min(84vh, 680px); padding: 30px 5vw 36px; overflow: hidden; border: 1px solid var(--accent); background: color-mix(in srgb, #171b24 82%, var(--accent)); }
+    .identity::before { position: absolute; inset: auto -10% -28% 38%; height: 65%; border-radius: 50%; background: var(--ink); opacity: .12; content: ""; }
+    .label, .hash { position: relative; z-index: 1; margin: 0; color: var(--accent); font: 11px/1.4 monospace; letter-spacing: .18em; text-transform: uppercase; }
+    .hash { margin-top: 10px; color: var(--ink); letter-spacing: .08em; text-transform: none; word-break: break-all; }
+    h1 { position: relative; z-index: 1; margin: 18vh 0 0; color: var(--ink); font-size: clamp(72px, 15vw, 176px); line-height: .8; letter-spacing: -.1em; }
+    .controls { position: absolute; z-index: 2; right: 5vw; bottom: 34px; display: flex; align-items: center; gap: 12px; }
+    input { min-width: min(280px, 34vw); border: 1px solid var(--accent); padding: 10px; color: var(--ink); background: transparent; font: 13px monospace; }
+    button { border: 1px solid var(--accent); padding: 10px 14px; color: var(--ink); background: transparent; font: 12px monospace; cursor: pointer; }
+    button:hover, button:focus-visible { color: #171b24; background: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="identity">
+    <p class="label">020R / color identity / sha-256</p>
+    <p class="hash" id="hash">digest pending</p>
+    <h1 id="greeting">Hello World</h1>
+    <div class="controls">
+      <input id="source" value="Hello World" aria-label="Text to digest">
+      <button id="digest" type="button">recalculate</button>
+    </div>
+  </main>
+  <script>
+    const source = document.querySelector('#source');
+    const greeting = document.querySelector('#greeting');
+    const hash = document.querySelector('#hash');
+    const digestButton = document.querySelector('#digest');
+    async function calculate() {
+      const value = source.value || 'Hello World';
+      const bytes = new TextEncoder().encode(value);
+      const buffer = await crypto.subtle.digest('SHA-256', bytes);
+      const hex = [...new Uint8Array(buffer)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+      document.documentElement.style.setProperty('--accent', `#${hex.slice(0, 6)}`);
+      document.documentElement.style.setProperty('--ink', `#${hex.slice(6, 12)}`);
+      greeting.textContent = value;
+      hash.textContent = `sha-256 / ${hex}`;
+    }
+    digestButton.addEventListener('click', calculate);
+    source.addEventListener('keydown', (event) => { if (event.key === 'Enter') calculate(); });
+    calculate();
+  </script>
+</body>
+</html>

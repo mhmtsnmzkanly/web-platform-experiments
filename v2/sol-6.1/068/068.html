@@ -1,0 +1,14 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Underprint</title><style>
+@layer book,poster;
+body{margin:0;background:#ead7cc}main{padding:80px 100px}label{font:20px Georgia;color:#684454}input{accent-color:#684454}span{display:block}
+@layer book{h1{font:110px/1.1 Georgia;font-weight:400;color:#684454;margin:100px 0 0;letter-spacing:0}}
+@layer poster{h1{font:bold 170px/1.1 Arial;color:#345f9b;letter-spacing:-8px}
+/* Roll back this layer, not the author origin or browser defaults. */
+body:has(input:checked) h1{all:revert-layer}}
+</style></head><body><main><label><input id="rollback" type="checkbox">Reveal the underlying edition</label><h1><span>Hello</span> <span>World</span></h1></main><script>
+const heading=document.querySelector('h1'),original=heading.firstChild;
+function state(){const s=getComputedStyle(heading);return {font:s.fontSize,family:s.fontFamily,color:s.color,weight:s.fontWeight,tracking:s.letterSpacing}}
+window.labEvidence=()=>({subject:'Hello World',passed:state().font==='170px'&&state().color==='rgb(52, 95, 155)',mechanism:'Ordered cascade layers -> poster greeting edition',measurements:state()});
+window.labScenario={kind:'click',selector:'#rollback'};
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:state().font==='110px'&&state().color==='rgb(104, 68, 84)'&&state().weight==='400'&&heading.firstChild===original,mechanism:'revert-layer -> earlier book typography -> restored greeting',measurements:state()});
+</script></body></html>

@@ -1,0 +1,100 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1150,
+        "height": 650,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 14,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World "
+    ],
+    "animations": [],
+    "title": "Hello World — Ribbon"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1150,
+        "height": 650,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 14,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World ",
+      "Hello World Hello World Hello World Hello World Hello World "
+    ],
+    "animations": [],
+    "title": "Hello World — Ribbon"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Retained Path2D -> native clip -> greeting ribbon",
+    "measurements": {
+      "inside": true,
+      "outside": false,
+      "textLines": 13
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

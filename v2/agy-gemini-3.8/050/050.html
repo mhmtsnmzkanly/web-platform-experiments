@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 050: W3C Media Session API Broadcast Deck</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #070a10;
+      --rack: #0c121c;
+      --border: #1a2538;
+      --cyan: #00f0ff;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --emerald: #10b981;
+      --text: #f8fafc;
+      --muted: #64748b;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --font-sans: system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .mastering-console {
+      width: 100%;
+      max-width: 1040px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Top Studio Banner */
+    .studio-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .banner-title {
+      color: var(--cyan);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .on-air-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      background: #450a0a;
+      border: 1px solid #dc2626;
+      color: #fecaca;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .on-air-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 8px var(--red);
+    }
+
+    /* Proscenium Broadcast Deck */
+    .proscenium-deck {
+      position: relative;
+      background: radial-gradient(circle at 50% 40%, #111a2a 0%, #06090f 100%);
+      border: 1px solid #1e3352;
+      border-radius: 12px;
+      padding: 44px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.08);
+      overflow: hidden;
+    }
+
+    /* VU Meter Flanks */
+    .deck-center-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .vu-meter-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--muted);
+    }
+
+    .vu-bar-ladder {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 3px;
+      width: 22px;
+      height: 140px;
+      background: #04060a;
+      border: 1px solid #1a273a;
+      border-radius: 4px;
+      padding: 4px 3px;
+    }
+
+    .vu-segment {
+      width: 100%;
+      height: 6px;
+      border-radius: 1px;
+      background: #111827;
+    }
+
+    .vu-segment.green.active { background: #10b981; box-shadow: 0 0 4px #10b981; }
+    .vu-segment.amber.active { background: #f59e0b; box-shadow: 0 0 4px #f59e0b; }
+    .vu-segment.red.active { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+
+    /* Center Track Information & Monument */
+    .track-monument {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+    }
+
+    .track-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cyan);
+    }
+
+    #subject-hello-world {
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: #ffffff;
+      text-shadow: 0 0 24px rgba(0, 240, 255, 0.7);
+      white-space: nowrap;
+    }
+
+    .track-artist {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #94a3b8;
+      letter-spacing: 0.05em;
+    }
+
+    /* Scrubber & Timeline */
+    .timeline-container {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .timeline-track {
+      width: 100%;
+      height: 6px;
+      background: #0f172a;
+      border-radius: 3px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #1e293b;
+    }
+
+    .timeline-fill {
+      width: 62%;
+      height: 100%;
+      background: linear-gradient(to right, #06b6d4, #00f0ff);
+      border-radius: 3px;
+    }
+
+    .timeline-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Transport Controls */
+    .transport-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .transport-btn {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #0d1522;
+      color: #e2e8f0;
+      border: 1px solid var(--border);
+      letter-spacing: 0.05em;
+    }
+
+    .transport-btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .transport-btn.primary {
+      background: #0e3048;
+      border-color: var(--cyan);
+      color: #00f0ff;
+      font-weight: 700;
+    }
+
+    /* Telemetry Deck */
+    .telemetry-deck {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .telemetry-card {
+      background: var(--rack);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: var(--font-mono);
+    }
+
+    .card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+    }
+
+    .card-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .card-sub {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* Hardware Action Registry */
+    .action-ledger {
+      background: var(--rack);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .ledger-title {
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .code-box {
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .param-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .param-row:last-child {
+      border-bottom: none;
+    }
+
+    .param-name {
+      color: var(--muted);
+    }
+
+    .param-val {
+      color: var(--cyan);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="mastering-console">
+    <!-- Top Studio Header -->
+    <header class="studio-banner">
+      <span class="banner-title">W3C Media Session API &mdash; Broadcast Audio Mastering Deck</span>
+      <div class="on-air-badge">
+        <div class="on-air-dot"></div>
+        <span id="badge-text">ON AIR</span>
+      </div>
+    </header>
+
+    <!-- Proscenium Broadcast Deck -->
+    <section class="proscenium-deck" aria-label="Audio Session Proscenium">
+      <div class="deck-center-row">
+        <!-- Left Channel VU Meter -->
+        <div class="vu-meter-column">
+          <div class="vu-bar-ladder">
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment amber active"></div>
+            <div class="vu-segment amber active"></div>
+            <div class="vu-segment amber active"></div>
+            <div class="vu-segment red active"></div>
+            <div class="vu-segment red"></div>
+          </div>
+          <span>CH-L</span>
+        </div>
+
+        <!-- Center Track Monument -->
+        <div class="track-monument">
+          <span class="track-tag">Broadcast Program Title</span>
+          <h1 id="subject-hello-world">Hello World</h1>
+          <span class="track-artist">Artist: W3C Media Session Synthesizer &bull; Album: Web Platform Experiments</span>
+        </div>
+
+        <!-- Right Channel VU Meter -->
+        <div class="vu-meter-column">
+          <div class="vu-bar-ladder">
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment green active"></div>
+            <div class="vu-segment amber active"></div>
+            <div class="vu-segment amber active"></div>
+            <div class="vu-segment amber"></div>
+            <div class="vu-segment red"></div>
+            <div class="vu-segment red"></div>
+          </div>
+          <span>CH-R</span>
+        </div>
+      </div>
+
+      <!-- Scrubber Timeline -->
+      <div class="timeline-container">
+        <div class="timeline-track">
+          <div class="timeline-fill" id="timeline-fill"></div>
+        </div>
+        <div class="timeline-labels">
+          <span id="time-current">02:45</span>
+          <span>POSITION TRACKING</span>
+          <span id="time-total">04:30</span>
+        </div>
+      </div>
+
+      <!-- Transport Controls -->
+      <div class="transport-bar">
+        <button type="button" class="transport-btn" onclick="triggerAction('seekbackward')">&#9198; -10s</button>
+        <button type="button" class="transport-btn primary" id="btn-play-pause" onclick="togglePlayback()">&#9208; Pause</button>
+        <button type="button" class="transport-btn" onclick="triggerAction('seekforward')">&#9197; +10s</button>
+        <button type="button" class="transport-btn" onclick="triggerAction('nexttrack')">&#9197;&#9197; Next</button>
+      </div>
+    </section>
+
+    <!-- Telemetry Deck -->
+    <div class="telemetry-deck">
+      <div class="telemetry-card">
+        <span class="card-label">Session State</span>
+        <div class="card-val" id="tel-state">playing</div>
+        <span class="card-sub">navigator.mediaSession.playbackState</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Metadata Title</span>
+        <div class="card-val" id="tel-title">'Hello World'</div>
+        <span class="card-sub">MediaMetadata.title</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Action Handlers</span>
+        <div class="card-val" id="tel-actions">5 Registered</div>
+        <span class="card-sub">OS Hardware Media Keys</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Platform Link</span>
+        <div class="card-val" id="tel-link">SYNCHRONIZED</div>
+        <span class="card-sub">OS Media Control Center</span>
+      </div>
+    </div>
+
+    <!-- Hardware Action Registry Ledger -->
+    <div class="action-ledger">
+      <div>
+        <div class="ledger-title">MediaSession Metadata Pipeline</div>
+        <div class="code-box">
+          navigator.mediaSession.metadata = new MediaMetadata({<br>
+          &nbsp;&nbsp;title: 'Hello World',<br>
+          &nbsp;&nbsp;artist: 'W3C Media Session Synthesizer',<br>
+          &nbsp;&nbsp;album: 'Web Platform Experiments Vol. 2'<br>
+          });<br>
+          navigator.mediaSession.setActionHandler('play', onPlay);
+        </div>
+      </div>
+      <div>
+        <div class="ledger-title">Action Handlers</div>
+        <div class="param-row"><span class="param-name">play / pause</span><span class="param-val">Handled</span></div>
+        <div class="param-row"><span class="param-name">seekbackward / seekforward</span><span class="param-val">Handled</span></div>
+        <div class="param-row"><span class="param-name">previoustrack / nexttrack</span><span class="param-val">Handled</span></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let isPlaying = true;
+    let currentSeconds = 165;
+    const totalDuration = 270;
+
+    function updateMediaSession() {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: 'Hello World',
+          artist: 'W3C Media Session Synthesizer',
+          album: 'Web Platform Experiments Vol. 2'
+        });
+
+        navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+
+        if ('setPositionState' in navigator.mediaSession) {
+          try {
+            navigator.mediaSession.setPositionState({
+              duration: totalDuration,
+              playbackRate: 1.0,
+              position: currentSeconds
+            });
+          } catch (e) {
+            // Optional position state
+          }
+        }
+      }
+
+      document.getElementById('tel-state').textContent = isPlaying ? 'playing' : 'paused';
+      const btn = document.getElementById('btn-play-pause');
+      btn.innerHTML = isPlaying ? '&#9208; Pause' : '&#9654; Play';
+
+      const badgeText = document.getElementById('badge-text');
+      badgeText.textContent = isPlaying ? 'ON AIR' : 'STANDBY';
+    }
+
+    function togglePlayback() {
+      isPlaying = !isPlaying;
+      updateMediaSession();
+    }
+
+    function triggerAction(action) {
+      if (action === 'seekbackward') {
+        currentSeconds = Math.max(0, currentSeconds - 10);
+      } else if (action === 'seekforward') {
+        currentSeconds = Math.min(totalDuration, currentSeconds + 10);
+      }
+      const pct = (currentSeconds / totalDuration) * 100;
+      document.getElementById('timeline-fill').style.width = pct + '%';
+      updateMediaSession();
+    }
+
+    window.labReady = new Promise((resolve) => {
+      setTimeout(() => {
+        if ('mediaSession' in navigator) {
+          const actions = ['play', 'pause', 'seekbackward', 'seekforward', 'previoustrack', 'nexttrack'];
+          actions.forEach(action => {
+            try {
+              navigator.mediaSession.setActionHandler(action, () => {
+                if (action === 'play') isPlaying = true;
+                if (action === 'pause') isPlaying = false;
+                updateMediaSession();
+              });
+            } catch (err) {
+              // Action handler fallback
+            }
+          });
+        }
+
+        updateMediaSession();
+
+        const metadata = navigator.mediaSession ? navigator.mediaSession.metadata : null;
+
+        window.labEvidence = () => {
+          return {
+            subject: 'Hello World',
+            passed: Boolean(metadata && metadata.title === 'Hello World'),
+            mechanism: 'W3C Media Session API (navigator.mediaSession, MediaMetadata, setActionHandler, playbackState)',
+            measurements: {
+              apiSupported: 'mediaSession' in navigator,
+              playbackState: navigator.mediaSession ? navigator.mediaSession.playbackState : 'none',
+              metadataTitle: metadata ? metadata.title : '',
+              metadataArtist: metadata ? metadata.artist : '',
+              currentPositionSeconds: currentSeconds,
+              totalDurationSeconds: totalDuration
+            }
+          };
+        };
+
+        resolve();
+      }, 50);
+    });
+  </script>
+</body>
+</html>

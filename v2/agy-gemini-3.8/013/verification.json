@@ -1,0 +1,71 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Intl.Segmenter Typesetter Drawer"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Intl.Segmenter Typesetter Drawer"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Intl.Segmenter('en') word and grapheme segmentation into structured typesetter slugs",
+    "measurements": {
+      "wordCount": 2,
+      "graphemeCount": 11,
+      "totalSourceLength": 11,
+      "wordSegments": [
+        {
+          "word": "Hello",
+          "index": 0
+        },
+        {
+          "word": "World",
+          "index": 6
+        }
+      ],
+      "boundaryIndices": [
+        0,
+        5,
+        6
+      ]
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

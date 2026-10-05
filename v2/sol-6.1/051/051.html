@@ -1,0 +1,6 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Equal Spans</title><style>body{margin:0;background:#dccdb3}main{height:100vh;display:grid;place-items:center}canvas{width:1100px;max-width:95vw}</style></head><body><main><canvas width="1100" height="700" aria-label="Hello World fitted to equal spans">Hello World</canvas></main><script>
+const ctx=document.querySelector('canvas').getContext('2d'),records=[];
+// Actual ink bounds, rather than advance width, align both engraved edges.
+for(const [i,word] of ['Hello','World'].entries()){ctx.font='100px Georgia';let m=ctx.measureText(word);const size=850/(m.actualBoundingBoxLeft+m.actualBoundingBoxRight)*100;ctx.font=`${size}px Georgia`;m=ctx.measureText(word);ctx.fillStyle=i?'#476457':'#764e35';ctx.fillText(word,125+m.actualBoundingBoxLeft,290+i*280);records.push({word,size,inkWidth:m.actualBoundingBoxLeft+m.actualBoundingBoxRight})}
+window.labEvidence=()=>({subject:'Hello World',passed:records.every(r=>Math.abs(r.inkWidth-850)<4)&&records[0].size>records[1].size,mechanism:'TextMetrics ink bounds -> fitted font sizes -> equal greeting spans',measurements:{records}});
+</script></body></html>

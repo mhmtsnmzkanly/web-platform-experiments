@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Popover Lantern</title>
+<style>
+:root{color:#f8ecd4;background:#19131d;font-family:Georgia,serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#704960,#19131d 68%)}.lantern{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #e8a46c}.label,.hint{margin:0;color:#e8a46c;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.hint{margin-top:10px;color:#d1b5c4;letter-spacing:.08em;text-transform:none}.flame{position:relative;margin:16vh auto 0;width:min(58vw,640px);padding:34px;text-align:center;border:1px solid #f6d495;background:#3a2439;box-shadow:0 0 80px rgba(232,164,108,.25)}.flame h1{margin:0;font-size:clamp(66px,13vw,158px);line-height:.8;letter-spacing:-.1em}.controls{position:absolute;right:28px;bottom:28px}button{border:1px solid #e8a46c;padding:10px 16px;color:#e8a46c;background:transparent;font:12px monospace;cursor:pointer}[popover]{border:1px solid #f6d495;padding:18px;color:#f8ecd4;background:#19131d;font:12px monospace;box-shadow:0 0 30px #e8a46c}[popover]::backdrop{background:rgba(10,8,12,.45)}</style>
+</head><body><main class="lantern"><p class="label">040R / popover lantern / top layer</p><p class="hint">the flame can leave the stage without a modal scene</p><section class="flame"><h1>Hello World</h1></section><div class="controls"><button popovertarget="note" type="button">lift the note</button></div><aside id="note" popover>popover / native top layer / lantern note received</aside></main></body></html>

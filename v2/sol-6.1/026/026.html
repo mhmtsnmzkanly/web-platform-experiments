@@ -1,0 +1,14 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Registration</title><style>
+body{margin:0;background:#fff8e8;color:#202428;font-family:Arial,sans-serif}main{height:100vh;display:flex;align-items:center;justify-content:center}
+.print{position:relative;isolation:isolate;background:#fff;width:1120px;height:360px;display:flex;align-items:center;justify-content:center}
+h1{font-size:145px;letter-spacing:-8px;margin:0;position:absolute;mix-blend-mode:multiply;white-space:nowrap}.cyan{color:#00bad5;transform:translate(-7px,-4px)}.magenta{color:#ec248a;transform:translate(7px,4px)}
+.print.registered h1{transform:none}button{position:absolute;bottom:55px;left:80px;padding:15px 22px;border:1px solid;background:none;font:14px monospace}
+</style></head><body><main><section class="print" aria-label="Hello World printed with two ink layers"><h1 class="cyan">Hello World</h1><h1 class="magenta" aria-hidden="true">Hello World</h1></section><button id="register">Align the printing plates</button></main><script>
+const print=document.querySelector('.print');
+// Isolation restricts the ink interaction to this white print surface.
+// Aligning independent live-text layers changes the multiply overlap itself.
+document.querySelector('#register').onclick=()=>print.classList.toggle('registered');
+window.labScenario={kind:'click',selector:'#register'};
+window.labEvidence=()=>({subject:'Hello World',passed:getComputedStyle(print).isolation==='isolate'&&[...print.children].every(el=>getComputedStyle(el).mixBlendMode==='multiply'),mechanism:'Two offset live-text plates -> isolated multiply overlap -> greeting ink',measurements:{isolation:getComputedStyle(print).isolation,transforms:[...print.children].map(el=>getComputedStyle(el).transform)}});
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:print.classList.contains('registered')&&[...print.children].every(el=>getComputedStyle(el).transform==='none'),mechanism:'Trusted alignment -> coincident ink plates -> registered greeting',measurements:{registered:true,transforms:[...print.children].map(el=>getComputedStyle(el).transform)}});
+</script></body></html>

@@ -1,0 +1,99 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "raster-canvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "raster-canvas",
+        "width": 1040,
+        "height": 480,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 1084,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Canvas Pixel Sampling"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "raster-canvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "raster-canvas",
+        "width": 1040,
+        "height": 480,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 1084,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Canvas Pixel Sampling"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Canvas 2D text rasterization -> RGBA alpha buffer sampling -> grid lattice density mapping -> procedural phosphor dot-matrix Hello World",
+    "measurements": {
+      "canvasDimensions": {
+        "width": 1040,
+        "height": 480
+      },
+      "subsampleStep": 8,
+      "activePhosphorDots": 523,
+      "firstDot": {
+        "x": 104,
+        "y": 184,
+        "alpha": 80
+      },
+      "lastDot": {
+        "x": 928,
+        "y": 272,
+        "alpha": 255
+      }
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

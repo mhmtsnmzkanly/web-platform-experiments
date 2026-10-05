@@ -1,0 +1,7 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Rocking Inscription</title><style>body{margin:0;background:#e6ddca}main{height:100vh;display:grid;place-items:center}svg{width:1150px;max-width:95vw}text{font:155px Georgia;fill:#97523b}</style></head><body><main><svg viewBox="0 0 1150 650" role="img" aria-label="Hello World rocking on the SVG animation clock"><text x="100" y="350" transform="rotate(-8 575 300)">Hello World<animateTransform attributeName="transform" type="rotate" values="-8 575 300;8 575 300;-8 575 300" dur="4s" repeatCount="indefinite"/></text></svg></main><script>
+const svg=document.querySelector('svg'),text=document.querySelector('text');let samples=0,min=Infinity,max=-Infinity,angle=0;
+// Observational frames expose SMIL's animated transform and liveness to tooling.
+// This loop never assigns transforms; SVG's declarative clock owns every change.
+function observe(){const matrix=text.transform.animVal.getItem(0).matrix;angle=Math.atan2(matrix.b,matrix.a)*180/Math.PI;min=Math.min(min,angle);max=Math.max(max,angle);samples++;requestAnimationFrame(observe)}requestAnimationFrame(observe);
+window.labEvidence=()=>({subject:'Hello World',passed:samples>3&&max-min>.3&&svg.getCurrentTime()>0&&Math.abs(angle)<8,mechanism:'Declarative SVG SMIL clock -> animated transform -> rocking greeting',measurements:{samples,angle,min,max,time:svg.getCurrentTime()}});
+</script></body></html>

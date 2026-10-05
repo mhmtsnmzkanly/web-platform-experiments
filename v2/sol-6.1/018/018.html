@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Chapters</title>
+<style>
+body{margin:0;font-family:Georgia,serif}.chapters{height:100vh;overflow-y:auto;scroll-snap-type:y mandatory}
+/* Each whole greeting is a snap area. The browser chooses and settles the
+   destination after wheel input; JavaScript never calls scrollTo. */
+section{height:100vh;scroll-snap-align:start;scroll-snap-stop:always;display:flex;align-items:center;justify-content:center;position:relative}
+.first{background:#edd5bb;color:#7e382d}.second{background:#272f20;color:#d8f095}
+h1{font-size:130px;font-weight:normal;letter-spacing:-7px;margin:0;transform:rotate(-5deg)}
+.second h1{font-family:monospace;font-size:110px;letter-spacing:-4px;transform:rotate(5deg);text-shadow:6px 6px 0 #516239}
+small{position:absolute;bottom:45px;left:55px;font:13px monospace}
+@media(max-width:800px){h1,.second h1{font-size:13vw}}
+</style></head><body><main class="chapters"><section class="first"><h1>Hello World</h1><small>018 / CHAPTER 01 / SCROLL DOWN</small></section><section class="second"><h1>Hello World</h1><small id="settled">CHAPTER 02 / WAITING FOR SETTLEMENT</small></section></main>
+<script>
+const box=document.querySelector('.chapters');let ends=0,trusted=false;
+box.addEventListener('wheel',e=>{trusted=e.isTrusted},{passive:true});
+box.addEventListener('scrollend',()=>{ends++;document.querySelector('#settled').textContent='CHAPTER 02 / NATIVE SNAP SETTLED'});
+window.labScenario={kind:'scroll',selector:'.chapters',deltaY:620};
+window.labEvidence=()=>({subject:'Hello World',passed:getComputedStyle(box).scrollSnapType==='y mandatory'&&box.scrollTop===0&&box.scrollHeight===2*box.clientHeight,
+mechanism:'Wheel -> native snap areas -> greeting chapter change',measurements:{snap:getComputedStyle(box).scrollSnapType,height:box.clientHeight,scrollHeight:box.scrollHeight}});
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:trusted&&ends>0&&Math.abs(box.scrollTop-box.clientHeight)<2,
+mechanism:'Native scroll settlement -> second full-screen greeting',measurements:{trustedWheel:trusted,scrollEndEvents:ends,scrollTop:box.scrollTop,snapTarget:box.clientHeight}});
+</script></body></html>

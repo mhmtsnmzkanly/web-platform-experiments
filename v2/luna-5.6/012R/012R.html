@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — Word Scanner</title>
+  <style>
+    :root { color: #eff2df; background: #172019; font-family: monospace; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #172019; }
+    .scanner { position: relative; width: min(94vw, 1180px); min-height: min(84vh, 680px); padding: 28px 34px 34px; border: 1px solid #d9e56d; background: linear-gradient(135deg, #2d3e31, #172019); }
+    .scanner::after { position: absolute; top: 0; bottom: 0; left: 30%; border-left: 1px dashed rgba(217,229,109,.55); content: ""; }
+    .label, .readout { position: relative; z-index: 1; margin: 0; color: #d9e56d; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+    .readout { margin-top: 8px; color: #ee8b3f; letter-spacing: .08em; text-transform: none; }
+    .source { position: relative; z-index: 1; margin: 8px 0 0; color: #b8c4b4; font-size: 11px; letter-spacing: .08em; }
+    .field { position: relative; z-index: 1; display: flex; flex-wrap: wrap; align-items: end; gap: 16px; min-height: 360px; margin: 10vh 5% 0; }
+    .token { display: inline-grid; place-items: center; min-width: 110px; min-height: 130px; padding: 18px; border: 1px solid #d9e56d; color: #172019; background: #d9e56d; font: 700 clamp(34px, 7vw, 84px)/.8 Arial, sans-serif; letter-spacing: -.08em; transform: rotate(var(--tilt)); }
+    .token:nth-child(2n) { color: #eff2df; background: #ee8b3f; }
+    .separator { color: #b8c4b4; font-size: 32px; }
+    .controls { position: absolute; right: 34px; bottom: 30px; display: flex; align-items: center; gap: 12px; color: #b8c4b4; font-size: 12px; }
+    select { border: 1px solid #d9e56d; padding: 8px; color: #eff2df; background: #172019; font: inherit; }
+  </style>
+</head>
+<body>
+  <main class="scanner">
+    <p class="label">012R / word scanner / intl.segmenter</p>
+    <p class="readout">boundaries detected: <output id="count">2</output></p>
+    <p class="source">source / Hello World</p>
+    <section class="field" id="field" aria-label="Segmented Hello World"></section>
+    <div class="controls">
+      <label for="granularity">scan mode</label>
+      <select id="granularity">
+        <option value="word">word</option>
+        <option value="grapheme">grapheme</option>
+      </select>
+    </div>
+  </main>
+  <script>
+    const source = 'Hello World';
+    const field = document.querySelector('#field');
+    const granularity = document.querySelector('#granularity');
+    const count = document.querySelector('#count');
+    function scan() {
+      field.replaceChildren();
+      const segmenter = new Intl.Segmenter('en', { granularity: granularity.value });
+      const parts = [...segmenter.segment(source)];
+      count.value = parts.filter((part) => part.isWordLike !== false).length;
+      parts.forEach((part, index) => {
+        if (part.segment === ' ') {
+          const gap = document.createElement('span');
+          gap.className = 'separator';
+          gap.textContent = '·';
+          field.append(gap);
+          return;
+        }
+        const token = document.createElement('span');
+        token.className = 'token';
+        token.style.setProperty('--tilt', `${(index % 3 - 1) * 4}deg`);
+        token.textContent = part.segment;
+        field.append(token);
+      });
+    }
+    granularity.addEventListener('change', scan);
+    scan();
+  </script>
+</body>
+</html>

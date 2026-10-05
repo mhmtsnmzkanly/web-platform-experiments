@@ -1,0 +1,58 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 042: W3C Navigation API Client-Side SPA Router Journal"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 042: W3C Navigation API Client-Side SPA Router Journal"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "W3C Navigation API (window.navigation, navigate(), NavigateEvent.intercept(), entries())",
+    "measurements": {
+      "currentEntryIndex": 1,
+      "totalEntriesCount": 2,
+      "currentEntryKey": "fb963146-3451-42c5-8c2e-367f0c6bd49c",
+      "statePayloadView": "monument-alpha",
+      "interceptsHandled": 1
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

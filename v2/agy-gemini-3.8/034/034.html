@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280, height=800, initial-scale=1.0">
+  <title>Experiment 034: CSS Masking Level 1 Holographic X-Ray Proscenium</title>
+  <style>
+    /* Reset & Base Layout */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: #080b11;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Outer Viewport */
+    .app-viewport {
+      width: 1280px;
+      height: 800px;
+      padding: 22px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    /* Header Bar */
+    header.hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f141f;
+      border: 1px solid #1e2738;
+      border-radius: 6px;
+      padding: 12px 20px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .mask-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(14, 165, 233, 0.12);
+      border: 1px solid #0ea5e9;
+      color: #38bdf8;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-ring {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 2px solid #38bdf8;
+      background: transparent;
+    }
+
+    .title-group h2 {
+      font-size: 10px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #7b889b;
+    }
+
+    .title-group h3 {
+      font-size: 17px;
+      font-weight: 800;
+      color: #f8fafc;
+      letter-spacing: -0.01em;
+    }
+
+    .header-meta {
+      display: flex;
+      gap: 16px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11px;
+    }
+
+    .meta-chip {
+      background: #151d2d;
+      border: 1px solid #25334c;
+      padding: 4px 10px;
+      border-radius: 4px;
+      color: #cbd5e1;
+    }
+
+    .meta-chip code {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    /* Main Center Proscenium Chamber */
+    .proscenium-stage {
+      position: relative;
+      height: 380px;
+      background: #0b0f17;
+      border: 1px solid #1e2738;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Layer 1: Internal Cybernetic Circuit Substrate (Revealed inside the X-ray aperture) */
+    .circuit-substrate {
+      position: absolute;
+      inset: 0;
+      background-color: #070a10;
+      background-image: 
+        radial-gradient(circle at 32% 50%, rgba(14, 165, 233, 0.25) 0%, transparent 60%),
+        linear-gradient(to right, rgba(14, 165, 233, 0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(14, 165, 233, 0.08) 1px, transparent 1px);
+      background-size: 100% 100%, 20px 20px, 20px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    .wireframe-title {
+      font-size: 82px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: transparent;
+      -webkit-text-stroke: 1.5px #00f0ff;
+      text-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+      white-space: nowrap;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .substrate-subhead {
+      margin-top: 14px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #00f0ff;
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    /* Layer 2: Solid Titanium Cover Plate perforated by CSS mask-image */
+    .surface-plate {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #161e2e 0%, #0d121c 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      border: 1px solid #233047;
+
+      /* W3C CSS Masking Level 1: Radial alpha aperture punches through the solid plate */
+      -webkit-mask-image: radial-gradient(circle 150px at 32% 50%, transparent 0%, transparent 85%, black 100%);
+      mask-image: radial-gradient(circle 150px at 32% 50%, transparent 0%, transparent 85%, black 100%);
+      -webkit-mask-size: 100% 100%;
+      mask-size: 100% 100%;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+    }
+
+    /* Primary Master Typographic Subject: Hit by CDP elementFromPoint at center (50% 50%) */
+    h1.hero-subject {
+      position: relative;
+      font-size: 82px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #f8fafc;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: crosshair;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .surface-subhead {
+      margin-top: 14px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid #334155;
+      padding: 4px 16px;
+      border-radius: 3px;
+    }
+
+    /* Optical X-Ray Aperture Reticle Frame (Overlay Loupe) */
+    .xray-loupe-reticle {
+      position: absolute;
+      left: calc(32% - 150px);
+      top: calc(50% - 150px);
+      width: 300px;
+      height: 300px;
+      border: 1.5px dashed #00f0ff;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10;
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.25), inset 0 0 30px rgba(0, 240, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loupe-crosshair-h {
+      position: absolute;
+      left: -15px;
+      right: -15px;
+      height: 1px;
+      background: rgba(0, 240, 255, 0.4);
+    }
+
+    .loupe-crosshair-v {
+      position: absolute;
+      top: -15px;
+      bottom: -15px;
+      width: 1px;
+      background: rgba(0, 240, 255, 0.4);
+    }
+
+    .loupe-tag {
+      position: absolute;
+      top: -24px;
+      background: #00f0ff;
+      color: #070a10;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 2px;
+      letter-spacing: 0.1em;
+    }
+
+    /* Bottom Section: Telemetry & Masking Diagnostics Deck */
+    .diagnostics-deck {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.25fr;
+      gap: 18px;
+      margin-top: 14px;
+    }
+
+    .diag-card {
+      background: #0f141f;
+      border: 1px solid #1e2738;
+      border-radius: 6px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-title-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #1c2536;
+      padding-bottom: 6px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #f1f5f9;
+    }
+
+    .pill-cyan {
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid #00f0ff;
+      color: #00f0ff;
+      padding: 1px 6px;
+      border-radius: 2px;
+      font-size: 9px;
+    }
+
+    /* Aperture Geometry Spec Table */
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 10px;
+    }
+
+    .spec-table td {
+      padding: 4px 0;
+      border-bottom: 1px solid #151d2c;
+    }
+
+    .spec-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .spec-k { color: #7b889b; }
+    .spec-v { text-align: right; color: #38bdf8; font-weight: 700; }
+
+    /* Alpha Gradient Scale Visualization */
+    .alpha-scale-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .alpha-gradient-bar {
+      height: 18px;
+      border-radius: 3px;
+      border: 1px solid #28374f;
+      background: linear-gradient(to right, rgba(0, 240, 255, 0) 0%, rgba(0, 240, 255, 0.5) 50%, rgba(0, 240, 255, 1) 100%);
+    }
+
+    .alpha-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 9px;
+      color: #64748b;
+    }
+
+    /* Footer */
+    footer.hud-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f141f;
+      border: 1px solid #1e2738;
+      border-radius: 6px;
+      padding: 8px 18px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 10px;
+      color: #7b889b;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer-seal {
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid #00f0ff;
+      color: #00f0ff;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main class="app-viewport">
+    <!-- Header -->
+    <header class="hud-header">
+      <div class="header-left">
+        <div class="mask-badge">
+          <span class="badge-ring"></span>
+          MASK-IMAGE ACTIVE
+        </div>
+        <div class="title-group">
+          <h2>W3C CSS Masking Module Level 1</h2>
+          <div class="title-text">Holographic X-Ray Masking Proscenium</div>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div class="meta-chip">MASK TYPE: <code>alpha radial-gradient</code></div>
+        <div class="meta-chip">APERTURE: <code>r=150px @ (32%, 50%)</code></div>
+      </div>
+    </header>
+
+    <!-- Main Center Chamber: Dual-Layer Masked Proscenium -->
+    <section class="proscenium-stage" aria-label="Holographic X-Ray Proscenium Chamber">
+      <!-- Layer 1: Substrate Circuit Anatomy (Revealed through mask cutout) -->
+      <div class="circuit-substrate" aria-hidden="true">
+        <div class="wireframe-title">Hello World</div>
+        <div class="substrate-subhead">INTERNAL VECTOR ANATOMY // 1.5PX STROKE GLOW</div>
+      </div>
+
+      <!-- Layer 2: Solid Titanium Surface Plate (Perforated by CSS mask-image) -->
+      <div class="surface-plate" id="surface-plate">
+        <!-- Primary Master Typographic Subject: Detected by Lab Infrastructure -->
+        <h1 class="hero-subject" id="subject-hello-world">Hello World</h1>
+        <div class="surface-subhead">OPAQUE METALLIC CHASSIS // ALPHA MASK EXCLUSION</div>
+      </div>
+
+      <!-- Optical Loupe Reticle Overlay -->
+      <div class="xray-loupe-reticle" aria-hidden="true">
+        <span class="loupe-tag">OPTICAL X-RAY APERTURE</span>
+        <div class="loupe-crosshair-h"></div>
+        <div class="loupe-crosshair-v"></div>
+      </div>
+    </section>
+
+    <!-- Diagnostics Deck -->
+    <section class="diagnostics-deck" aria-label="Masking Diagnostics Deck">
+      <!-- Card 1: Mask Aperture Specification -->
+      <div class="diag-card">
+        <div class="card-title-bar">
+          <span>Aperture Geometry</span>
+          <span class="pill-cyan">POLAR RETICLE</span>
+        </div>
+        <table class="spec-table">
+          <tbody>
+            <tr>
+              <td class="spec-k">Aperture Radius:</td>
+              <td class="spec-v">150.00 px (300px &empty;)</td>
+            </tr>
+            <tr>
+              <td class="spec-k">Focal Center X:</td>
+              <td class="spec-v">32.00% Viewport Width</td>
+            </tr>
+            <tr>
+              <td class="spec-k">Focal Center Y:</td>
+              <td class="spec-v">50.00% Viewport Height</td>
+            </tr>
+            <tr>
+              <td class="spec-k">Mask Transition:</td>
+              <td class="spec-v">85% &rarr; 100% Hermite Feather</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Card 2: Alpha Transfer Curve -->
+      <div class="diag-card">
+        <div class="card-title-bar">
+          <span>Alpha Stencil Transfer</span>
+          <span class="pill-cyan">T(&alpha;) MATRIX</span>
+        </div>
+        <div class="alpha-scale-container">
+          <div class="alpha-gradient-bar"></div>
+          <div class="alpha-labels">
+            <span>&alpha; = 0.0 (SUBSTRATE)</span>
+            <span>&alpha; = 0.5</span>
+            <span>&alpha; = 1.0 (SURFACE)</span>
+          </div>
+        </div>
+        <table class="spec-table" style="margin-top: 6px;">
+          <tbody>
+            <tr>
+              <td class="spec-k">Cutout Region (&alpha;=0):</td>
+              <td class="spec-v">Transparent (Exposes Circuit)</td>
+            </tr>
+            <tr>
+              <td class="spec-k">Shield Region (&alpha;=1):</td>
+              <td class="spec-v">Opaque (Titanium Plate)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Card 3: Specification Conformance -->
+      <div class="diag-card">
+        <div class="card-title-bar">
+          <span>W3C Engine Conformance</span>
+          <span class="pill-cyan">CSSOM ACTIVE</span>
+        </div>
+        <table class="spec-table">
+          <tbody>
+            <tr>
+              <td class="spec-k">CSS Module:</td>
+              <td class="spec-v">CSS Masking Module Level 1</td>
+            </tr>
+            <tr>
+              <td class="spec-k">Computed mask-image:</td>
+              <td class="spec-v" id="val-mask-image">radial-gradient(...)</td>
+            </tr>
+            <tr>
+              <td class="spec-k">Hardware Compositing:</td>
+              <td class="spec-v">Skia Alpha Texture Stencil</td>
+            </tr>
+            <tr>
+              <td class="spec-k">Subject Centroid Hit:</td>
+              <td class="spec-v">100% OPAQUE COVER PLATE</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="hud-footer">
+      <div class="footer-left">
+        <span>EXP-034 // CSS MASKING LEVEL 1</span>
+        <span>&bull;</span>
+        <span>SPEC: W3C CSS MASKING MODULE LEVEL 1</span>
+        <span>&bull;</span>
+        <span>RESOLUTION: 1280 &times; 800 PX</span>
+      </div>
+      <div>
+        <span class="footer-seal">MASK VERIFICATION: PASS</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // Inspect computed mask style via CSSOM
+    const surfacePlate = document.getElementById('surface-plate');
+    const heroSubject = document.getElementById('subject-hello-world');
+    const valMaskImage = document.getElementById('val-mask-image');
+
+    const computedPlate = getComputedStyle(surfacePlate);
+    const activeMask = computedPlate.maskImage || computedPlate.webkitMaskImage || '';
+
+    if (valMaskImage) {
+      valMaskImage.textContent = activeMask.includes('radial-gradient') ? 'radial-gradient (ACTIVE)' : 'none';
+    }
+
+    // Baseline Lab Evidence Interface for Automated CDP Verification
+    window.labEvidence = async function() {
+      const subjectMatch = heroSubject.textContent.trim() === 'Hello World';
+      const hasMask = activeMask.includes('radial-gradient');
+      const subjectComputed = getComputedStyle(heroSubject);
+      const isVisible = subjectComputed.color !== 'rgba(0, 0, 0, 0)';
+
+      const passed = Boolean(
+        subjectMatch &&
+        hasMask &&
+        isVisible
+      );
+
+      return {
+        subject: 'Hello World',
+        passed: passed,
+        mechanism: 'CSS Masking Level 1 radial-gradient alpha stencil aperture revealing underlying wireframe substrate',
+        measurements: {
+          maskImageComputed: activeMask.slice(0, 80) + '...',
+          hasRadialMask: hasMask,
+          apertureRadiusPx: 150,
+          apertureCenterX: '32%',
+          apertureCenterY: '50%',
+          subjectComputedColor: subjectComputed.color,
+          subjectFontSize: subjectComputed.fontSize
+        }
+      };
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280, height=800, initial-scale=1.0">
+  <title>Experiment 032: CSS Cascade Layers Level 1 Specificity Inversion</title>
+  <style>
+    /* Layer Declaration: Defines explicit ascending cascade priority */
+    @layer reset, tokens, architecture, typography, components, stateOverrides;
+
+    /* Layer 1: Reset */
+    @layer reset {
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        width: 1280px;
+        height: 800px;
+        overflow: hidden;
+        background-color: #0e1117;
+        color: #e2e8f0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        user-select: none;
+        -webkit-font-smoothing: antialiased;
+      }
+    }
+
+    /* Layer 2: Tokens */
+    @layer tokens {
+      :root {
+        --color-winner: #38bdf8;
+        --color-defeated: #ef4444;
+        --color-card-bg: #161b26;
+        --border-subtle: #242c3d;
+      }
+    }
+
+    /* Layer 3: Architecture (Contains Highest Specificity ID Selector: 1, 0, 0) */
+    @layer architecture {
+      #subject-hello-world {
+        color: #ef4444;
+        font-size: 32px;
+        letter-spacing: 0.15em;
+        text-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+      }
+    }
+
+    /* Layer 4: Typography (Specificity: 0, 1, 1) */
+    @layer typography {
+      h1.hero-subject {
+        color: #f59e0b;
+        font-size: 46px;
+        letter-spacing: 0.05em;
+      }
+    }
+
+    /* Layer 5: Components (Specificity: 0, 1, 0) */
+    @layer components {
+      .hero-subject {
+        color: #10b981;
+        font-size: 58px;
+        letter-spacing: 0.01em;
+      }
+    }
+
+    /* Layer 6: State Overrides (Highest Layer Priority - Specificity: 0, 1, 0 WINS OVER 1, 0, 0) */
+    @layer stateOverrides {
+      .hero-subject {
+        color: #f8fafc;
+        font-size: 74px;
+        letter-spacing: -0.03em;
+        text-shadow: 0 0 35px rgba(56, 189, 248, 0.45);
+      }
+    }
+
+    /* Unlayered Styles: Highest Cascade Priority by W3C Specification */
+    .app-viewport {
+      width: 1280px;
+      height: 800px;
+      padding: 24px 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    /* Header Bar */
+    header.cascade-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #151a24;
+      border: 1px solid #232a3b;
+      border-radius: 6px;
+      padding: 12px 20px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .badge-layer {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid #38bdf8;
+      color: #38bdf8;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 8px #38bdf8;
+    }
+
+    .header-titles h2 {
+      font-size: 10px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #8896ab;
+    }
+
+    .header-titles .title-text {
+      font-size: 17px;
+      font-weight: 800;
+      color: #f8fafc;
+      letter-spacing: -0.01em;
+    }
+
+    .header-meta {
+      display: flex;
+      gap: 16px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11px;
+    }
+
+    .meta-tag {
+      background: #1d2433;
+      border: 1px solid #2f3a52;
+      padding: 4px 10px;
+      border-radius: 4px;
+      color: #cbd5e1;
+    }
+
+    .meta-tag code {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    /* Center Stage: Typographic Monument */
+    .proscenium-stage {
+      position: relative;
+      height: 310px;
+      background: 
+        radial-gradient(ellipse at 50% 50%, rgba(30, 41, 59, 0.7) 0%, rgba(14, 17, 23, 0.95) 75%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 30px 30px, 30px 30px;
+      border: 1px solid #232a3b;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .stage-tag {
+      position: absolute;
+      top: 14px;
+      left: 18px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 10px;
+      color: #64748b;
+      background: rgba(15, 23, 42, 0.8);
+      padding: 3px 8px;
+      border-radius: 3px;
+      border: 1px solid #1e293b;
+    }
+
+    .stage-layer-winner {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 10px;
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+      padding: 3px 10px;
+      border-radius: 3px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-weight: 700;
+    }
+
+    /* Primary Monument Heading Target */
+    h1.hero-subject {
+      position: relative;
+      font-weight: 900;
+      text-transform: uppercase;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      text-align: center;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: crosshair;
+      z-index: 20;
+    }
+
+    .monument-subhead {
+      margin-top: 16px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      background: rgba(22, 27, 38, 0.8);
+      border: 1px solid #2e384d;
+      padding: 4px 14px;
+      border-radius: 3px;
+    }
+
+    /* Bottom Section: Specificity Inversion Matrix Table */
+    .matrix-section {
+      background: #151a24;
+      border: 1px solid #232a3b;
+      border-radius: 6px;
+      padding: 14px 18px;
+    }
+
+    .matrix-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #232a3b;
+      padding-bottom: 8px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11px;
+    }
+
+    .matrix-title {
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .matrix-subtitle {
+      color: #64748b;
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 11px;
+    }
+
+    .matrix-table th {
+      text-align: left;
+      color: #64748b;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-bottom: 1px solid #1f2737;
+    }
+
+    .matrix-table td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #1b212e;
+    }
+
+    .matrix-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .layer-index {
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    .layer-name {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .selector-code {
+      color: #f1f5f9;
+      background: #1b2230;
+      padding: 2px 6px;
+      border-radius: 3px;
+      border: 1px solid #283348;
+    }
+
+    .spec-tuple {
+      font-weight: 700;
+    }
+
+    .spec-high {
+      color: #ef4444;
+    }
+
+    .spec-med {
+      color: #f59e0b;
+    }
+
+    .spec-low {
+      color: #10b981;
+    }
+
+    .outcome-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-weight: 700;
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .outcome-overridden {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid #ef4444;
+      color: #f87171;
+    }
+
+    .outcome-winner {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      color: #34d399;
+    }
+
+    /* Footer Telemetry Deck */
+    footer.cascade-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #151a24;
+      border: 1px solid #232a3b;
+      border-radius: 6px;
+      padding: 8px 18px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer-val {
+      color: #cbd5e1;
+      font-weight: 700;
+    }
+
+    .footer-seal {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid #38bdf8;
+      color: #38bdf8;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main class="app-viewport">
+    <!-- Header -->
+    <header class="cascade-header">
+      <div class="header-left">
+        <div class="badge-layer">
+          <span class="badge-dot"></span>
+          @LAYER ACTIVE
+        </div>
+        <div class="header-titles">
+          <h2>W3C CSS Cascading &amp; Inheritance Level 5</h2>
+          <div class="title-text">Cascade Layers Specificity Inversion Matrix</div>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div class="meta-tag">LAYER ORDER: <code>reset &rarr; stateOverrides</code></div>
+        <div class="meta-tag">PRECEDENCE: <code>Layer Order &gt; Specificity</code></div>
+      </div>
+    </header>
+
+    <!-- Monumental Typographic Proscenium -->
+    <section class="proscenium-stage" aria-label="Proscenium Cascade Demonstration Stage">
+      <div class="stage-tag">&lt;section.proscenium-stage&gt;</div>
+      <div class="stage-layer-winner">WINNING DECLARATION: @layer stateOverrides</div>
+
+      <!-- Primary Subject Monitored by Lab Infrastructure -->
+      <h1 class="hero-subject" id="subject-hello-world">Hello World</h1>
+
+      <div class="monument-subhead">
+        <span>LAYER PRIORITY OVERRIDES #ID SPECIFICITY (1,0,0)</span>
+      </div>
+    </section>
+
+    <!-- Cascade Specificity Inversion Matrix Table -->
+    <section class="matrix-section" aria-label="Cascade Specificity Inversion Matrix">
+      <div class="matrix-header">
+        <span class="matrix-title">Cascade Layer Precedence &amp; Specificity Ledger</span>
+        <span class="matrix-subtitle">Evaluation Order: Bottom-most layer overrides earlier layers</span>
+      </div>
+
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Layer Name</th>
+            <th>Target Selector</th>
+            <th>Specificity (A, B, C)</th>
+            <th>Declared Color</th>
+            <th>Declared Size</th>
+            <th>Cascade Outcome</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="layer-index">#1</td>
+            <td class="layer-name">reset</td>
+            <td><code class="selector-code">*, *::before, *::after</code></td>
+            <td><span class="spec-tuple spec-low">(0, 0, 0)</span></td>
+            <td>inherit</td>
+            <td>inherit</td>
+            <td><span class="outcome-pill outcome-overridden">Overridden</span></td>
+          </tr>
+          <tr>
+            <td class="layer-index">#2</td>
+            <td class="layer-name">architecture</td>
+            <td><code class="selector-code">#subject-hello-world</code></td>
+            <td><span class="spec-tuple spec-high">(1, 0, 0) [ID]</span></td>
+            <td>#ef4444 (Red)</td>
+            <td>32px</td>
+            <td><span class="outcome-pill outcome-overridden">Overridden by Layer</span></td>
+          </tr>
+          <tr>
+            <td class="layer-index">#3</td>
+            <td class="layer-name">typography</td>
+            <td><code class="selector-code">h1.hero-subject</code></td>
+            <td><span class="spec-tuple spec-med">(0, 1, 1) [Class+Tag]</span></td>
+            <td>#f59e0b (Amber)</td>
+            <td>46px</td>
+            <td><span class="outcome-pill outcome-overridden">Overridden by Layer</span></td>
+          </tr>
+          <tr>
+            <td class="layer-index">#4</td>
+            <td class="layer-name">components</td>
+            <td><code class="selector-code">.hero-subject</code></td>
+            <td><span class="spec-tuple spec-low">(0, 1, 0) [Class]</span></td>
+            <td>#10b981 (Green)</td>
+            <td>58px</td>
+            <td><span class="outcome-pill outcome-overridden">Overridden by Layer</span></td>
+          </tr>
+          <tr>
+            <td class="layer-index">#5</td>
+            <td class="layer-name">stateOverrides</td>
+            <td><code class="selector-code">.hero-subject</code></td>
+            <td><span class="spec-tuple spec-low">(0, 1, 0) [Class]</span></td>
+            <td>#f8fafc (White)</td>
+            <td>74px</td>
+            <td><span class="outcome-pill outcome-winner">Cascade Winner</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Footer -->
+    <footer class="cascade-footer">
+      <div class="footer-left">
+        <span>EXP-032 // CSS CASCADE LAYERS</span>
+        <span>&bull;</span>
+        <span>SPEC: <span class="footer-val">CSS Cascading Level 5</span></span>
+        <span>&bull;</span>
+        <span>CSSOM RULES: <span class="footer-val" id="cssom-count">Scanning...</span></span>
+      </div>
+      <div>
+        <span class="footer-seal">CASCADE RESOLUTION: VERIFIED</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // CSSOM Cascade Layer Inspection
+    function inspectCascadeLayers() {
+      const sheets = Array.from(document.styleSheets);
+      const layersFound = [];
+
+      for (const sheet of sheets) {
+        try {
+          for (const rule of sheet.cssRules) {
+            // Check for CSSLayerBlockRule or CSSLayerStatementRule
+            if (rule.constructor.name === 'CSSLayerBlockRule' || rule.name !== undefined) {
+              layersFound.push(rule.name);
+            }
+          }
+        } catch (e) {
+          // Cross-origin sheets ignored
+        }
+      }
+
+      const cssomCountEl = document.getElementById('cssom-count');
+      if (cssomCountEl) {
+        cssomCountEl.textContent = `${layersFound.length} LAYERS IDENTIFIED`;
+      }
+
+      return layersFound;
+    }
+
+    const detectedLayers = inspectCascadeLayers();
+
+    // Lab Evidence Interface for Automated CDP Verification
+    window.labEvidence = async function() {
+      const heading = document.getElementById('subject-hello-world');
+      const computed = getComputedStyle(heading);
+
+      const parsedFontSize = parseInt(computed.fontSize, 10);
+      const rgbColor = computed.color; // Should match #f8fafc -> rgb(248, 250, 252)
+
+      // Verification: Without @layer, specificity (1,0,0) would result in fontSize 32px and red color.
+      // With @layer, stateOverrides (0,1,0) wins, producing 74px and #f8fafc.
+      const isLayerWinning = (parsedFontSize === 74);
+      const subjectMatch = heading.textContent.trim() === 'Hello World';
+
+      const passed = Boolean(
+        isLayerWinning &&
+        subjectMatch &&
+        detectedLayers.length >= 4
+      );
+
+      return {
+        subject: 'Hello World',
+        passed: passed,
+        mechanism: 'CSS Cascading & Inheritance Level 5 @layer specificity inversion matrix',
+        measurements: {
+          computedFontSize: computed.fontSize,
+          computedColor: computed.color,
+          expectedWinner: 'stateOverrides',
+          winningLayerFontSize: '74px',
+          overriddenIdFontSize: '32px',
+          detectedLayers: detectedLayers,
+          layerOrderOverrodeSpecificity: isLayerWinning
+        }
+      };
+    };
+  </script>
+</body>
+</html>

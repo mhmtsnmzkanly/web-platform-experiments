@@ -1,0 +1,5 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Scan Cut</title><style>body{margin:0;background:#eee7d4;color:#375db0}main{padding:90px 100px}h1{font:900 190px/1.1 Arial;margin:0;letter-spacing:-8px;mask-image:repeating-linear-gradient(to bottom,#000 0 12px,transparent 12px 16px)}span{display:block}</style></head><body><main><h1><span>Hello</span> <span>World</span></h1></main><script>
+// Mask alpha removes bands from live glyph paint; no repeated stroke geometry
+// or source-image glyph raster is needed.
+window.labEvidence=()=>{const s=getComputedStyle(document.querySelector('h1'));return {subject:'Hello World',passed:s.maskImage.includes('repeating-linear-gradient')&&s.maskImage.includes('12px')&&s.maskImage.includes('16px')&&document.querySelector('h1').textContent==='Hello World',mechanism:'Repeating CSS alpha mask -> scan-cut live greeting glyphs',measurements:{mask:s.maskImage,text:document.querySelector('h1').textContent}}};
+</script></body></html>

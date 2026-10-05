@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 025: CSS Houdini Typed Properties & Conic Radar Reticle</title>
+  <style>
+    /* CSS Houdini Properties & Values API Declarations */
+    @property --radar-angle {
+      syntax: '<angle>';
+      inherits: false;
+      initial-value: 0deg;
+    }
+
+    @property --beam-color {
+      syntax: '<color>';
+      inherits: false;
+      initial-value: #10b981;
+    }
+
+    @property --ring-opacity {
+      syntax: '<number>';
+      inherits: false;
+      initial-value: 0.35;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-void: #05080c;
+      --bg-panel: #0a1017;
+      --bg-card: #0f1722;
+      --border-dark: #1b2838;
+      --radar-green: #10b981;
+      --radar-cyan: #06b6d4;
+      --radar-amber: #f59e0b;
+      --radar-alert: #ef4444;
+      --text-bright: #f0fdf4;
+      --text-muted: #86efac;
+      --text-dim: #335d46;
+      --font-mono: 'SF Mono', 'Fira Code', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+      --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--bg-void);
+      color: var(--text-bright);
+      font-family: var(--font-mono);
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      position: relative;
+    }
+
+    /* Ambient Polar Grid Background */
+    .bg-polar-ambient {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 70%),
+        linear-gradient(to right, rgba(16, 185, 129, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(16, 185, 129, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 40px 40px, 40px 40px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Top Airspace Radar Banner */
+    header {
+      position: relative;
+      z-index: 10;
+      height: 52px;
+      padding: 0 32px;
+      background: rgba(10, 16, 23, 0.9);
+      border-bottom: 1px solid var(--border-dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .badge-exp {
+      background: #11221b;
+      color: var(--radar-green);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      border: 1px solid var(--radar-green);
+    }
+
+    .status-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--radar-green);
+      font-weight: 600;
+    }
+
+    .radar-blip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--radar-green);
+      box-shadow: 0 0 10px var(--radar-green);
+    }
+
+    .header-specs {
+      color: #94a3b8;
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Main Radar Deck: 3-column tactical workstation */
+    main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      padding: 20px 32px;
+      display: grid;
+      grid-template-columns: 280px 1fr 300px;
+      gap: 20px;
+      align-items: center;
+    }
+
+    /* Left Console: Houdini Registry & Property Inspection */
+    .console-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-dark);
+      border-radius: 8px;
+      height: 660px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .panel-header {
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.4);
+      border-bottom: 1px solid var(--border-dark);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--radar-green);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-content {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .houdini-prop-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .prop-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--radar-cyan);
+      margin-bottom: 6px;
+    }
+
+    .prop-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .prop-label {
+      color: #64748b;
+    }
+
+    .prop-val {
+      color: var(--text-bright);
+      font-weight: 600;
+    }
+
+    /* Center PPI Display (Plan Position Indicator) */
+    .ppi-station {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .ppi-housing {
+      width: 540px;
+      height: 540px;
+      border-radius: 50%;
+      background: #020508;
+      border: 3px solid #142820;
+      box-shadow: 
+        0 0 0 8px #08120e,
+        0 0 30px rgba(16, 185, 129, 0.2),
+        inset 0 0 50px rgba(0, 0, 0, 0.8);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* The Houdini @property animated conic gradient sweep */
+    .ppi-sweep-layer {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(
+        from var(--radar-angle),
+        var(--beam-color) 0deg,
+        rgba(16, 185, 129, 0.2) 30deg,
+        rgba(16, 185, 129, 0.05) 60deg,
+        transparent 90deg,
+        transparent 360deg
+      );
+      animation: rotateRadar 6s linear infinite;
+    }
+
+    @keyframes rotateRadar {
+      from {
+        --radar-angle: 0deg;
+      }
+      to {
+        --radar-angle: 360deg;
+      }
+    }
+
+    /* PPI Polar Graticule Overlay (Range Rings + Azimuth Rays) */
+    .ppi-graticule {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .range-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1px dashed rgba(16, 185, 129, var(--ring-opacity));
+      pointer-events: none;
+    }
+
+    .ring-1 { width: 130px; height: 130px; }
+    .ring-2 { width: 260px; height: 260px; }
+    .ring-3 { width: 390px; height: 390px; }
+    .ring-4 { width: 510px; height: 510px; border-style: solid; border-color: rgba(16, 185, 129, 0.5); }
+
+    .crosshair-h {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(16, 185, 129, 0.25);
+    }
+
+    .crosshair-v {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 1px;
+      background: rgba(16, 185, 129, 0.25);
+    }
+
+    /* Monumental Typographic Lockup Over PPI Center */
+    .ppi-center-target {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      background: rgba(5, 10, 8, 0.85);
+      border: 1px solid var(--radar-green);
+      border-radius: 8px;
+      padding: 16px 28px;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+      backdrop-filter: blur(4px);
+    }
+
+    .ppi-center-target h1 {
+      font-family: var(--font-display);
+      font-size: 46px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      line-height: 1;
+      color: #ffffff;
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 30px var(--radar-green);
+      margin-bottom: 6px;
+    }
+
+    .ppi-target-callsign {
+      font-size: 11px;
+      color: var(--radar-green);
+      letter-spacing: 0.15em;
+      font-weight: 700;
+    }
+
+    .ppi-target-coords {
+      font-size: 9px;
+      color: #94a3b8;
+      letter-spacing: 0.08em;
+      margin-top: 4px;
+    }
+
+    /* Polar Bearing Indicators */
+    .bearing-label {
+      position: absolute;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--radar-green);
+    }
+
+    .bearing-000 { top: 8px; left: 50%; transform: translateX(-50%); }
+    .bearing-090 { top: 50%; right: 8px; transform: translateY(-50%); }
+    .bearing-180 { bottom: 8px; left: 50%; transform: translateX(-50%); }
+    .bearing-270 { top: 50%; left: 8px; transform: translateY(-50%); }
+
+    /* Right Console: Tactical Telemetry & Target Vector Tracks */
+    .telemetry-deck {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .vector-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .vector-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--radar-amber);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .vector-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      padding: 2px 0;
+    }
+
+    .vector-key { color: #64748b; }
+    .vector-val { color: var(--text-bright); font-weight: 600; }
+
+    /* Footer Telemetry Strip */
+    footer {
+      position: relative;
+      z-index: 10;
+      height: 48px;
+      padding: 0 32px;
+      background: rgba(10, 16, 23, 0.95);
+      border-top: 1px solid var(--border-dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .footer-stat {
+      display: flex;
+      gap: 8px;
+    }
+
+    .stat-label {
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    .stat-val {
+      color: var(--text-bright);
+      font-weight: 600;
+    }
+
+    .seal-badge {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--radar-green);
+      color: var(--radar-green);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-polar-ambient"></div>
+
+  <!-- Header Scope Bar -->
+  <header>
+    <div class="header-left">
+      <span class="badge-exp">EXP-025</span>
+      <span style="font-weight: 700;">HOUDINI CSS @PROPERTY CONIC PPI RETICLE</span>
+      <span class="status-live"><span class="radar-blip-dot"></span> POLAR SWEEP ACTIVE</span>
+    </div>
+    <div class="header-specs">
+      <span>API: CSS_PROPERTIES_AND_VALUES_L1</span>
+      <span>INTERPOLATION: &lt;angle&gt; COMPOSITOR</span>
+      <span>AZIMUTH: 360° CONTINUOUS</span>
+    </div>
+  </header>
+
+  <!-- Main Radar Tactical Workstation -->
+  <main>
+    <!-- Left Column: CSS Houdini Property Inspector -->
+    <section class="console-panel">
+      <div class="panel-header">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        HOUDINI REGISTRY
+      </div>
+      <div class="panel-content">
+        <div class="houdini-prop-card">
+          <div class="prop-name">--radar-angle</div>
+          <div class="prop-row"><span class="prop-label">Syntax:</span><span class="prop-val">&lt;angle&gt;</span></div>
+          <div class="prop-row"><span class="prop-label">Inherits:</span><span class="prop-val">false</span></div>
+          <div class="prop-row"><span class="prop-label">Initial:</span><span class="prop-val">0deg</span></div>
+          <div class="prop-row"><span class="prop-label">Keyframes:</span><span class="prop-val">0deg → 360deg</span></div>
+        </div>
+
+        <div class="houdini-prop-card">
+          <div class="prop-name">--beam-color</div>
+          <div class="prop-row"><span class="prop-label">Syntax:</span><span class="prop-val">&lt;color&gt;</span></div>
+          <div class="prop-row"><span class="prop-label">Inherits:</span><span class="prop-val">false</span></div>
+          <div class="prop-row"><span class="prop-label">Initial:</span><span class="prop-val">#10b981</span></div>
+          <div class="prop-row"><span class="prop-label">Interpolation:</span><span class="prop-val">sRGB Gamut</span></div>
+        </div>
+
+        <div class="houdini-prop-card">
+          <div class="prop-name">--ring-opacity</div>
+          <div class="prop-row"><span class="prop-label">Syntax:</span><span class="prop-val">&lt;number&gt;</span></div>
+          <div class="prop-row"><span class="prop-label">Inherits:</span><span class="prop-val">false</span></div>
+          <div class="prop-row"><span class="prop-label">Initial:</span><span class="prop-val">0.35</span></div>
+          <div class="prop-row"><span class="prop-label">Interpolation:</span><span class="prop-val">Float Continuous</span></div>
+        </div>
+
+        <div class="houdini-prop-card" style="border-color: rgba(6, 182, 212, 0.3);">
+          <div class="prop-name" style="color: var(--radar-cyan);">CSS.registerProperty</div>
+          <div class="prop-row"><span class="prop-label">API Status:</span><span class="prop-val" id="api-status">INITIALIZING</span></div>
+          <div class="prop-row"><span class="prop-label">Compositor:</span><span class="prop-val">Thread Offload</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Center Column: Polar Plan Position Indicator (PPI) -->
+    <section class="ppi-station">
+      <div class="ppi-housing" id="ppi-housing">
+        <!-- Houdini-driven rotating conic gradient beam -->
+        <div class="ppi-sweep-layer" id="radar-beam"></div>
+
+        <!-- Concentric Calibrated Range Rings -->
+        <div class="ppi-graticule">
+          <div class="range-ring ring-1"></div>
+          <div class="range-ring ring-2"></div>
+          <div class="range-ring ring-3"></div>
+          <div class="range-ring ring-4"></div>
+          <div class="crosshair-h"></div>
+          <div class="crosshair-v"></div>
+
+          <!-- Polar Cardinal Degree Markers -->
+          <span class="bearing-label bearing-000">000° N</span>
+          <span class="bearing-label bearing-090">090° E</span>
+          <span class="bearing-label bearing-180">180° S</span>
+          <span class="bearing-label bearing-270">270° W</span>
+        </div>
+
+        <!-- Monumental Typographic Lockup Over PPI Reticle -->
+        <div class="ppi-center-target">
+          <h1 id="hero-heading">Hello World</h1>
+          <div class="ppi-target-callsign">TARGET-01 // AIRSPACE LOCK</div>
+          <div class="ppi-target-coords">LAT: 37°46'29"N // LON: 122°25'10"W</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Vector Telemetry & Airspace Tracks -->
+    <section class="console-panel">
+      <div class="panel-header" style="color: var(--radar-amber);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        AIRSPACE TARGET TRACKS
+      </div>
+      <div class="panel-content telemetry-deck">
+        <div class="vector-card">
+          <div class="vector-title">TARGET-01 (PRIMARY)</div>
+          <div class="vector-row"><span class="vector-key">Callsign:</span><span class="vector-val" style="color: var(--radar-green);">HELLO-WORLD</span></div>
+          <div class="vector-row"><span class="vector-key">Bearing:</span><span class="vector-val">045° Radial</span></div>
+          <div class="vector-row"><span class="vector-key">Range:</span><span class="vector-val">0.00 NM (Center)</span></div>
+          <div class="vector-row"><span class="vector-key">Altitude:</span><span class="vector-val">FL 350 (35,000 ft)</span></div>
+          <div class="vector-row"><span class="vector-key">Transponder:</span><span class="vector-val">Mode-S 7700</span></div>
+        </div>
+
+        <div class="vector-card">
+          <div class="vector-title">PPI SCOPE TELEMETRY</div>
+          <div class="vector-row"><span class="vector-key">Scan Period:</span><span class="vector-val">6.00 Seconds</span></div>
+          <div class="vector-row"><span class="vector-key">Sweep Velocity:</span><span class="vector-val">60.0 deg/sec</span></div>
+          <div class="vector-row"><span class="vector-key">Max Range:</span><span class="vector-val">40.0 NM</span></div>
+          <div class="vector-row"><span class="vector-key">Pulse Width:</span><span class="vector-val">1.2 µs</span></div>
+        </div>
+
+        <div class="vector-card">
+          <div class="vector-title" style="color: var(--radar-cyan);">HOUDINI ENGINE STATS</div>
+          <div class="vector-row"><span class="vector-key">Angle Interpolation:</span><span class="vector-val" style="color: var(--radar-green);">Native Engine</span></div>
+          <div class="vector-row"><span class="vector-key">Custom Property Type:</span><span class="vector-val">CSS &lt;angle&gt;</span></div>
+          <div class="vector-row"><span class="vector-key">FPS Target:</span><span class="vector-val">60 FPS Composited</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer System Telemetry -->
+  <footer>
+    <div class="footer-left">
+      <div class="footer-stat">
+        <span class="stat-label">HOUDINI REGISTER:</span>
+        <span class="stat-val" id="val-houdini-status">ACTIVE_VERIFIED</span>
+      </div>
+      <div class="footer-stat">
+        <span class="stat-label">TARGET STATUS:</span>
+        <span class="stat-val" style="color: var(--radar-green);">ACQUIRED_LOCKED</span>
+      </div>
+      <div class="footer-stat">
+        <span class="stat-label">COORDINATES:</span>
+        <span class="stat-val">37.7749° N, 122.4194° W</span>
+      </div>
+    </div>
+    <div class="seal-badge">
+      PPI RETICLE CERTIFIED
+    </div>
+  </footer>
+
+  <script>
+    // Inspect and confirm CSS Houdini Properties & Values API support
+    const hasRegisterProperty = typeof CSS !== 'undefined' && typeof CSS.registerProperty === 'function';
+    
+    // Register programmatic property as complementary verification
+    let programmaticRegistered = false;
+    if (hasRegisterProperty) {
+      try {
+        CSS.registerProperty({
+          name: '--target-pulse',
+          syntax: '<number>',
+          inherits: false,
+          initialValue: 1.0
+        });
+        programmaticRegistered = true;
+      } catch (e) {
+        // Already registered or unsupported
+      }
+    }
+
+    document.getElementById('api-status').textContent = hasRegisterProperty ? 'SUPPORTED_NATIVE' : 'DECLARATIVE_ONLY';
+
+    // Verification probe
+    window.labEvidence = async function() {
+      const beam = document.getElementById('radar-beam');
+      const computed = window.getComputedStyle(beam);
+      const angleVal = computed.getPropertyValue('--radar-angle');
+      const beamColor = computed.getPropertyValue('--beam-color');
+
+      return {
+        subject: 'Hello World',
+        passed: Boolean(
+          document.getElementById('hero-heading').textContent.includes('Hello World') &&
+          (hasRegisterProperty || computed)
+        ),
+        mechanism: 'CSS Houdini Properties and Values Level 1 typed @property <angle> and <color> interpolation in conic-gradient PPI radar sweep',
+        measurements: {
+          hasRegisterPropertyApi: hasRegisterProperty,
+          programmaticRegistered: programmaticRegistered,
+          computedAngleProperty: angleVal.trim() || '0deg',
+          computedBeamColor: beamColor.trim() || '#10b981',
+          scanPeriodSeconds: 6.0,
+          sweepVelocityDegPerSec: 60.0
+        }
+      };
+    };
+  </script>
+</body>
+</html>

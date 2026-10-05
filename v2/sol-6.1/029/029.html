@@ -1,0 +1,14 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Echo Records</title><style>
+body{margin:0;background:#e6e0ef;color:#494062;font-family:Arial,sans-serif}main{padding:80px 95px}h1{font-size:110px;letter-spacing:-7px;margin:0 0 35px}.echo{font-size:80px;letter-spacing:-5px;margin:15px 0;color:#9b91ac}
+.echo[data-impression="green"]{color:#476b36;transform:translateX(70px);font-style:italic}.echo:nth-of-type(2){opacity:.8}.echo:nth-of-type(3){opacity:.6}
+button{margin-top:45px;border:1px solid;background:none;padding:14px 22px;color:inherit;font:14px monospace}small{display:block;margin-top:20px;font:12px monospace}
+</style></head><body><main><h1 id="source" data-impression="plain">Hello World</h1><p class="echo">Hello World</p><p class="echo">Hello World</p><p class="echo">Hello World</p><button id="stamp">Change the source impression</button><small id="records">029 / WAITING FOR A MUTATION</small></main><script>
+const source=document.querySelector('#source'),echoes=[...document.querySelectorAll('.echo')];let records=0,oldValue=null;
+// The control mutates only the source. Observer delivery is the sole path to
+// echo restyling; derived output is outside the observed subtree to avoid loops.
+new MutationObserver(batch=>{for(const record of batch){records++;oldValue=record.oldValue}for(const echo of echoes)echo.dataset.impression=source.dataset.impression;document.querySelector('#records').textContent='DELIVERED '+records+' ATTRIBUTE RECORD / OLD VALUE: '+oldValue}).observe(source,{attributes:true,attributeFilter:['data-impression'],attributeOldValue:true});
+document.querySelector('#stamp').onclick=()=>source.dataset.impression='green';
+window.labScenario={kind:'click',selector:'#stamp'};
+window.labEvidence=()=>({subject:'Hello World',passed:records===0&&echoes.length===3,mechanism:'Source attribute -> MutationObserver records -> echo impressions',measurements:{initialRecords:records,echoCount:echoes.length}});
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:records===1&&oldValue==='plain'&&echoes.every(el=>el.dataset.impression==='green'&&getComputedStyle(el).color==='rgb(71, 107, 54)'),mechanism:'Attribute delivery -> three restyled echoes without direct handler writes',measurements:{records,oldValue,impressions:echoes.map(el=>el.dataset.impression),colors:echoes.map(el=>getComputedStyle(el).color)}});
+</script></body></html>

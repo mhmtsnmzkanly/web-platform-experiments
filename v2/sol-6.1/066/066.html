@@ -1,0 +1,10 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Held Line</title><style>body{margin:0;background:#ede2ce;color:#a14e3b}main{padding:60px 90px}button{padding:15px 22px;font:18px Georgia;background:#a14e3b;color:#f6ead3;border:0}output{margin-left:25px;font:20px Georgia}#viewport{height:480px;overflow:auto;margin-top:65px;width:1050px}.lead{height:500px}.tail{height:900px}h1{font:130px/180px Georgia;font-weight:400;margin:0}.inserted{height:160px}</style></head><body><main><button id="insert">Insert above the reading line</button><output>Original reading position</output><section id="viewport"><div class="lead"></div><h1>Hello World</h1><div class="tail"></div></section></main><script>
+const viewport=document.querySelector('#viewport'),heading=document.querySelector('h1');viewport.scrollTop=500;let initial,inserted=false;
+// No scrollTop write occurs after insertion. Native anchoring compensates for
+// added height above the currently visible greeting.
+function state(){return {scrollTop:viewport.scrollTop,y:heading.getBoundingClientRect().top,height:viewport.scrollHeight}}
+window.labEvidence=()=>{const now=state();initial??=now;return {subject:'Hello World',passed:now.scrollTop===500&&Math.abs(now.y-viewport.getBoundingClientRect().top)<1,mechanism:'Visible greeting selected for native scroll anchoring',measurements:now}};
+document.querySelector('#insert').onclick=()=>{const block=document.createElement('div');block.className='inserted';viewport.prepend(block);inserted=true;document.querySelector('output').textContent='160px added above; reading line held'};
+window.labScenario={kind:'click',selector:'#insert'};
+window.labInteractionEvidence=()=>{const after=state();return {subject:'Hello World',passed:inserted&&after.scrollTop-initial.scrollTop===160&&after.height-initial.height===160&&Math.abs(after.y-initial.y)<1,mechanism:'Inserted height -> native scroll compensation -> stable greeting line',measurements:{initial,after}}};
+</script></body></html>

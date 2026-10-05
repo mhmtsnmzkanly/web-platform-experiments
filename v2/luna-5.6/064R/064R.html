@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Identity Passport</title>
+<style>
+:root{color:#edf5ff;background:#101722;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#101722,#384e74)}.passport{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #a7d4ff}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#a7d4ff;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#e4bf6d;font:12px monospace}.document{position:relative;z-index:1;margin:11vh auto 0;width:min(78vw,900px);padding:28px;border:1px solid #e4bf6d;background:#e9dfc7;color:#1d2a3a;transform:rotate(2deg)}.document h1{margin:0;font-size:clamp(58px,12vw,144px);line-height:.8;letter-spacing:-.1em}.document code{display:block;margin-top:30px;word-break:break-all;font-size:12px}.seal{position:absolute;right:25px;top:25px;width:90px;height:90px;border:2px solid #b95062;border-radius:50%;display:grid;place-items:center;color:#b95062;font:11px monospace;text-align:center}.controls{position:absolute;right:28px;bottom:28px}button{border:1px solid #e4bf6d;padding:9px 14px;color:#e4bf6d;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="passport"><p class="label">064R / identity passport / uuid</p><p class="state" id="state">passport / identity not issued</p><section class="document"><div class="seal">VALID<br>NOW</div><h1>Hello World</h1><code id="id">awaiting crypto.randomUUID()</code></section><div class="controls"><button id="issue" type="button">issue identity</button></div></main><script>
+const id=document.querySelector('#id'),state=document.querySelector('#state');document.querySelector('#issue').addEventListener('click',()=>{const uuid=crypto.randomUUID();id.textContent=uuid;state.textContent='passport / fresh UUID issued / identity sealed'});
+</script></body></html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Orthogonal Writing Modes</title>
+  <style>
+    /*
+      EXPERIMENT 003: Orthogonal Writing Modes & Vertical Typographic Stacking
+
+      Architecture:
+      Explores the CSS Writing Modes Level 3 specification.
+      The container establishes an asymmetrical orthogonal typographic plane.
+      "Hello" renders via `writing-mode: vertical-rl` and `text-orientation: upright`,
+      causing glyphs to stack top-to-bottom along a vertical inline axis.
+      "World" anchors the baseline orthogonally with `writing-mode: horizontal-tb`.
+      This tests native browser glyph positioning across perpendicular block/inline axes.
+
+      Design System:
+      - Style: Japanese Minimalist Book Spine & Hanging Scroll
+      - Palette: Fine washi paper (#f7f4ee), deep indigo ink (#0c131d), cinnabar red (#c73e3a), muted stone (#7b828c)
+      - Typography: Elegant high-contrast literary serif (Georgia / serif)
+    */
+
+    :root {
+      --bg-washi: #f7f4ee;
+      --color-ink: #0c131d;
+      --color-cinnabar: #c73e3a;
+      --color-stone: #7b828c;
+      --color-rule: #dcd6c8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: var(--bg-washi);
+      color: var(--color-ink);
+      font-family: "Georgia", "Times New Roman", "Yu Mincho", serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Scroll / Spine Sheet */
+    .scroll-sheet {
+      width: 100%;
+      max-width: 980px;
+      height: 720px;
+      background: var(--bg-washi);
+      border: 1px solid var(--color-rule);
+      box-shadow: 0 16px 40px rgba(12, 19, 29, 0.08), 0 2px 6px rgba(12, 19, 29, 0.04);
+      padding: 40px 56px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      grid-template-rows: auto 1fr auto;
+      gap: 24px;
+      position: relative;
+    }
+
+    /* Subtle fine paper texture lines */
+    .scroll-sheet::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgba(220, 214, 200, 0.5);
+      pointer-events: none;
+    }
+
+    /* Top metadata bar */
+    .meta-header {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--color-rule);
+      padding-bottom: 14px;
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--color-stone);
+    }
+
+    .seal-mark {
+      display: inline-block;
+      width: 22px;
+      height: 22px;
+      background: var(--color-cinnabar);
+      color: var(--bg-washi);
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      line-height: 22px;
+      border-radius: 2px;
+      margin-right: 8px;
+    }
+
+    /* Central Composition Arena */
+    .composition-arena {
+      grid-column: 2;
+      grid-row: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      position: relative;
+    }
+
+    /* The Primary Subject: H1 containing both orthogonal units */
+    h1.subject-lockup {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      font-size: inherit;
+      font-weight: inherit;
+    }
+
+    /* "HELLO" in vertical writing mode with upright glyph orientation */
+    .vertical-word {
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      font-size: clamp(38px, 5.2vw, 54px);
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      line-height: 1.1;
+      color: var(--color-ink);
+      border-left: 2px solid var(--color-rule);
+      padding-left: 18px;
+      margin-left: 14px;
+    }
+
+    /* "WORLD" in standard horizontal writing mode anchoring the bottom */
+    .horizontal-word {
+      writing-mode: horizontal-tb;
+      font-size: clamp(52px, 8vw, 84px);
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: 0.04em;
+      line-height: 0.95;
+      color: var(--color-cinnabar);
+      border-top: 2px solid var(--color-ink);
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+
+    /* Accompanying vertical literary note on the right flank */
+    .side-poetry {
+      grid-column: 3;
+      grid-row: 2;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 12px;
+      line-height: 2.2;
+      letter-spacing: 0.16em;
+      color: var(--color-stone);
+      justify-self: end;
+      align-self: center;
+      border-right: 1px solid var(--color-rule);
+      padding-right: 16px;
+    }
+
+    /* Technical footnote */
+    .scroll-footer {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--color-rule);
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      color: var(--color-stone);
+    }
+  </style>
+</head>
+<body>
+  <main class="scroll-sheet">
+    <header class="meta-header">
+      <div><span class="seal-mark">壱</span>EXPERIMENT 003 — ORTHOGONAL AXES</div>
+      <div>SPEC: CSS WRITING MODES LEVEL 3</div>
+    </header>
+
+    <div class="composition-arena">
+      <!-- Central Subject: Hello World with orthogonal writing-mode stack -->
+      <h1 class="subject-lockup">
+        <span class="vertical-word">Hello</span>
+        <span class="horizontal-word">World</span>
+      </h1>
+    </div>
+
+    <aside class="side-poetry" aria-hidden="true">
+      VERTICAL INLINE PROGRESSION · UPRIGHT GLYPH CODES · CROSS-AXIS HARMONY
+    </aside>
+
+    <footer class="scroll-footer">
+      <span>WRITING-MODE: VERTICAL-RL</span>
+      <span>TEXT-ORIENTATION: UPRIGHT</span>
+      <span>KYOTO BOOK SPINE STUDY</span>
+    </footer>
+  </main>
+
+  <script>
+    // Inspect actual orthogonal geometry and writing mode properties
+    window.labEvidence = () => {
+      const vEl = document.querySelector('.vertical-word');
+      const hEl = document.querySelector('.horizontal-word');
+      const vRect = vEl.getBoundingClientRect();
+      const hRect = hEl.getBoundingClientRect();
+
+      const vComputed = window.getComputedStyle(vEl);
+      const hComputed = window.getComputedStyle(hEl);
+
+      const isVertical = vComputed.writingMode === 'vertical-rl' && vComputed.textOrientation === 'upright';
+      const isHorizontal = hComputed.writingMode === 'horizontal-tb';
+      // Vertical orientation guarantees height exceeds width
+      const verticalGeometry = vRect.height > vRect.width;
+      // Horizontal orientation guarantees width exceeds height
+      const horizontalGeometry = hRect.width > hRect.height;
+
+      return {
+        subject: 'Hello World',
+        passed: isVertical && isHorizontal && verticalGeometry && horizontalGeometry,
+        mechanism: 'writing-mode: vertical-rl -> upright glyph stacking -> orthogonal cross-axis greeting -> vertical-horizontal typographic lock',
+        measurements: {
+          verticalMode: vComputed.writingMode,
+          textOrientation: vComputed.textOrientation,
+          verticalBox: { width: Math.round(vRect.width), height: Math.round(vRect.height) },
+          horizontalBox: { width: Math.round(hRect.width), height: Math.round(hRect.height) }
+        }
+      };
+    };
+  </script>
+</body>
+</html>

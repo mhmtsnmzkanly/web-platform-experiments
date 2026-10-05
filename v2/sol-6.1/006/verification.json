@@ -1,0 +1,55 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Tilt"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Tilt"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS perspective -> rotated live-text plane -> foreshortened Hello World",
+    "measurements": {
+      "matrix": "matrix3d(0.916424, -0.136132, 0.376344, 0, 0.0433986, 0.968628, 0.244695, 0, -0.397848, -0.207912, 0.893582, 0, 0, 0, 0, 1)",
+      "perspective": 1000,
+      "depthComponent": 0.376344
+    }
+  },
+  "dynamic": false
+}

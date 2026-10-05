@@ -1,0 +1,59 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 045: W3C Screen Orientation API Avionics Horizon"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 045: W3C Screen Orientation API Avionics Horizon"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "W3C Screen Orientation API (screen.orientation.type, screen.orientation.angle, onchange)",
+    "measurements": {
+      "orientationType": "landscape-primary",
+      "orientationAngle": 0,
+      "screenWidth": 800,
+      "screenHeight": 600,
+      "innerWidth": 1280,
+      "innerHeight": 800
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

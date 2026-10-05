@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Language Weather</title>
+<style>
+:root{color:#eef7ff;background:#122036;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(155deg,#122036,#4484a2)}.weather{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #a9e2e1}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#a9e2e1;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#f4c86c;font:12px monospace}.sky{position:relative;z-index:1;margin:10vh auto 0;width:min(76vw,860px);height:360px;overflow:hidden;background:linear-gradient(#326384,#a8dce0);border-radius:55% 55% 0 0;border-bottom:4px solid #f4c86c}.sun{position:absolute;right:12%;top:13%;width:110px;height:110px;border-radius:50%;background:#f4c86c;box-shadow:0 0 50px #f4c86c}.sky h1{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:#f3f0d9;font-size:clamp(58px,12vw,145px);line-height:.8;letter-spacing:-.1em;text-shadow:0 3px 0 #326384}.controls{position:absolute;right:28px;bottom:28px}button{border:1px solid #f4c86c;padding:9px 14px;color:#f4c86c;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="weather"><p class="label">066R / language weather / navigator locale</p><p class="state" id="state">sky / reading the local wind</p><section class="sky"><i class="sun"></i><h1>Hello World</h1></section><div class="controls"><button id="read" type="button">read atmosphere</button></div></main><script>
+const state=document.querySelector('#state');document.querySelector('#read').addEventListener('click',()=>{const locale=navigator.language||'unknown';state.textContent=`sky / ${locale} / local language pressure detected`});
+</script></body></html>

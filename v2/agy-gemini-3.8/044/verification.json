@@ -1,0 +1,69 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "span",
+        "text": "\"Hello World\""
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 044: W3C Selection API Level 1 Typographic Caliper"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "span",
+        "text": "\"Hello World\""
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 044: W3C Selection API Level 1 Typographic Caliper"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "W3C Selection API Level 1 (window.getSelection(), Selection.addRange, Range, ::selection)",
+    "measurements": {
+      "selectionType": "Range",
+      "isCollapsed": false,
+      "rangeCount": 1,
+      "selectedText": "Hello World",
+      "anchorOffset": 0,
+      "focusOffset": 11,
+      "boundingWidth": 409.546875,
+      "boundingHeight": 98
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

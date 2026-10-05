@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — Registration Press</title>
+  <style>
+    :root { color: #1d2740; background: #eee1c9; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: radial-gradient(circle at 20% 25%, #e98b68 0 7%, transparent 7.2%), radial-gradient(circle at 82% 72%, #73a9c7 0 12%, transparent 12.2%), #eee1c9; }
+    .press { width: min(94vw, 1180px); min-height: min(84vh, 680px); padding: 28px 5vw 34px; border: 1px solid #1d2740; background: rgba(255,250,240,.76); }
+    .label, .note { margin: 0; color: #bd4f45; font: 11px/1.4 monospace; letter-spacing: .18em; text-transform: uppercase; }
+    .note { margin-top: 20px; color: #52627d; letter-spacing: .08em; text-transform: none; }
+    .registration { position: relative; min-height: 390px; display: grid; place-items: center; overflow: hidden; }
+    .registration::before, .registration::after { position: absolute; width: 42px; height: 42px; border: 1px solid #bd4f45; content: ""; }
+    .registration::before { top: 20px; left: 20px; border-right: 0; border-bottom: 0; }
+    .registration::after { right: 20px; bottom: 20px; border-left: 0; border-top: 0; }
+    h1 { position: absolute; margin: 0; color: var(--ink, #1d2740); font-size: clamp(72px, 15vw, 176px); line-height: .8; letter-spacing: -.1em; white-space: nowrap; mix-blend-mode: multiply; transition: transform 180ms ease, color 180ms ease; }
+    .cyan { color: #2d79a2; transform: translate(var(--x, 14px), var(--y, 8px)); }
+    .coral { color: #e45c4f; transform: translate(calc(var(--x, 14px) * -1), calc(var(--y, 8px) * -1)); }
+    .controls { display: flex; align-items: center; gap: 16px; color: #52627d; font: 12px monospace; }
+    input { width: min(300px, 42vw); accent-color: #bd4f45; }
+    button { border: 1px solid #1d2740; padding: 8px 12px; color: #1d2740; background: transparent; font: inherit; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main class="press">
+    <p class="label">018R / registration press / blend mode</p>
+    <section class="registration" id="registration" aria-label="Two inks printing Hello World">
+      <h1 class="coral">Hello World</h1>
+      <h1 class="cyan" aria-hidden="true">Hello World</h1>
+    </section>
+    <div class="controls">
+      <label for="offset">misregister the inks <input id="offset" type="range" min="0" max="36" value="14"></label>
+      <button id="paper" type="button">change stock</button>
+    </div>
+    <p class="note">two registration inks / one blended impression</p>
+  </main>
+  <script>
+    const registration = document.querySelector('#registration');
+    const offset = document.querySelector('#offset');
+    const paper = document.querySelector('#paper');
+    let warm = false;
+    offset.addEventListener('input', () => registration.style.setProperty('--x', `${offset.value}px`));
+    paper.addEventListener('click', () => {
+      warm = !warm;
+      document.documentElement.style.setProperty('--ink', warm ? '#5a213b' : '#1d2740');
+      document.body.style.background = warm ? '#d8c4a5' : '#eee1c9';
+    });
+  </script>
+</body>
+</html>

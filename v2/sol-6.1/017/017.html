@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Woven</title>
+<style>
+body{margin:0;background:#281835;color:#f5c799;font-family:monospace}main{height:100vh;display:flex;align-items:center;justify-content:center}svg{width:96vw;height:90vh}small{position:fixed;bottom:20px;left:28px;font-size:11px;letter-spacing:3px}
+</style></head><body><main><svg viewBox="0 0 1200 650" role="img" aria-label="Hello World woven from an embedded SVG pattern">
+<defs>
+<!-- White glyphs supply mask alpha. One procedural pattern fills the field;
+     only the greeting-shaped portions survive compositing. -->
+<pattern id="weave" width="24" height="24" patternUnits="userSpaceOnUse">
+<rect width="24" height="24" fill="#ee987b"/><path d="M0 0H24V6H0Z M0 12H24V18H0Z" fill="#4d59ac"/><path d="M3 0V24 M15 0V24" stroke="#f5d5a6" stroke-width="3"/>
+</pattern>
+<mask id="letters" maskUnits="userSpaceOnUse" x="0" y="0" width="1200" height="650">
+<g fill="white" font-family="Arial,sans-serif" font-weight="900" font-size="240" letter-spacing="-15"><text x="60" y="280">Hello</text><text x="330" y="540">World</text></g>
+</mask></defs>
+<rect id="fabric" width="1200" height="650" fill="url(#weave)" mask="url(#letters)"/>
+</svg><small>017 / WOVEN FROM WITHIN</small></main>
+<script>
+window.labEvidence=()=>{const texts=[...document.querySelectorAll('mask text')],bounds=texts.map(t=>t.getBBox());
+return {subject:'Hello World',passed:texts.map(t=>t.textContent).join(' ')==='Hello World'&&bounds.every(b=>b.width>400&&b.height>150)&&document.querySelector('#fabric').getAttribute('mask')==='url(#letters)',
+mechanism:'SVG pattern pixels -> white glyph alpha mask -> woven greeting',measurements:{maskText:texts.map(t=>t.textContent).join(' '),glyphWidths:bounds.map(b=>b.width),patternUnits:document.querySelector('pattern').getAttribute('patternUnits'),patternElements:document.querySelector('pattern').children.length}}};
+</script></body></html>

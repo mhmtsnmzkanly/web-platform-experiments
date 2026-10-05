@@ -1,0 +1,82 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "span",
+        "text": "Hello World"
+      },
+      {
+        "tag": "div",
+        "text": "// Node 01 Broadcast Outbound Packet:\n{\n  \"event\": \"DISPATCH_PAYLOAD\",\n  \"subject\": \"Hello World\",\n "
+      },
+      {
+        "tag": "div",
+        "text": "// Node 02 Inbound Broadcast ACK:\n{\n  \"event\": \"ACK_RECEIPT\",\n  \"ackSeq\": 1,\n  \"subject\": \"Hello Wor"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 029: BroadcastChannel Multi-Realm Cross-Context IPC Mesh"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "span",
+        "text": "Hello World"
+      },
+      {
+        "tag": "div",
+        "text": "// Node 01 Broadcast Outbound Packet:\n{\n  \"event\": \"DISPATCH_PAYLOAD\",\n  \"subject\": \"Hello World\",\n "
+      },
+      {
+        "tag": "div",
+        "text": "// Node 02 Inbound Broadcast ACK:\n{\n  \"event\": \"ACK_RECEIPT\",\n  \"ackSeq\": 1,\n  \"subject\": \"Hello Wor"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 029: BroadcastChannel Multi-Realm Cross-Context IPC Mesh"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "HTML5 BroadcastChannel decoupled publish-subscribe IPC mesh between Window and DedicatedWorker realms",
+    "measurements": {
+      "channelName": "mesh_channel_029",
+      "broadcastRttMs": 1,
+      "ackSeq": 1,
+      "hexChecksum": "0x00001950",
+      "workerRealm": "DedicatedWorkerGlobalScope"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

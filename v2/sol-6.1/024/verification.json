@@ -1,0 +1,76 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1100,
+        "height": 500,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 4180,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Boundary Worker"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1100,
+        "height": 500,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 4180,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Boundary Worker"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Transferred text alpha -> inline Worker edge analysis -> contour greeting",
+    "measurements": {
+      "inputDetached": true,
+      "workerReply": true,
+      "boundaryPixels": 4179
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

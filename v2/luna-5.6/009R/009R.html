@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — State Switchboard</title>
+  <style>
+    :root { color: #f8e7a9; background: #171c2a; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; overflow: hidden; background: #171c2a; transition: background 300ms ease; }
+    .switchboard { position: relative; width: min(94vw, 1180px); height: min(88vh, 720px); overflow: hidden; border: 1px solid #f8e7a9; background: #263859; transition: background 300ms ease, border-color 300ms ease; }
+    .switchboard::before, .switchboard::after { position: absolute; width: 58vw; height: 58vw; max-width: 700px; max-height: 700px; border: 1px solid #ee7654; border-radius: 50%; content: ""; transition: transform 500ms cubic-bezier(.2,.8,.2,1), border-color 300ms ease; }
+    .switchboard::before { top: -34%; left: -10%; }
+    .switchboard::after { right: -10%; bottom: -42%; border-color: #f8e7a9; }
+    .heading { position: absolute; z-index: 1; left: 8%; top: 35%; margin: 0; color: #f8e7a9; font-size: clamp(64px, 14vw, 170px); line-height: .8; letter-spacing: -.1em; transition: color 300ms ease, transform 500ms cubic-bezier(.2,.8,.2,1), text-shadow 300ms ease; }
+    .label { position: absolute; z-index: 2; top: 24px; left: 28px; margin: 0; color: #f8e7a9; font: 11px monospace; letter-spacing: .18em; text-transform: uppercase; }
+    .switches { position: absolute; z-index: 2; right: 28px; bottom: 26px; display: grid; gap: 10px; }
+    .switch { display: flex; align-items: center; gap: 10px; color: #f8e7a9; font: 12px monospace; cursor: pointer; }
+    .switch input { width: 18px; height: 18px; accent-color: #ee7654; }
+    .stamp { position: absolute; right: 28px; top: 24px; color: #9fb3da; font: 11px monospace; letter-spacing: .08em; }
+    body:has(#flare:checked) { background: #ee7654; }
+    body:has(#flare:checked) .switchboard { border-color: #171c2a; background: #f8e7a9; }
+    body:has(#flare:checked) .heading { color: #171c2a; transform: translate(3vw, -2vw) rotate(-4deg); text-shadow: 12px 12px 0 #ee7654; }
+    body:has(#flare:checked) .label, body:has(#flare:checked) .switch { color: #171c2a; }
+    body:has(#flare:checked) .switchboard::before { transform: translate(20%, 18%) scale(.82); border-color: #171c2a; }
+    body:has(#echo:checked) .switchboard::after { transform: translate(-22%, -18%) scale(1.18); }
+    body:has(#echo:checked) .heading { letter-spacing: .01em; }
+    body:has(#echo:checked) .stamp::after { content: " / echo armed"; }
+    body:has(#echo:not(:checked)) .stamp::after { content: " / echo idle"; }
+  </style>
+</head>
+<body>
+  <main class="switchboard">
+    <p class="label">009R / state switchboard / :has()</p>
+    <p class="stamp">relational state</p>
+    <h1 class="heading">Hello World</h1>
+    <div class="switches">
+      <label class="switch"><input id="flare" type="checkbox"><span>invert the field</span></label>
+      <label class="switch"><input id="echo" type="checkbox" checked><span>stretch the echo</span></label>
+    </div>
+  </main>
+</body>
+</html>

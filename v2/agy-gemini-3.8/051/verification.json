@@ -1,0 +1,59 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 051: CSS Anchor Positioning Fallback Strategies"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 051: CSS Anchor Positioning Fallback Strategies"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS Anchor Positioning Level 2 (@position-try, position-try-fallbacks, position-anchor)",
+    "measurements": {
+      "anchorSupported": true,
+      "positionTrySupported": true,
+      "anchorX": 401.953125,
+      "anchorY": 243.5,
+      "calloutX": 514.09375,
+      "calloutY": 396.5
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

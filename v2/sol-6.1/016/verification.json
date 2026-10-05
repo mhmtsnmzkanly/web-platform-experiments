@@ -1,0 +1,101 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "em",
+        "text": "Hello World."
+      },
+      {
+        "tag": "em",
+        "text": "Hello World."
+      },
+      {
+        "tag": "em",
+        "text": "Hello World."
+      },
+      {
+        "tag": "em",
+        "text": "Hello World."
+      },
+      {
+        "tag": "em",
+        "text": "Hello World."
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Negative Space"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "em",
+        "text": "Hello World."
+      },
+      {
+        "tag": "em",
+        "text": "Hello World."
+      },
+      {
+        "tag": "em",
+        "text": "Hello World."
+      },
+      {
+        "tag": "em",
+        "text": "Hello World."
+      },
+      {
+        "tag": "em",
+        "text": "Hello World."
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Negative Space"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Ellipse exclusion -> available line widths -> greeting wrapped around a void",
+    "measurements": {
+      "lines": 12,
+      "leftEdgeSpread": 108.34375,
+      "lineStarts": [
+        427.046875,
+        473.078125,
+        502.359375,
+        521.125,
+        531.796875,
+        535.390625,
+        535.390625,
+        532.203125,
+        521.984375,
+        503.734375,
+        475.203125,
+        430.53125
+      ]
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

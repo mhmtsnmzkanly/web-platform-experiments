@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Loading Dock</title>
+<style>
+:root{color:#f4efe2;background:#20170f;font-family:monospace}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#20170f,#754a27)}.dock{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #e6bd66}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#e6bd66;font-size:11px;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#d8bea5;font-size:12px}.floor{position:relative;z-index:1;margin:14vh auto 0;width:min(80vw,920px);height:280px;border-bottom:8px solid #e6bd66;background:repeating-linear-gradient(90deg,transparent 0 68px,rgba(230,189,102,.28) 69px 71px)}.crate{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);width:min(68vw,700px);padding:28px;border:2px solid #e6bd66;background:#3d291c;text-align:center}.crate h1{margin:0;font:700 clamp(58px,12vw,144px)/.8 Arial,sans-serif;letter-spacing:-.1em}.controls{position:absolute;right:28px;bottom:28px}button{border:1px solid #e6bd66;padding:9px 14px;color:#e6bd66;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="dock"><p class="label">072R / loading dock / ready state</p><p class="state" id="state">dock / checking cargo status</p><section class="floor"><div class="crate"><h1>Hello World</h1></div></section><div class="controls"><button id="inspect" type="button">inspect dock</button></div></main><script>
+const state=document.querySelector('#state');function inspect(){state.textContent=`dock / cargo ${document.readyState} / manifest accepted`}document.querySelector('#inspect').addEventListener('click',inspect);document.addEventListener('readystatechange',inspect);inspect();
+</script></body></html>

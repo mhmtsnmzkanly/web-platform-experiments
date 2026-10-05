@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Point Field</title>
+<style>
+body{margin:0;background:#181b1d;color:#eebc64;font-family:monospace}main{height:100vh;display:flex;align-items:center;justify-content:center}
+canvas{width:min(1120px,94vw);height:auto}header{position:absolute;left:50px;top:40px;font-size:12px;letter-spacing:2px}
+footer{position:absolute;bottom:40px;left:50px;font-size:12px;color:#a98f68}
+</style></head><body><main><header>005 / POINT FIELD</header><canvas width="1120" height="560" aria-label="Hello World rendered as amber dots">Hello World</canvas><footer id="count">Sampling the letter field.</footer></main>
+<script>
+// Text is rasterized offscreen first. Alpha, rather than a hard-coded letter
+// outline, determines every visible dot, so the dots genuinely express the text.
+const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
+const mask=document.createElement('canvas');mask.width=1120;mask.height=560;
+const ink=mask.getContext('2d');ink.font='bold 168px monospace';ink.textAlign='center';ink.textBaseline='middle';ink.fillText('Hello World',560,280);
+const data=ink.getImageData(0,0,1120,560).data;let count=0,minX=1120,maxX=0;
+for(let y=0;y<560;y+=7)for(let x=0;x<1120;x+=7){
+ if(data[(y*1120+x)*4+3]>160){
+  const radius=1.5+((x*13+y*7)%11)/10;
+  ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fillStyle=(x+y)%3?'#eebc64':'#fff0cb';ctx.fill();
+  count++;minX=Math.min(minX,x);maxX=Math.max(maxX,x);
+ }
+}
+document.querySelector('#count').textContent=count+' sampled points / 7 px lattice';
+window.labEvidence=()=>({subject:'Hello World',passed:count>500&&maxX-minX>800,
+ mechanism:'Canvas text alpha -> lattice sampling -> stippled Hello World',
+ measurements:{points:count,samplingStep:7,span:maxX-minX,maskText:'Hello World'}});
+</script></body></html>

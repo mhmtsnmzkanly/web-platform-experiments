@@ -1,0 +1,12 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Unfold</title><style>
+body{margin:0;background:#efb8a1;color:#65382c;font-family:Georgia,serif}main{padding:110px 90px;counter-reset:greeting}
+details{border-top:2px solid;padding:28px 0;counter-increment:greeting}summary{font-size:100px;letter-spacing:-4px;cursor:pointer}summary::before{content:counter(greeting,decimal-leading-zero) " / ";font:28px monospace;letter-spacing:0}
+.inside{margin:30px 0 0 110px;font-size:55px;font-style:italic;line-height:1.5}small{font:13px monospace;display:block;margin-bottom:45px}
+</style></head><body><main><small>028 / UNFOLD THE GREETING</small><details id="fold"><summary>Hello World</summary><div class="inside"><p>Hello World</p><p>Hello World</p></div></details><details><summary>Hello World</summary><div class="inside">Hello World</div></details></main><script>
+let trusted=false,events=0;const fold=document.querySelector('#fold');fold.querySelector('summary').addEventListener('click',e=>trusted=e.isTrusted);fold.addEventListener('toggle',()=>events++);
+// Native disclosure handles visibility and keyboard activation. Counters derive
+// chapter numbering from document order rather than hard-coded text prefixes.
+window.labScenario={kind:'click',selector:'#fold summary'};
+window.labEvidence=()=>({subject:'Hello World',passed:!fold.open&&getComputedStyle(fold).counterIncrement.includes('greeting'),mechanism:'Native disclosure state -> greeting exposure + CSS hierarchy',measurements:{initialOpen:fold.open,counter:getComputedStyle(fold).counterIncrement}});
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:trusted&&fold.open&&events>0&&fold.querySelector('.inside').getBoundingClientRect().height>150,mechanism:'Trusted summary activation -> native open/toggle -> nested greetings',measurements:{trusted,open:fold.open,toggleEvents:events,expandedHeight:fold.querySelector('.inside').getBoundingClientRect().height}});
+</script></body></html>

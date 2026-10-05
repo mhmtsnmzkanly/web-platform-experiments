@@ -1,0 +1,82 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      },
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 14,
+    "draws": {
+      "canvas": 0,
+      "webgl": 15
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 026: WebGL GPU Fragment Shader Raymarched SDF"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      },
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 166,
+    "draws": {
+      "canvas": 0,
+      "webgl": 167
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 026: WebGL GPU Fragment Shader Raymarched SDF"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "WebGL 1.0 GPU fragment shader procedural signed distance field raymarching with Phong illumination",
+    "measurements": {
+      "glVersion": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "glslVersion": "WebGL GLSL ES 1.0 (OpenGL ES GLSL ES 1.0 Chromium)",
+      "canvasResolution": "640x660",
+      "maxTextureSize": 8192,
+      "frameCount": 177,
+      "centerPixelSample": [
+        0,
+        0,
+        0,
+        255
+      ]
+    }
+  },
+  "dynamic": true,
+  "interaction": null
+}

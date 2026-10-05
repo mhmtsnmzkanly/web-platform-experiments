@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — Vertical Signal</title>
+  <style>
+    :root {
+      --drift: 0deg;
+      --ink: #f7f0d4;
+      --acid: #d4ff3f;
+      color: var(--ink);
+      background: #101613;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 50%, #263c29 0 2px, transparent 2px 100%),
+        repeating-linear-gradient(90deg, transparent 0 9vw, #1b2b20 9vw 9.1vw),
+        #101613;
+      background-size: auto, auto, auto;
+      cursor: crosshair;
+    }
+    .field {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      width: min(92vw, 1180px);
+      min-height: 100vh;
+      margin: auto;
+      padding: 7vh 5vw;
+      border-inline: 1px solid #40563a;
+    }
+    .field::before,
+    .field::after {
+      position: absolute;
+      inset: 8vh auto 8vh 50%;
+      width: 1px;
+      background: #334d34;
+      content: "";
+    }
+    .field::after { transform: translateX(34px); background: #d4ff3f; opacity: .35; }
+    .legend {
+      align-self: start;
+      margin: 0;
+      color: #9bb18a;
+      font: 11px/1.4 monospace;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+    .legend:last-child { align-self: end; text-align: right; }
+    h1 {
+      z-index: 1;
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(24px, 3.2vw, 38px);
+      line-height: .76;
+      letter-spacing: .02em;
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      transform: rotate(var(--drift));
+      transform-origin: center;
+      transition: transform 120ms ease-out, color 240ms ease;
+      text-shadow: 14px 14px 0 #314b31;
+      white-space: nowrap;
+    }
+    h1::first-letter { color: var(--acid); }
+    .hint {
+      position: absolute;
+      left: 50%;
+      bottom: 5vh;
+      margin: 0;
+      color: #789176;
+      font: 12px monospace;
+      transform: translateX(-50%);
+    }
+    @media (max-width: 620px) {
+      .field { grid-template-columns: 1fr auto 1fr; padding-inline: 6vw; }
+      .legend { font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="field">
+    <p class="legend">002R<br>vertical signal</p>
+    <h1>Hello World</h1>
+    <p class="legend">writing-mode<br>text-orientation</p>
+    <p class="hint">move through the field / the spine answers</p>
+  </main>
+  <script>
+    const field = document.querySelector('.field');
+    const greeting = document.querySelector('h1');
+    field.addEventListener('pointermove', (event) => {
+      const ratio = (event.clientX / window.innerWidth) - 0.5;
+      greeting.style.setProperty('--drift', `${ratio * 18}deg`);
+    });
+    field.addEventListener('pointerleave', () => greeting.style.setProperty('--drift', '0deg'));
+    field.addEventListener('click', () => {
+      greeting.style.color = greeting.style.color ? '' : '#d4ff3f';
+    });
+  </script>
+</body>
+</html>

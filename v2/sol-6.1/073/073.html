@@ -1,0 +1,8 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Added Motion</title><style>body{margin:0;background:#376264;color:#e4dec1}main{padding:290px 100px}h1{font:bold 110px Arial;margin:0;width:900px;transform:rotate(-6deg);transform-origin:left center}</style></head><body><main><h1>Hello World</h1></main><script>
+const heading=document.querySelector('h1');
+// Additive transform effects accumulate with the underlying rotation and with
+// each other. Neither animation replaces the other or writes a per-frame style.
+const shift=heading.animate([{transform:'translateX(0px)'},{transform:'translateX(160px)'}],{duration:3000,iterations:Infinity,direction:'alternate',composite:'add'});
+const size=heading.animate([{transform:'scale(.9)'},{transform:'scale(1.1)'}],{duration:2000,iterations:Infinity,direction:'alternate',composite:'add'});
+window.labEvidence=()=>{const matrix=new DOMMatrix(getComputedStyle(heading).transform),moveProgress=shift.effect.getComputedTiming().progress,sizeProgress=size.effect.getComputedTiming().progress,actualScale=Math.hypot(matrix.a,matrix.b),angle=Math.atan2(matrix.b,matrix.a)*180/Math.PI,expectedScale=.9+.2*sizeProgress,expectedX=Math.cos(-6*Math.PI/180)*160*moveProgress;return {subject:'Hello World',passed:shift.effect.composite==='add'&&size.effect.composite==='add'&&Math.abs(angle+6)<.01&&Math.abs(actualScale-expectedScale)<.001&&Math.abs(matrix.e-expectedX)<1,mechanism:'Underlying rotation + additive translation/scale -> combined greeting matrix',measurements:{moveProgress,sizeProgress,actualScale,expectedScale,angle,actualX:matrix.e,expectedX}}};
+</script></body></html>

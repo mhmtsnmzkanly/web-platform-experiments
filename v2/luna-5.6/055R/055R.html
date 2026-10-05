@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Selection Loom</title>
+<style>
+:root{color:#f4e7d1;background:#311b2a;font-family:Georgia,serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 30% 30%,#7b4261,#311b2a 65%)}.loom{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #f1b966}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#f1b966;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#d9bfd1;font:12px monospace}.text{position:relative;z-index:1;margin:15vh auto 0;width:min(80vw,920px);padding:30px;border-block:1px solid #f1b966}.text h1{margin:0;font-size:clamp(66px,14vw,170px);line-height:.8;letter-spacing:-.1em;user-select:text}.controls{position:absolute;right:28px;bottom:28px;display:flex;gap:12px}button{border:1px solid #f1b966;padding:9px 14px;color:#f1b966;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="loom"><p class="label">055R / selection loom / range selection</p><p class="state" id="state">selection / drag across the phrase</p><section class="text" id="text"><h1>Hello World</h1></section><div class="controls"><button id="select" type="button">select greeting</button></div></main><script>
+const text=document.querySelector('#text'),state=document.querySelector('#state');document.addEventListener('selectionchange',()=>{const selection=getSelection();if(selection?.rangeCount&&text.contains(selection.anchorNode)){state.textContent=`selection / ${selection.toString()||'empty'} / active`}});document.querySelector('#select').addEventListener('click',()=>{const range=document.createRange(),heading=text.querySelector('h1');range.selectNodeContents(heading);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);state.textContent='selection / Hello World / active'});
+</script></body></html>

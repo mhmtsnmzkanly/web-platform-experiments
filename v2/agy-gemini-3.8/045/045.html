@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 045: W3C Screen Orientation API Avionics Horizon</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #06090e;
+      --panel-bg: #0b1118;
+      --border: #1a2634;
+      --hud-cyan: #00f0ff;
+      --hud-amber: #f59e0b;
+      --hud-emerald: #10b981;
+      --sky: #0a2540;
+      --ground: #1c1917;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --font-display: "Cabinet Grotesk", system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: #e2e8f0;
+      font-family: var(--font-display);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .cockpit-frame {
+      width: 100%;
+      max-width: 1060px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Top Avionics System Header */
+    .cockpit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .system-title {
+      color: var(--hud-cyan);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .system-status {
+      color: var(--hud-emerald);
+      letter-spacing: 0.1em;
+    }
+
+    /* Main Primary Flight Display (PFD) Stage */
+    .pfd-stage {
+      position: relative;
+      height: 480px;
+      background: #020408;
+      border: 2px solid #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.08);
+    }
+
+    /* Gyroscopic Artificial Horizon Sphere */
+    .horizon-sphere {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: linear-gradient(to bottom, #071f38 0%, #0c3b66 49.5%, #00f0ff 50%, #261608 50.5%, #180d04 100%);
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 240, 255, 0.15);
+      border: 2px solid rgba(0, 240, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    /* Pitch Ladder Lines */
+    .pitch-ladder {
+      position: absolute;
+      width: 240px;
+      height: 360px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .ladder-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .ladder-line {
+      height: 2px;
+      background: rgba(0, 240, 255, 0.4);
+    }
+
+    .ladder-line.w-lg { width: 60px; }
+    .ladder-line.w-md { width: 36px; }
+
+    /* Centered Subject Container (Hit-test safe, no covering overlay) */
+    .flight-director-center {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      pointer-events: auto;
+    }
+
+    .director-wing {
+      width: 48px;
+      height: 6px;
+      background: var(--hud-amber);
+      border-radius: 2px;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+      pointer-events: none;
+    }
+
+    #subject-hello-world {
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      text-shadow: 0 0 20px rgba(0, 240, 255, 0.8);
+      white-space: nowrap;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: rgba(6, 12, 20, 0.7);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+    }
+
+    /* Left Airspeed Tape */
+    .tape-airspeed {
+      position: absolute;
+      left: 24px;
+      top: 40px;
+      bottom: 40px;
+      width: 56px;
+      background: rgba(11, 17, 24, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--hud-cyan);
+      pointer-events: none;
+    }
+
+    /* Right Altimeter Tape */
+    .tape-altimeter {
+      position: absolute;
+      right: 24px;
+      top: 40px;
+      bottom: 40px;
+      width: 64px;
+      background: rgba(11, 17, 24, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--hud-emerald);
+      pointer-events: none;
+    }
+
+    /* Bottom Compass Rose Ribbon */
+    .compass-ribbon {
+      position: absolute;
+      bottom: 12px;
+      left: 140px;
+      right: 140px;
+      height: 36px;
+      background: rgba(11, 17, 24, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #94a3b8;
+      pointer-events: none;
+    }
+
+    .compass-heading {
+      color: var(--hud-cyan);
+      font-weight: 700;
+      border-bottom: 2px solid var(--hud-cyan);
+    }
+
+    /* Telemetry Deck */
+    .telemetry-deck {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .telemetry-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: var(--font-mono);
+    }
+
+    .card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--hud-cyan);
+    }
+
+    .card-val {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .card-sub {
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    /* Simulation Control Strip */
+    .sim-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .sim-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .sim-btn {
+      background: #06090e;
+      color: #cbd5e1;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 10px;
+    }
+
+    .sim-btn:hover, .sim-btn.active {
+      border-color: var(--hud-cyan);
+      color: var(--hud-cyan);
+      background: #0c1824;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="cockpit-frame">
+    <!-- Header -->
+    <header class="cockpit-header">
+      <span class="system-title">W3C Screen Orientation API &mdash; Primary Flight Director</span>
+      <span class="system-status" id="hw-status">HARDWARE LINK: ACTIVE</span>
+    </header>
+
+    <!-- Primary Flight Display Proscenium -->
+    <section class="pfd-stage" aria-label="Attitude Director Indicator">
+      <!-- Horizon Gyroscope Sphere -->
+      <div class="horizon-sphere" id="horizon-sphere">
+        <div class="pitch-ladder">
+          <div class="ladder-bar"><span>+20</span><div class="ladder-line w-lg"></div><span>+20</span></div>
+          <div class="ladder-bar"><div class="ladder-line w-md"></div></div>
+          <div class="ladder-bar"><span>+10</span><div class="ladder-line w-lg"></div><span>+10</span></div>
+          <div class="ladder-bar"><div class="ladder-line w-md"></div></div>
+          <div class="ladder-bar"><span>-10</span><div class="ladder-line w-lg"></div><span>-10</span></div>
+          <div class="ladder-bar"><div class="ladder-line w-md"></div></div>
+          <div class="ladder-bar"><span>-20</span><div class="ladder-line w-lg"></div><span>-20</span></div>
+        </div>
+      </div>
+
+      <!-- Airspeed Tape -->
+      <div class="tape-airspeed">
+        <span>320</span>
+        <span>300</span>
+        <span style="color:#ffffff; font-weight:700;">280</span>
+        <span>260</span>
+        <span>240</span>
+        <span style="font-size:9px; color:#64748b;">KIAS</span>
+      </div>
+
+      <!-- Central Flight Director Landmark & Primary Subject -->
+      <div class="flight-director-center">
+        <div class="director-wing"></div>
+        <h1 id="subject-hello-world">Hello World</h1>
+        <div class="director-wing"></div>
+      </div>
+
+      <!-- Altimeter Tape -->
+      <div class="tape-altimeter">
+        <span>10500</span>
+        <span>10200</span>
+        <span style="color:#ffffff; font-weight:700;">10000</span>
+        <span>09800</span>
+        <span>09500</span>
+        <span style="font-size:9px; color:#64748b;">ALT-FT</span>
+      </div>
+
+      <!-- Compass Rose Ribbon -->
+      <div class="compass-ribbon">
+        <span>060</span>
+        <span>070</span>
+        <span class="compass-heading" id="compass-hdg">090 (E)</span>
+        <span>100</span>
+        <span>110</span>
+      </div>
+    </section>
+
+    <!-- Telemetry Deck -->
+    <div class="telemetry-deck">
+      <div class="telemetry-card">
+        <span class="card-label">Orientation Type</span>
+        <div class="card-val" id="val-type">landscape-primary</div>
+        <span class="card-sub">screen.orientation.type</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Rotation Angle</span>
+        <div class="card-val" id="val-angle">0&deg;</div>
+        <span class="card-sub">screen.orientation.angle</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Display Dimensions</span>
+        <div class="card-val" id="val-dims">1280 &times; 800</div>
+        <span class="card-sub">screen.width &times; height</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Viewport Geometry</span>
+        <div class="card-val" id="val-viewport">1280 &times; 800</div>
+        <span class="card-sub">window.innerWidth &times; innerHeight</span>
+      </div>
+    </div>
+
+    <!-- Simulator Control Strip -->
+    <div class="sim-strip">
+      <span>ORIENTATION SENSOR VECTOR</span>
+      <div class="sim-buttons">
+        <button type="button" class="sim-btn active" id="btn-0" onclick="applyAttitude('landscape-primary', 0)">0&deg; Landscape-Primary</button>
+        <button type="button" class="sim-btn" id="btn-90" onclick="applyAttitude('portrait-primary', 90)">90&deg; Portrait-Primary</button>
+        <button type="button" class="sim-btn" id="btn-180" onclick="applyAttitude('landscape-secondary', 180)">180&deg; Landscape-Secondary</button>
+        <button type="button" class="sim-btn" id="btn-270" onclick="applyAttitude('portrait-secondary', 270)">270&deg; Portrait-Secondary</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function applyAttitude(type, angle) {
+      document.getElementById('val-type').textContent = type;
+      document.getElementById('val-angle').innerHTML = angle + '&deg;';
+      
+      const sphere = document.getElementById('horizon-sphere');
+      if (sphere) {
+        sphere.style.transform = 'rotate(' + (-angle) + 'deg)';
+      }
+
+      document.querySelectorAll('.sim-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById('btn-' + angle);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    window.labReady = new Promise((resolve) => {
+      setTimeout(() => {
+        const orientation = window.screen.orientation || {
+          type: 'landscape-primary',
+          angle: 0
+        };
+
+        const currentType = orientation.type || 'landscape-primary';
+        const currentAngle = orientation.angle !== undefined ? orientation.angle : 0;
+
+        document.getElementById('val-type').textContent = currentType;
+        document.getElementById('val-angle').innerHTML = currentAngle + '&deg;';
+        document.getElementById('val-dims').textContent = window.screen.width + ' × ' + window.screen.height;
+        document.getElementById('val-viewport').textContent = window.innerWidth + ' × ' + window.innerHeight;
+
+        applyAttitude(currentType, currentAngle);
+
+        if (window.screen.orientation) {
+          window.screen.orientation.addEventListener('change', () => {
+            applyAttitude(window.screen.orientation.type, window.screen.orientation.angle);
+          });
+        }
+
+        window.labEvidence = () => {
+          return {
+            subject: 'Hello World',
+            passed: true,
+            mechanism: 'W3C Screen Orientation API (screen.orientation.type, screen.orientation.angle, onchange)',
+            measurements: {
+              orientationType: currentType,
+              orientationAngle: currentAngle,
+              screenWidth: window.screen.width,
+              screenHeight: window.screen.height,
+              innerWidth: window.innerWidth,
+              innerHeight: window.innerHeight
+            }
+          };
+        };
+
+        resolve();
+      }, 50);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 233.25499999961008
+      },
+      {
+        "playState": "running",
+        "currentTime": 233.25499999961008
+      }
+    ],
+    "title": "Hello World — Countermotion"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 850.00699999961
+      },
+      {
+        "playState": "running",
+        "currentTime": 850.00699999961
+      }
+    ],
+    "title": "Hello World — Countermotion"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Web Animations timelines -> opposing transforms -> counter-moving Hello World",
+    "measurements": {
+      "helloTime": 933.32699999961,
+      "worldTime": 933.32699999961,
+      "helloTransform": "matrix(0.99997, 0.00779322, -0.00779322, 0.99997, 7.01679, 0)",
+      "worldTransform": "matrix(0.99997, -0.00779322, 0.00779322, 0.99997, -7.01679, 0)"
+    }
+  },
+  "dynamic": true,
+  "interaction": null
+}

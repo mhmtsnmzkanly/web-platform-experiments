@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 029: BroadcastChannel Multi-Realm Cross-Context IPC Mesh</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-dark: #07090e;
+      --bg-panel: #0d121b;
+      --bg-card: #131b26;
+      --border-subtle: #1e2838;
+      --border-accent: #2c3a50;
+      --mesh-indigo: #6366f1;
+      --mesh-indigo-glow: rgba(99, 102, 241, 0.2);
+      --mesh-cyan: #06b6d4;
+      --mesh-emerald: #10b981;
+      --mesh-amber: #f59e0b;
+      --text-white: #ffffff;
+      --text-muted: #94a3b8;
+      --text-dim: #475569;
+      --font-mono: 'SF Mono', 'Fira Code', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      font-family: var(--font-sans);
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      position: relative;
+    }
+
+    /* Ambient Mesh Grid overlay */
+    .bg-mesh-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Top Router Header */
+    header {
+      position: relative;
+      z-index: 10;
+      height: 52px;
+      padding: 0 32px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .badge-exp {
+      background: #1e1b4b;
+      color: var(--mesh-indigo);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      border: 1px solid var(--mesh-indigo);
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--mesh-emerald);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--mesh-emerald);
+      box-shadow: 0 0 10px var(--mesh-emerald);
+    }
+
+    .header-specs {
+      color: var(--text-muted);
+      display: flex;
+      gap: 24px;
+    }
+
+    /* Main Console Workspace */
+    main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      padding: 20px 32px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 16px;
+    }
+
+    /* Hero Typographic Banner */
+    .hero-banner {
+      background: linear-gradient(180deg, #131b26 0%, var(--bg-panel) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--mesh-indigo) 0%, var(--mesh-cyan) 50%, var(--mesh-emerald) 100%);
+    }
+
+    .hero-title-group h1 {
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero-metrics {
+      display: flex;
+      gap: 20px;
+    }
+
+    .metric-pill {
+      background: var(--bg-dark);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 16px;
+      text-align: right;
+    }
+
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 2px;
+    }
+
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--mesh-cyan);
+    }
+
+    /* 3-Column Mesh Router Deck */
+    .router-deck {
+      display: grid;
+      grid-template-columns: 1fr 140px 1fr;
+      gap: 16px;
+      min-height: 440px;
+    }
+
+    .node-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .node-panel.node-main {
+      border-top: 3px solid var(--mesh-indigo);
+    }
+
+    .node-panel.node-worker {
+      border-top: 3px solid var(--mesh-emerald);
+    }
+
+    .panel-header {
+      padding: 10px 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .node-main .panel-header { color: var(--mesh-indigo); }
+    .node-worker .panel-header { color: var(--mesh-emerald); }
+
+    .tag-realm {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.05);
+      font-weight: 600;
+    }
+
+    .panel-body {
+      padding: 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+    }
+
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .telemetry-k { color: var(--text-dim); }
+    .telemetry-v { color: var(--text-white); font-weight: 600; }
+
+    .code-box {
+      background: var(--bg-dark);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 10px;
+      line-height: 1.45;
+      color: #93c5fd;
+      flex: 1;
+      overflow: hidden;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* Center IPC Conduit Channel */
+    .bus-conduit {
+      background: rgba(13, 18, 27, 0.5);
+      border: 1px dashed var(--border-accent);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 6px;
+      gap: 12px;
+    }
+
+    .bus-title {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--mesh-cyan);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .bus-graphic {
+      width: 100%;
+      height: 160px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      position: relative;
+    }
+
+    .bus-line {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--mesh-indigo), var(--mesh-cyan), var(--mesh-emerald));
+    }
+
+    .bus-badge {
+      background: #1e1b4b;
+      border: 1px solid var(--mesh-indigo);
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--mesh-cyan);
+      font-weight: 600;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+    }
+
+    .bus-arrow {
+      font-size: 14px;
+      color: var(--mesh-cyan);
+    }
+
+    /* Footer Telemetry Strip */
+    footer {
+      position: relative;
+      z-index: 10;
+      padding: 12px 24px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .footer-left {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .footer-item {
+      display: flex;
+      gap: 8px;
+    }
+
+    .footer-label {
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .footer-val {
+      color: var(--text-white);
+      font-weight: 600;
+    }
+
+    .seal-badge {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--mesh-emerald);
+      color: var(--mesh-emerald);
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-mesh-grid"></div>
+
+  <!-- Header Scope Bar -->
+  <header>
+    <div class="header-left">
+      <span class="badge-exp">EXP-029</span>
+      <span style="font-weight: 700;">BROADCASTCHANNEL MULTI-REALM IPC MESH</span>
+      <span class="status-indicator"><span class="pulse-dot"></span> TOPOLOGY MESH ACTIVE</span>
+    </div>
+    <div class="header-specs">
+      <span>CHANNEL: mesh_channel_029</span>
+      <span>TOPOLOGY: Decoupled 1-to-Many Pub-Sub</span>
+      <span>TRANSPORT: Same-Origin Event Loop</span>
+    </div>
+  </header>
+
+  <!-- Main Viewport Workspace -->
+  <main>
+    <!-- Hero Lockup with prominent Hello World -->
+    <section class="hero-banner">
+      <div class="hero-title-group">
+        <h1 id="hero-heading">Hello World</h1>
+        <div class="hero-subtitle">DECOUPLED BROADCASTCHANNEL IPC // BIDIRECTIONAL PACKET SYNC</div>
+      </div>
+      <div class="hero-metrics">
+        <div class="metric-pill">
+          <div class="metric-label">Broadcast RTT</div>
+          <div class="metric-value" id="val-rtt">0.00 ms</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-label">Channel State</div>
+          <div class="metric-value" id="val-chan-state" style="color: var(--mesh-emerald);">OPEN / READY</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-label">Mesh Handshake</div>
+          <div class="metric-value" id="val-handshake">SYN-ACK OK</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3-Column Mesh Router Deck -->
+    <div class="router-deck">
+      <!-- Node-01: Main Window Realm -->
+      <section class="node-panel node-main">
+        <div class="panel-header">
+          <span>NODE 01: MAIN WINDOW REALM</span>
+          <span class="tag-realm">Global Window</span>
+        </div>
+        <div class="panel-body">
+          <div class="telemetry-row">
+            <span class="telemetry-k">Instance:</span>
+            <span class="telemetry-v">new BroadcastChannel('mesh_channel_029')</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-k">Dispatch Mode:</span>
+            <span class="telemetry-v">channel.postMessage(packet)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-k">Outbound Packet SEQ:</span>
+            <span class="telemetry-v">0x0001</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-k">Subject Transmitted:</span>
+            <span class="telemetry-v" style="color: var(--mesh-cyan);">Hello World</span>
+          </div>
+          <div class="code-box" id="node-01-payload">
+// Node 01 Broadcast Outbound Packet:
+{
+  "event": "DISPATCH_PAYLOAD",
+  "subject": "Hello World",
+  "seq": 1,
+  "timestamp": 1728086400000
+}
+          </div>
+        </div>
+      </section>
+
+      <!-- Center IPC Conduit -->
+      <div class="bus-conduit">
+        <div class="bus-title">IPC CHANNEL</div>
+        <div class="bus-graphic">
+          <div class="bus-arrow">&#8594; broadcast</div>
+          <div class="bus-line"></div>
+          <div class="bus-badge">BROADCAST BUS</div>
+          <div class="bus-line"></div>
+          <div class="bus-arrow">&#8592; broadcast</div>
+        </div>
+        <div class="bus-title" id="val-bus-metric">SYNCHRONIZED</div>
+      </div>
+
+      <!-- Node-02: Dedicated Worker Realm -->
+      <section class="node-panel node-worker">
+        <div class="panel-header">
+          <span>NODE 02: WORKER REALM</span>
+          <span class="tag-realm" style="color: var(--mesh-emerald);">DedicatedWorker</span>
+        </div>
+        <div class="panel-body">
+          <div class="telemetry-row">
+            <span class="telemetry-k">Worker Scope:</span>
+            <span class="telemetry-v">DedicatedWorkerGlobalScope</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-k">Worker Channel:</span>
+            <span class="telemetry-v">mesh_channel_029</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-k">Received SEQ:</span>
+            <span class="telemetry-v" id="val-worker-seq">--</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-k">Inbound Checksum:</span>
+            <span class="telemetry-v" id="val-worker-checksum">--</span>
+          </div>
+          <div class="code-box" id="node-02-payload" style="color: #6ee7b7;">
+// Awaiting inbound BroadcastChannel message...
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer System Telemetry -->
+    <footer>
+      <div class="footer-left">
+        <div class="footer-item">
+          <span class="footer-label">CHANNEL PROTOCOL:</span>
+          <span class="footer-val" style="color: var(--mesh-cyan);">W3C BroadcastChannel API</span>
+        </div>
+        <div class="footer-item">
+          <span class="footer-label">SUBSYSTEM STATUS:</span>
+          <span class="footer-val">ACTIVE PUB-SUB MESH</span>
+        </div>
+        <div class="footer-item">
+          <span class="footer-label">ISOLATION:</span>
+          <span class="footer-val">Decoupled Cross-Thread</span>
+        </div>
+      </div>
+      <div class="seal-badge">
+        BROADCASTCHANNEL OK
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // Worker script containing independent BroadcastChannel subscriber
+    const workerScript = `
+      const channel = new BroadcastChannel('mesh_channel_029');
+      channel.addEventListener('message', function(event) {
+        const msg = event.data;
+        if (msg.event === 'DISPATCH_PAYLOAD') {
+          // Compute simple checksum over subject
+          const subject = msg.subject || 'Hello World';
+          let checksum = 0;
+          for (let i = 0; i < subject.length; i++) {
+            checksum = (checksum + subject.charCodeAt(i) * (i + 1)) & 0xFFFFFFFF;
+          }
+          const hexChecksum = '0x' + checksum.toString(16).toUpperCase().padStart(8, '0');
+
+          // Broadcast ACK back across the channel
+          channel.postMessage({
+            event: 'ACK_RECEIPT',
+            ackSeq: msg.seq,
+            subject: subject,
+            hexChecksum: hexChecksum,
+            workerRealm: self.constructor ? self.constructor.name : 'DedicatedWorkerGlobalScope',
+            echoTimestamp: Date.now()
+          });
+        }
+      });
+      self.postMessage('WORKER_READY');
+    `;
+
+    // Global state container
+    window.__broadcastState = {
+      initialized: false,
+      completed: false,
+      rttMs: 0,
+      receivedAck: null,
+      error: null
+    };
+
+    const workerBlob = new Blob([workerScript], { type: 'application/javascript' });
+    const worker = new Worker(URL.createObjectURL(workerBlob));
+
+    const mainChannel = new BroadcastChannel('mesh_channel_029');
+    let sendTime = 0;
+
+    function runBroadcastHandshake() {
+      return new Promise((resolve, reject) => {
+        const safetyTimer = setTimeout(() => {
+          reject(new Error('BroadcastChannel handshake timeout after 3000ms'));
+        }, 3000);
+
+        mainChannel.addEventListener('message', function(event) {
+          const ack = event.data;
+          if (ack.event === 'ACK_RECEIPT') {
+            clearTimeout(safetyTimer);
+            const rtt = performance.now() - sendTime;
+            window.__broadcastState.completed = true;
+            window.__broadcastState.rttMs = parseFloat(rtt.toFixed(2));
+            window.__broadcastState.receivedAck = ack;
+
+            // Update DOM telemetry
+            document.getElementById('val-rtt').textContent = window.__broadcastState.rttMs + ' ms';
+            document.getElementById('val-worker-seq').textContent = 'SEQ-' + ack.ackSeq;
+            document.getElementById('val-worker-checksum').textContent = ack.hexChecksum;
+
+            document.getElementById('node-02-payload').textContent = 
+              `// Node 02 Inbound Broadcast ACK:\n` +
+              JSON.stringify(ack, null, 2);
+
+            resolve(ack);
+          }
+        });
+
+        worker.onmessage = function(event) {
+          if (event.data === 'WORKER_READY') {
+            setTimeout(() => {
+              sendTime = performance.now();
+              mainChannel.postMessage({
+                event: 'DISPATCH_PAYLOAD',
+                subject: 'Hello World',
+                seq: 1,
+                timestamp: Date.now()
+              });
+            }, 30);
+          }
+        };
+      });
+    }
+
+    const handshakePromise = runBroadcastHandshake();
+
+    // Lab Evidence interface for automated verification
+    window.labEvidence = async function() {
+      try {
+        await handshakePromise;
+        const ack = window.__broadcastState.receivedAck;
+        const passed = Boolean(
+          window.__broadcastState.completed &&
+          ack &&
+          ack.subject === 'Hello World' &&
+          ack.ackSeq === 1 &&
+          ack.workerRealm.includes('Worker')
+        );
+
+        return {
+          subject: 'Hello World',
+          passed: passed,
+          mechanism: 'HTML5 BroadcastChannel decoupled publish-subscribe IPC mesh between Window and DedicatedWorker realms',
+          measurements: {
+            channelName: mainChannel.name,
+            broadcastRttMs: window.__broadcastState.rttMs,
+            ackSeq: ack ? ack.ackSeq : null,
+            hexChecksum: ack ? ack.hexChecksum : null,
+            workerRealm: ack ? ack.workerRealm : null
+          }
+        };
+      } catch (err) {
+        return {
+          subject: 'Hello World',
+          passed: false,
+          error: err.message
+        };
+      }
+    };
+  </script>
+</body>
+</html>

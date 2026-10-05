@@ -1,0 +1,19 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Silent Score</title><style>
+body{margin:0;background:#1e2624;color:#e8b7a1}main{padding:90px 55px}h1{font:italic 96px Georgia;margin:0 0 60px}section{display:flex;gap:10px;height:340px;align-items:end}.note{flex:1;display:flex;flex-direction:column;align-items:center;font:36px Georgia}.bar{width:100%;background:#76947c;margin-top:16px}
+</style></head><body><main><h1>Hello World</h1><section aria-label="Character-coded silent audio score"></section></main><script>
+const phrase='Hello World',sampleRate=24000,seconds=.12,length=Math.round(sampleRate*seconds);
+const measurements=[];
+// Offline rendering makes audio-derived typography measurable without playback
+// or an autoplay/permission dependency. Each character owns a separate score cell.
+window.labReady=(async()=>{
+for(const char of phrase){
+const audio=new OfflineAudioContext(1,length,sampleRate),osc=audio.createOscillator(),gain=audio.createGain();
+osc.frequency.value=180+char.charCodeAt(0)*3;gain.gain.value=char===' '?.04:.12+char.charCodeAt(0)/500;
+osc.connect(gain).connect(audio.destination);osc.start();const buffer=await audio.startRendering(),data=buffer.getChannelData(0);
+const rms=Math.sqrt(data.reduce((sum,value)=>sum+value*value,0)/data.length);measurements.push({character:char,frequency:osc.frequency.value,rms,samples:data.length});
+const cell=document.createElement('div');cell.className='note';cell.textContent=char===' '?'·':char;
+const bar=document.createElement('div');bar.className='bar';bar.style.height=`${rms*900}px`;cell.append(bar);document.querySelector('section').append(cell);
+}
+})();
+window.labEvidence=()=>({subject:phrase,passed:measurements.length===11&&measurements.every(n=>n.samples===2880&&n.rms>0)&&measurements[5].rms<measurements[0].rms/3,mechanism:'Character frequency/gain -> offline audio RMS -> greeting score',measurements:{notes:measurements}});
+</script></body></html>

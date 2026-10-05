@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Two Tracks</title>
+  <style>
+    :root {
+      color: #f5ead7;
+      background: #202527;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(135deg, transparent 0 49.8%, #d66b4a 50% 50.4%, transparent 50.6%),
+        #202527;
+    }
+
+    .stage {
+      width: min(92vw, 1080px);
+      min-height: 560px;
+      padding: 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr auto;
+      gap: 24px;
+      border: 1px solid #d66b4a;
+      background: #293235;
+    }
+
+    .label {
+      grid-column: 1 / -1;
+      margin: 0;
+      color: #d66b4a;
+      font: 12px/1.2 monospace;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .title {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: subgrid;
+      align-items: center;
+      min-height: 260px;
+      margin: 0;
+      font-size: clamp(64px, 12vw, 154px);
+      line-height: 0.86;
+      letter-spacing: -0.08em;
+    }
+
+    .word {
+      display: block;
+      padding: 18px 22px;
+      border-block: 1px solid #f5ead7;
+    }
+
+    .word:first-child {
+      color: #202527;
+      background: #d66b4a;
+    }
+
+    .word:last-child {
+      color: #f5ead7;
+      background: transparent;
+      text-align: right;
+    }
+
+    .note {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: subgrid;
+      margin: 0;
+      color: #b7c2bf;
+      font: 14px/1.5 monospace;
+    }
+
+    .note span:last-child {
+      grid-column: 2;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <p class="label">002 / two tracks / subgrid</p>
+    <h1 class="title">
+      <span class="word">Hello </span><span class="word">World</span>
+    </h1>
+    <p class="note">
+      <span>shared parent columns</span>
+      <span>one aligned greeting</span>
+    </p>
+  </main>
+</body>
+</html>

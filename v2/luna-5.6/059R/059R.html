@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Data Bottle</title>
+<style>
+:root{color:#eaffff;background:#071d25;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(155deg,#071d25,#16636a)}.bottle-room{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #86e1d2}.label,.state,.controls{position:relative;z-index:2}.label{margin:0;color:#86e1d2;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#e8bf6d;font:12px monospace}.water{position:relative;z-index:1;margin:8vh auto 0;width:min(64vw,650px);height:410px;border:3px solid #86e1d2;border-radius:48% 48% 18% 18%;background:linear-gradient(180deg,transparent 34%,rgba(134,225,210,.2) 35%);display:grid;place-items:center;overflow:hidden}.water:before{position:absolute;top:-35px;width:170px;height:90px;border:3px solid #86e1d2;border-bottom:0;border-radius:50% 50% 0 0;content:""}.water h1{position:relative;margin:0;color:#f6f0d8;font-size:clamp(54px,10vw,128px);line-height:.8;letter-spacing:-.1em;transform:rotate(-8deg)}.controls{position:absolute;right:28px;bottom:28px;display:flex;gap:12px}button{border:1px solid #e8bf6d;padding:9px 14px;color:#e8bf6d;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="bottle-room"><p class="label">059R / data bottle / blob text</p><p class="state" id="state">bottle / empty seal</p><section class="water"><h1>Hello World</h1></section><div class="controls"><button id="seal" type="button">seal message</button></div></main><script>
+const state=document.querySelector('#state');document.querySelector('#seal').addEventListener('click',async()=>{const blob=new Blob(['Hello World'],{type:'text/plain'}),text=await blob.text();state.textContent=`bottle / ${text.length} chars / ${blob.type} / sealed`});
+</script></body></html>

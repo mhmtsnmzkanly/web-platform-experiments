@@ -1,0 +1,14 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Boundary Worker</title><style>
+body{margin:0;background:#173c31;color:#e7d8ad;font-family:monospace}main{height:100vh;display:flex;align-items:center;justify-content:center}canvas{width:1100px;max-width:94vw;height:auto}small{position:absolute;bottom:40px;left:60px}
+</style></head><body><main><canvas width="1100" height="500" aria-label="Hello World contours computed by an inline worker">Hello World</canvas><small id="note">024 / ANALYZING BOUNDARIES</small></main><script>
+const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d'),mask=document.createElement('canvas');mask.width=1100;mask.height=500;
+const ink=mask.getContext('2d');ink.font='bold 155px Georgia';ink.textAlign='center';ink.textBaseline='middle';ink.fillText('Hello World',550,250);
+const pixels=ink.getImageData(0,0,1100,500);let edges=0,detached=false,received=false;
+// A transferable buffer leaves the main thread. The embedded worker finds
+// alpha transitions; only returned boundary data drives the visible drawing.
+const workerCode=`onmessage=e=>{const {buffer,width,height}=e.data,a=new Uint8ClampedArray(buffer),out=[];const filled=(x,y)=>x>=0&&x<width&&y>=0&&y<height&&a[(y*width+x)*4+3]>100;for(let y=1;y<height-1;y++)for(let x=1;x<width-1;x++)if(filled(x,y)&&(!filled(x-1,y)||!filled(x+1,y)||!filled(x,y-1)||!filled(x,y+1)))out.push(x,y);const result=new Uint16Array(out);postMessage({buffer:result.buffer},[result.buffer])}`;
+const worker=new Worker(URL.createObjectURL(new Blob([workerCode],{type:'text/javascript'})));
+worker.onerror=e=>{throw new Error('Contour worker failed: '+e.message)};
+window.labReady=new Promise(resolve=>{worker.onmessage=e=>{const points=new Uint16Array(e.data.buffer);received=true;edges=points.length/2;ctx.fillStyle='#e7d8ad';for(let i=0;i<points.length;i+=2)ctx.fillRect(points[i],points[i+1],1.4,1.4);document.querySelector('#note').textContent='024 / '+edges+' BOUNDARY PIXELS / TRANSFERRED BUFFER';worker.terminate();resolve()};worker.postMessage({buffer:pixels.data.buffer,width:1100,height:500},[pixels.data.buffer]);detached=pixels.data.buffer.byteLength===0});
+window.labEvidence=()=>({subject:'Hello World',passed:detached&&received&&edges>2500,mechanism:'Transferred text alpha -> inline Worker edge analysis -> contour greeting',measurements:{inputDetached:detached,workerReply:received,boundaryPixels:edges}});
+</script></body></html>

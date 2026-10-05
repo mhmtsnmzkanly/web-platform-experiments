@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Cargo Bay</title>
+<style>
+:root{color:#f0ead9;background:#1a1a18;font-family:monospace}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#1a1a18,#4b3b26)}.bay{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #e0b85f;overflow:hidden}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#e0b85f;font-size:11px;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#c6d9c3;font-size:12px}.cargo{position:relative;z-index:1;margin:10vh auto 0;width:min(72vw,820px);padding:34px;border:2px dashed #e0b85f;background:#27251f;text-align:center;cursor:grab}.cargo.dragging{background:#63502b;transform:scale(1.03)}.cargo h1{margin:0;font:700 clamp(64px,13vw,158px)/.8 Arial,sans-serif;letter-spacing:-.1em}.controls{position:absolute;right:28px;bottom:28px;display:flex;gap:12px}button{border:1px solid #e0b85f;padding:9px 14px;color:#e0b85f;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="bay"><p class="label">050R / cargo bay / datatransfer</p><p class="state" id="state">cargo / ready to move</p><section class="cargo" id="cargo" draggable="true"><h1>Hello World</h1></section><div class="controls"><button id="load" type="button">load payload</button></div></main><script>
+const cargo=document.querySelector('#cargo'),state=document.querySelector('#state');cargo.addEventListener('dragstart',event=>{event.dataTransfer.setData('text/plain','Hello World');cargo.classList.add('dragging');state.textContent='cargo / payload loaded'});cargo.addEventListener('dragend',()=>{cargo.classList.remove('dragging');state.textContent='cargo / transfer complete'});document.querySelector('#load').addEventListener('click',()=>{const transfer=new DataTransfer();transfer.setData('text/plain','Hello World');state.textContent=`cargo / ${transfer.types[0]} / payload staged`});
+</script></body></html>

@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Ribbon</title><style>
+body{margin:0;background:#e7d9bd;color:#27245a}main{height:100vh;display:grid;place-items:center}canvas{width:1150px;max-width:96vw;height:auto}
+</style></head><body><main><canvas width="1150" height="650" aria-label="Hello World fills a curved clipped ribbon">Hello World</canvas></main><script>
+const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
+// The retained path is shared by clipping, outline, and hit-test evidence.
+// Only text inside the ribbon survives; no pre-rendered mask asset is used.
+const ribbon=new Path2D('M40 380 C300 10 800 10 1110 340 L1110 540 C800 210 300 210 40 580 Z');
+ctx.save();ctx.clip(ribbon);ctx.fillStyle='#27245a';ctx.font='bold 44px monospace';let lines=0;
+for(let y=0;y<650;y+=53){ctx.fillText(('Hello World ').repeat(5),-15,y);lines++}ctx.restore();ctx.strokeStyle='#ad704c';ctx.lineWidth=3;ctx.stroke(ribbon);
+window.labEvidence=()=>({subject:'Hello World',passed:ctx.isPointInPath(ribbon,575,230)&&!ctx.isPointInPath(ribbon,575,30)&&lines===13,mechanism:'Retained Path2D -> native clip -> greeting ribbon',measurements:{inside:ctx.isPointInPath(ribbon,575,230),outside:ctx.isPointInPath(ribbon,575,30),textLines:lines}});
+</script></body></html>

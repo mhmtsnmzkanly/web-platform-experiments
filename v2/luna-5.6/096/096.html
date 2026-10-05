@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Paper Cutter</title>
+<style>
+:root{color:#f8eed8;background:#23171a;font-family:Georgia,serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(145deg,#23171a,#70404c)}.cutter{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #efbd68}.label,.state,.controls{position:relative;z-index:1}.label{margin:0;color:#efbd68;font:11px monospace;letter-spacing:.18em}.state{margin-top:10px;color:#dfc2c1;font:12px monospace}.sheet{position:relative;z-index:1;margin:12vh auto 0;width:min(82vw,950px);padding:30px;border-block:4px solid #efbd68;background:#f2e4c1;color:#392327;overflow:hidden}.sheet h1{margin:0;font-size:clamp(62px,13vw,158px);line-height:.8;letter-spacing:-.1em;white-space:nowrap}.cut{position:absolute;left:50%;top:0;bottom:0;border-left:2px dashed #d86d78}.controls{position:absolute;right:28px;bottom:28px}button{border:1px solid #efbd68;padding:9px 14px;color:#efbd68;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="cutter"><p class="label">096 / paper cutter / range fragment</p><p class="state" id="state">sheet / one continuous greeting</p><section class="sheet" id="sheet"><h1 id="greeting">Hello World</h1><i class="cut"></i></section><div class="controls"><button id="cut" type="button">cut the fragment</button></div></main><script>
+const greeting=document.querySelector('#greeting'),state=document.querySelector('#state');document.querySelector('#cut').addEventListener('click',()=>{const range=document.createRange(),text=greeting.firstChild;range.setStart(text,6);range.setEnd(text,text.length);const fragment=range.extractContents();const right=document.createElement('span');right.append(fragment);right.style.color='#d86d78';greeting.append(right);state.textContent='sheet / Range.extractContents separated the second word'});
+</script></body></html>

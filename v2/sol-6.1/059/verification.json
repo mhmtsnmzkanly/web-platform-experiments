@@ -1,0 +1,66 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "p",
+        "text": "Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hell"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Initial"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "p",
+        "text": "Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hell"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Initial"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Native initial-letter -> three-line cap exclusion -> greeting field",
+    "measurements": {
+      "edges": [
+        360.78125,
+        295,
+        295,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120
+      ],
+      "left": 120,
+      "initialLetter": "3"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

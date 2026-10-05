@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Viewport Window</title>
+<style>
+:root{color:#eaf6ff;background:#101c2d;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:160vh;background:linear-gradient(180deg,#101c2d,#2c5374 45%,#c27b58);overflow-x:hidden}.window{position:fixed;inset:4vh 4vw;z-index:1;border:1px solid #f1c36b;pointer-events:none}.label,.state{position:fixed;z-index:3;left:7vw}.label{top:7vh;color:#f1c36b;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{top:calc(7vh + 28px);color:#b9d5e6;font:12px monospace}.scene{position:absolute;top:55vh;left:50%;transform:translateX(-50%);width:min(75vw,900px);padding:30px;text-align:center;background:#1d3044;border:1px solid #9ed8e3}.scene h1{margin:0;font-size:clamp(62px,13vw,158px);line-height:.8;letter-spacing:-.1em}.hint{position:absolute;top:95vh;width:100%;text-align:center;color:#f1c36b;font:12px monospace}</style>
+</head><body><main class="window"></main><p class="label">068R / viewport window / visual metrics</p><p class="state" id="state">viewport / observing the window</p><section class="scene"><h1>Hello World</h1></section><p class="hint">scroll to move the scene beneath the viewport</p><script>
+const state=document.querySelector('#state');function read(){const view=window.visualViewport;state.textContent=`viewport / ${Math.round(view?.width||innerWidth)}×${Math.round(view?.height||innerHeight)} / scale ${view?.scale||1}`}visualViewport?.addEventListener('resize',read);visualViewport?.addEventListener('scroll',read);addEventListener('resize',read);read();
+</script></body></html>

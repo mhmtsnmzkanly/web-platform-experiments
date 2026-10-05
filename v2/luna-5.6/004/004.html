@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Contour</title>
+  <style>
+    :root {
+      background: #e8e2d0;
+      color: #263d2d;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #e8e2d0;
+    }
+
+    .field {
+      width: min(92vw, 1100px);
+      padding: 42px 52px 48px;
+      border-block: 2px solid #263d2d;
+      background:
+        linear-gradient(90deg, transparent 0 9%, #c7d2b2 9.1% 9.25%, transparent 9.35%),
+        #e8e2d0;
+    }
+
+    .label {
+      margin: 0 0 18px;
+      color: #9b4b3f;
+      font: 12px/1.2 monospace;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .guide {
+      fill: none;
+      stroke: #9bb18b;
+      stroke-width: 2;
+      stroke-dasharray: 5 12;
+    }
+
+    text {
+      fill: #263d2d;
+      font: 700 118px Georgia, "Times New Roman", serif;
+      letter-spacing: 2px;
+    }
+
+    .caption {
+      margin: 8px 0 0;
+      color: #9b4b3f;
+      font: 13px/1.4 monospace;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <main class="field">
+    <p class="label">004 / contour / text path</p>
+    <svg viewBox="0 0 1000 500" role="img" aria-label="Hello World on a curved baseline">
+      <path id="greeting-curve" class="guide" d="M 90 350 C 240 80, 760 80, 910 350"></path>
+      <text>
+        <textPath href="#greeting-curve" startOffset="50%" text-anchor="middle">Hello World</textPath>
+      </text>
+    </svg>
+    <p class="caption">one phrase / one continuous contour</p>
+  </main>
+</body>
+</html>

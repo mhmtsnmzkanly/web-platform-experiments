@@ -1,0 +1,6 @@
+{
+  "positive": "OK",
+  "trustedClick": true,
+  "beforeAfterCaptures": true,
+  "negative": "ERRORS\n[CONSOLE_ERROR] Interaction fixture error"
+}

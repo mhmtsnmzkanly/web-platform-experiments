@@ -1,0 +1,102 @@
+[
+  {
+    "name": "dependency-check .tooling-fixtures/valid.html",
+    "exitCode": 0,
+    "output": "OK"
+  },
+  {
+    "name": "browser-test .tooling-fixtures/valid.html",
+    "exitCode": 0,
+    "output": "OK"
+  },
+  {
+    "name": "verify .tooling-fixtures/valid.html .tooling-fixtures",
+    "exitCode": 0,
+    "output": "OK"
+  },
+  {
+    "name": "dependency-check external script",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] Non-embedded resource reference: https://example.com/a.js"
+  },
+  {
+    "name": "dependency-check external stylesheet",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] Non-embedded resource reference: https://example.com/a.css"
+  },
+  {
+    "name": "dependency-check external image",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] Non-embedded resource reference: https://example.com/a.png"
+  },
+  {
+    "name": "dependency-check forbidden network call",
+    "exitCode": 1,
+    "output": "ERRORS\n[DEPENDENCY] External URL string requires removal"
+  },
+  {
+    "name": "browser-test invalid JS",
+    "exitCode": 1,
+    "output": "ERRORS\n[STATIC_SYNTAX] SyntaxError: Unexpected token ';'"
+  },
+  {
+    "name": "browser-test runtime exception",
+    "exitCode": 1,
+    "output": "ERRORS\n[RUNTIME_EXCEPTION] Error: fixture exception\n    at http://127.0.0.1:37981/.tooling-fixtures/case.html:1:42"
+  },
+  {
+    "name": "browser-test console.error",
+    "exitCode": 1,
+    "output": "ERRORS\n[CONSOLE_ERROR] fixture error"
+  },
+  {
+    "name": "browser-test missing Hello World",
+    "exitCode": 1,
+    "output": "ERRORS\n[DOM_VISIBILITY] No visible Hello World subject"
+  },
+  {
+    "name": "browser-test hidden Hello World",
+    "exitCode": 1,
+    "output": "ERRORS\n[DOM_VISIBILITY] No visible Hello World subject"
+  },
+  {
+    "name": "browser-test transparent Hello World",
+    "exitCode": 1,
+    "output": "ERRORS\n[DOM_VISIBILITY] No visible Hello World subject"
+  },
+  {
+    "name": "browser-test duplicate DOM ID",
+    "exitCode": 1,
+    "output": "ERRORS\n[STATIC_SYNTAX] Duplicate DOM ID: repeat"
+  },
+  {
+    "name": "browser-test invalid CSS",
+    "exitCode": 1,
+    "output": "ERRORS\n[CSS] Invalid declaration: color: not-a-color;"
+  },
+  {
+    "name": "browser-test prohibited permission attempt",
+    "exitCode": 1,
+    "output": "ERRORS\n[RUNTIME_EXCEPTION] Error: Prohibited permission attempt: getCurrentPosition\n    at Geolocation.value (<anonymous>:11:15)\n    at http://127.0.0.1:44857/.tooling-fixtures/case.html:1:58\n[PERMISSIONS] getCurrentPosition"
+  },
+  {
+    "name": "browser-test Chrome not found",
+    "exitCode": 1,
+    "output": "ERRORS\n[TEST_INFRASTRUCTURE] Chrome/Chromium not found; set LAB_CHROME to an installed executable"
+  },
+  {
+    "name": "web-server occupied port",
+    "exitCode": 1,
+    "output": "ERRORS\n[TEST_INFRASTRUCTURE] Port 18773 is occupied; no duplicate server started"
+  },
+  {
+    "name": "screenshot valid URL",
+    "exitCode": 0,
+    "output": "OK"
+  },
+  {
+    "name": "screenshot 404 URL",
+    "exitCode": 1,
+    "output": "ERRORS\n[TEST_INFRASTRUCTURE] Page load HTTP 404"
+  }
+]

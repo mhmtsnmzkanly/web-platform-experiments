@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 040: HTML5 Exclusive Accordions and CSS :open Mechanical Index</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #080d1a;
+      color: #e2e8f0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 24px;
+      gap: 16px;
+      user-select: none;
+    }
+
+    /* Top Archival Header */
+    .archive-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-left: 4px solid #d97706;
+      padding: 10px 18px;
+      border-radius: 4px;
+    }
+
+    .archive-header .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand .label {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .brand .title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fbbf24;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-strip {
+      display: flex;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 3px;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+    }
+
+    .badge.gold {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border-color: #d97706;
+      font-weight: 700;
+    }
+
+    .badge.indigo {
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border-color: #6366f1;
+    }
+
+    /* Stacked Exclusive Accordion Container */
+    .accordion-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Native HTML5 <details name="..."> Styling */
+    details.exclusive-chamber {
+      background: #0d1424;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    /* CSS :open Pseudo-class Styling */
+    details.exclusive-chamber:open,
+    details.exclusive-chamber[open] {
+      background: radial-gradient(circle at center, #131d36 0%, #0a1020 100%);
+      border-color: #d97706;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(217, 119, 6, 0.05);
+    }
+
+    summary.chamber-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background: #111a2f;
+      cursor: pointer;
+      list-style: none;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #94a3b8;
+      border-bottom: 1px solid transparent;
+    }
+
+    summary.chamber-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.exclusive-chamber:open summary.chamber-summary,
+    details.exclusive-chamber[open] summary.chamber-summary {
+      background: #18223d;
+      color: #fbbf24;
+      border-bottom-color: #1e293b;
+    }
+
+    .summary-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .indicator-pill {
+      font-size: 0.62rem;
+      padding: 2px 6px;
+      border-radius: 2px;
+      background: #1e293b;
+      color: #64748b;
+      border: 1px solid #334155;
+    }
+
+    details.exclusive-chamber:open .indicator-pill,
+    details.exclusive-chamber[open] .indicator-pill {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border-color: #d97706;
+    }
+
+    .chevron {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    details.exclusive-chamber:open .chevron,
+    details.exclusive-chamber[open] .chevron {
+      color: #fbbf24;
+      transform: rotate(90deg);
+      display: inline-block;
+    }
+
+    /* Chamber Proscenium Content */
+    .chamber-body {
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .chamber-body::before {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border: 1px dashed rgba(245, 158, 11, 0.2);
+      pointer-events: none;
+      border-radius: 4px;
+    }
+
+    main {
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    #subject-hello-world {
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      font-size: 3.4rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #f8fafc;
+      text-shadow: 0 0 24px rgba(245, 158, 11, 0.5), 0 0 4px #fbbf24;
+      margin-bottom: 8px;
+      display: inline-block;
+      line-height: 1.1;
+    }
+
+    .chamber-meta {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 6px;
+      font-size: 0.72rem;
+    }
+
+    .meta-item {
+      display: flex;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 4px 10px;
+      border-radius: 3px;
+      border: 1px solid #1e293b;
+    }
+
+    .meta-item .meta-label {
+      color: #64748b;
+    }
+
+    .meta-item .meta-val {
+      color: #fbbf24;
+      font-weight: 700;
+    }
+
+    /* Bottom 3-Card Deck */
+    .deck-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 14px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .deck-card {
+      background: #0d1424;
+      border: 1px solid #1e293b;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .deck-card-header {
+      background: #141f36;
+      padding: 8px 14px;
+      border-bottom: 1px solid #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .deck-card-badge {
+      font-size: 0.62rem;
+      padding: 2px 6px;
+      border-radius: 2px;
+      background: #090e1a;
+      color: #fbbf24;
+      border: 1px solid #1e293b;
+    }
+
+    .deck-card-body {
+      padding: 10px 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.72rem;
+    }
+
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      background: #080d18;
+      border: 1px solid #182238;
+      border-radius: 3px;
+    }
+
+    .data-row .title {
+      color: #94a3b8;
+    }
+
+    .data-row .val {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .data-row .val.gold {
+      color: #fbbf24;
+    }
+
+    .data-row .val.green {
+      color: #34d399;
+    }
+
+    .table-registry {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.68rem;
+    }
+
+    .table-registry th {
+      text-align: left;
+      color: #64748b;
+      padding: 4px 6px;
+      border-bottom: 1px solid #1e293b;
+      font-weight: 600;
+    }
+
+    .table-registry td {
+      padding: 5px 6px;
+      border-bottom: 1px solid #0f172a;
+      color: #cbd5e1;
+    }
+
+    .table-registry tr:last-child td {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Archival Header -->
+  <header class="archive-header">
+    <div class="brand">
+      <span class="label">Mechanical Archival Folio</span>
+      <span class="title">HTML5 Exclusive Accordions &amp; CSS :open Registry MK-XL</span>
+    </div>
+    <div class="badge-strip">
+      <span class="badge gold" id="badge-open-id">OPEN: CHAMBER-01</span>
+      <span class="badge indigo">NAME: proscenium-catalogue</span>
+      <span class="badge" id="badge-total-chambers">CHAMBERS: 3</span>
+    </div>
+  </header>
+
+  <!-- Stacked Exclusive Accordion Container -->
+  <div class="accordion-stack">
+    <!-- Panel 1: Primary Typography Chamber (Open by default) -->
+    <details class="exclusive-chamber" name="proscenium-catalogue" id="chamber-01" open>
+      <summary class="chamber-summary">
+        <div class="summary-left">
+          <span class="chevron">&#x25B6;</span>
+          <span>CHAMBER 01 // PRIMARY MONUMENT REPOSITORY</span>
+        </div>
+        <span class="indicator-pill" id="pill-01">ACTIVE [OPEN]</span>
+      </summary>
+      <div class="chamber-body">
+        <main>
+          <h1 id="subject-hello-world">Hello World</h1>
+        </main>
+        <div class="chamber-meta">
+          <div class="meta-item">
+            <span class="meta-label">EXCLUSIVE_GROUP:</span>
+            <span class="meta-val">"proscenium-catalogue"</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">PSEUDO_CLASS:</span>
+            <span class="meta-val">:open ACTIVE</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">STATE:</span>
+            <span class="meta-val">EXPANDED</span>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Panel 2: Caliper Metrology Chamber (Collapsed by default) -->
+    <details class="exclusive-chamber" name="proscenium-catalogue" id="chamber-02">
+      <summary class="chamber-summary">
+        <div class="summary-left">
+          <span class="chevron">&#x25B6;</span>
+          <span>CHAMBER 02 // CALIPER METROLOGY ARCHIVE</span>
+        </div>
+        <span class="indicator-pill" id="pill-02">COLLAPSED</span>
+      </summary>
+      <div class="chamber-body" style="padding: 16px;">
+        <span style="color: #94a3b8; font-size: 0.75rem;">Subpixel caliper records and bounding envelope dimensions.</span>
+      </div>
+    </details>
+
+    <!-- Panel 3: Typographic Specimen Chamber (Collapsed by default) -->
+    <details class="exclusive-chamber" name="proscenium-catalogue" id="chamber-03">
+      <summary class="chamber-summary">
+        <div class="summary-left">
+          <span class="chevron">&#x25B6;</span>
+          <span>CHAMBER 03 // CLASSIFICATION MATRIX SPECIMEN</span>
+        </div>
+        <span class="indicator-pill" id="pill-03">COLLAPSED</span>
+      </summary>
+      <div class="chamber-body" style="padding: 16px;">
+        <span style="color: #94a3b8; font-size: 0.75rem;">Glyph catalog classification and character inventory archive.</span>
+      </div>
+    </details>
+  </div>
+
+  <!-- Bottom 3-Card Deck -->
+  <div class="deck-grid">
+    <!-- Card 1: Exclusive Semantics -->
+    <div class="deck-card">
+      <div class="deck-card-header">
+        <span>Exclusive Accordion Semantics</span>
+        <span class="deck-card-badge">HTML5 NAME ATTR</span>
+      </div>
+      <div class="deck-card-body">
+        <div class="data-row">
+          <span class="title">Group Identifier</span>
+          <span class="val gold">proscenium-catalogue</span>
+        </div>
+        <div class="data-row">
+          <span class="title">Mutual Exclusion Mechanism</span>
+          <span class="val green">Native Browser Kernel</span>
+        </div>
+        <div class="data-row">
+          <span class="title">JavaScript Listeners</span>
+          <span class="val">Zero (Pure Declarative)</span>
+        </div>
+        <div class="data-row">
+          <span class="title">Active Open Chamber</span>
+          <span class="val gold" id="val-active-chamber">CHAMBER-01</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: CSS :open Pseudo-class -->
+    <div class="deck-card">
+      <div class="deck-card-header">
+        <span>CSS :open Pseudo-Class Rules</span>
+        <span class="deck-card-badge">SELECTORS L4</span>
+      </div>
+      <div class="deck-card-body">
+        <div class="data-row">
+          <span class="title">Matching Selector</span>
+          <span class="val">details.exclusive-chamber:open</span>
+        </div>
+        <div class="data-row">
+          <span class="title">Border Accent</span>
+          <span class="val gold">#d97706 (Brass Gold)</span>
+        </div>
+        <div class="data-row">
+          <span class="title">Chevron Rotation</span>
+          <span class="val">transform: rotate(90deg)</span>
+        </div>
+        <div class="data-row">
+          <span class="title">Shadow Illumination</span>
+          <span class="val green">Radial Amber Glow</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: DOM Accordion State Registry -->
+    <div class="deck-card">
+      <div class="deck-card-header">
+        <span>DOM State Inspection Matrix</span>
+        <span class="deck-card-badge">LIVE DOM AUDIT</span>
+      </div>
+      <div class="deck-card-body">
+        <table class="table-registry">
+          <thead>
+            <tr>
+              <th>Chamber ID</th>
+              <th>Name Group</th>
+              <th style="text-align: right;">Open State</th>
+            </tr>
+          </thead>
+          <tbody id="table-registry-body">
+            <!-- Dynamically verified from DOM -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chambers = document.querySelectorAll('details[name="proscenium-catalogue"]');
+    const tableBody = document.getElementById('table-registry-body');
+
+    function auditChambers() {
+      if (tableBody) tableBody.innerHTML = '';
+      let openCount = 0;
+      let activeId = 'NONE';
+
+      chambers.forEach((ch) => {
+        const isOpen = ch.hasAttribute('open') || ch.open;
+        if (isOpen) {
+          openCount++;
+          activeId = ch.id.toUpperCase();
+        }
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><code>${ch.id}</code></td><td>${ch.getAttribute('name')}</td><td style="text-align: right; color: ${isOpen ? '#fbbf24' : '#64748b'}; font-weight: ${isOpen ? '700' : '400'};">${isOpen ? 'EXPANDED' : 'COLLAPSED'}</td>`;
+        if (tableBody) tableBody.appendChild(tr);
+      });
+
+      document.getElementById('badge-open-id').textContent = `OPEN: ${activeId}`;
+      document.getElementById('val-active-chamber').textContent = activeId;
+      return { total: chambers.length, openCount, activeId };
+    }
+
+    // Attach native toggle event listeners to keep pills in sync
+    chambers.forEach((ch) => {
+      ch.addEventListener('toggle', () => {
+        const pill = document.getElementById(`pill-${ch.id.replace('chamber-', '')}`);
+        if (pill) {
+          pill.textContent = ch.open ? 'ACTIVE [OPEN]' : 'COLLAPSED';
+        }
+        auditChambers();
+      });
+    });
+
+    const initialAudit = auditChambers();
+
+    // Verify CSS :open computed style on chamber-01
+    const ch01 = document.getElementById('chamber-01');
+    const computedStyle = window.getComputedStyle(ch01);
+    const borderColor = computedStyle.borderTopColor;
+
+    window.labEvidence = () => ({
+      subject: "Hello World",
+      passed: initialAudit.total === 3 && initialAudit.openCount === 1 && initialAudit.activeId === 'CHAMBER-01',
+      mechanism: "HTML5 <details name='...'> Exclusive Accordions and CSS :open pseudo-class styling",
+      measurements: {
+        totalChambersCount: initialAudit.total,
+        openChambersCount: initialAudit.openCount,
+        activeChamberId: initialAudit.activeId,
+        groupNameAttribute: ch01.getAttribute('name'),
+        computedBorderColor: borderColor
+      }
+    });
+
+    window.labReady = Promise.resolve(true);
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Procession</title><style>
+body{margin:0;background:#edd7d2;color:#b9402a}main{position:relative;margin:180px 130px;width:850px;height:420px}h1{position:absolute;left:0;top:0;margin:0;font:64px Georgia;white-space:nowrap;offset-path:path('M 0 180 C 220 -60 430 440 700 180');offset-anchor:left center;offset-rotate:auto;animation:travel 4s linear infinite alternate}h1:nth-of-type(2){animation-delay:-2s;color:#573d42}svg{position:absolute;width:850px;height:420px;overflow:visible}path{stroke:#b9402a55;stroke-width:2;fill:none}
+/* Native path placement owns position and tangent rotation; no frame loop
+   duplicates the browser's path geometry. */
+@keyframes travel{from{offset-distance:5%}to{offset-distance:75%}}
+</style></head><body><main><svg viewBox="0 0 850 420" aria-hidden="true"><path d="M 0 180 C 220 -60 430 440 700 180"/></svg><h1>Hello World</h1><h1>Hello World</h1></main><script>
+window.labEvidence=()=>{const nodes=[...document.querySelectorAll('h1')],distances=nodes.map(node=>parseFloat(getComputedStyle(node).offsetDistance));return {subject:'Hello World',passed:nodes.every(node=>getComputedStyle(node).offsetPath.startsWith('path(')&&node.getAnimations().length===1)&&distances.every(distance=>distance>5&&distance<75)&&Math.abs(distances[0]-distances[1])>10,mechanism:'Offset-distance interpolation -> path placement/tangent -> greeting procession',measurements:{distances,rotations:nodes.map(node=>getComputedStyle(node).offsetRotate)}}};
+</script></body></html>

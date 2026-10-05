@@ -1,0 +1,121 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Silent Score"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Silent Score"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Character frequency/gain -> offline audio RMS -> greeting score",
+    "measurements": {
+      "notes": [
+        {
+          "character": "H",
+          "frequency": 396,
+          "rms": 0.18663679645882195,
+          "samples": 2880
+        },
+        {
+          "character": "e",
+          "frequency": 483,
+          "rms": 0.22776063718107242,
+          "samples": 2880
+        },
+        {
+          "character": "l",
+          "frequency": 504,
+          "rms": 0.23762568524757502,
+          "samples": 2880
+        },
+        {
+          "character": "l",
+          "frequency": 504,
+          "rms": 0.23762568524757502,
+          "samples": 2880
+        },
+        {
+          "character": "o",
+          "frequency": 513,
+          "rms": 0.24171825843194994,
+          "samples": 2880
+        },
+        {
+          "character": " ",
+          "frequency": 276,
+          "rms": 0.028248070224188793,
+          "samples": 2880
+        },
+        {
+          "character": "W",
+          "frequency": 441,
+          "rms": 0.20801220219350583,
+          "samples": 2880
+        },
+        {
+          "character": "o",
+          "frequency": 513,
+          "rms": 0.24171825843194994,
+          "samples": 2880
+        },
+        {
+          "character": "r",
+          "frequency": 522,
+          "rms": 0.2458949455558224,
+          "samples": 2880
+        },
+        {
+          "character": "l",
+          "frequency": 504,
+          "rms": 0.23762568524757502,
+          "samples": 2880
+        },
+        {
+          "character": "d",
+          "frequency": 480,
+          "rms": 0.22611242461633854,
+          "samples": 2880
+        }
+      ]
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

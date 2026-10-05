@@ -1,0 +1,59 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — CSS Anchor Positioning Survey Theodolite"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — CSS Anchor Positioning Survey Theodolite"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Declaration of anchor-name on typographic landmark -> decoupled DOM callout tethered via position-anchor -> dynamic anchor() coordinate resolution -> surveyor reticle Hello World lockup",
+    "measurements": {
+      "anchorTop": 299,
+      "anchorBottom": 484,
+      "reticleBottom": 281,
+      "telemetryTop": 502,
+      "cssAnchorSupported": true,
+      "reticlePositionAnchor": "--monument-datum"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

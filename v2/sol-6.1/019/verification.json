@@ -1,0 +1,112 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 0,
+        "timeline": "ScrollTimeline"
+      }
+    ],
+    "title": "Hello World — Scroll Is the Clock"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 0,
+        "timeline": "ScrollTimeline"
+      }
+    ],
+    "title": "Hello World — Scroll Is the Clock"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Native scroll offset -> ScrollTimeline -> interpolated greeting geometry",
+    "measurements": {
+      "timeline": "ScrollTimeline",
+      "progress": 0,
+      "transform": "matrix(0.711136, -0.112633, 0.112633, 0.711136, -140, 0)"
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "scroll",
+      "selector": ".scrollbox",
+      "deltaY": 850
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Trusted wheel -> timeline progress -> larger rotated Hello World",
+      "measurements": {
+        "scrollTop": 850,
+        "progress": 85,
+        "transform": "matrix(0.995977, 0.0950246, -0.0950246, 0.995977, 98, 0)",
+        "tracking": "-1.2px"
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 85,
+          "timeline": "ScrollTimeline"
+        }
+      ],
+      "title": "Hello World — Scroll Is the Clock"
+    },
+    "late": null
+  }
+}

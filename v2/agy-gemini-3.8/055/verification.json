@@ -1,0 +1,60 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 055: HTML5 Drag and Drop API Level 2 Payload Staging Depot"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 055: HTML5 Drag and Drop API Level 2 Payload Staging Depot"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "HTML5 Drag and Drop API Level 2 (DataTransfer setData/getData and dropEffect)",
+    "measurements": {
+      "supportsDnd": true,
+      "isDraggable": true,
+      "dropzoneCount": 3,
+      "dragCount": 0,
+      "dropCount": 0,
+      "lastTransferredData": "ready",
+      "subjectFontSize": "60.8px"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

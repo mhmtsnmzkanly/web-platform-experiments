@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Fold</title>
+<style>
+body{margin:0;background:#d8c8ad;color:#813f2c;font-family:Georgia,serif}main{height:100vh;display:flex;align-items:center;padding-left:8vw;box-sizing:border-box}
+header{position:absolute;top:38px;font:12px Arial,sans-serif;letter-spacing:2px}.sheet{width:min(1000px,84vw);background:#f6eddb;container-type:inline-size;box-shadow:16px 16px 0 #b6a183}
+.sheet.narrow{width:460px}.inner{padding:40px;min-height:320px;border-left:12px solid #813f2c}
+h1{font-size:105px;letter-spacing:var(--tracking,-8px);line-height:1.05;font-weight:normal;margin:65px 0}small{font:12px monospace}
+/* A container query changes the words' flow based on this sheet, not the viewport.
+   Observer-fed tracking is a separate measured width-to-typography data flow. */
+@container(max-width:600px){h1{font-size:94px;margin:35px 0}h1 span{display:block}.inner{min-height:380px}}
+button{position:absolute;bottom:45px;border:1px solid;background:none;color:inherit;padding:12px 22px;font:14px Arial,sans-serif;cursor:pointer}
+</style></head><body><main><header>010 / FOLD</header><section class="sheet"><div class="inner"><small id="width">MEASURING PAPER</small><h1><span>Hello </span><span>World</span></h1></div></section><button id="fold">Fold / unfold the sheet</button></main>
+<script>
+const sheet=document.querySelector('.sheet');let observed=0,notifications=0;
+// ResizeObserver turns actual layout measurements into typographic tracking.
+// The callback changes only descendants, avoiding a resize feedback loop.
+new ResizeObserver(entries=>{observed=entries[0].contentRect.width;notifications++;sheet.style.setProperty('--tracking',observed<600?'-3px':'-8px');document.querySelector('#width').textContent=Math.round(observed)+' PX / MEASURED INLINE SIZE'}).observe(sheet);
+document.querySelector('#fold').onclick=()=>sheet.classList.toggle('narrow');
+window.labScenario={kind:'click',selector:'#fold'};
+window.labEvidence=()=>({subject:'Hello World',passed:observed>800&&notifications>0,
+mechanism:'Container inline size -> query line flow + observed tracking -> folded greeting',measurements:{width:observed,notifications,tracking:getComputedStyle(document.querySelector('h1')).letterSpacing}});
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:observed===460&&notifications>=2&&getComputedStyle(document.querySelector('h1 span')).display==='block'&&getComputedStyle(document.querySelector('h1')).letterSpacing==='-3px',
+mechanism:'Trusted fold click -> container resize -> stacked words and measured tracking',measurements:{width:observed,notifications,wordDisplay:getComputedStyle(document.querySelector('h1 span')).display,tracking:getComputedStyle(document.querySelector('h1')).letterSpacing}});
+</script></body></html>

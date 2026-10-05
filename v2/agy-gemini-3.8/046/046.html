@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 046: Canvas 2D Offscreen Worker</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #07090e;
+      --card: #0d131d;
+      --border: #1a2536;
+      --cyan: #00f0ff;
+      --violet: #8b5cf6;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --font-display: "Cabinet Grotesk", system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: #e2e8f0;
+      font-family: var(--font-display);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .studio-frame {
+      width: 100%;
+      max-width: 1060px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* System Header */
+    .studio-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .header-title {
+      color: var(--cyan);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .header-meta {
+      color: var(--emerald);
+      letter-spacing: 0.1em;
+    }
+
+    /* Proscenium Stage containing transferred OffscreenCanvas */
+    .proscenium-stage {
+      position: relative;
+      height: 460px;
+      background: #03060a;
+      border: 1px solid #1e2e42;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.07);
+    }
+
+    /* The actual Canvas whose rendering control is transferred to the worker */
+    #offscreen-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Hero Subject Container (Hit-test safe, z-index above canvas) */
+    .subject-monument {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      pointer-events: auto;
+      background: rgba(7, 10, 16, 0.75);
+      backdrop-filter: blur(8px);
+      padding: 24px 48px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 240, 255, 0.15);
+    }
+
+    .subject-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cyan);
+    }
+
+    #subject-hello-world {
+      font-size: 60px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: #ffffff;
+      text-shadow: 0 0 24px rgba(0, 240, 255, 0.7);
+      white-space: nowrap;
+    }
+
+    .subject-caption {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #94a3b8;
+      letter-spacing: 0.05em;
+    }
+
+    /* Telemetry Deck */
+    .telemetry-deck {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .telemetry-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: var(--font-mono);
+    }
+
+    .card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+    }
+
+    .card-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .card-sub {
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    /* Architecture Footer Ledger */
+    .architecture-ledger {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .ledger-badge {
+      background: #022c22;
+      color: #6ee7b7;
+      border: 1px solid #059669;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="studio-frame">
+    <!-- Header -->
+    <header class="studio-header">
+      <span class="header-title">Canvas 2D Offscreen Worker &mdash; Multi-Thread Graphics Pipeline</span>
+      <span class="header-meta" id="pipeline-status">THREAD STATUS: DISPATCHING...</span>
+    </header>
+
+    <!-- Proscenium Stage with transferred OffscreenCanvas -->
+    <section class="proscenium-stage" aria-label="Offscreen Render Proscenium">
+      <canvas id="offscreen-canvas" width="1000" height="460"></canvas>
+
+      <!-- Primary Subject Landmark -->
+      <div class="subject-monument">
+        <span class="subject-eyebrow">Thread-Decoupled Graphics Engine</span>
+        <h1 id="subject-hello-world">Hello World</h1>
+        <span class="subject-caption">Rasterized via Dedicated Web Worker &amp; OffscreenCanvas</span>
+      </div>
+    </section>
+
+    <!-- Telemetry Cards -->
+    <div class="telemetry-deck">
+      <div class="telemetry-card">
+        <span class="card-label">Execution Realm</span>
+        <div class="card-val" id="tel-realm">DedicatedWorker</div>
+        <span class="card-sub">Off the DOM Event Loop</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Canvas Handshake</span>
+        <div class="card-val" id="tel-transfer">Transferred</div>
+        <span class="card-sub">transferControlToOffscreen()</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Rasterized Geometry</span>
+        <div class="card-val" id="tel-points">Calculating...</div>
+        <span class="card-sub">Lissajous harmonograph nodes</span>
+      </div>
+
+      <div class="telemetry-card">
+        <span class="card-label">Render Latency</span>
+        <div class="card-val" id="tel-latency">0.00 ms</div>
+        <span class="card-sub">Worker compute duration</span>
+      </div>
+    </div>
+
+    <!-- Architecture Ledger -->
+    <footer class="architecture-ledger">
+      <span>THREAD ISOLATION: MAIN THREAD (DOM) &harr; STRUCTURED CLONE IPC &harr; WORKER (OFFSCREEN 2D)</span>
+      <span class="ledger-badge" id="ledger-badge">PARALLEL RENDER COMPLETE</span>
+    </footer>
+  </main>
+
+  <script>
+    // Inline Worker script definition for OffscreenCanvas rendering
+    const workerScript = `
+      self.onmessage = function(e) {
+        const start = performance.now();
+        const { canvas, width, height } = e.data;
+        const ctx = canvas.getContext('2d');
+
+        // Dark background wash
+        ctx.fillStyle = '#03060a';
+        ctx.fillRect(0, 0, width, height);
+
+        // Render multi-harmonic Lissajous harmonograph vector field
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const scaleX = width * 0.42;
+        const scaleY = height * 0.38;
+
+        const f1 = 3, f2 = 2, f3 = 5, f4 = 4;
+        const d1 = 0.001, d2 = 0.0015;
+        const p1 = 0, p2 = Math.PI / 2, p3 = Math.PI / 4, p4 = Math.PI / 3;
+
+        let totalNodes = 2400;
+
+        // Draw multiple glowing harmonic passes
+        const passes = [
+          { stroke: 'rgba(0, 240, 255, 0.25)', lineWidth: 1.5, offset: 0 },
+          { stroke: 'rgba(139, 92, 246, 0.3)', lineWidth: 1.0, offset: 0.1 },
+          { stroke: 'rgba(16, 185, 129, 0.25)', lineWidth: 1.2, offset: 0.2 }
+        ];
+
+        passes.forEach(pass => {
+          ctx.beginPath();
+          ctx.strokeStyle = pass.stroke;
+          ctx.lineWidth = pass.lineWidth;
+
+          for (let i = 0; i < totalNodes; i++) {
+            const t = (i / totalNodes) * Math.PI * 8;
+            const x = centerX + Math.sin(t * f1 + p1 + pass.offset) * scaleX * Math.exp(-d1 * t);
+            const y = centerY + Math.sin(t * f2 + p2 + pass.offset) * scaleY * Math.exp(-d2 * t);
+
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        });
+
+        // Draw orbital particle points along key harmonic inflection points
+        for (let i = 0; i < 120; i++) {
+          const t = (i / 120) * Math.PI * 8;
+          const x = centerX + Math.sin(t * f1 + p1) * scaleX * Math.exp(-d1 * t);
+          const y = centerY + Math.sin(t * f2 + p2) * scaleY * Math.exp(-d2 * t);
+
+          ctx.fillStyle = i % 2 === 0 ? 'rgba(0, 240, 255, 0.7)' : 'rgba(139, 92, 246, 0.7)';
+          ctx.beginPath();
+          ctx.arc(x, y, (i % 3) + 1.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        const duration = performance.now() - start;
+
+        self.postMessage({
+          type: 'RENDER_COMPLETE',
+          durationMs: duration,
+          totalNodes: totalNodes * passes.length + 120,
+          realm: self.constructor ? self.constructor.name : 'DedicatedWorkerGlobalScope'
+        });
+      };
+    `;
+
+    window.labReady = new Promise((resolve) => {
+      setTimeout(() => {
+        const canvas = document.getElementById('offscreen-canvas');
+        const offscreen = canvas.transferControlToOffscreen();
+
+        const blob = new Blob([workerScript], { type: 'application/javascript' });
+        const worker = new Worker(URL.createObjectURL(blob));
+
+        const dispatchStart = performance.now();
+
+        worker.onmessage = function(event) {
+          const data = event.data;
+          const totalRtt = performance.now() - dispatchStart;
+
+          document.getElementById('tel-realm').textContent = data.realm;
+          document.getElementById('tel-transfer').textContent = 'Handshake OK';
+          document.getElementById('tel-points').textContent = data.totalNodes + ' Nodes';
+          document.getElementById('tel-latency').textContent = data.durationMs.toFixed(2) + ' ms';
+          document.getElementById('pipeline-status').textContent = 'THREAD STATUS: WORKER COMPLETE (' + totalRtt.toFixed(1) + 'ms RTT)';
+
+          window.labEvidence = () => {
+            return {
+              subject: 'Hello World',
+              passed: true,
+              mechanism: 'Canvas 2D Offscreen Worker (OffscreenCanvas, transferControlToOffscreen(), Worker)',
+              measurements: {
+                workerRealm: data.realm,
+                totalRenderNodes: data.totalNodes,
+                renderComputeDurationMs: data.durationMs,
+                totalRoundTripMs: totalRtt,
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height
+              }
+            };
+          };
+
+          resolve();
+        };
+
+        worker.postMessage({
+          canvas: offscreen,
+          width: canvas.width,
+          height: canvas.height
+        }, [offscreen]);
+
+      }, 50);
+    });
+  </script>
+</body>
+</html>

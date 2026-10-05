@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — HTML Popover API Blueprint Table</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bp-blue-dark: #071326;
+      --bp-blue-sheet: #0b1e3d;
+      --bp-grid-major: rgba(56, 189, 248, 0.22);
+      --bp-grid-minor: rgba(56, 189, 248, 0.08);
+      --bp-cyan-bright: #38bdf8;
+      --bp-white: #f8fafc;
+      --bp-dim: #7aa5d2;
+      --bp-border: #1d3b6a;
+      --amber-accent: #f59e0b;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--bp-blue-dark);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--bp-white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    /* Architectural Blueprint Sheet */
+    .blueprint-sheet {
+      width: 1180px;
+      height: 720px;
+      background-color: var(--bp-blue-sheet);
+      background-image: 
+        linear-gradient(var(--bp-grid-major) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bp-grid-major) 1px, transparent 1px),
+        linear-gradient(var(--bp-grid-minor) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bp-grid-minor) 1px, transparent 1px);
+      background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px;
+      border: 2px solid var(--bp-cyan-bright);
+      border-radius: 4px;
+      box-shadow: 
+        0 25px 60px rgba(0, 0, 0, 0.8),
+        inset 0 0 0 8px var(--bp-blue-sheet),
+        inset 0 0 0 10px var(--bp-cyan-bright);
+      display: flex;
+      flex-direction: column;
+      padding: 32px 40px;
+      gap: 20px;
+      position: relative;
+    }
+
+    /* Technical Sheet Header */
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--bp-border);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .sheet-title-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--bp-cyan-bright);
+      font-weight: 700;
+    }
+
+    .badge-icon {
+      width: 8px;
+      height: 8px;
+      background: var(--bp-cyan-bright);
+    }
+
+    .sheet-meta-items {
+      color: var(--bp-dim);
+      display: flex;
+      gap: 24px;
+    }
+
+    /* Main Blueprint Workspace */
+    .blueprint-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    /* Central Title Block */
+    .drawing-title-block {
+      background: rgba(7, 19, 38, 0.85);
+      border: 1px solid var(--bp-cyan-bright);
+      border-radius: 6px;
+      padding: 24px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .title-block-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .drawing-ref {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--amber-accent);
+    }
+
+    .plan-title {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bp-white);
+      line-height: 1;
+      text-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    }
+
+    .plan-subtitle {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--bp-dim);
+      text-transform: uppercase;
+    }
+
+    /* Deploy Loupe Button (declarative popovertarget) */
+    .drafting-trigger-btn {
+      appearance: none;
+      background: rgba(56, 189, 248, 0.12);
+      border: 2px solid var(--bp-cyan-bright);
+      color: var(--bp-cyan-bright);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 14px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .drafting-trigger-btn:hover {
+      background: var(--bp-cyan-bright);
+      color: var(--bp-blue-dark);
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.5);
+    }
+
+    /* Blueprint Diagram Markings */
+    .blueprint-diagram {
+      border: 1px dashed var(--bp-border);
+      border-radius: 6px;
+      height: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .diagram-crosshair-x {
+      position: absolute;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 20%, var(--bp-grid-major) 50%, transparent 80%);
+    }
+
+    .diagram-crosshair-y {
+      position: absolute;
+      height: 100%;
+      width: 1px;
+      background: linear-gradient(180deg, transparent 20%, var(--bp-grid-major) 50%, transparent 80%);
+    }
+
+    .diagram-annotation {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--bp-dim);
+      text-transform: uppercase;
+    }
+
+    /* Declarative HTML Popover Element */
+    #specimen-loupe {
+      position: fixed;
+      inset: 0;
+      margin: auto;
+      width: 680px;
+      height: 280px;
+      background: #08162d;
+      border: 2px solid var(--amber-accent);
+      border-radius: 12px;
+      box-shadow: 
+        0 30px 80px rgba(0, 0, 0, 0.95),
+        0 0 40px rgba(245, 158, 11, 0.25),
+        inset 0 0 30px rgba(56, 189, 248, 0.1);
+      padding: 28px 36px;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      color: var(--bp-white);
+      z-index: 100;
+    }
+
+    #specimen-loupe:popover-open {
+      display: flex;
+    }
+
+    #specimen-loupe::backdrop {
+      background: rgba(4, 10, 22, 0.7);
+      backdrop-filter: blur(6px);
+    }
+
+    .loupe-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+      padding-bottom: 10px;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber-accent);
+    }
+
+    .loupe-focus-lockup {
+      text-align: center;
+      margin: 8px 0;
+    }
+
+    .loupe-title {
+      font-family: "Didot", "Bodoni MT", "Playfair Display", "Georgia", serif;
+      font-size: 58px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      color: #ffffff;
+      text-shadow: 
+        0 0 15px rgba(245, 158, 11, 0.8),
+        0 0 35px rgba(56, 189, 248, 0.4);
+    }
+
+    .loupe-footer {
+      display: flex;
+      justify-content: space-between;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--bp-dim);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 8px;
+    }
+
+    /* Sheet Technical Footer */
+    .sheet-footer {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--bp-border);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+    }
+
+    .footer-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .cell-label {
+      color: var(--bp-dim);
+      text-transform: uppercase;
+    }
+
+    .cell-value {
+      color: var(--bp-cyan-bright);
+      font-weight: 700;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <main class="blueprint-sheet" role="main">
+    <header class="sheet-header">
+      <div class="sheet-title-badge">
+        <span class="badge-icon"></span>
+        <span>Architectural Blueprint // Sheet 018</span>
+      </div>
+      <div class="sheet-meta-items">
+        <span>SPEC: HTML POPOVER API</span>
+        <span>ATTRIBUTE: POPOVER="AUTO"</span>
+        <span>TOP LAYER: NATIVE DECLARATIVE</span>
+      </div>
+    </header>
+
+    <div class="blueprint-content">
+      <section class="drawing-title-block" aria-label="Drawing Title Block">
+        <div class="title-block-info">
+          <span class="drawing-ref">Elevation Plan &middot; Scale 1:1</span>
+          <h1 class="plan-title" id="primary-heading">Hello World</h1>
+          <span class="plan-subtitle">Primary Structural Typographic Lockup</span>
+        </div>
+
+        <!-- Declarative HTML Popover Trigger -->
+        <button id="drafting-trigger" popovertarget="specimen-loupe" class="drafting-trigger-btn">
+          <span>&loz;</span>
+          <span>Deploy Drafting Loupe</span>
+        </button>
+      </section>
+
+      <section class="blueprint-diagram" aria-label="Drafting Coordinate Plane">
+        <div class="diagram-crosshair-x"></div>
+        <div class="diagram-crosshair-y"></div>
+        <span class="diagram-annotation">Datum Plane &middot; Top Layer Promotion Target</span>
+      </section>
+    </div>
+
+    <!-- Declarative Native Popover -->
+    <div id="specimen-loupe" popover="auto" role="region" aria-label="Magnified Drafting Loupe">
+      <div class="loupe-header">
+        <span>Optical Inspection Loupe // 2.5X</span>
+        <span>:popover-open active</span>
+      </div>
+      <div class="loupe-focus-lockup">
+        <div class="loupe-title">Hello World</div>
+      </div>
+      <div class="loupe-footer">
+        <span>Target: #specimen-loupe</span>
+        <span>Light Dismissal: Enabled</span>
+        <span>Top Layer: Elevated</span>
+      </div>
+    </div>
+
+    <footer class="sheet-footer">
+      <div class="footer-cell">
+        <span class="cell-label">Popover Mode</span>
+        <span class="cell-value">popover="auto"</span>
+      </div>
+      <div class="footer-cell">
+        <span class="cell-label">Trigger Binding</span>
+        <span class="cell-value">popovertarget attribute</span>
+      </div>
+      <div class="footer-cell">
+        <span class="cell-label">Backdrop Filter</span>
+        <span class="cell-value">blur(6px) radial vignette</span>
+      </div>
+      <div class="footer-cell">
+        <span class="cell-label">Light Dismiss</span>
+        <span class="cell-value">Native User-Agent Event</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // CDP Scenario: click trigger to open popover into Top Layer
+    window.labScenario = {
+      kind: 'click',
+      selector: '#drafting-trigger'
+    };
+
+    // Interaction Evidence Hook for Verification
+    window.labInteractionEvidence = () => {
+      const loupe = document.getElementById('specimen-loupe');
+      const isOpen = loupe ? loupe.matches(':popover-open') : false;
+
+      return {
+        subject: "Hello World",
+        passed: isOpen,
+        mechanism: "Declarative button[popovertarget] click -> browser native popover=\"auto\" top layer elevation -> :popover-open activation -> floating blueprint Hello World loupe",
+        measurements: {
+          popoverOpen: isOpen,
+          popoverAttribute: loupe?.getAttribute('popover'),
+          triggerTarget: document.getElementById('drafting-trigger')?.getAttribute('popovertarget'),
+          loupeRectWidth: loupe?.getBoundingClientRect().width,
+          loupeRectHeight: loupe?.getBoundingClientRect().height
+        }
+      };
+    };
+  </script>
+</body>
+</html>

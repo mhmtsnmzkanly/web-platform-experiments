@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hello World — Visibility Theatre</title>
+<style>
+:root{color:#f7eed7;background:#11111d;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#11111d;transition:background .4s}.theatre{position:relative;width:min(94vw,1180px);min-height:min(84vh,680px);padding:28px;border:1px solid #d8a95f;transition:filter .4s}.label,.state,.controls{position:relative;z-index:2}.label{margin:0;color:#d8a95f;font:11px monospace;letter-spacing:.18em;text-transform:uppercase}.state{margin-top:10px;color:#c0b6ca;font:12px monospace}.curtain{position:relative;z-index:1;margin:11vh auto 0;width:min(76vw,860px);padding:34px;background:#682c48;box-shadow:inset 0 0 0 12px #8e4160}.curtain h1{margin:0;text-align:center;font-size:clamp(62px,13vw,158px);line-height:.8;letter-spacing:-.1em}.controls{position:absolute;right:28px;bottom:28px}button{border:1px solid #d8a95f;padding:9px 14px;color:#d8a95f;background:transparent;font:12px monospace;cursor:pointer}</style>
+</head><body><main class="theatre"><p class="label">069R / visibility theatre / document state</p><p class="state" id="state">theatre / curtain open</p><section class="curtain"><h1>Hello World</h1></section><div class="controls"><button id="focus" type="button">check visibility</button></div></main><script>
+const state=document.querySelector('#state'),theatre=document.querySelector('.theatre');function read(){const visible=document.visibilityState==='visible';document.body.style.background=visible?'#11111d':'#05050a';theatre.style.filter=visible?'none':'brightness(.35)';state.textContent=`theatre / curtain ${visible?'open':'closed'} / ${document.visibilityState}`}document.addEventListener('visibilitychange',read);document.querySelector('#focus').addEventListener('click',read);read();
+</script></body></html>

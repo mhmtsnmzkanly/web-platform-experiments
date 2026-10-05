@@ -1,0 +1,12 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Relief</title><style>
+body{margin:0;background:#c79aa4;color:#642a42;font-family:Arial}main{padding:70px}label{display:block;font-size:18px}input{width:700px;max-width:90vw;accent-color:#642a42;margin:30px 0}h1{font-size:155px;letter-spacing:-8px;margin:140px 0 0;line-height:1}
+</style></head><body><main><label for="depth">Relief depth</label><input id="depth" type="range" min="0" max="40" value="2"><h1>Hello World</h1></main><script>
+const slider=document.querySelector('input'),title=document.querySelector('h1');let inputs=0,trusted=false,depth=0;
+// The native range owns value clamping and pointer-to-value mapping. Shadows
+// sample successive depth layers, so every intermediate value changes the type.
+function render(){depth=slider.valueAsNumber;title.style.textShadow=Array.from({length:depth},(_,i)=>`${i+1}px ${i+1}px #eac1c7`).join(',')||'none'}
+slider.oninput=event=>{inputs++;trusted=event.isTrusted;render()};render();
+window.labEvidence=()=>({subject:'Hello World',passed:depth===2||depth>10,mechanism:'Native range value -> layered greeting relief',measurements:{depth,shadows:getComputedStyle(title).textShadow}});
+window.labScenario={kind:'click',selector:'#depth'};
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:trusted&&inputs>0&&depth>=18&&depth<=22&&getComputedStyle(title).textShadow.split('rgb(').length-1===depth,mechanism:'Trusted slider mapping -> intermediate depth -> relief layers',measurements:{depth,inputs,trusted,shadowLayers:getComputedStyle(title).textShadow.split('rgb(').length-1}});
+</script></body></html>

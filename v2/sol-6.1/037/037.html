@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Turning Ink</title><style>
+@property --sweep{syntax:"<angle>";inherits:false;initial-value:0deg}
+body{margin:0;background:#eee7d8}main{padding:80px 100px}
+/* Registering an angle makes the gradient input interpolate continuously,
+   rather than jump as an untyped custom-property string would. */
+h1{--sweep:0deg;font:900 200px/1 Arial;margin:0;letter-spacing:-10px;background:conic-gradient(from var(--sweep) at 50% 50%,#252621 0deg,#ba5437 90deg,#252621 180deg,#d4a05c 270deg,#252621 360deg);background-clip:text;color:transparent;animation:turn 3s linear infinite;width:1000px}
+h1 span{display:block}@keyframes turn{to{--sweep:360deg}}
+</style></head><body><main><h1><span>Hello</span> <span>World</span></h1></main><script>
+const heading=document.querySelector('h1');
+window.labEvidence=()=>{const angle=parseFloat(getComputedStyle(heading).getPropertyValue('--sweep'));return {subject:'Hello World',passed:angle>0&&angle<360&&heading.getAnimations().length===1&&getComputedStyle(heading).backgroundImage.includes('conic-gradient'),mechanism:'Registered angle interpolation -> live glyph gradient ink',measurements:{angle,gradient:getComputedStyle(heading).backgroundImage,animations:heading.getAnimations().length}}};
+</script></body></html>

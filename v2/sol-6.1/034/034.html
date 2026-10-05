@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Transmission</title><style>
+body{margin:0;background:#171717;color:#fff;font-family:Arial}main{padding:50px}button{padding:14px 20px;font-size:18px}section{display:flex;margin-top:45px;gap:18px}article{flex:1;padding:35px 20px;height:440px;background:#d76332;color:#1c201a}article:nth-child(2){background:#b7c989}article:nth-child(3){background:#ad95c8}h1{font-size:72px;line-height:1.2;margin:25px 0;font-weight:400}h1 span{display:block}.received h1{font-weight:900}.received h1 span:nth-child(2){transform:translateY(110px)}small{font:16px monospace}
+</style></head><body><main><button id="send">Transmit a new setting</button><section></section></main><script>
+const name='greeting-'+crypto.randomUUID(),sender=new BroadcastChannel(name),receivers=[],deliveries=[];
+// Separate receiver objects prove delivery rather than sharing an in-memory
+// setter. Unique channel names isolate this demonstration from other open tabs.
+for(let i=0;i<3;i++){const row=document.createElement('article');row.innerHTML=`<small>RECEIVER ${i+1}</small><h1 aria-label="Hello World"><span>Hello</span> <span>World</span></h1>`;document.querySelector('section').append(row);const channel=new BroadcastChannel(name);channel.onmessage=event=>{if(event.data.phrase!=='Hello World'||event.data.edition!==2)throw new Error('Invalid greeting transmission');deliveries.push(i);row.classList.add('received')};receivers.push(channel)}
+document.querySelector('#send').onclick=()=>sender.postMessage({phrase:'Hello World',edition:2});
+window.labEvidence=()=>({subject:'Hello World',passed:receivers.length===3,mechanism:'Independent channel receivers -> greeting settings',measurements:{receivers:receivers.length}});
+window.labScenario={kind:'click',selector:'#send'};
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:new Set(deliveries).size===3&&document.querySelectorAll('.received').length===3,mechanism:'Broadcast structured record -> three delivery events -> bold split greetings',measurements:{deliveries,changed:document.querySelectorAll('.received').length}});
+addEventListener('pagehide',()=>{sender.close();receivers.forEach(channel=>channel.close())});
+</script></body></html>

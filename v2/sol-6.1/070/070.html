@@ -1,0 +1,10 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Edition Gate</title><style>body{margin:0;background:#d6dbe9;color:#284c68}main{padding:65px 100px}label{font:18px Arial;display:block}input{font:24px Arial;padding:10px;margin:20px 20px 20px 0;background:#eef0f7;border:1px solid #284c68}button{padding:12px 22px;font:18px Arial;background:#284c68;color:white;border:0}output{display:block;font:20px Arial}h1{font:110px/1.3 Arial;font-weight:400;margin:130px 0 0}form:has(input:invalid) h1{color:#713b76;font-weight:900;letter-spacing:8px;text-decoration:underline wavy;text-decoration-thickness:2px}</style></head><body><main><form><label for="edition">Greeting edition</label><input id="edition" value="Hello World" pattern="[A-Za-z ]+" required><button id="gate" type="button">Require uppercase edition</button><output>Mixed-case edition accepted</output><h1><span>Hello</span> <span>World</span></h1></form></main><script>
+const input=document.querySelector('input');let invalidEvents=0,accepted=null;
+// The browser evaluates its pattern, not a parallel JavaScript regular
+// expression. Native :invalid paints the heading while the subject stays intact.
+input.addEventListener('invalid',()=>{invalidEvents++;document.querySelector('output').textContent='Mixed-case edition rejected'});
+document.querySelector('#gate').onclick=()=>{input.pattern='[A-Z ]+';accepted=input.checkValidity()};
+window.labEvidence=()=>({subject:'Hello World',passed:input.validity.valid&&input.checkValidity(),mechanism:'Native pattern constraint -> accepted greeting edition',measurements:{valid:input.validity.valid}});
+window.labScenario={kind:'click',selector:'#gate'};
+window.labInteractionEvidence=()=>({subject:'Hello World',passed:accepted===false&&invalidEvents===1&&input.validity.patternMismatch&&input.matches(':invalid')&&input.value==='Hello World',mechanism:'Uppercase pattern -> native mismatch/invalid event -> rejected greeting paint',measurements:{accepted,invalidEvents,patternMismatch:input.validity.patternMismatch,value:input.value}});
+</script></body></html>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — Living Particles</title>
+  <style>
+    :root { background: #090b10; color: #f3c96b; font-family: monospace; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; overflow: hidden; background: #090b10; }
+    .instrument { position: relative; width: min(94vw, 1180px); border: 1px solid #f3c96b; background: #141820; }
+    .instrument::before { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 31px, #27303b 32px), repeating-linear-gradient(90deg, transparent 0 31px, #27303b 32px); opacity: .4; content: ""; pointer-events: none; }
+    header { position: absolute; z-index: 1; inset: 22px 28px auto; display: flex; justify-content: space-between; gap: 20px; }
+    h1, .readout { margin: 0; font-size: 11px; font-weight: 400; letter-spacing: .18em; text-transform: uppercase; }
+    .readout { color: #9baabd; text-align: right; }
+    canvas { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; }
+    .hint { position: absolute; z-index: 1; right: 28px; bottom: 20px; margin: 0; color: #9baabd; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <main class="instrument">
+    <header>
+      <h1>Hello World</h1>
+      <p class="readout">point field / interactive</p>
+    </header>
+    <canvas width="1200" height="600" aria-label="Hello World represented by interactive canvas particles"></canvas>
+    <p class="hint">move / repel &nbsp; click / invert</p>
+  </main>
+  <script>
+    const canvas = document.querySelector('canvas');
+    const context = canvas.getContext('2d');
+    const source = document.createElement('canvas');
+    source.width = canvas.width;
+    source.height = canvas.height;
+    const sourceContext = source.getContext('2d', { willReadFrequently: true });
+    sourceContext.fillStyle = '#f3c96b';
+    sourceContext.font = '800 168px Arial, sans-serif';
+    sourceContext.textAlign = 'center';
+    sourceContext.textBaseline = 'middle';
+    sourceContext.fillText('Hello World', source.width / 2, source.height / 2);
+    const pixels = sourceContext.getImageData(0, 0, source.width, source.height).data;
+    const points = [];
+    for (let y = 0; y < source.height; y += 8) {
+      for (let x = 0; x < source.width; x += 8) {
+        const alpha = pixels[(y * source.width + x) * 4 + 3];
+        if (alpha > 80) points.push({ x, y, ox: x, oy: y, seed: Math.random() * 6.28 });
+      }
+    }
+    let pointer = { x: -1000, y: -1000 };
+    let inverted = false;
+    canvas.addEventListener('pointermove', (event) => {
+      const box = canvas.getBoundingClientRect();
+      pointer = { x: (event.clientX - box.left) * canvas.width / box.width, y: (event.clientY - box.top) * canvas.height / box.height };
+    });
+    canvas.addEventListener('pointerleave', () => pointer = { x: -1000, y: -1000 });
+    canvas.addEventListener('click', () => inverted = !inverted);
+    function draw(time) {
+      context.fillStyle = inverted ? '#f3c96b' : '#141820';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      for (const point of points) {
+        const dx = point.ox - pointer.x;
+        const dy = point.oy - pointer.y;
+        const distance = Math.hypot(dx, dy);
+        const force = distance < 150 ? (150 - distance) / 150 : 0;
+        const x = point.ox + (dx / (distance || 1)) * force * 70 + Math.cos(time / 500 + point.seed) * 1.5;
+        const y = point.oy + (dy / (distance || 1)) * force * 70 + Math.sin(time / 500 + point.seed) * 1.5;
+        context.fillStyle = inverted ? '#141820' : '#f3c96b';
+        context.fillRect(x, y, 5, 5);
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  </script>
+</body>
+</html>

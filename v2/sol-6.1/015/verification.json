@@ -1,0 +1,108 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "text",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Refraction"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "text",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Refraction"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Seeded turbulence -> displacement map -> refracted Hello World",
+    "measurements": {
+      "scale": 0,
+      "seed": 9,
+      "characters": 11,
+      "filter": "url(\"#ripple\")"
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#refract"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Trusted disturbance -> displacement scale -> filtered glyph deformation",
+      "measurements": {
+        "scale": 48,
+        "source": "SourceGraphic",
+        "noiseInput": "noise",
+        "filter": "url(\"#ripple\")",
+        "seed": 9
+      }
+    },
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "text",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [
+        {
+          "tag": "svg",
+          "id": ""
+        }
+      ],
+      "canvasEvidence": [],
+      "frames": 2,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Hello World — Refraction"
+    }
+  }
+}

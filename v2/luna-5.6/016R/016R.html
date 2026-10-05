@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — Loom Control</title>
+  <style>
+    :root { color: #f8d8c2; background: #321b28; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #754057, #321b28 64%); }
+    .loom { width: min(94vw, 1180px); min-height: min(84vh, 680px); padding: 28px; border: 1px solid #f8d8c2; }
+    .label, .note { margin: 0; color: #f08c6d; font: 11px/1.4 monospace; letter-spacing: .18em; text-transform: uppercase; }
+    .note { margin-top: 4px; color: #b9cada; letter-spacing: .08em; text-transform: none; }
+    svg { width: 100%; height: 470px; display: block; margin-top: 3vh; }
+    .frame { fill: none; stroke: #f08c6d; stroke-width: 2; }
+    .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; color: #b9cada; font: 12px monospace; }
+    input { width: min(250px, 38vw); accent-color: #f08c6d; }
+    button { border: 1px solid #f08c6d; padding: 8px 12px; color: #f8d8c2; background: transparent; font: inherit; cursor: pointer; }
+    button:hover, button:focus-visible { color: #321b28; background: #f08c6d; }
+  </style>
+</head>
+<body>
+  <main class="loom">
+    <p class="label">016R / loom control / svg mask</p>
+    <p class="note">rotate the thread field and invert the weave</p>
+    <svg viewBox="0 0 1100 470" role="img" aria-label="Hello World woven from an interactive SVG pattern">
+      <defs>
+        <pattern id="threads" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(32)">
+          <rect width="24" height="24" fill="#5e8aa8"></rect>
+          <path d="M 0 0 V 24 M 12 0 V 24" stroke="#f8d8c2" stroke-width="5"></path>
+        </pattern>
+        <mask id="word-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1100" height="470">
+          <rect width="1100" height="470" fill="black"></rect>
+          <text x="550" y="300" text-anchor="middle" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="150" font-weight="700">Hello World</text>
+        </mask>
+      </defs>
+      <rect x="52" y="52" width="996" height="320" class="frame"></rect>
+      <rect x="52" y="52" width="996" height="320" fill="url(#threads)" mask="url(#word-mask)"></rect>
+    </svg>
+    <div class="controls">
+      <label for="angle">thread angle <input id="angle" type="range" min="-20" max="80" value="32"></label>
+      <output id="angleValue">32°</output>
+      <button id="invert" type="button">invert weave</button>
+    </div>
+  </main>
+  <script>
+    const pattern = document.querySelector('#threads');
+    const angle = document.querySelector('#angle');
+    const angleValue = document.querySelector('#angleValue');
+    const invert = document.querySelector('#invert');
+    let inverted = false;
+    angle.addEventListener('input', () => {
+      pattern.setAttribute('patternTransform', `rotate(${angle.value})`);
+      angleValue.value = `${angle.value}°`;
+    });
+    invert.addEventListener('click', () => {
+      inverted = !inverted;
+      pattern.querySelector('rect').setAttribute('fill', inverted ? '#f08c6d' : '#5e8aa8');
+      pattern.querySelector('path').setAttribute('stroke', inverted ? '#321b28' : '#f8d8c2');
+    });
+  </script>
+</body>
+</html>

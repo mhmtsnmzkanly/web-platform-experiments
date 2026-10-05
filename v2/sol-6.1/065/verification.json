@@ -1,0 +1,121 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 40,
+        "timeline": "ViewTimeline"
+      }
+    ],
+    "title": "Hello World — Passage"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 40,
+        "timeline": "ViewTimeline"
+      }
+    ],
+    "title": "Hello World — Passage"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Subject passage -> native ViewTimeline -> greeting scale/color",
+    "measurements": {
+      "scale": 0.94,
+      "timeline": "ViewTimeline",
+      "progress": 40,
+      "scrollTop": 0
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "scroll",
+      "selector": "#viewport",
+      "deltaY": 240
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Trusted wheel -> advanced subject passage -> larger greeting",
+      "measurements": {
+        "initial": {
+          "scale": 0.94,
+          "timeline": "ViewTimeline",
+          "progress": 40,
+          "scrollTop": 0
+        },
+        "after": {
+          "scale": 1.132,
+          "timeline": "ViewTimeline",
+          "progress": 72,
+          "scrollTop": 240
+        }
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 72,
+          "timeline": "ViewTimeline"
+        }
+      ],
+      "title": "Hello World — Passage"
+    },
+    "late": null
+  }
+}

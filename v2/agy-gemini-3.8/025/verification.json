@@ -1,0 +1,89 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      },
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 350,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Experiment 025: CSS Houdini Typed Properties & Conic Radar Reticle"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      },
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 2999.8999999999996,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Experiment 025: CSS Houdini Typed Properties & Conic Radar Reticle"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "CSS Houdini Properties and Values Level 1 typed @property <angle> and <color> interpolation in conic-gradient PPI radar sweep",
+    "measurements": {
+      "hasRegisterPropertyApi": true,
+      "programmaticRegistered": true,
+      "computedAngleProperty": "196.992deg",
+      "computedBeamColor": "rgb(16, 185, 129)",
+      "scanPeriodSeconds": 6,
+      "sweepVelocityDegPerSec": 60
+    }
+  },
+  "dynamic": true,
+  "interaction": null
+}

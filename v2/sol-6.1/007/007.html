@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hello World — Edition</title>
+<style>
+body{margin:0;background:#eeeae4;color:#171717;font-family:Georgia,serif}main{padding:40px 60px}header{font:12px Arial,sans-serif;letter-spacing:3px;border-bottom:3px double;padding-bottom:15px}
+h1{font-size:100px;letter-spacing:-6px;font-weight:normal;margin:22px 0;border-bottom:1px solid;padding-bottom:18px}
+/* A bounded column box fragments one continuous text flow. This is not a grid
+   of manually positioned copies: the browser decides the column breaks. */
+.edition{column-count:3;column-gap:44px;column-rule:1px solid;height:390px;column-fill:auto;font-size:42px;line-height:1.28}
+.edition p{margin:0}.edition em{font-style:italic}footer{border-top:3px double;margin-top:25px;padding-top:14px;font:12px Arial,sans-serif}
+@media(max-width:700px){main{padding:24px}.edition{column-count:2;font-size:28px}h1{font-size:13vw}}
+</style></head><body><main><header>007 / THE DAILY GREETING</header><h1>Hello World</h1>
+<section class="edition" aria-label="A repeated Hello World text flow"><p>Hello World. <em>Hello World.</em> Hello World. Hello World. <em>Hello World.</em> Hello World. Hello World. Hello World. <em>Hello World.</em> Hello World. Hello World. Hello World. <em>Hello World.</em> Hello World. Hello World. Hello World. <em>Hello World.</em> Hello World. Hello World. <em>Hello World.</em> Hello World. Hello World. Hello World. <em>Hello World.</em> Hello World. Hello World. Hello World. <em>Hello World.</em> Hello World. Hello World.</p></section>
+<footer>ONE CONTINUOUS GREETING / THREE COLUMNS / NO MANUAL BREAKS</footer></main>
+<script>
+window.labEvidence=()=>{const e=document.querySelector('.edition'),r=document.createRange();r.selectNodeContents(e.querySelector('p'));const rects=[...r.getClientRects()],box=e.getBoundingClientRect(),pitch=(box.width+44)/3,columns=[...new Set(rects.map(r=>Math.floor((r.left-box.left+1)/pitch)))];
+return {subject:'Hello World',passed:getComputedStyle(e).columnCount==='3'&&columns.length===3&&columns.every(c=>c>=0&&c<3),
+mechanism:'Bounded text flow -> native column fragmentation -> repeated greeting cadence',measurements:{columnCount:getComputedStyle(e).columnCount,fragmentRects:rects.length,occupiedColumns:columns}}};
+</script></body></html>

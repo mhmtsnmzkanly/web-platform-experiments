@@ -1,0 +1,6 @@
+{
+  "name": "Hello World Lab — 25 Experimental Studies",
+  "description": "An interactive sequential gallery of 25 distinct visual, interactive, and technological experiments centered on the phrase Hello World.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

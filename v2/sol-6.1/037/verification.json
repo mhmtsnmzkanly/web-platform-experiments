@@ -1,0 +1,68 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 233.3,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Hello World — Turning Ink"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 883.3,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Hello World — Turning Ink"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Registered angle interpolation -> live glyph gradient ink",
+    "measurements": {
+      "angle": 117.996,
+      "gradient": "conic-gradient(from 117.996deg, rgb(37, 38, 33) 0deg, rgb(186, 84, 55) 90deg, rgb(37, 38, 33) 180deg, rgb(212, 160, 92) 270deg, rgb(37, 38, 33) 360deg)",
+      "animations": 1
+    }
+  },
+  "dynamic": true,
+  "interaction": null
+}

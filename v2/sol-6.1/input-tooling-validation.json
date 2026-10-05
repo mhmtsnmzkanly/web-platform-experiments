@@ -1,0 +1,13 @@
+{
+  "scroll": "OK",
+  "drag": "OK",
+  "reload": "OK",
+  "reloaded": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Native reload persistence",
+    "measurements": {
+      "stored": true
+    }
+  }
+}

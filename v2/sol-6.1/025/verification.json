@@ -1,0 +1,78 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1150,
+        "height": 550,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 1,
+      "webgl": 1
+    },
+    "drawnText": [
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Shader Ink"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1150,
+        "height": 550,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 1,
+      "webgl": 1
+    },
+    "drawnText": [
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Shader Ink"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Canvas glyph alpha -> WebGL texture -> fragment-shaded greeting",
+    "measurements": {
+      "linked": true,
+      "error": 0,
+      "opaquePixels": 43463,
+      "distinctColors": 929,
+      "renderer": "WebKit WebGL"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

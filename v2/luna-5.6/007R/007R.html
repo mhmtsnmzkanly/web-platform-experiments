@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World — Kinetic Choreography</title>
+  <style>
+    :root { color: #f7f0df; background: #17151b; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 50%, #342538, #17151b 68%); }
+    .choreography { position: relative; width: min(94vw, 1160px); height: min(88vh, 720px); }
+    .choreography::before { position: absolute; inset: 9%; border: 1px solid rgba(235,119,96,.6); border-radius: 50%; transform: rotate(-14deg) scaleX(1.5); content: ""; }
+    .choreography::after { position: absolute; inset: 18% 22%; border: 1px solid rgba(137,164,228,.45); border-radius: 50%; transform: rotate(22deg) scaleX(1.5); content: ""; }
+    .caption, .hint { position: absolute; z-index: 2; margin: 0; font: 11px/1.4 monospace; letter-spacing: .18em; text-transform: uppercase; }
+    .caption { top: 22px; left: 24px; color: #eb7760; }
+    .hint { right: 24px; bottom: 22px; color: #9eabd0; letter-spacing: .08em; text-transform: none; }
+    .stage { position: absolute; inset: 0; display: grid; place-items: center; }
+    h1 { position: relative; z-index: 1; display: flex; gap: .08em; margin: 0; color: #f7f0df; font-size: clamp(62px, 13vw, 158px); line-height: .8; letter-spacing: -.1em; }
+    h1 span { display: inline-block; text-shadow: 10px 12px 0 #eb7760; }
+    h1 span:last-child { color: #a7bff1; text-shadow: 10px 12px 0 #4b527d; }
+    .controls { position: absolute; z-index: 3; left: 24px; bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    button { border: 1px solid #eb7760; padding: 9px 14px; color: #f7f0df; background: transparent; font: 12px monospace; cursor: pointer; }
+    button:hover, button:focus-visible { background: #eb7760; color: #17151b; }
+    input { width: 150px; accent-color: #a7bff1; }
+    output { min-width: 48px; color: #a7bff1; font: 12px monospace; }
+  </style>
+</head>
+<body>
+  <main class="choreography">
+    <p class="caption">007R / kinetic choreography / web animations</p>
+    <section class="stage">
+      <h1><span id="hello">Hello </span><span id="world">World</span></h1>
+    </section>
+    <p class="hint">two actors / one native timeline</p>
+    <div class="controls">
+      <button id="toggle" type="button">pause</button>
+      <label for="speed"><input id="speed" type="range" min="0.25" max="2" step="0.05" value="1" aria-label="Animation speed"></label>
+      <output id="speedValue">1.00×</output>
+    </div>
+  </main>
+  <script>
+    const hello = document.querySelector('#hello');
+    const world = document.querySelector('#world');
+    const toggle = document.querySelector('#toggle');
+    const speed = document.querySelector('#speed');
+    const speedValue = document.querySelector('#speedValue');
+    const actors = [
+      hello.animate(
+        [{ transform: 'translate(-46px, 18px) rotate(-7deg)' }, { transform: 'translate(0, -8px) rotate(0deg)' }, { transform: 'translate(46px, 18px) rotate(7deg)' }],
+        { duration: 2800, direction: 'alternate', iterations: Infinity, easing: 'ease-in-out' },
+      ),
+      world.animate(
+        [{ transform: 'translate(46px, -18px) rotate(7deg)' }, { transform: 'translate(0, 8px) rotate(0deg)' }, { transform: 'translate(-46px, -18px) rotate(-7deg)' }],
+        { duration: 2800, direction: 'alternate', iterations: Infinity, easing: 'ease-in-out' },
+      ),
+    ];
+    toggle.addEventListener('click', () => {
+      const paused = actors[0].playState === 'paused';
+      actors.forEach((actor) => paused ? actor.play() : actor.pause());
+      toggle.textContent = paused ? 'pause' : 'play';
+    });
+    speed.addEventListener('input', () => {
+      const rate = Number(speed.value);
+      actors.forEach((actor) => actor.updatePlaybackRate(rate));
+      speedValue.value = `${rate.toFixed(2)}×`;
+    });
+  </script>
+</body>
+</html>

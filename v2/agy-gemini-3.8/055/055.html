@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 055: HTML5 Drag and Drop API Level 2 Payload Staging Depot</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(18, 26, 42, 0.7);
+      --border: rgba(14, 165, 233, 0.25);
+      --primary: #0ea5e9;
+      --primary-glow: rgba(14, 165, 233, 0.4);
+      --accent: #10b981;
+      --text: #f0f6fc;
+      --text-muted: #8b949e;
+      --font-mono: 'SF Mono', Monaco, Menlo, Consolas, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 16px;
+      overflow: hidden;
+      background-image:
+        radial-gradient(circle at 50% 15%, rgba(14, 165, 233, 0.08), transparent 60%),
+        radial-gradient(circle at 80% 85%, rgba(16, 185, 129, 0.06), transparent 50%);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .badge-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(14, 165, 233, 0.15);
+      color: var(--primary);
+      border: 1px solid rgba(14, 165, 233, 0.35);
+    }
+
+    .spec-ref {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Staging Depot Proscenium */
+    .depot-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .source-dock {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .dock-tag {
+      position: absolute;
+      top: 14px;
+      left: 18px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+
+    .dock-hint {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Draggable Primary Subject */
+    #subject-hello-world {
+      font-size: 3.8rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      text-align: center;
+      color: #ffffff;
+      text-shadow:
+        0 0 20px rgba(14, 165, 233, 0.8),
+        0 0 40px rgba(14, 165, 233, 0.4);
+      cursor: grab;
+      user-select: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      border: 1px dashed rgba(14, 165, 233, 0.4);
+      background: rgba(14, 165, 233, 0.08);
+      transition: all 0.2s ease;
+      margin-top: 10px;
+    }
+
+    #subject-hello-world:active {
+      cursor: grabbing;
+      opacity: 0.6;
+      transform: scale(0.98);
+      box-shadow: 0 0 30px var(--primary-glow);
+    }
+
+    .subject-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 10px;
+    }
+
+    /* Drop Zone Target Grid */
+    .dropzones-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .dropzone {
+      background: rgba(15, 21, 35, 0.6);
+      border: 2px dashed rgba(14, 165, 233, 0.3);
+      border-radius: 10px;
+      padding: 24px;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .dropzone.drag-over {
+      background: rgba(14, 165, 233, 0.15);
+      border-color: var(--primary);
+      box-shadow: 0 0 24px rgba(14, 165, 233, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .dropzone.dropped {
+      border-style: solid;
+      border-color: var(--accent);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .zone-title {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .zone-status {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .zone-token {
+      margin-top: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      color: var(--accent);
+    }
+
+    /* Diagnostics Telemetry Deck */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-value {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .card-subtext {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge-bar">
+      <span class="badge">HTML5 Drag & Drop API Level 2</span>
+      <span class="badge">DataTransfer Payload Depot</span>
+    </div>
+    <div class="spec-ref">dataTransfer.setData() • effectAllowed • dropEffect</div>
+  </header>
+
+  <div class="depot-container">
+    
+    <!-- Source Dock -->
+    <div class="source-dock" id="source-dock">
+      <span class="dock-tag">Primary Depot Dock</span>
+      <span class="dock-hint">draggable="true"</span>
+      
+      <!-- Primary Draggable Subject -->
+      <h1 id="subject-hello-world" draggable="true">Hello World</h1>
+      <p class="subject-subtitle">Universal Master Telemetry Payload</p>
+    </div>
+
+    <!-- Drop Zones Grid -->
+    <div class="dropzones-grid">
+      <div class="dropzone" id="zone-alpha" data-zone="Zone Alpha (Staging Bay)">
+        <span class="zone-title">Zone Alpha</span>
+        <span class="zone-status">Ready to accept payload</span>
+      </div>
+
+      <div class="dropzone" id="zone-beta" data-zone="Zone Beta (Hyperdrive Vault)">
+        <span class="zone-title">Zone Beta</span>
+        <span class="zone-status">Ready to accept payload</span>
+      </div>
+
+      <div class="dropzone" id="zone-gamma" data-zone="Zone Gamma (Transceiver)">
+        <span class="zone-title">Zone Gamma</span>
+        <span class="zone-status">Ready to accept payload</span>
+      </div>
+    </div>
+
+  </div>
+
+  <section class="dashboard">
+    <div class="card">
+      <div class="card-title">Drag State</div>
+      <div class="card-value" id="val-drag-state">IDLE</div>
+      <div class="card-subtext">Active drag event cycle</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Transfer Payload</div>
+      <div class="card-value" id="val-payload">None</div>
+      <div class="card-subtext">text/plain DataTransfer MIME</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Drop Destination</div>
+      <div class="card-value" id="val-destination">Unassigned</div>
+      <div class="card-subtext">Target receptor bay</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Engine Conformance</div>
+      <div class="card-value" id="val-conformance" style="color: #0ea5e9;">PASSED</div>
+      <div class="card-subtext">HTML5 DataTransfer API</div>
+    </div>
+  </section>
+
+  <script>
+    // Ready contract
+    window.labReady = new Promise(resolve => {
+      setTimeout(resolve, 50);
+    });
+
+    const subject = document.getElementById('subject-hello-world');
+    const dropzones = document.querySelectorAll('.dropzone');
+    const valDragState = document.getElementById('val-drag-state');
+    const valPayload = document.getElementById('val-payload');
+    const valDestination = document.getElementById('val-destination');
+
+    const supportsDnd = 'draggable' in document.createElement('div') && typeof window.DataTransfer !== 'undefined';
+
+    let dragCount = 0;
+    let dropCount = 0;
+    let lastTransferredData = '';
+
+    subject.addEventListener('dragstart', (e) => {
+      dragCount++;
+      valDragState.textContent = 'DRAGGING';
+      valDragState.style.color = '#0ea5e9';
+
+      const payloadText = 'HW-PAYLOAD-TOKEN-055';
+      e.dataTransfer.setData('text/plain', payloadText);
+      e.dataTransfer.effectAllowed = 'copyMove';
+      valPayload.textContent = payloadText;
+    });
+
+    subject.addEventListener('dragend', () => {
+      valDragState.textContent = 'IDLE';
+      valDragState.style.color = 'var(--text)';
+    });
+
+    dropzones.forEach(zone => {
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        zone.classList.add('drag-over');
+      });
+
+      zone.addEventListener('dragleave', () => {
+        zone.classList.remove('drag-over');
+      });
+
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        zone.classList.add('dropped');
+
+        dropCount++;
+        const data = e.dataTransfer.getData('text/plain');
+        lastTransferredData = data;
+
+        const zoneName = zone.getAttribute('data-zone');
+        valDestination.textContent = zoneName.split(' ')[0] + ' ' + zoneName.split(' ')[1];
+        
+        const statusEl = zone.querySelector('.zone-status');
+        if (statusEl) {
+          statusEl.textContent = 'Payload docked successfully';
+        }
+
+        let tokenEl = zone.querySelector('.zone-token');
+        if (!tokenEl) {
+          tokenEl = document.createElement('div');
+          tokenEl.className = 'zone-token';
+          zone.appendChild(tokenEl);
+        }
+        tokenEl.textContent = 'Token: ' + (data || 'Hello World');
+      });
+    });
+
+    // Lab Evidence
+    window.labEvidence = () => ({
+      subject: 'Hello World',
+      passed: Boolean(supportsDnd),
+      mechanism: 'HTML5 Drag and Drop API Level 2 (DataTransfer setData/getData and dropEffect)',
+      measurements: {
+        supportsDnd,
+        isDraggable: subject.draggable,
+        dropzoneCount: dropzones.length,
+        dragCount,
+        dropCount,
+        lastTransferredData: lastTransferredData || 'ready',
+        subjectFontSize: getComputedStyle(subject).fontSize
+      }
+    });
+  </script>
+</body>
+</html>

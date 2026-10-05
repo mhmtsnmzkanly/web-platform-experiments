@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Packed</title><style>
+body{margin:0;background:#cfdcec;color:#243f83;font-family:monospace}main{padding:60px;position:relative;min-height:100vh;box-sizing:border-box}h1{font-size:40px;font-weight:normal;line-height:1.3;margin:0;word-spacing:10px}
+aside{position:absolute;right:70px;bottom:60px;background:#243f83;color:#cfdcec;padding:25px;font:14px monospace;border-left:var(--packed-width,4px) solid #ee956b;max-width:280px}
+</style></head><body><main><h1>Hello World</h1><aside id="ratio">023 / PACKING THE GREETING</aside></main><script>
+let original=0,packed=0,restored='',same=false;
+// Decompression supplies the displayed text. Compression size also determines
+// the inset's edge thickness, connecting the byte measurement to visual form.
+window.labReady=(async()=>{const source=('Hello World ').repeat(35).trim(),bytes=new TextEncoder().encode(source);original=bytes.length;
+const compressed=await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer();packed=compressed.byteLength;
+restored=await new Response(new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'))).text();same=restored===source;
+document.querySelector('h1').textContent=restored;document.querySelector('aside').style.setProperty('--packed-width',(packed/original*200)+'px');document.querySelector('#ratio').textContent='023 / GZIP\n'+original+' BYTES → '+packed+' BYTES\nRestored exactly before rendering.'})();
+window.labEvidence=()=>({subject:'Hello World',passed:same&&packed<original/4&&restored.split('Hello World').length===36,mechanism:'Greeting bytes -> gzip -> decompression -> restored text field',measurements:{originalBytes:original,compressedBytes:packed,exactRoundTrip:same,repetitions:35}});
+</script></body></html>

@@ -1,0 +1,78 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "textPath",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Topographical Bézier Curve"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "textPath",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Topographical Bézier Curve"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Bézier path coordinate geometry -> SVG textPath parameterization -> curvilinear baseline deformation -> undulating Hello World vector field",
+    "measurements": {
+      "pathLength": 1103,
+      "characterCount": 11,
+      "bbox": {
+        "width": 556,
+        "height": 370
+      },
+      "startCoord": {
+        "x": 146,
+        "y": 385
+      },
+      "endCoord": {
+        "x": 563,
+        "y": 139
+      },
+      "verticalDeflection": 246
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

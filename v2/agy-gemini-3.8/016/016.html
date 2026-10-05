@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — CSS Shapes Polygon Exclusion</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-studio: #f6f3eb;
+      --paper-cream: #fbf9f5;
+      --ink-charcoal: #181615;
+      --ink-muted: #5e5954;
+      --terracotta: #c05634;
+      --sand-border: #ded8cb;
+      --dark-stone: #242220;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background-color: var(--bg-studio);
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(192, 86, 52, 0.06) 0%, transparent 60%),
+        linear-gradient(180deg, #f2efe7 0%, #ebe7dc 100%);
+      font-family: "Didot", "Bodoni MT", "Baskerville", "Georgia", serif;
+      color: var(--ink-charcoal);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    .amphora-folio {
+      width: 1180px;
+      height: 720px;
+      background: var(--paper-cream);
+      border: 1px solid var(--sand-border);
+      border-radius: 8px;
+      box-shadow: 
+        0 20px 50px rgba(28, 25, 23, 0.12),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 36px;
+      gap: 16px;
+      position: relative;
+    }
+
+    /* Folio Header */
+    .folio-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--sand-border);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .folio-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--terracotta);
+      font-weight: 700;
+    }
+
+    .badge-square {
+      width: 7px;
+      height: 7px;
+      background: var(--terracotta);
+    }
+
+    .folio-meta {
+      color: var(--ink-muted);
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Main Sculptural Chamber */
+    .editorial-chamber {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      padding: 10px 14px;
+      border: 1px solid rgba(222, 216, 203, 0.6);
+      border-radius: 4px;
+      background: #fdfcf9;
+    }
+
+    /* Dual Opposing Floating Polygon Shapes */
+    .shape-wing-left {
+      float: left;
+      width: 220px;
+      height: 480px;
+      shape-outside: polygon(0 0, 100% 0, 45% 25%, 15% 50%, 55% 75%, 100% 100%, 0 100%);
+      clip-path: polygon(0 0, 100% 0, 45% 25%, 15% 50%, 55% 75%, 100% 100%, 0 100%);
+      shape-margin: 16px;
+      background: linear-gradient(135deg, var(--dark-stone) 0%, #3a3632 100%);
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .shape-wing-right {
+      float: right;
+      width: 220px;
+      height: 480px;
+      shape-outside: polygon(100% 0, 0 0, 55% 25%, 85% 50%, 45% 75%, 0 100%, 100% 100%);
+      clip-path: polygon(100% 0, 0 0, 55% 25%, 85% 50%, 45% 75%, 0 100%, 100% 100%);
+      shape-margin: 16px;
+      background: linear-gradient(225deg, var(--dark-stone) 0%, #3a3632 100%);
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    /* Wing Decorative Engravings */
+    .wing-label {
+      position: absolute;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+    }
+    .shape-wing-left .wing-label { left: 16px; }
+    .shape-wing-right .wing-label { right: 16px; transform: translateY(-50%) rotate(90deg); }
+
+    /* Flowing Text & Monumental Subject Lockup */
+    .flow-stream {
+      font-size: 13px;
+      line-height: 1.65;
+      text-align: justify;
+      color: var(--ink-muted);
+      letter-spacing: 0.02em;
+    }
+
+    .monument-lockup {
+      text-align: center;
+      margin: 18px 0 16px;
+      padding: 10px 0;
+      position: relative;
+    }
+
+    .monument-eyebrow {
+      display: block;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      margin-bottom: 6px;
+    }
+
+    .monument-title {
+      font-family: "Didot", "Bodoni MT", "Playfair Display", "Baskerville", serif;
+      font-size: 58px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      color: var(--ink-charcoal);
+      line-height: 1;
+      text-transform: uppercase;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .monument-rule {
+      width: 140px;
+      height: 2px;
+      background: var(--terracotta);
+      margin: 10px auto 0;
+    }
+
+    /* Telemetry Deck */
+    .folio-footer {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--sand-border);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+    }
+
+    .telemetry-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .telemetry-label {
+      color: var(--ink-muted);
+      text-transform: uppercase;
+    }
+
+    .telemetry-val {
+      color: var(--terracotta);
+      font-weight: 700;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <main class="amphora-folio" role="main">
+    <header class="folio-header">
+      <div class="folio-badge">
+        <span class="badge-square"></span>
+        <span>Geometric Calligram // Plate 016</span>
+      </div>
+      <div class="folio-meta">
+        <span>SPEC: CSS SHAPES LEVEL 1</span>
+        <span>PROPERTY: SHAPE-OUTSIDE: POLYGON</span>
+        <span>LINE-BOX EXCLUSION: ACTIVE</span>
+      </div>
+    </header>
+
+    <article class="editorial-chamber">
+      <!-- Left Shape Float -->
+      <div class="shape-wing-left" id="shape-left" aria-hidden="true">
+        <span class="wing-label">Polygon Left Contour</span>
+      </div>
+
+      <!-- Right Shape Float -->
+      <div class="shape-wing-right" id="shape-right" aria-hidden="true">
+        <span class="wing-label">Polygon Right Contour</span>
+      </div>
+
+      <!-- Flowing Text Embracing the Amphora Silhouette -->
+      <p class="flow-stream">
+        CSS Shapes Level 1 introduces non-rectangular layout geometries into the browser’s inline box computation. By declaring the <code>shape-outside: polygon(...)</code> rule on opposing float boundaries, the standard rectangular containment box is superseded by an organic polygonal path. Each line of surrounding text calculates its left and right margins dynamically against the shape contour, wrapping tightly around the convex and concave curvature of the silhouette.
+      </p>
+
+      <div class="monument-lockup">
+        <span class="monument-eyebrow">Negative Space Silhouette</span>
+        <h1 class="monument-title" id="subject-monument">Hello World</h1>
+        <div class="monument-rule"></div>
+      </div>
+
+      <p class="flow-stream">
+        Within this architectural amphitheatre, the monumental subject greeting is suspended inside the negative-space waist of the dual polygons. The browser dynamically computes line breaks, letter spacings, and wrapping vectors in real time, creating an organic calligram where typography is not merely content, but an architectural boundary molding spatial voids.
+      </p>
+    </article>
+
+    <footer class="folio-footer">
+      <div class="telemetry-item">
+        <span class="telemetry-label">Shape Algorithm</span>
+        <span class="telemetry-val">Opposing Dual Polygon</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Shape Margin</span>
+        <span class="telemetry-val">16.0 px (Dynamic Clearance)</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Polygon Vertices</span>
+        <span class="telemetry-val">7 Points per Wing</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Flow Geometry</span>
+        <span class="telemetry-val">Waisted Amphora Silhouette</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // Lab Evidence Hook for Verification
+    window.labEvidence = () => {
+      const left = document.getElementById('shape-left');
+      const right = document.getElementById('shape-right');
+      const headline = document.getElementById('subject-monument');
+      const leftStyle = window.getComputedStyle(left);
+      const rightStyle = window.getComputedStyle(right);
+
+      return {
+        subject: "Hello World",
+        passed: !!(left && right && headline && leftStyle.shapeOutside.includes('polygon') && rightStyle.shapeOutside.includes('polygon')),
+        mechanism: "Dual floating polygon shapes -> shape-outside line-box exclusion -> contour-hugging typography -> negative-space Hello World amphora",
+        measurements: {
+          leftShapeOutside: leftStyle.shapeOutside,
+          rightShapeOutside: rightStyle.shapeOutside,
+          shapeMargin: leftStyle.shapeMargin,
+          leftFloat: leftStyle.float,
+          rightFloat: rightStyle.float,
+          headlineVisible: headline.textContent.trim()
+        }
+      };
+    };
+  </script>
+</body>
+</html>

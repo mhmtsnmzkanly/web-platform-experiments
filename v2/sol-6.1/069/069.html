@@ -1,0 +1,5 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Compact Spine</title><style>body{margin:0;background:#433b59;color:#eab69e}main{height:100vh;display:grid;place-items:center}h1{font:210px/1.2 Georgia;font-weight:400;writing-mode:vertical-rl;margin:0;height:570px}span{text-combine-upright:all}</style></head><body><main><h1><span>Hello</span> <span>World</span></h1></main><script>
+// Native text combination compresses each horizontal word to one vertical
+// advance; unlike upright glyph columns, the word remains a horizontal run.
+window.labEvidence=()=>{const records=[...document.querySelectorAll('span')].map(span=>{const rect=span.getBoundingClientRect();return {word:span.textContent,width:rect.width,height:rect.height,combine:getComputedStyle(span).textCombineUpright}});return {subject:'Hello World',passed:records.every(r=>r.combine==='all'&&Math.abs(r.height-210)<1&&r.width>150),mechanism:'Vertical writing -> combined horizontal runs -> one-em greeting cells',measurements:{records}}};
+</script></body></html>

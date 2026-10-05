@@ -1,0 +1,112 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "summary",
+        "text": "Hello World"
+      },
+      {
+        "tag": "summary",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Unfold"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "summary",
+        "text": "Hello World"
+      },
+      {
+        "tag": "summary",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Unfold"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Native disclosure state -> greeting exposure + CSS hierarchy",
+    "measurements": {
+      "initialOpen": false,
+      "counter": "greeting 1"
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#fold summary"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Trusted summary activation -> native open/toggle -> nested greetings",
+      "measurements": {
+        "trusted": true,
+        "open": true,
+        "toggleEvents": 1,
+        "expandedHeight": 220
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "summary",
+          "text": "Hello World"
+        },
+        {
+          "tag": "p",
+          "text": "Hello World"
+        },
+        {
+          "tag": "p",
+          "text": "Hello World"
+        },
+        {
+          "tag": "summary",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Hello World — Unfold"
+    },
+    "late": null
+  }
+}

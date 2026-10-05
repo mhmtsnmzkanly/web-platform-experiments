@@ -1,0 +1,126 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1120,
+        "height": 500,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 13,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Slices"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": ""
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "",
+        "width": 1120,
+        "height": 500,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 13,
+      "webgl": 0
+    },
+    "drawnText": [
+      "Hello World"
+    ],
+    "animations": [],
+    "title": "Hello World — Slices"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Generated glyph canvas -> cropped ImageBitmaps -> offset greeting slices",
+    "measurements": {
+      "slices": 12,
+      "closedBitmaps": 12,
+      "cropDimensions": [
+        [
+          90,
+          500
+        ],
+        [
+          90,
+          500
+        ],
+        [
+          90,
+          500
+        ],
+        [
+          90,
+          500
+        ],
+        [
+          90,
+          500
+        ],
+        [
+          90,
+          500
+        ],
+        [
+          90,
+          500
+        ],
+        [
+          90,
+          500
+        ],
+        [
+          90,
+          500
+        ],
+        [
+          90,
+          500
+        ],
+        [
+          90,
+          500
+        ],
+        [
+          90,
+          500
+        ]
+      ],
+      "sourceText": "Hello World"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

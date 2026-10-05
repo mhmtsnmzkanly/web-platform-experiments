@@ -1,0 +1,9 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Hello World — Decoded Cascade</title><style>body{margin:0;background:#d9e7ee;color:#213d55}main{padding:90px 70px}h1{font:68px monospace;margin:0 0 28px;font-weight:400}h1:nth-child(2){margin-left:140px}h1:nth-child(3){margin-left:280px}h1:nth-child(4){margin-left:420px}small{display:block;font:16px monospace;margin-top:50px}</style></head><body><main></main><script>
+const bytes=new TextEncoder().encode(('Hello World\n').repeat(4)+'é'),cuts=[3,14,29,49,50],chunks=[];let output='',reads=0;
+// The final multibyte character is split deliberately. Streaming decode must
+// buffer its leading byte, rather than produce a replacement character.
+window.labReady=(async()=>{let start=0;const stream=new ReadableStream({start(controller){for(const end of cuts){controller.enqueue(bytes.slice(start,end));start=end}controller.close()}}).pipeThrough(new TextDecoderStream('utf-8',{fatal:true}));
+for await(const chunk of stream){reads++;chunks.push(chunk);output+=chunk}
+const rows=output.split('\n');for(const phrase of rows.slice(0,4)){const heading=document.createElement('h1');heading.textContent=phrase;document.querySelector('main').append(heading)}const label=document.createElement('small');label.textContent='UTF-8 boundary preserved: '+rows[4];document.querySelector('main').append(label)})();
+window.labEvidence=()=>({subject:'Hello World',passed:output===('Hello World\n').repeat(4)+'é'&&reads>1&&!output.includes('\ufffd')&&document.querySelectorAll('h1').length===4,mechanism:'Split bytes -> TextDecoderStream -> greeting cascade',measurements:{bytes:bytes.length,cuts,reads,chunks,output}});
+</script></body></html>

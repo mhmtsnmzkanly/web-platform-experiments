@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Native Dialog Top Layer</title>
+  <style>
+    /*
+      EXPERIMENT 012: HTML <dialog> Element & Native Top Layer Promotion
+
+      Architecture:
+      Utilizes the HTML Living Standard `<dialog>` element and the browser's
+      native Top Layer rendering stack.
+      Before activation, the backstage call board displays the primary greeting.
+      Upon receiving a trusted user click on the brass call button, `dialog.showModal()`
+      is invoked. The browser natively elevates the dialog into the Top Layer
+      (above all document z-indices), renders an illuminated radial `::backdrop`,
+      and promotes "Hello World" into dramatic theatrical foreground focus.
+
+      Design System:
+      - Style: Theatrical Stage Proscenium / Grand Hall Spotlight
+      - Palette (Backstage): Obsidian charcoal (#0a0b0e), antique brass (#b8860b), pewter (#4a4e59)
+      - Palette (Foreground Modal): Midnight velvet (#140d24), neon coral (#ff4d5a), champagne gold (#fff0db)
+      - Typography: Backstage industrial sans transitioning to modern theatrical display serif
+    */
+
+    :root {
+      --bg-stage: #0a0b0e;
+      --color-brass: #c99a3e;
+      --color-pewter: #5a5f6e;
+      --color-text-dim: #7f8594;
+      --color-coral: #ff4d5a;
+      --color-champagne: #fff0db;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: var(--bg-stage);
+      color: var(--color-champagne);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .theatre-hall {
+      width: 100%;
+      max-width: 1080px;
+      height: 720px;
+      background: #0d0f14;
+      border: 2px solid #202430;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+      padding: 36px 44px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #202430;
+      padding-bottom: 14px;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--color-text-dim);
+    }
+
+    .cue-assembly {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Brass Cue Button triggering showModal() */
+    button#cue-button {
+      background: #19140b;
+      border: 2px solid var(--color-brass);
+      color: var(--color-brass);
+      padding: 10px 22px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+
+    button#cue-button:hover {
+      background: var(--color-brass);
+      color: #0d0f14;
+      box-shadow: 0 0 16px rgba(201, 154, 62, 0.4);
+    }
+
+    .cue-lamp {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--color-brass);
+    }
+
+    /* Stage Floor Arena */
+    .stage-floor {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Backstage Board: Initial visible subject */
+    .backstage-board {
+      text-align: center;
+      border: 1px solid #1c202a;
+      padding: 40px 60px;
+      background: #08090c;
+      border-radius: 4px;
+    }
+
+    .backstage-board h1.stage-title {
+      font-family: "Impact", "Arial Black", sans-serif;
+      font-size: clamp(56px, 9vw, 96px);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #383e4d;
+      margin-bottom: 8px;
+    }
+
+    .board-caption {
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-pewter);
+    }
+
+    /*
+      NATIVE HTML DIALOG & TOP LAYER ELEVATION
+    */
+    dialog#proscenium-modal {
+      border: none;
+      padding: 0;
+      background: transparent;
+      margin: auto;
+      max-width: 760px;
+      width: 90vw;
+    }
+
+    dialog#proscenium-modal:modal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Top Layer ::backdrop styling */
+    dialog#proscenium-modal::backdrop {
+      background:
+        radial-gradient(ellipse at center, rgba(255, 77, 90, 0.2) 0%, rgba(10, 11, 14, 0.88) 75%),
+        rgba(8, 9, 12, 0.85);
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-frame {
+      background: #140d24;
+      border: 3px solid var(--color-coral);
+      border-radius: 8px;
+      padding: 48px 56px;
+      text-align: center;
+      box-shadow: 0 0 60px rgba(255, 77, 90, 0.4), inset 0 0 30px rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+
+    .modal-frame h1.spotlight-title {
+      font-family: "Didot", "Bodoni MT", "Georgia", serif;
+      font-size: clamp(54px, 9vw, 92px);
+      font-weight: 700;
+      line-height: 0.95;
+      letter-spacing: -0.01em;
+      color: var(--color-champagne);
+      margin-bottom: 16px;
+    }
+
+    .modal-frame h1.spotlight-title .w-coral {
+      color: var(--color-coral);
+      font-style: italic;
+    }
+
+    .modal-subtitle {
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-coral);
+      border-top: 1px solid rgba(255, 77, 90, 0.4);
+      padding-top: 12px;
+    }
+
+    .stage-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #202430;
+      padding-top: 14px;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--color-text-dim);
+    }
+
+    .status-readout {
+      font-family: monospace;
+      color: var(--color-brass);
+    }
+  </style>
+</head>
+<body>
+  <main class="theatre-hall">
+    <header class="stage-header">
+      <div>EXP 012 // NATIVE TOP LAYER MODAL</div>
+      <div class="cue-assembly">
+        <button id="cue-button">
+          <span class="cue-lamp"></span>
+          CUE PROSCENIUM SPOTLIGHT
+        </button>
+      </div>
+      <div>SPEC: HTML5 DIALOG API</div>
+    </header>
+
+    <div class="stage-floor">
+      <!-- Backstage Call Board: Initial visible Hello World subject -->
+      <div class="backstage-board">
+        <h1 class="stage-title">Hello World</h1>
+        <div class="board-caption">STANDBY ON BACKSTAGE CALL BOARD // AWAITING CUE</div>
+      </div>
+    </div>
+
+    <!-- The Native Modal Dialog promoted to Top Layer via showModal() -->
+    <dialog id="proscenium-modal">
+      <div class="modal-frame">
+        <h1 class="spotlight-title">Hello <span class="w-coral">World</span></h1>
+        <div class="modal-subtitle">FOREGROUND TOP-LAYER ELEVATION · SPOTLIGHT CUE ACTIVE</div>
+      </div>
+    </dialog>
+
+    <footer class="stage-footer">
+      <span>TOP LAYER: DIALOG.SHOWMODAL()</span>
+      <span class="status-readout" id="modal-status">STANDBY: MODAL CLOSED</span>
+      <span>BACKDROP: RADIAL BLUR & BLEND</span>
+    </footer>
+  </main>
+
+  <script>
+    const dialog = document.getElementById('proscenium-modal');
+    const button = document.getElementById('cue-button');
+    const statusText = document.getElementById('modal-status');
+
+    button.addEventListener('click', () => {
+      dialog.showModal();
+      statusText.textContent = 'STAGE ACTIVE: DIALOG IN TOP LAYER';
+    });
+
+    // Configure trusted interaction scenario for tools.js
+    window.labScenario = {
+      kind: 'click',
+      selector: '#cue-button'
+    };
+
+    // Interaction Evidence evaluating Top Layer modal state
+    window.labInteractionEvidence = () => {
+      const isOpen = dialog.open;
+      const isModal = dialog.matches(':modal');
+      const dialogRect = dialog.getBoundingClientRect();
+
+      return {
+        subject: 'Hello World',
+        passed: isOpen && isModal && dialogRect.width > 200,
+        mechanism: 'Trusted user activation -> dialog.showModal() top layer elevation -> ::backdrop viewport illumination -> foregrounded Hello World spotlight',
+        measurements: {
+          dialogOpen: isOpen,
+          matchesModalPseudo: isModal,
+          modalWidth: Math.round(dialogRect.width),
+          modalHeight: Math.round(dialogRect.height),
+          modalTop: Math.round(dialogRect.top)
+        }
+      };
+    };
+  </script>
+</body>
+</html>

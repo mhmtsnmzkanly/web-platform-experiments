@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World — Canvas Pixel Sampling</title>
+  <style>
+    /*
+      EXPERIMENT 005: Canvas 2D Direct Rasterization & Pixel Density Sampling
+
+      Architecture:
+      Utilizes HTML5 Canvas 2D (`CanvasRenderingContext2D`) and raw pixel extraction
+      via `getImageData()`. The string "Hello World" is first rendered into an
+      offscreen raster buffer. The raw RGBA Uint8ClampedArray is sampled on an
+      8px coordinate lattice. Where glyph alpha exists, glowing circular phosphor
+      dots are composited onto the visible canvas with intensity proportional
+      to alpha coverage.
+
+      Design System:
+      - Style: Amber Phosphor CRT Oscilloscope / Aerospace Instrumentation
+      - Palette: Carbon black (#08090c), vivid amber (#ff9e00), radiant gold (#ffc300), deep phosphor halo (#331c00)
+      - Typography: Monospace dot matrix rasterization
+    */
+
+    :root {
+      --bg-terminal: #08090c;
+      --color-amber: #ff9e00;
+      --color-gold: #ffc300;
+      --color-dim-amber: #663d00;
+      --color-border: #241e17;
+      --color-muted: #756a5e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: var(--bg-terminal);
+      color: var(--color-amber);
+      font-family: "SF Mono", "Consolas", "Courier New", monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .crt-enclosure {
+      width: 100%;
+      max-width: 1120px;
+      height: 720px;
+      background: #060709;
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      box-shadow: 0 0 32px rgba(255, 158, 0, 0.08), inset 0 0 48px rgba(0, 0, 0, 0.9);
+      padding: 28px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .crt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 12px;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      color: var(--color-muted);
+    }
+
+    .status-active {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--color-amber);
+      font-weight: 700;
+    }
+
+    .status-pip {
+      width: 7px;
+      height: 7px;
+      background: var(--color-amber);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--color-amber);
+    }
+
+    /* Screen Frame containing the Canvas */
+    .screen-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin: 16px 0;
+    }
+
+    /* Primary Semantic Subject */
+    h1.terminal-subject {
+      position: absolute;
+      top: 8px;
+      left: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      color: var(--color-gold);
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    canvas#raster-canvas {
+      display: block;
+      width: 1040px;
+      height: 480px;
+      background: #040507;
+      border: 1px solid rgba(255, 158, 0, 0.15);
+      border-radius: 4px;
+      box-shadow: inset 0 0 24px rgba(255, 158, 0, 0.06);
+    }
+
+    .crt-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--color-border);
+      padding-top: 12px;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--color-muted);
+    }
+
+    .raster-specs {
+      font-family: monospace;
+      color: var(--color-amber);
+    }
+  </style>
+</head>
+<body>
+  <main class="crt-enclosure">
+    <header class="crt-header">
+      <div>EXP 005 // RASTER PHOSPHOR EMISSION</div>
+      <div class="status-active"><span class="status-pip"></span>RASTER SCAN RUNNING · 60 HZ</div>
+      <div>SPEC: CANVAS 2D getImageData</div>
+    </header>
+
+    <div class="screen-area">
+      <!-- Semantic Accessible Heading -->
+      <h1 class="terminal-subject">Hello World</h1>
+      <canvas id="raster-canvas" width="1040" height="480"></canvas>
+    </div>
+
+    <footer class="crt-footer">
+      <span>GRID LATTICE: 8×8 PX CELL SUBSAMPLING</span>
+      <span class="raster-specs" id="stats-line">SAMPLED POINTS: CALCULATING...</span>
+      <span>PHOSPHOR: P31 AMBER HIGH-PERSISTENCE</span>
+    </footer>
+  </main>
+
+  <script>
+    // Execute Canvas 2D Text Rasterization and Subsampling
+    const canvas = document.getElementById('raster-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+
+    // 1. Draw subtle oscilloscope background reticle & grid markings
+    ctx.strokeStyle = 'rgba(255, 158, 0, 0.07)';
+    ctx.lineWidth = 1;
+    for (let x = 40; x < W; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, H);
+      ctx.stroke();
+    }
+    for (let y = 40; y < H; y += 40) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+    }
+
+    // Reticle Center Axes
+    ctx.strokeStyle = 'rgba(255, 158, 0, 0.18)';
+    ctx.beginPath();
+    ctx.moveTo(0, H / 2);
+    ctx.lineTo(W, H / 2);
+    ctx.moveTo(W / 2, 0);
+    ctx.lineTo(W / 2, H);
+    ctx.stroke();
+
+    // 2. Offscreen text rendering for pixel alpha sampling
+    const offscreen = document.createElement('canvas');
+    offscreen.width = W;
+    offscreen.height = H;
+    const offCtx = offscreen.getContext('2d');
+
+    offCtx.fillStyle = '#ffffff';
+    offCtx.font = 'bold 128px "SF Mono", "Consolas", monospace';
+    offCtx.textAlign = 'center';
+    offCtx.textBaseline = 'middle';
+    offCtx.fillText('Hello World', W / 2, H / 2);
+
+    // 3. Extract raw RGBA pixel data
+    const imgData = offCtx.getImageData(0, 0, W, H);
+    const pixels = imgData.data;
+
+    // 4. Sample on an 8px lattice and reconstruct with glowing phosphor circles
+    const step = 8;
+    let sampledDots = 0;
+    const dotRecords = [];
+
+    for (let y = 0; y < H; y += step) {
+      for (let x = 0; x < W; x += step) {
+        const index = (y * W + x) * 4;
+        const alpha = pixels[index + 3];
+
+        if (alpha > 20) {
+          sampledDots++;
+          const norm = alpha / 255;
+          const radius = (step / 2) * (0.4 + norm * 0.55);
+
+          // Outer phosphor halo
+          ctx.beginPath();
+          ctx.arc(x, y, radius * 1.8, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 158, 0, ${0.15 * norm})`;
+          ctx.fill();
+
+          // Core illuminated phosphor bead
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fillStyle = norm > 0.8 ? '#ffc300' : '#ff9e00';
+          ctx.fill();
+
+          dotRecords.push({ x, y, alpha });
+        }
+      }
+    }
+
+    document.getElementById('stats-line').textContent = `ACTIVE PHOSPHOR BEADS: ${sampledDots}`;
+
+    // Runtime Evidence function
+    window.labEvidence = () => {
+      return {
+        subject: 'Hello World',
+        passed: sampledDots > 400 && W === 1040 && H === 480,
+        mechanism: 'Canvas 2D text rasterization -> RGBA alpha buffer sampling -> grid lattice density mapping -> procedural phosphor dot-matrix Hello World',
+        measurements: {
+          canvasDimensions: { width: W, height: H },
+          subsampleStep: step,
+          activePhosphorDots: sampledDots,
+          firstDot: dotRecords[0] || null,
+          lastDot: dotRecords[dotRecords.length - 1] || null
+        }
+      };
+    };
+  </script>
+</body>
+</html>

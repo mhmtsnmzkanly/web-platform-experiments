@@ -1,0 +1,184 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Backfill"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Hello World — Backfill"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Grid span constraints -> sparse greeting tile placement",
+    "measurements": {
+      "rows": 4,
+      "tops": [
+        158,
+        272,
+        272,
+        386,
+        386,
+        500
+      ],
+      "height": 442,
+      "flow": "row"
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#dense"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Dense native backfill -> earlier hole use -> compact greeting rows",
+      "measurements": {
+        "initial": {
+          "rows": 4,
+          "tops": [
+            158,
+            272,
+            272,
+            386,
+            386,
+            500
+          ],
+          "height": 442,
+          "flow": "row"
+        },
+        "after": {
+          "rows": 3,
+          "tops": [
+            158,
+            272,
+            158,
+            272,
+            386,
+            386
+          ],
+          "height": 328,
+          "flow": "dense"
+        },
+        "unchangedDOMOrder": true
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        },
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        },
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        },
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        },
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        },
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Hello World — Backfill"
+    },
+    "late": null
+  }
+}
