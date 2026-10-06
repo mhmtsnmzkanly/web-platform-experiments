@@ -109,12 +109,31 @@ async function webServer(args) {
   const { base } = await createServer(numeric(flags.port, 7373, 65535, 'port'));
   console.log(base);
 }
+function requireBrowserRuntime() {
+  const missing = ['fetch', 'WebSocket'].filter(name => typeof globalThis[name] !== 'function');
+  if (missing.length) fail('TEST_INFRASTRUCTURE', `Missing Node built-in capability: ${missing.join(', ')}; use a Node runtime providing built-in fetch and WebSocket`);
+}
 async function findChrome() {
+  // An explicit override is authoritative: a typo must not silently fall back.
+  const names = process.platform === 'win32' ? ['chrome.exe', 'chromium.exe'] :
+    ['chromium', 'chromium-browser', 'google-chrome', 'google-chrome-stable'];
+  const known = ['/usr/bin/chromium', '/usr/bin/chromium-browser', '/usr/bin/google-chrome',
+    '/opt/google/chrome/chrome', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/Applications/Chromium.app/Contents/MacOS/Chromium'];
+  if (process.platform === 'win32') {
+    for (const root of [process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)'], process.env.LOCALAPPDATA].filter(Boolean))
+      known.push(path.join(root, 'Google', 'Chrome', 'Application', 'chrome.exe'));
+  }
+  // Resolve only recognized browser executable names, without shell evaluation.
+  const search = (process.env.PATH || '').split(path.delimiter).filter(p => p && path.isAbsolute(p));
   const candidates = process.env.LAB_CHROME ? [process.env.LAB_CHROME] :
-    ['/usr/bin/chromium', '/usr/bin/chromium-browser', '/usr/bin/google-chrome', '/opt/google/chrome/chrome'];
+    [...known, ...search.flatMap(dir => names.map(name => path.join(dir, name)))];
   for (const file of candidates) {
-    try { await fs.access(file, require('node:fs').constants.X_OK); return file; }
-    catch (error) { if (!['ENOENT', 'EACCES'].includes(error.code)) throw error; }
+    try {
+      if (!(await fs.stat(file)).isFile()) continue;
+      await fs.access(file, require('node:fs').constants.X_OK);
+      return file;
+    } catch (error) { if (!['ENOENT', 'ENOTDIR', 'EACCES'].includes(error.code)) throw error; }
   }
   fail('TEST_INFRASTRUCTURE', 'Chrome/Chromium not found; set LAB_CHROME to an installed executable');
 }
@@ -215,7 +234,19 @@ function installGuards() {
     }
   }
 }
+async function waitForPageReady(cdp, flags = {}) {
+  const settling = numeric(flags['wait-ms'], 200, 10000, 'wait-ms');
+  await until(() => cdp.evaluate("document.readyState === 'complete'"), 10000, 'Page load did not complete');
+  await cdp.evaluate(`(async () => {
+    await window.labReady;
+    await document.fonts.ready;
+    return true;
+  })()`);
+  // Readiness contracts are primary; this bounded settling window permits paint.
+  await pause(settling);
+}
 async function browserSession(url, action) {
+  requireBrowserRuntime();
   const binary = await findChrome(), profile = await fs.mkdtemp(path.join(os.tmpdir(), 'hello-world-lab-'));
   let chrome, cdp, launchError, stderr = '';
   try {
@@ -442,9 +473,7 @@ async function capture(cdp, output) {
   await fs.writeFile(destination, Buffer.from(result.data, 'base64'));
 }
 async function checkSession(cdp, errors, sheets, flags, outputDir) {
-  await cdp.evaluate('Promise.resolve(window.labReady).then(() => true)');
-  await cdp.evaluate('document.fonts.ready.then(() => true)');
-  await pause(numeric(flags['wait-ms'], 200, 10000, 'wait-ms'));
+  await waitForPageReady(cdp, flags);
   const first = await cdp.evaluate(`(${inspectPage.toString()})()`);
   const clockRunning = a => a.playState === 'running' && a.timeline === 'DocumentTimeline';
   const dynamic = first.frames > 0 || first.animations.some(clockRunning);
@@ -512,7 +541,7 @@ async function checkSession(cdp, errors, sheets, flags, outputDir) {
       sheets.length = 0;
       await cdp.send('Page.reload', { ignoreCache: true });
       await until(() => cdp.evaluate(`performance.timeOrigin !== ${oldOrigin} && document.readyState === 'complete'`), 10000, 'Reload did not complete');
-      await cdp.evaluate('Promise.resolve(window.labReady).then(() => true)');
+      await waitForPageReady(cdp, flags);
       reloaded = await cdp.evaluate('window.labInteractionEvidence()');
       if (!reloaded || reloaded.passed !== true) fail('GRAPHICS_RENDER', 'Mechanism did not survive the required reload');
     }
@@ -533,7 +562,7 @@ async function checkSession(cdp, errors, sheets, flags, outputDir) {
   }
   issues.push(...errors);
   if (issues.length) throw new Error([...new Set(issues)].join('\n'));
-  return { viewport: VIEWPORT, first, second, technology, dynamic, interaction };
+  return { schemaVersion: 1, viewport: VIEWPORT, first, second, technology, dynamic, interaction };
 }
 async function withFileServer(file, fn) {
   const { absolute } = await input(file), { server, base } = await createServer(0);
@@ -543,12 +572,14 @@ async function withFileServer(file, fn) {
   } finally { await new Promise(resolve => server.close(resolve)); }
 }
 async function browserTest(args) {
+  requireBrowserRuntime();
   const { positional, flags } = parse(args);
   if (positional.length !== 1) fail('TEST_INFRASTRUCTURE', 'Usage: browser-test <file>');
   await dependencyCheck([positional[0]]);
   return withFileServer(positional[0], url => browserSession(url, (cdp, errors, sheets) => checkSession(cdp, errors, sheets, flags)));
 }
 async function screenshot(args) {
+  requireBrowserRuntime();
   const { positional, flags } = parse(args);
   if (positional.length !== 2) fail('TEST_INFRASTRUCTURE', 'Usage: screenshot <url> <output>');
   let url;
@@ -556,12 +587,13 @@ async function screenshot(args) {
   if (url.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname))
     fail('DEPENDENCY', 'Screenshot URL must use local HTTP');
   await browserSession(url.href, async (cdp, errors) => {
-    await pause(numeric(flags['wait-ms'], 200, 10000, 'wait-ms'));
+    await waitForPageReady(cdp, flags);
     if (errors.length) throw new Error(errors.join('\n'));
     await capture(cdp, positional[1]);
   });
 }
 async function verify(args) {
+  requireBrowserRuntime();
   const { positional, flags } = parse(args);
   if (positional.length !== 2) fail('TEST_INFRASTRUCTURE', 'Usage: verify <file> <experiment-dir>');
   await input(positional[0]);
