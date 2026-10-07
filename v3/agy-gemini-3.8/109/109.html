@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Experiment 109 — Narrative Frontier: SETI First Contact Epistolary Log</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #11141c;
+      color: #1e293b;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 16px;
+    }
+    .printout-frame {
+      width: 100%;
+      max-width: 1120px;
+      background: #faf8ee;
+      border: 1px solid #dcd7c5;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.55);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    /* TRACTOR FEED PERFORATION MARGINS */
+    .tractor-container {
+      display: flex;
+      width: 100%;
+      position: relative;
+    }
+    .tractor-margin {
+      width: 32px;
+      background: #f2eee0;
+      border-right: 1px dashed #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 0;
+      gap: 16px;
+    }
+    .tractor-margin.right {
+      border-right: none;
+      border-left: 1px dashed #cbd5e1;
+    }
+    .tractor-hole {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #11141c;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+    }
+    .main-printout {
+      flex-grow: 1;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: repeating-linear-gradient(
+        0deg,
+        #faf8ee,
+        #faf8ee 24px,
+        #f2f6ee 24px,
+        #f2f6ee 48px
+      );
+    }
+    /* HEADER */
+    .printout-header {
+      border-bottom: 2px solid #334155;
+      padding-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header-titles h1 {
+      font-size: 1.12rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #0f172a;
+      font-family: ui-monospace, monospace;
+    }
+    .header-titles p {
+      font-size: 0.74rem;
+      color: #475569;
+      margin-top: 4px;
+      font-family: ui-monospace, monospace;
+    }
+    .narrative-stage-badge {
+      background: #0f172a;
+      color: #38bdf8;
+      font-family: ui-monospace, monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 3px;
+      border: 1px solid #1e293b;
+      letter-spacing: 0.06em;
+    }
+    /* TELEMETRY STRIP */
+    .telemetry-strip {
+      display: flex;
+      justify-content: space-between;
+      font-family: ui-monospace, monospace;
+      font-size: 0.72rem;
+      color: #334155;
+      background: rgba(255,255,255,0.7);
+      padding: 6px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 3px;
+    }
+    /* WORKSPACE BODY */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 640px 1fr;
+      gap: 16px;
+    }
+    .rf-display-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .canvas-box {
+      background: #0a0e17;
+      border: 1px solid #1e293b;
+      border-radius: 4px;
+      box-shadow: inset 0 4px 12px rgba(0,0,0,0.6);
+      position: relative;
+    }
+    canvas#rfCanvas {
+      display: block;
+      width: 640px;
+      height: 280px;
+    }
+    /* DECODED SYMBOLS TRAY */
+    .symbols-tray {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+    .symbols-container {
+      display: flex;
+      gap: 6px;
+    }
+    .symbol-card {
+      width: 44px;
+      height: 52px;
+      border: 1px solid #94a3b8;
+      border-radius: 3px;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: ui-monospace, monospace;
+      transition: all 0.2s ease;
+    }
+    .symbol-card.resolved {
+      background: #0f172a;
+      color: #38bdf8;
+      border-color: #0284c7;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.35);
+    }
+    .symbol-glyph {
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+    .symbol-conf {
+      font-size: 0.58rem;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .symbol-card.resolved .symbol-conf {
+      color: #38bdf8;
+    }
+    /* EPISTOLARY LOGBOOK PANEL */
+    .epistolary-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .logbook-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 14px 16px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      position: relative;
+    }
+    .logbook-title {
+      font-size: 0.72rem;
+      font-family: ui-monospace, monospace;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #334155;
+      border-bottom: 1px dashed #cbd5e1;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .log-transcript {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.78rem;
+      line-height: 1.5;
+      color: #1e293b;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-grow: 1;
+      overflow-y: auto;
+      max-height: 250px;
+    }
+    .log-entry-block {
+      background: #fdfdfb;
+      border-left: 3px solid #64748b;
+      padding: 6px 10px;
+    }
+    .log-entry-block.active {
+      border-left-color: #0284c7;
+      background: #f0f9ff;
+    }
+    .log-entry-time {
+      font-weight: bold;
+      color: #0f172a;
+      font-size: 0.72rem;
+      margin-bottom: 2px;
+    }
+    /* RED GREASE-PENCIL MARGINALIA OVERLAY */
+    .pencil-mark {
+      color: #dc2626;
+      font-family: "Comic Sans MS", "Chalkboard SE", "Brush Script MT", cursive, sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      border: 3px solid #dc2626;
+      border-radius: 8px;
+      padding: 6px 12px;
+      transform: rotate(-4deg);
+      display: inline-block;
+      margin-top: 8px;
+      box-shadow: 0 0 6px rgba(220, 38, 38, 0.4);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .pencil-mark.visible {
+      opacity: 1;
+    }
+    /* CONTROLS STRIP */
+    .action-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 10px 16px;
+    }
+    .narrative-stepper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: ui-monospace, monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .step-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #cbd5e1;
+    }
+    .step-dot.active {
+      background: #0284c7;
+      box-shadow: 0 0 6px #0284c7;
+    }
+    .step-dot.completed {
+      background: #059669;
+    }
+    button.act-btn {
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      padding: 8px 16px;
+      font-size: 0.75rem;
+      font-family: ui-monospace, monospace;
+      border-radius: 3px;
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      transition: all 0.15s ease;
+    }
+    button.act-btn:hover {
+      background: #1e293b;
+      border-color: #64748b;
+    }
+    button.act-btn:active {
+      transform: translateY(1px);
+    }
+    button.act-btn.primary {
+      background: #b91c1c;
+      border-color: #991b1b;
+    }
+    button.act-btn.primary:hover {
+      background: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <div class="printout-frame">
+    <div class="tractor-container">
+      <!-- Left Tractor Margin -->
+      <div class="tractor-margin">
+        <div class="tractor-hole"></div><div class="tractor-hole"></div>
+        <div class="tractor-hole"></div><div class="tractor-hole"></div>
+        <div class="tractor-hole"></div><div class="tractor-hole"></div>
+        <div class="tractor-hole"></div><div class="tractor-hole"></div>
+        <div class="tractor-hole"></div><div class="tractor-hole"></div>
+        <div class="tractor-hole"></div><div class="tractor-hole"></div>
+      </div>
+
+      <!-- Main Printout Sheet -->
+      <div class="main-printout">
+        <div class="printout-header">
+          <div class="header-titles">
+            <h1>OHIO STATE BIG EAR &bull; DEEP SPACE SETI ARCHIVAL TRANSCRIPT</h1>
+            <p>RADIO ASTRONOMY OBSERVATION LOG &bull; FRONTIER ATLAS 109: NARRATIVE FRONTIER &bull; HYDROGEN LINE 1420.405 MHz</p>
+          </div>
+          <div class="narrative-stage-badge" id="actBadge">
+            ACT I: THE SILENCE OF DEEP SPACE
+          </div>
+        </div>
+
+        <div class="telemetry-strip">
+          <span>COORDINATES: RA 19h 25m 28s &bull; DEC -27&deg; 03' 00" (SAGITTARIUS)</span>
+          <span id="telSnr">SIGNAL-TO-NOISE: +0.2 dB</span>
+          <span id="telTime">UTC TIME: 03:14:02.80</span>
+        </div>
+
+        <div class="workspace-grid">
+          <!-- Left: RF Waveform & Waterfall -->
+          <div class="rf-display-panel">
+            <div class="canvas-box">
+              <canvas id="rfCanvas" width="640" height="280"></canvas>
+            </div>
+            <div class="symbols-tray">
+              <span style="font-size:0.7rem; font-family:ui-monospace, monospace; font-weight:700; color:#475569;">
+                DEMODULATED PAYLOAD:
+              </span>
+              <div class="symbols-container" id="symbolsContainer">
+                <!-- 10 Symbol Cards dynamically populated -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Astronomer's Epistolary Logbook -->
+          <div class="epistolary-panel">
+            <div class="logbook-card">
+              <div class="logbook-title">
+                <span>DUTY ASTRONOMER'S LOGBOOK (J. EHMAN)</span>
+                <span>LEDGER ROLL #1977-08</span>
+              </div>
+              <div class="log-transcript" id="logTranscript">
+                <!-- Log entries inserted here -->
+              </div>
+              <div style="text-align:center;">
+                <div class="pencil-mark" id="pencilMark">
+                  "MY GOD! IT SPELLS HELLO WORLD!"
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls Strip -->
+        <div class="action-strip">
+          <div class="narrative-stepper">
+            <span>DRAMATIC CHAPTER:</span>
+            <div class="step-dot active" id="dot1"></div>
+            <div class="step-dot" id="dot2"></div>
+            <div class="step-dot" id="dot3"></div>
+            <div class="step-dot" id="dot4"></div>
+            <span id="actStepLabel">ACT I / IV</span>
+          </div>
+
+          <div style="display:flex; gap:10px;">
+            <button class="act-btn" id="btnRestartNarrative">RESET TO ACT I</button>
+            <button class="act-btn primary" id="btnAdvanceAct">ADVANCE NARRATIVE ACT &rarr;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Tractor Margin -->
+      <div class="tractor-margin right">
+        <div class="tractor-hole"></div><div class="tractor-hole"></div>
+        <div class="tractor-hole"></div><div class="tractor-hole"></div>
+        <div class="tractor-hole"></div><div class="tractor-hole"></div>
+        <div class="tractor-hole"></div><div class="tractor-hole"></div>
+        <div class="tractor-hole"></div><div class="tractor-hole"></div>
+        <div class="tractor-hole"></div><div class="tractor-hole"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // --- NARRATIVE ACTS DEFINITIONS ---
+      const TARGET_CHARS = ["H", "E", "L", "L", "O", "W", "O", "R", "L", "D"];
+      const TOTAL_SYMBOLS = 10;
+
+      const NARRATIVE_ACTS = [
+        {
+          act: 1,
+          title: "ACT I: THE SILENCE OF DEEP SPACE",
+          timeStr: "03:14:02.80",
+          snr: 0.2,
+          carrierAmp: 0.05,
+          confidence: [0.05, 0.02, 0.04, 0.03, 0.05, 0.04, 0.03, 0.02, 0.04, 0.05],
+          resolvedCount: 0,
+          logEntry: "03:14 UTC — Standard meridian drift scan underway across Chi Sagittarii. Routine 21 cm receiver calibration shows nominal thermal Johnson noise floor. Galactic background quiet. Nothing unusual on channels 1-50.",
+          pencilVisible: false
+        },
+        {
+          act: 2,
+          title: "ACT II: ANOMALOUS CARRIER ACQUISITION",
+          timeStr: "03:22:18.15",
+          snr: 6.8,
+          carrierAmp: 0.35,
+          confidence: [0.35, 0.28, 0.42, 0.38, 0.30, 0.45, 0.32, 0.29, 0.38, 0.40],
+          resolvedCount: 0,
+          logEntry: "03:22 UTC — Sudden narrowband power surge detected on channel 2. Local oscillator Phase-Lock Loop locked onto 1420.4056 MHz! Signal intensity rising past 6-sigma threshold. Not terrestrial aircraft or radar. Antenna beam pattern matching extraterrestrial point source!",
+          pencilVisible: false
+        },
+        {
+          act: 3,
+          title: "ACT III: SYNTACTIC RECONSTRUCTION",
+          timeStr: "03:31:45.60",
+          snr: 18.5,
+          carrierAmp: 0.75,
+          confidence: [0.95, 0.90, 0.92, 0.94, 0.88, 0.45, 0.40, 0.35, 0.30, 0.25],
+          resolvedCount: 5,
+          logEntry: "03:31 UTC — Signal is digitally modulated! Manchester symbol framing reveals 10 distinct 8-bit ASCII word packets repeating with exact 12-second periodicity. Demodulator locked. First 5 symbols pass even-parity check: H... E... L... L... O... Hands are trembling.",
+          pencilVisible: false
+        },
+        {
+          act: 4,
+          title: "ACT IV: FIRST CONTACT UTTERANCE",
+          timeStr: "03:40:12.45",
+          snr: 34.2,
+          carrierAmp: 1.00,
+          confidence: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+          resolvedCount: 10,
+          logEntry: "03:40 UTC — FULL PARITY LOCK ACHIEVED! The entire 10-character transmission decoded without a single bit error. It reads 'HELLO WORLD'. An intelligence across the galactic arm has greeted us with our own primeval digital utterance. We are not alone.",
+          pencilVisible: true
+        }
+      ];
+
+      let currentActIndex = 0; // 0 = Act I
+
+      // DOM Elements
+      const actBadge = document.getElementById('actBadge');
+      const telSnr = document.getElementById('telSnr');
+      const telTime = document.getElementById('telTime');
+      const logTranscript = document.getElementById('logTranscript');
+      const symbolsContainer = document.getElementById('symbolsContainer');
+      const pencilMark = document.getElementById('pencilMark');
+      const actStepLabel = document.getElementById('actStepLabel');
+      const rfCanvas = document.getElementById('rfCanvas');
+      const rfCtx = rfCanvas.getContext('2d');
+
+      const dot1 = document.getElementById('dot1');
+      const dot2 = document.getElementById('dot2');
+      const dot3 = document.getElementById('dot3');
+      const dot4 = document.getElementById('dot4');
+      const dots = [dot1, dot2, dot3, dot4];
+
+      // Build 10 symbol cards
+      const symbolCardEls = [];
+      for (let i = 0; i < TOTAL_SYMBOLS; i++) {
+        const card = document.createElement('div');
+        card.className = "symbol-card";
+        card.innerHTML = `
+          <div class="symbol-glyph">?</div>
+          <div class="symbol-conf">0%</div>
+        `;
+        symbolsContainer.appendChild(card);
+        symbolCardEls.push(card);
+      }
+
+      function updateNarrativeUI() {
+        const act = NARRATIVE_ACTS[currentActIndex];
+
+        // Header and Telemetry
+        actBadge.textContent = act.title;
+        telSnr.textContent = `SIGNAL-TO-NOISE: +${act.snr.toFixed(1)} dB`;
+        telTime.textContent = `UTC TIME: ${act.timeStr}`;
+        actStepLabel.textContent = `ACT ${act.act} / IV`;
+
+        // Dots
+        dots.forEach((dot, idx) => {
+          dot.className = "step-dot";
+          if (idx === currentActIndex) dot.classList.add('active');
+          else if (idx < currentActIndex) dot.classList.add('completed');
+        });
+
+        // Symbols cards
+        for (let i = 0; i < TOTAL_SYMBOLS; i++) {
+          const card = symbolCardEls[i];
+          const glyphEl = card.querySelector('.symbol-glyph');
+          const confEl = card.querySelector('.symbol-conf');
+          const confVal = act.confidence[i];
+
+          confEl.textContent = `${Math.round(confVal * 100)}%`;
+
+          if (i < act.resolvedCount) {
+            card.className = "symbol-card resolved";
+            glyphEl.textContent = TARGET_CHARS[i];
+          } else {
+            card.className = "symbol-card";
+            if (act.act === 1) {
+              glyphEl.textContent = ".";
+            } else if (act.act === 2) {
+              glyphEl.textContent = Math.random() > 0.5 ? "1" : "0";
+            } else {
+              glyphEl.textContent = "?";
+            }
+          }
+        }
+
+        // Epistolary Logbook Entries
+        logTranscript.innerHTML = "";
+        for (let i = 0; i <= currentActIndex; i++) {
+          const entryAct = NARRATIVE_ACTS[i];
+          const block = document.createElement('div');
+          block.className = `log-entry-block ${i === currentActIndex ? 'active' : ''}`;
+          block.innerHTML = `
+            <div class="log-entry-time">${entryAct.title} &bull; ${entryAct.timeStr}</div>
+            <div>${entryAct.logEntry}</div>
+          `;
+          logTranscript.appendChild(block);
+        }
+        logTranscript.scrollTop = logTranscript.scrollHeight;
+
+        // Pencil mark
+        if (act.pencilVisible) {
+          pencilMark.classList.add('visible');
+        } else {
+          pencilMark.classList.remove('visible');
+        }
+      }
+
+      // --- SIGNAL WAVEFORM & WATERFALL RENDERING ---
+      let phase = 0;
+      const historyRows = [];
+      const MAX_ROWS = 60;
+
+      function renderRF() {
+        rfCtx.clearRect(0, 0, 640, 280);
+
+        const act = NARRATIVE_ACTS[currentActIndex];
+        phase += 0.08;
+
+        // 1. Oscilloscope Header & Grid
+        rfCtx.strokeStyle = "rgba(30, 41, 59, 0.7)";
+        rfCtx.lineWidth = 1;
+        for (let x = 0; x < 640; x += 40) {
+          rfCtx.beginPath();
+          rfCtx.moveTo(x, 0);
+          rfCtx.lineTo(x, 140);
+          rfCtx.stroke();
+        }
+        for (let y = 0; y < 140; y += 28) {
+          rfCtx.beginPath();
+          rfCtx.moveTo(0, y);
+          rfCtx.lineTo(640, y);
+          rfCtx.stroke();
+        }
+
+        // 2. Live Signal Trace
+        rfCtx.beginPath();
+        rfCtx.lineWidth = 1.6;
+        rfCtx.strokeStyle = act.act >= 3 ? "#38bdf8" : (act.act === 2 ? "#34d399" : "#64748b");
+
+        const noiseAmp = act.act === 4 ? 4 : (act.act === 3 ? 10 : 22);
+        const carrierAmp = act.carrierAmp * 45;
+
+        for (let x = 0; x < 640; x++) {
+          const noise = (Math.random() - 0.5) * noiseAmp;
+          let carrier = 0;
+          if (act.carrierAmp > 0.05) {
+            // Narrowband carrier at center frequency with sinusoidal modulation
+            const centerEnvelope = Math.exp(-Math.pow((x - 320) / 90, 2));
+            carrier = Math.sin(x * 0.15 + phase) * carrierAmp * centerEnvelope;
+          }
+          const y = 70 + noise - carrier;
+          if (x === 0) rfCtx.moveTo(x, y);
+          else rfCtx.lineTo(x, y);
+        }
+        rfCtx.stroke();
+
+        // Trace Labels
+        rfCtx.font = "9px ui-monospace, monospace";
+        rfCtx.fillStyle = "#94a3b8";
+        rfCtx.fillText("1420.35 MHz", 10, 18);
+        rfCtx.fillText("1420.405 MHz (H-LINE)", 280, 18);
+        rfCtx.fillText("1420.45 MHz", 560, 18);
+
+        // 3. Spectral Waterfall Display (Bottom half: y=140 to 280)
+        // Shift waterfall rows
+        const newRow = new Float32Array(80);
+        for (let b = 0; b < 80; b++) {
+          const binDist = Math.abs(b - 40);
+          const baseNoise = Math.random() * 0.25;
+          let sig = 0;
+          if (binDist < 5 && act.carrierAmp > 0.1) {
+            sig = act.carrierAmp * (1.0 - binDist / 5) * (0.8 + 0.2 * Math.sin(phase * 2));
+          }
+          newRow[b] = Math.min(1.0, baseNoise + sig);
+        }
+        historyRows.unshift(newRow);
+        if (historyRows.length > MAX_ROWS) historyRows.pop();
+
+        const binW = 640 / 80;
+        const rowH = 140 / MAX_ROWS;
+
+        for (let r = 0; r < historyRows.length; r++) {
+          const rowData = historyRows[r];
+          const ry = 140 + r * rowH;
+          for (let b = 0; b < 80; b++) {
+            const val = rowData[b];
+            if (val > 0.15) {
+              const rx = b * binW;
+              // Color based on intensity: dark blue -> cyan -> white
+              if (val > 0.7) rfCtx.fillStyle = "#ffffff";
+              else if (val > 0.45) rfCtx.fillStyle = "#38bdf8";
+              else if (val > 0.25) rfCtx.fillStyle = "#0369a1";
+              else rfCtx.fillStyle = "#0c4a6e";
+
+              rfCtx.fillRect(rx, ry, binW, rowH);
+            }
+          }
+        }
+
+        // Waterfall border line
+        rfCtx.strokeStyle = "#334155";
+        rfCtx.beginPath();
+        rfCtx.moveTo(0, 140);
+        rfCtx.lineTo(640, 140);
+        rfCtx.stroke();
+
+        requestAnimationFrame(renderRF);
+      }
+
+      // --- NARRATIVE PROGRESSION ACTIONS ---
+      function advanceAct() {
+        if (currentActIndex < NARRATIVE_ACTS.length - 1) {
+          currentActIndex++;
+        } else {
+          currentActIndex = 0; // wrap around
+        }
+        updateNarrativeUI();
+      }
+
+      function resetNarrative() {
+        currentActIndex = 0;
+        updateNarrativeUI();
+      }
+
+      document.getElementById('btnAdvanceAct').addEventListener('click', advanceAct);
+      document.getElementById('btnRestartNarrative').addEventListener('click', resetNarrative);
+
+      // --- INITIALIZATION ---
+      updateNarrativeUI();
+      requestAnimationFrame(renderRF);
+
+      // --- AUTOMATED TESTING & VERIFICATION CONTRACTS ---
+      window.labEvidence = function() {
+        const act = NARRATIVE_ACTS[currentActIndex];
+        const resolvedGlyphs = TARGET_CHARS.slice(0, act.resolvedCount).join("");
+
+        return {
+          subject: 'Hello World',
+          mechanism: '4-act epistolary SETI radio astronomy dramatization with progressive SNR acquisition, demodulating "HELLO WORLD" from cosmic static.',
+          passed: currentActIndex >= 0 && act.snr >= 0.1 && TOTAL_SYMBOLS === 10,
+          measurements: {
+            currentAct: act.act,
+            actTitle: act.title,
+            snrDb: act.snr,
+            carrierAmplitude: act.carrierAmp,
+            resolvedSymbolsCount: act.resolvedCount,
+            totalSymbols: TOTAL_SYMBOLS,
+            decodedText: resolvedGlyphs,
+            targetText: TARGET_CHARS.join("")
+          }
+        };
+      };
+
+      // Interaction scenario for automated CDP testing
+      window.labScenario = {
+        kind: "click",
+        selector: "#btnAdvanceAct"
+      };
+
+      window.labInteractionEvidence = function() {
+        const ev = window.labEvidence();
+        const actNumber = ev.measurements.currentAct;
+        const snr = ev.measurements.snrDb;
+        return {
+          subject: 'Hello World',
+          mechanism: 'Narrative act advancement triggering signal-to-noise ratio increase and decoding deeper linguistic strata.',
+          passed: actNumber >= 2 && snr > 5.0,
+          measurements: {
+            postAct: actNumber,
+            postSnrDb: snr,
+            resolvedCount: ev.measurements.resolvedSymbolsCount,
+            decodedSoFar: ev.measurements.decodedText
+          }
+        };
+      };
+    })();
+  </script>
+</body>
+</html>

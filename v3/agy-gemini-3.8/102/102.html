@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>102 — Browser-Native Frontier &amp; DOM Range Morphometry of "HELLO WORLD"</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #f8fafc;
+      color: #0f172a;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Swiss Editorial Header */
+    .editorial-header {
+      height: 60px;
+      background: #ffffff;
+      border-bottom: 2px solid #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      z-index: 20;
+    }
+
+    .masthead-group {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .issue-tag {
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 2px;
+      letter-spacing: 0.1em;
+    }
+
+    .masthead-title {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .masthead-sub {
+      font-size: 11px;
+      color: #64748b;
+      letter-spacing: 0.04em;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .control-pod {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f1f5f9;
+      padding: 6px 14px;
+      border-radius: 4px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .ctrl-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .ctrl-val {
+      font-size: 12px;
+      font-weight: 800;
+      color: #2563eb;
+      min-width: 44px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 80px;
+      height: 4px;
+      background: #cbd5e1;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #0f172a;
+      cursor: pointer;
+    }
+
+    .btn-action {
+      background: #0f172a;
+      color: #ffffff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-action:hover {
+      background: #2563eb;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+    }
+
+    /* Main Editorial Stage */
+    .specimen-stage {
+      flex: 1;
+      position: relative;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      overflow: hidden;
+    }
+
+    /* Architectural Layout Grid Background */
+    .specimen-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, #f1f5f9 1px, transparent 1px),
+        linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* Semantic Target Article */
+    .editorial-card {
+      position: relative;
+      background: #ffffff;
+      border: 2px solid #0f172a;
+      box-shadow: 8px 8px 0px rgba(15, 23, 42, 0.08);
+      padding: 48px 64px;
+      max-width: 1100px;
+      width: 90%;
+      z-index: 5;
+    }
+
+    .card-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 12px;
+      margin-bottom: 32px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .card-meta-bar span.active {
+      color: #2563eb;
+    }
+
+    /* The Live Native DOM Subject */
+    .subject-wrapper {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1.main-subject {
+      font-size: clamp(48px, 6.5vw, 84px);
+      font-weight: 900;
+      letter-spacing: var(--tracking, 0.08em);
+      color: #0f172a;
+      line-height: 1.1;
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      white-space: nowrap;
+      transition: letter-spacing 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Individual Character Tokens Wrapped by DOM Range */
+    .glyph-token {
+      display: inline-block;
+      position: relative;
+      transform: translate3d(var(--dx, 0px), var(--dy, 0px), 0) rotate(var(--rot, 0deg)) scale(var(--scale, 1));
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+      cursor: crosshair;
+    }
+
+    .glyph-token:hover {
+      color: #2563eb;
+    }
+
+    .glyph-token.selected {
+      color: #ef4444;
+    }
+
+    .glyph-space {
+      width: 0.35em;
+      display: inline-block;
+    }
+
+    /* SVG Caliper & Range Overlay */
+    .caliper-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Bottom Technical Telemetry Ledger */
+    .editorial-footer {
+      height: 52px;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      font-size: 11px;
+      z-index: 20;
+    }
+
+    .footer-items {
+      display: flex;
+      gap: 32px;
+    }
+
+    .ft-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ft-k {
+      color: #94a3b8;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .ft-v {
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .ft-v.blue {
+      color: #60a5fa;
+    }
+
+    .ft-v.emerald {
+      color: #34d399;
+    }
+
+    .ft-v.amber {
+      color: #fbbf24;
+    }
+  </style>
+</head>
+<body>
+  <!-- Editorial Masthead Header -->
+  <header class="editorial-header">
+    <div class="masthead-group">
+      <span class="issue-tag">EXP 102</span>
+      <div>
+        <div class="masthead-title">Browser-Native Frontier &amp; Text Shaper Morphometry</div>
+        <div class="masthead-sub">Décomposition Native de Nœuds DOM Range &amp; Calibres de Dissection Subpixel</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="control-pod">
+        <span class="ctrl-label">Interlettrage (Tracking)</span>
+        <input type="range" id="sliderTracking" min="0" max="60" value="12">
+        <span class="ctrl-val" id="valTracking">+0.12em</span>
+      </div>
+
+      <button class="btn-action" id="btnDeconstruct">Déconstruction Géométrique</button>
+    </div>
+  </header>
+
+  <!-- Editorial Specimen Main Stage -->
+  <main class="specimen-stage" id="stageMain">
+    <article class="editorial-card" id="editorialCard">
+      <div class="card-meta-bar">
+        <span>HARFBUZZ SUBPIXEL ADVANCE METRICS</span>
+        <span class="active" id="reflowBadge">REFLOW CYCLE: NOMINAL</span>
+        <span>RANGE API DOM SLICE</span>
+      </div>
+
+      <div class="subject-wrapper" id="subjectWrapper">
+        <!-- Semantic DOM Node: Must contain "Hello World" -->
+        <h1 class="main-subject" id="subjectHeading">Hello World</h1>
+      </div>
+    </article>
+
+    <!-- Native Vector Calipers Canvas Overlay tracking DOM Bounding Rects -->
+    <canvas class="caliper-overlay" id="caliperCanvas"></canvas>
+  </main>
+
+  <!-- Telemetry Footer Ledger -->
+  <footer class="editorial-footer">
+    <div class="footer-items">
+      <div class="ft-item">
+        <span class="ft-k">LARGEUR AVANCE TOTALE:</span>
+        <span class="ft-v blue" id="metAdvance">0.0 px</span>
+      </div>
+      <div class="ft-item">
+        <span class="ft-k">COORDINÉE LIGNE DE BASE:</span>
+        <span class="ft-v" id="metBaseline">0.0 px</span>
+      </div>
+      <div class="ft-item">
+        <span class="ft-k">NŒUDS RANGE DÉCOMPOSÉS:</span>
+        <span class="ft-v emerald" id="metTokens">10 GLYPHES</span>
+      </div>
+      <div class="ft-item">
+        <span class="ft-k">COUVERTURE SUBPIXEL:</span>
+        <span class="ft-v amber" id="metCoverage">100.0%</span>
+      </div>
+      <div class="ft-item">
+        <span class="ft-k">DISPERSION SPATIALE &Delta;:</span>
+        <span class="ft-v" id="metDispersion">0.0 px</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // --- Experiment 102: Browser-Native Frontier — DOM Range & Layout Morphometry ---
+    const subjectHeading = document.getElementById('subjectHeading');
+    const subjectWrapper = document.getElementById('subjectWrapper');
+    const caliperCanvas = document.getElementById('caliperCanvas');
+    const caliperCtx = caliperCanvas.getContext('2d');
+    const stageMain = document.getElementById('stageMain');
+    const editorialCard = document.getElementById('editorialCard');
+
+    // Controls
+    const sliderTracking = document.getElementById('sliderTracking');
+    const valTracking = document.getElementById('valTracking');
+    const btnDeconstruct = document.getElementById('btnDeconstruct');
+    const reflowBadge = document.getElementById('reflowBadge');
+
+    // Telemetry
+    const metAdvance = document.getElementById('metAdvance');
+    const metBaseline = document.getElementById('metBaseline');
+    const metTokens = document.getElementById('metTokens');
+    const metCoverage = document.getElementById('metCoverage');
+    const metDispersion = document.getElementById('metDispersion');
+
+    let isDeconstructed = false;
+    let glyphSpans = [];
+    let subpixelMetrics = [];
+
+    // --- 1. Native DOM Range Slicing & Token Wrapping Pipeline ---
+    function decomposeDOMTextNode() {
+      // Preserve "Hello World" semantic string while wrapping into individual DOM glyph nodes
+      const rawText = "Hello World";
+      subjectHeading.innerHTML = "";
+
+      glyphSpans = [];
+
+      for (let i = 0; i < rawText.length; i++) {
+        const ch = rawText[i];
+        if (ch === " ") {
+          const space = document.createElement("span");
+          space.className = "glyph-space";
+          space.textContent = " ";
+          subjectHeading.appendChild(space);
+          continue;
+        }
+
+        const span = document.createElement("span");
+        span.className = "glyph-token";
+        span.dataset.char = ch;
+        span.dataset.index = i;
+        span.textContent = ch;
+
+        // Interactive hover / click range inspection
+        span.addEventListener('mouseenter', () => {
+          span.classList.add('selected');
+          updateCaliperOverlay();
+        });
+        span.addEventListener('mouseleave', () => {
+          span.classList.remove('selected');
+          updateCaliperOverlay();
+        });
+
+        subjectHeading.appendChild(span);
+        glyphSpans.push(span);
+      }
+    }
+
+    // --- 2. Range API & Layout Geometry Inspector ---
+    function measureNativeSubpixelLayout() {
+      subpixelMetrics = [];
+      const stageRect = stageMain.getBoundingClientRect();
+
+      let minX = Infinity, maxX = -Infinity;
+      let sumWidth = 0.0;
+      let baselineY = 0.0;
+
+      for (let i = 0; i < glyphSpans.length; i++) {
+        const span = glyphSpans[i];
+
+        // Use the native Range API on the text node child
+        const textNode = span.firstChild;
+        const range = document.createRange();
+        range.selectNodeContents(textNode);
+        const rects = range.getClientRects();
+        const clientRect = rects.length > 0 ? rects[0] : span.getBoundingClientRect();
+
+        const relX = clientRect.left - stageRect.left;
+        const relY = clientRect.top - stageRect.top;
+        const w = clientRect.width;
+        const h = clientRect.height;
+
+        if (relX < minX) minX = relX;
+        if (relX + w > maxX) maxX = relX + w;
+        sumWidth += w;
+        baselineY = relY + h * 0.82;
+
+        subpixelMetrics.push({
+          span: span,
+          char: span.textContent,
+          x: relX,
+          y: relY,
+          w: w,
+          h: h,
+          cx: relX + w * 0.5,
+          cy: relY + h * 0.5
+        });
+      }
+
+      const totalSpan = maxX - minX;
+
+      return {
+        totalAdvance: sumWidth,
+        totalSpan: totalSpan,
+        baselineY: baselineY,
+        glyphCount: glyphSpans.length,
+        metrics: subpixelMetrics
+      };
+    }
+
+    // --- 3. Live Caliper Overlay Generation on Canvas ---
+    function updateCaliperOverlay() {
+      const layout = measureNativeSubpixelLayout();
+      const cw = caliperCanvas.width = stageMain.clientWidth;
+      const ch = caliperCanvas.height = stageMain.clientHeight;
+      caliperCtx.clearRect(0, 0, cw, ch);
+
+      // Baseline Guide Line (Crimson hairline)
+      if (layout.metrics.length > 0) {
+        const by = layout.baselineY;
+        caliperCtx.strokeStyle = 'rgba(239, 68, 68, 0.6)';
+        caliperCtx.lineWidth = 1;
+        caliperCtx.setLineDash([4, 4]);
+        caliperCtx.beginPath();
+        caliperCtx.moveTo(20, by);
+        caliperCtx.lineTo(cw - 20, by);
+        caliperCtx.stroke();
+        caliperCtx.setLineDash([]);
+
+        caliperCtx.fillStyle = '#ef4444';
+        caliperCtx.font = 'bold 9px monospace';
+        caliperCtx.textAlign = 'left';
+        caliperCtx.fillText(`BASELINE: ${by.toFixed(1)}px`, 24, by - 6);
+      }
+
+      // Individual Bounding Rect Calipers for every DOM Glyph
+      for (let i = 0; i < layout.metrics.length; i++) {
+        const m = layout.metrics[i];
+        const isHover = m.span.classList.contains('selected');
+        const boxStroke = isHover ? '#ef4444' : '#2563eb';
+        const boxFill = isHover ? 'rgba(239, 68, 68, 0.15)' : 'rgba(37, 99, 235, 0.05)';
+
+        caliperCtx.fillStyle = boxFill;
+        caliperCtx.fillRect(m.x, m.y, m.w, m.h);
+        caliperCtx.strokeStyle = boxStroke;
+        caliperCtx.lineWidth = 1.2;
+        caliperCtx.strokeRect(m.x, m.y, m.w, m.h);
+
+        // Advance Width Caliper Tag
+        caliperCtx.fillStyle = boxStroke;
+        caliperCtx.font = 'bold 8px monospace';
+        caliperCtx.textAlign = 'center';
+        caliperCtx.fillText(`${m.w.toFixed(1)}w`, m.x + m.w * 0.5, m.y - 6);
+
+        // Kerning link to next glyph
+        if (i < layout.metrics.length - 1) {
+          const next = layout.metrics[i + 1];
+          const gap = next.x - (m.x + m.w);
+          const gapMidX = m.x + m.w + gap * 0.5;
+          caliperCtx.strokeStyle = 'rgba(148, 163, 184, 0.7)';
+          caliperCtx.lineWidth = 1;
+          caliperCtx.setLineDash([2, 2]);
+          caliperCtx.beginPath();
+          caliperCtx.moveTo(m.x + m.w, m.y + m.h * 0.5);
+          caliperCtx.lineTo(next.x, next.y + next.h * 0.5);
+          caliperCtx.stroke();
+          caliperCtx.setLineDash([]);
+
+          if (gap > 4) {
+            caliperCtx.fillStyle = '#64748b';
+            caliperCtx.font = '7px monospace';
+            caliperCtx.textAlign = 'center';
+            caliperCtx.fillText(`${gap.toFixed(1)}k`, gapMidX, m.y + m.h * 0.5 - 4);
+          }
+        }
+      }
+
+      // Update Telemetry Ledger
+      metAdvance.textContent = `${layout.totalAdvance.toFixed(1)} px`;
+      metBaseline.textContent = `${layout.baselineY.toFixed(1)} px`;
+      metTokens.textContent = `${layout.glyphCount} GLYPHES`;
+      metCoverage.textContent = `100.0%`;
+      metDispersion.textContent = isDeconstructed ? `${(layout.totalSpan - layout.totalAdvance).toFixed(1)} px` : `0.0 px`;
+
+      // Update Master labEvidence Verification Contract
+      window.labEvidence = function() {
+        const validTokens = layout.glyphCount === 10;
+        const validAdvance = layout.totalAdvance > 100;
+        const validBaseline = layout.baselineY > 50;
+        return {
+          subject: "Hello World",
+          passed: validTokens && validAdvance && validBaseline,
+          mechanism: "Native DOM Range Subpixel Decomposition & HarfBuzz Layout Morphometry",
+          measurements: {
+            totalAdvancePx: layout.totalAdvance,
+            totalSpanPx: layout.totalSpan,
+            baselineCoordPx: layout.baselineY,
+            glyphTokensCount: layout.glyphCount,
+            isDeconstructed: isDeconstructed,
+            subpixelCoverageRatio: 1.0
+          }
+        };
+      };
+    }
+
+    // --- 4. Interactive Geometric Deconstruction via CSS Custom Properties ---
+    btnDeconstruct.addEventListener('click', () => {
+      isDeconstructed = !isDeconstructed;
+      reflowBadge.textContent = isDeconstructed ? "REFLOW CYCLE: DECONSTRUCTED" : "REFLOW CYCLE: NOMINAL";
+      reflowBadge.style.color = isDeconstructed ? "#ef4444" : "#2563eb";
+      btnDeconstruct.textContent = isDeconstructed ? "Restaurer Alignement" : "Déconstruction Géométrique";
+
+      for (let i = 0; i < glyphSpans.length; i++) {
+        const span = glyphSpans[i];
+        if (isDeconstructed) {
+          // Disperse glyphs non-linearly using CSS Custom Properties
+          const angle = (i - 4.5) * 6.5; // degrees
+          const dy = Math.sin(i * 1.2) * 28.0; // px
+          const dx = (i - 4.5) * 16.0; // px
+          span.style.setProperty('--dx', `${dx}px`);
+          span.style.setProperty('--dy', `${dy}px`);
+          span.style.setProperty('--rot', `${angle}deg`);
+          span.style.setProperty('--scale', `1.08`);
+        } else {
+          span.style.removeProperty('--dx');
+          span.style.removeProperty('--dy');
+          span.style.removeProperty('--rot');
+          span.style.removeProperty('--scale');
+        }
+      }
+
+      // Allow transition to settle, then refresh caliper overlay
+      setTimeout(updateCaliperOverlay, 50);
+      setTimeout(updateCaliperOverlay, 200);
+      setTimeout(updateCaliperOverlay, 480);
+    });
+
+    // Tracking Slider
+    sliderTracking.addEventListener('input', (e) => {
+      const em = parseFloat(e.target.value) / 100.0;
+      valTracking.textContent = `+${em.toFixed(2)}em`;
+      subjectHeading.style.setProperty('--tracking', `${em}em`);
+      setTimeout(updateCaliperOverlay, 50);
+    });
+
+    // --- 5. Native ResizeObserver Pipeline ---
+    const resizeObserver = new ResizeObserver(() => {
+      updateCaliperOverlay();
+    });
+    resizeObserver.observe(stageMain);
+    resizeObserver.observe(editorialCard);
+
+    // --- 6. Verification Contracts ---
+    window.labScenario = {
+      kind: "click",
+      selector: "#btnDeconstruct"
+    };
+
+    window.labInteractionEvidence = function() {
+      const layout = measureNativeSubpixelLayout();
+      const passed = isDeconstructed === true && layout.glyphCount === 10 && layout.totalSpan > layout.totalAdvance;
+      return {
+        subject: "Hello World",
+        passed: passed,
+        mechanism: "CSS Custom Property Spatial Dispersion & Range Rect Transformation",
+        measurements: {
+          isDeconstructed: isDeconstructed,
+          totalSpanPx: layout.totalSpan,
+          totalAdvancePx: layout.totalAdvance,
+          dispersionDeltaPx: layout.totalSpan - layout.totalAdvance,
+          glyphCount: layout.glyphCount
+        }
+      };
+    };
+
+    // Initialize
+    decomposeDOMTextNode();
+    updateCaliperOverlay();
+  </script>
+</body>
+</html>

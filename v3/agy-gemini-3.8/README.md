@@ -2,7 +2,7 @@
 
 [Repository index](../../README.md) · [Version prompt](../PROMPT.md)
 
-**50 base experiments** · 50 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
+**65 base experiments** · 65 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
 
 Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinished.
 
@@ -305,4 +305,94 @@ Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinishe
 [Demo](050/050.html) · [Report](050/report.md) · [Journal](050/journal.md) · [Screenshot](050/screenshot.png)
 
 ![Experiment 050](050/screenshot.png)
+
+## 101 — Experiment Report: 101 — Interaction & Viscoelastic Direct Manipulation Frontier ("HELLO WORLD")
+
+[Demo](101/101.html) · [Report](101/report.md) · [Journal](101/journal.md) · [Screenshot](101/screenshot.png)
+
+![Experiment 101](101/screenshot.png)
+
+## 102 — Experiment Report: 102 — Browser-Native Frontier: DOM Range & Text Shaper Morphometry ("HELLO WORLD")
+
+[Demo](102/102.html) · [Report](102/report.md) · [Journal](102/journal.md) · [Screenshot](102/screenshot.png)
+
+![Experiment 102](102/screenshot.png)
+
+## 103 — Experiment Report: 103 — Typographic Frontier: Punchcutter Anatomy & Enclosed Counter Topology ("HELLO WORLD")
+
+[Demo](103/103.html) · [Report](103/report.md) · [Journal](103/journal.md) · [Screenshot](103/screenshot.png)
+
+![Experiment 103](103/screenshot.png)
+
+## 104 — Experiment Report: 104 — Visual System & Art Direction Frontier: Neoplastic De Stijl Chromatic Equilibrium ("HELLO WORLD")
+
+[Demo](104/104.html) · [Report](104/report.md) · [Journal](104/journal.md) · [Screenshot](104/screenshot.png)
+
+![Experiment 104](104/screenshot.png)
+
+## 105 — Experiment Report: 105 — Temporal Frontier: Multi-Epoch Radioactive Decay & Half-Life Chronometry ("HELLO WORLD")
+
+[Demo](105/105.html) · [Report](105/report.md) · [Journal](105/journal.md) · [Screenshot](105/screenshot.png)
+
+![Experiment 105](105/screenshot.png)
+
+## 106 — Experiment Report: 106 — State / Memory Frontier: Ferromagnetic Core Memory & Hysteresis
+
+[Demo](106/106.html) · [Report](106/report.md) · [Journal](106/journal.md) · [Screenshot](106/screenshot.png)
+
+![Experiment 106](106/screenshot.png)
+
+## 107 — Experiment Report: 107 — Multi-Context Frontier: Distributed Raft Consensus & MessagePort Cluster
+
+[Demo](107/107.html) · [Report](107/report.md) · [Journal](107/journal.md) · [Screenshot](107/screenshot.png)
+
+![Experiment 107](107/screenshot.png)
+
+## 108 — Experiment Report: 108 — Game System Frontier: Typographic Sokoban & Syntactic Goal Grammar
+
+[Demo](108/108.html) · [Report](108/report.md) · [Journal](108/journal.md) · [Screenshot](108/screenshot.png)
+
+![Experiment 108](108/screenshot.png)
+
+## 109 — Experiment Report: 109 — Narrative Frontier: SETI First Contact Epistolary Log
+
+[Demo](109/109.html) · [Report](109/report.md) · [Journal](109/journal.md) · [Screenshot](109/screenshot.png)
+
+![Experiment 109](109/screenshot.png)
+
+## 110 — Experiment Report: 110 — Constraint Frontier: Strict 1-Bit Monochrome Text Matrix
+
+[Demo](110/110.html) · [Report](110/report.md) · [Journal](110/journal.md) · [Screenshot](110/screenshot.png)
+
+![Experiment 110](110/screenshot.png)
+
+## 111 — Experiment Report: 111 — Performance / Architecture Frontier: Data-Oriented Typographic Swarm
+
+[Demo](111/111.html) · [Report](111/report.md) · [Journal](111/journal.md) · [Screenshot](111/screenshot.png)
+
+![Experiment 111](111/screenshot.png)
+
+## 112 — Experiment Report: 112 — Accessibility / Semantic Frontier: Louis Braille Tactile Board
+
+[Demo](112/112.html) · [Report](112/report.md) · [Journal](112/journal.md) · [Screenshot](112/screenshot.png)
+
+![Experiment 112](112/screenshot.png)
+
+## 113 — Experiment Report: 113 — Responsive / Environmental Frontier: Adaptive Typographic Manifold
+
+[Demo](113/113.html) · [Report](113/report.md) · [Journal](113/journal.md) · [Screenshot](113/screenshot.png)
+
+![Experiment 113](113/screenshot.png)
+
+## 114 — Experiment Report: 114 — Data Transformation Frontier: Hamming [7, 4] Error Correction Pipeline
+
+[Demo](114/114.html) · [Report](114/report.md) · [Journal](114/journal.md) · [Screenshot](114/screenshot.png)
+
+![Experiment 114](114/screenshot.png)
+
+## 115 — Experiment Report: 115 — Material / Metaphor Frontier: 1804 Jacquard Programmable Loom
+
+[Demo](115/115.html) · [Report](115/report.md) · [Journal](115/journal.md) · [Screenshot](115/screenshot.png)
+
+![Experiment 115](115/screenshot.png)
 

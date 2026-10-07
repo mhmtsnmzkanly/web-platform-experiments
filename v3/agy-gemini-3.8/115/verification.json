@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World : 1804 Jacquard Programmable Punch-Card Loom"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "loomCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "loomCanvas",
+        "width": 660,
+        "height": 420,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 16,
+    "draws": {
+      "canvas": 13104,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 115 — Material / Metaphor Frontier: Jacquard Programmable Punch-Card Loom"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World : 1804 Jacquard Programmable Punch-Card Loom"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "loomCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "loomCanvas",
+        "width": 660,
+        "height": 420,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 103,
+    "draws": {
+      "canvas": 84357,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 115 — Material / Metaphor Frontier: Jacquard Programmable Punch-Card Loom"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "mechanism": "1804 Joseph Marie Jacquard programmable punch-card loom weaving \"HELLO WORLD\" thread-by-thread into unbleached linen with authentic shed kinematics.",
+    "passed": true,
+    "measurements": {
+      "assignedCode": 115,
+      "frontier": "Material / Metaphor Frontier",
+      "warpThreadsCount": 61,
+      "punchCardChainLength": 7,
+      "activeCardIndex": 6,
+      "wovenRows": 6,
+      "totalPicksCount": 6,
+      "warpMaterial": "Unbleached French Linen",
+      "weftMaterial": "Lyon Indigo Silk",
+      "targetWord": "HELLOWORLD"
+    }
+  },
+  "dynamic": true,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnTreadlePick"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "mechanism": "Treadle mechanical cycle advancing Jacquard punch card, throwing shuttle and beating weft into fabric fell.",
+      "passed": true,
+      "measurements": {
+        "postWovenRows": 7,
+        "postTotalPicks": 7,
+        "activeCard": 7,
+        "fabricFellHeightPx": 126
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World : 1804 Jacquard Programmable Punch-Card Loom"
+        }
+      ],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "loomCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "loomCanvas",
+          "width": 660,
+          "height": 420,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 113,
+      "draws": {
+        "canvas": 92723,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Experiment 115 — Material / Metaphor Frontier: Jacquard Programmable Punch-Card Loom"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World : 1804 Jacquard Programmable Punch-Card Loom"
+        }
+      ],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "loomCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "loomCanvas",
+          "width": 660,
+          "height": 420,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 187,
+      "draws": {
+        "canvas": 159841,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Experiment 115 — Material / Metaphor Frontier: Jacquard Programmable Punch-Card Loom"
+    }
+  }
+}

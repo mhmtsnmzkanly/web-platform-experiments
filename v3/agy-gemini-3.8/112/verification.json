@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World : Louis Braille Tactile Synthesizer & Acoustic Slate"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 112 — Accessibility / Semantic Frontier: Louis Braille Tactile Board"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World : Louis Braille Tactile Synthesizer & Acoustic Slate"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 112 — Accessibility / Semantic Frontier: Louis Braille Tactile Board"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "mechanism": "Dual-modality accessible 10-cell Braille synthesizer with roving tabindex keyboard navigation, ARIA live region orchestration, and Grade 1 decoding for \"HELLO WORLD\".",
+    "passed": true,
+    "measurements": {
+      "assignedCode": 112,
+      "frontier": "Accessibility / Semantic Frontier",
+      "totalBrailleCells": 10,
+      "totalAccessibleSwitches": 60,
+      "activeRaisedDots": 31,
+      "matchedLettersCount": 10,
+      "announcementsCount": 1,
+      "highContrastActive": false,
+      "decodedWord": "HELLOWORLD",
+      "targetWord": "HELLOWORLD"
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnToggleContrast"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "mechanism": "Accessible switch toggle in Braille synthesizer with synchronized ARIA live announcement and semantic state update.",
+      "passed": true,
+      "measurements": {
+        "postHighContrast": true,
+        "postAnnouncements": 2,
+        "activeDots": 31,
+        "decoded": "HELLOWORLD"
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World : Louis Braille Tactile Synthesizer & Acoustic Slate"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Experiment 112 — Accessibility / Semantic Frontier: Louis Braille Tactile Board"
+    },
+    "late": null
+  }
+}

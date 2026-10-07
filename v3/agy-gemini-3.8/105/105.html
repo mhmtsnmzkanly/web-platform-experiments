@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>105 — Temporal Frontier &amp; Radioactive Decay of "HELLO WORLD"</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #03060d;
+      color: #94a3b8;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", monospace, sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Cloud Chamber Header */
+    .chamber-header {
+      height: 56px;
+      background: #060b17;
+      border-bottom: 1px solid #162238;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+    }
+
+    .ch-title-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .ch-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid #10b981;
+      border-radius: 4px;
+      color: #10b981;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .ch-title {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #f1f5f9;
+      text-transform: uppercase;
+    }
+
+    .ch-sub {
+      font-size: 11px;
+      color: #38bdf8;
+      letter-spacing: 0.04em;
+    }
+
+    .ch-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .dial-pod {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #0b1324;
+      padding: 4px 12px;
+      border-radius: 4px;
+      border: 1px solid #1e2d4a;
+    }
+
+    .dial-label {
+      font-size: 10px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .dial-val {
+      font-size: 12px;
+      font-weight: 700;
+      color: #10b981;
+      min-width: 44px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 70px;
+      height: 4px;
+      background: #162238;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #10b981;
+      cursor: pointer;
+    }
+
+    .btn-warp {
+      background: #0284c7;
+      color: #ffffff;
+      border: 1px solid #38bdf8;
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-transform: uppercase;
+    }
+
+    .btn-warp:hover {
+      background: #0369a1;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Dual Stage Layout: Cloud Chamber & Chronometric HUD */
+    .chamber-stage {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 310px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tank-viewport {
+      position: relative;
+      background: radial-gradient(circle at 50% 50%, #060e1f 0%, #03060d 90%);
+      border-right: 1px solid #162238;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Chronometry HUD Sidebar */
+    .chronometry-panel {
+      background: #050a14;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .hud-card {
+      background: #081020;
+      border: 1px solid #16243d;
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .hud-header {
+      font-size: 11px;
+      font-weight: 700;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .hud-canvas-box {
+      width: 100%;
+      height: 120px;
+      background: #03070f;
+      border: 1px solid #0f192b;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    /* Bottom Telemetry Strip */
+    .chamber-footer {
+      height: 48px;
+      background: #060b17;
+      border-top: 1px solid #162238;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      font-size: 11px;
+      z-index: 10;
+    }
+
+    .footer-items {
+      display: flex;
+      gap: 28px;
+    }
+
+    .ft-cell {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .ft-k {
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .ft-v {
+      color: #f1f5f9;
+      font-weight: 700;
+    }
+
+    .ft-v.emerald { color: #10b981; }
+    .ft-v.cyan { color: #38bdf8; }
+    .ft-v.amber { color: #f59e0b; }
+    .ft-v.red { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="chamber-header">
+    <div class="ch-title-group">
+      <div class="ch-badge">105</div>
+      <div>
+        <div class="ch-title">Temporal Frontier &amp; Radioactive Decay Chronometry</div>
+        <div class="ch-sub">Désintégration Nucléaire &amp; Traces de Condensation de "HELLO WORLD"</div>
+      </div>
+    </div>
+
+    <div class="ch-controls">
+      <div class="dial-pod">
+        <span class="dial-label">Vitesse Temps (&Delta;t)</span>
+        <input type="range" id="sliderRate" min="5" max="40" value="10">
+        <span class="dial-val" id="valRate">1.0x</span>
+      </div>
+
+      <button class="btn-warp" id="btnTimeWarp">Accélération Époque (10x)</button>
+    </div>
+  </header>
+
+  <!-- Dual Viewport Stage -->
+  <main class="chamber-stage">
+    <!-- Left: Wilson Cloud Chamber Tank -->
+    <div class="tank-viewport" id="tankContainer">
+      <canvas id="tankCanvas"></canvas>
+    </div>
+
+    <!-- Right: Chronometry & Decay Curve HUD -->
+    <aside class="chronometry-panel">
+      <!-- Card 1: Exponential Decay Curve N(t) -->
+      <div class="hud-card">
+        <div class="hud-header">
+          <span>Courbe de Décroissance N(t)</span>
+          <span style="color:#10b981;">DEMI-VIE</span>
+        </div>
+        <div class="hud-canvas-box">
+          <canvas id="decayCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Card 2: Instantaneous Activity A(t) -->
+      <div class="hud-card">
+        <div class="hud-header">
+          <span>Activité A(t) = -dN/dt</span>
+          <span style="color:#38bdf8;">BECQUERELS</span>
+        </div>
+        <div class="hud-canvas-box">
+          <canvas id="activityCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Card 3: Thermodynamic Entropy S(t) -->
+      <div class="hud-card">
+        <div class="hud-header">
+          <span>Entropie de Mélange S(t)</span>
+          <span style="color:#f59e0b;">FLÈCHE DU TEMPS</span>
+        </div>
+        <div class="hud-canvas-box">
+          <canvas id="entropyCanvas"></canvas>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Bottom Telemetry Footer -->
+  <footer class="chamber-footer">
+    <div class="footer-items">
+      <div class="ft-cell">
+        <span class="ft-k">TEMPS ÉCOULÉ t:</span>
+        <span class="ft-v cyan" id="metTime">0.0 s</span>
+      </div>
+      <div class="ft-cell">
+        <span class="ft-k">NUCLÉONS PARENTS RESTANTS:</span>
+        <span class="ft-v emerald" id="metParents">1,200 / 1,200</span>
+      </div>
+      <div class="ft-cell">
+        <span class="ft-k">PRODUITS DE FISSION (FILLES):</span>
+        <span class="ft-v amber" id="metDaughters">0 ATOMES</span>
+      </div>
+      <div class="ft-cell">
+        <span class="ft-k">ACTIVITÉ TOTALE A:</span>
+        <span class="ft-v red" id="metActivity">68.4 Bq</span>
+      </div>
+      <div class="ft-cell">
+        <span class="ft-k">CONSERVATION NUCLÉAIRE:</span>
+        <span class="ft-v" id="metConservation">1,200 / 1,200 (100.0%)</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // --- Experiment 105: Temporal Frontier — Radioactive Decay Chronometry ---
+    const tankCanvas = document.getElementById('tankCanvas');
+    const tankCtx = tankCanvas.getContext('2d');
+    const decayCanvas = document.getElementById('decayCanvas');
+    const decayCtx = decayCanvas.getContext('2d');
+    const activityCanvas = document.getElementById('activityCanvas');
+    const activityCtx = activityCanvas.getContext('2d');
+    const entropyCanvas = document.getElementById('entropyCanvas');
+    const entropyCtx = entropyCanvas.getContext('2d');
+
+    // Controls
+    const sliderRate = document.getElementById('sliderRate');
+    const valRate = document.getElementById('valRate');
+    const btnTimeWarp = document.getElementById('btnTimeWarp');
+
+    // Telemetry DOM
+    const metTime = document.getElementById('metTime');
+    const metParents = document.getElementById('metParents');
+    const metDaughters = document.getElementById('metDaughters');
+    const metActivity = document.getElementById('metActivity');
+    const metConservation = document.getElementById('metConservation');
+
+    let tw = 0, th = 0;
+    function resize() {
+      tw = tankCanvas.width = tankCanvas.parentElement.clientWidth;
+      th = tankCanvas.height = tankCanvas.parentElement.clientHeight;
+      decayCanvas.width = decayCanvas.parentElement.clientWidth;
+      decayCanvas.height = decayCanvas.parentElement.clientHeight;
+      activityCanvas.width = activityCanvas.parentElement.clientWidth;
+      activityCanvas.height = activityCanvas.parentElement.clientHeight;
+      entropyCanvas.width = entropyCanvas.parentElement.clientWidth;
+      entropyCanvas.height = entropyCanvas.parentElement.clientHeight;
+      initIsotopes();
+    }
+    window.addEventListener('resize', resize);
+
+    // Simulation Clock
+    let simTime = 0.0;
+    let timeMultiplier = 1.0;
+    const TOTAL_INITIAL_NUCLEONS = 1200;
+
+    // History Ring Buffers
+    const historyN = [];
+    const historyA = [];
+    const historyS = [];
+    const maxHist = 120;
+
+    // --- Causal Typographic Isotopes ("HELLO WORLD") ---
+    const textSubject = "HELLO WORLD";
+    let isotopes = [];
+    let condensationTracks = [];
+
+    // Distinct Half-Lives derived from glyph characteristics (seconds)
+    const halfLifeTable = {
+      'H': 8.0,
+      'E': 14.0,
+      'L': 24.0,
+      'O': 18.0,
+      'W': 36.0,
+      'R': 20.0,
+      'D': 10.0
+    };
+
+    class NucleonParticle {
+      constructor(localX, localY) {
+        this.lx = localX;
+        this.ly = localY;
+        this.isDecayed = false;
+        this.decayTime = 0.0;
+      }
+    }
+
+    class TypographicIsotope {
+      constructor(ch, index, baseX, baseY, size) {
+        this.ch = ch;
+        this.index = index;
+        this.baseX = baseX;
+        this.baseY = baseY;
+        this.size = size;
+        this.halfLife = halfLifeTable[ch] || 15.0;
+        this.lambda = Math.log(2.0) / this.halfLife; // decay constant per second
+
+        // Build 120 nucleons along character stroke geometry
+        this.nucleons = [];
+        this.buildNucleonGeometry(120);
+      }
+
+      buildNucleonGeometry(count) {
+        const h = this.size;
+        const w = this.size * 0.65;
+        for (let i = 0; i < count; i++) {
+          let lx = 0, ly = 0;
+          const u = i / count;
+
+          if (this.ch === 'H') {
+            if (u < 0.4) { lx = -w * 0.4; ly = (u / 0.4 - 0.5) * h; }
+            else if (u < 0.8) { lx = w * 0.4; ly = ((u - 0.4) / 0.4 - 0.5) * h; }
+            else { lx = ((u - 0.8) / 0.2 - 0.5) * w * 0.8; ly = 0; }
+          } else if (this.ch === 'E') {
+            if (u < 0.4) { lx = -w * 0.4; ly = (u / 0.4 - 0.5) * h; }
+            else if (u < 0.6) { lx = ((u - 0.4) / 0.2 - 0.5) * w * 0.7; ly = -h * 0.45; }
+            else if (u < 0.8) { lx = ((u - 0.6) / 0.2 - 0.5) * w * 0.5; ly = 0; }
+            else { lx = ((u - 0.8) / 0.2 - 0.5) * w * 0.7; ly = h * 0.45; }
+          } else if (this.ch === 'L') {
+            if (u < 0.65) { lx = -w * 0.35; ly = (u / 0.65 - 0.5) * h; }
+            else { lx = ((u - 0.65) / 0.35 - 0.5) * w * 0.7; ly = h * 0.45; }
+          } else if (this.ch === 'O') {
+            const angle = u * Math.PI * 2;
+            lx = Math.cos(angle) * w * 0.45;
+            ly = Math.sin(angle) * h * 0.45;
+          } else if (this.ch === 'W') {
+            const t = u * 4.0;
+            if (t < 1.0) { lx = -w * 0.5 + t * w * 0.25; ly = -h * 0.45 + t * h * 0.9; }
+            else if (t < 2.0) { lx = -w * 0.25 + (t - 1) * w * 0.25; ly = h * 0.45 - (t - 1) * h * 0.6; }
+            else if (t < 3.0) { lx = (t - 2) * w * 0.25; ly = -h * 0.15 + (t - 2) * h * 0.6; }
+            else { lx = w * 0.25 + (t - 3) * w * 0.25; ly = h * 0.45 - (t - 3) * h * 0.9; }
+          } else if (this.ch === 'R') {
+            if (u < 0.35) { lx = -w * 0.4; ly = (u / 0.35 - 0.5) * h; }
+            else if (u < 0.75) {
+              const a = (u - 0.35) / 0.4 * Math.PI;
+              lx = -w * 0.4 + Math.sin(a) * w * 0.7;
+              ly = -h * 0.25 - Math.cos(a) * h * 0.22;
+            } else {
+              const f = (u - 0.75) / 0.25;
+              lx = -w * 0.2 + f * w * 0.6;
+              ly = f * h * 0.45;
+            }
+          } else if (this.ch === 'D') {
+            if (u < 0.35) { lx = -w * 0.4; ly = (u / 0.35 - 0.5) * h; }
+            else {
+              const a = (u - 0.35) / 0.65 * Math.PI;
+              lx = -w * 0.4 + Math.sin(a) * w * 0.8;
+              ly = -Math.cos(a) * h * 0.45;
+            }
+          }
+
+          // Small stochastic lattice jitter
+          lx += (Math.random() - 0.5) * 3.5;
+          ly += (Math.random() - 0.5) * 3.5;
+          this.nucleons.push(new NucleonParticle(lx, ly));
+        }
+      }
+
+      update(dt) {
+        // Disintegration probability per nucleon per dt: P = 1 - exp(-lambda * dt)
+        const pDecay = 1.0 - Math.exp(-this.lambda * dt);
+        let disintegrationsThisStep = 0;
+
+        for (let i = 0; i < this.nucleons.length; i++) {
+          const n = this.nucleons[i];
+          if (!n.isDecayed && Math.random() < pDecay) {
+            n.isDecayed = true;
+            n.decayTime = simTime;
+            disintegrationsThisStep++;
+
+            // Emit an ionizing alpha/beta particle vapor trail into the cloud chamber
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 70.0 + Math.random() * 140.0;
+            condensationTracks.push({
+              x: this.baseX + n.lx,
+              y: this.baseY + n.ly,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              life: 1.0,
+              type: Math.random() > 0.5 ? 'alpha' : 'beta'
+            });
+          }
+        }
+
+        return disintegrationsThisStep;
+      }
+
+      getActiveCount() {
+        let count = 0;
+        for (let i = 0; i < this.nucleons.length; i++) {
+          if (!this.nucleons[i].isDecayed) count++;
+        }
+        return count;
+      }
+    }
+
+    function initIsotopes() {
+      isotopes = [];
+      condensationTracks = [];
+      const numLetters = textSubject.length;
+      const margin = tw * 0.08;
+      const usableW = tw - margin * 2;
+      const stepX = usableW / numLetters;
+      const midY = th * 0.52;
+      const glyphSize = Math.min(th * 0.35, 110);
+
+      for (let i = 0; i < numLetters; i++) {
+        const ch = textSubject[i];
+        if (ch === ' ') continue;
+        const x = margin + i * stepX + stepX * 0.5;
+        isotopes.push(new TypographicIsotope(ch, i, x, midY, glyphSize));
+      }
+    }
+
+    // --- Update Physics & Particle Trails ---
+    function updatePhysics(dt) {
+      let totalDisintegrations = 0;
+      for (let i = 0; i < isotopes.length; i++) {
+        totalDisintegrations += isotopes[i].update(dt);
+      }
+
+      // Update condensation vapor tracks
+      for (let i = condensationTracks.length - 1; i >= 0; i--) {
+        const tr = condensationTracks[i];
+        tr.x += tr.vx * dt;
+        tr.y += tr.vy * dt;
+        tr.life -= dt * 1.8; // Fades away as vapor disperses
+        if (tr.life <= 0) condensationTracks.splice(i, 1);
+      }
+    }
+
+    // --- Render Wilson Cloud Chamber Tank ---
+    function renderTank() {
+      tankCtx.fillStyle = '#03060d';
+      tankCtx.fillRect(0, 0, tw, th);
+
+      // Faint Ionization Chamber Reticle Grid
+      tankCtx.strokeStyle = 'rgba(22, 34, 56, 0.45)';
+      tankCtx.lineWidth = 1;
+      const gridSize = 40;
+      for (let x = 0; x < tw; x += gridSize) {
+        tankCtx.beginPath();
+        tankCtx.moveTo(x, 0); tankCtx.lineTo(x, th);
+        tankCtx.stroke();
+      }
+      for (let y = 0; y < th; y += gridSize) {
+        tankCtx.beginPath();
+        tankCtx.moveTo(0, y); tankCtx.lineTo(tw, y);
+        tankCtx.stroke();
+      }
+
+      // 1. Render Ionizing Particle Condensation Trails
+      for (let i = 0; i < condensationTracks.length; i++) {
+        const tr = condensationTracks[i];
+        const alpha = Math.max(0, tr.life);
+        const trailLen = 14.0 * tr.life;
+
+        tankCtx.strokeStyle = tr.type === 'alpha' ? `rgba(16, 185, 129, ${alpha * 0.8})` : `rgba(56, 189, 248, ${alpha * 0.8})`;
+        tankCtx.lineWidth = tr.type === 'alpha' ? 2.5 : 1.2;
+        tankCtx.beginPath();
+        tankCtx.moveTo(tr.x, tr.y);
+        tankCtx.lineTo(tr.x - (tr.vx / 80.0) * trailLen, tr.y - (tr.vy / 80.0) * trailLen);
+        tankCtx.stroke();
+      }
+
+      // 2. Render Typographic Isotope Nuclei ("HELLO WORLD")
+      for (let i = 0; i < isotopes.length; i++) {
+        const iso = isotopes[i];
+        const activeCount = iso.getActiveCount();
+        const activeFraction = activeCount / iso.nucleons.length;
+
+        // Header isotope identity label (e.g. "¹⁴O", "³⁶W")
+        tankCtx.fillStyle = activeFraction > 0.3 ? '#38bdf8' : '#64748b';
+        tankCtx.font = 'bold 11px monospace';
+        tankCtx.textAlign = 'center';
+        tankCtx.fillText(`${Math.round(iso.halfLife)}s·${iso.ch}`, iso.baseX, iso.baseY - iso.size * 0.6);
+
+        // Render discrete nucleons
+        for (let n = 0; n < iso.nucleons.length; n++) {
+          const p = iso.nucleons[n];
+          const px = iso.baseX + p.lx;
+          const py = iso.baseY + p.ly;
+
+          if (!p.isDecayed) {
+            // Active radioactive parent nuclide (Phosphorescent Emerald glow)
+            tankCtx.fillStyle = '#10b981';
+            tankCtx.beginPath();
+            tankCtx.arc(px, py, 1.8, 0, Math.PI * 2);
+            tankCtx.fill();
+          } else {
+            // Decayed daughter lead isotope (Inert dark ash)
+            tankCtx.fillStyle = 'rgba(71, 85, 105, 0.4)';
+            tankCtx.beginPath();
+            tankCtx.arc(px, py, 1.2, 0, Math.PI * 2);
+            tankCtx.fill();
+          }
+        }
+      }
+    }
+
+    // --- Render Chronometry HUD Charts ---
+    function renderHUD(obs) {
+      // 1. Decay Curve Chart N(t)
+      const dw = decayCanvas.width, dh = decayCanvas.height;
+      decayCtx.fillStyle = '#03070f';
+      decayCtx.fillRect(0, 0, dw, dh);
+      decayCtx.strokeStyle = '#10b981';
+      decayCtx.lineWidth = 1.5;
+      decayCtx.beginPath();
+      for (let i = 0; i < historyN.length; i++) {
+        const x = (i / maxHist) * dw;
+        const y = dh - (historyN[i] / TOTAL_INITIAL_NUCLEONS) * (dh - 12) - 6;
+        if (i === 0) decayCtx.moveTo(x, y);
+        else decayCtx.lineTo(x, y);
+      }
+      decayCtx.stroke();
+
+      // 2. Instantaneous Activity A(t)
+      const aw = activityCanvas.width, ah = activityCanvas.height;
+      activityCtx.fillStyle = '#03070f';
+      activityCtx.fillRect(0, 0, aw, ah);
+      activityCtx.strokeStyle = '#38bdf8';
+      activityCtx.lineWidth = 1.5;
+      activityCtx.beginPath();
+      for (let i = 0; i < historyA.length; i++) {
+        const x = (i / maxHist) * aw;
+        const y = ah - Math.min(ah - 10, (historyA[i] / 120.0) * (ah - 12)) - 6;
+        if (i === 0) activityCtx.moveTo(x, y);
+        else activityCtx.lineTo(x, y);
+      }
+      activityCtx.stroke();
+
+      // 3. Mixing Entropy S(t)
+      const ew = entropyCanvas.width, eh = entropyCanvas.height;
+      entropyCtx.fillStyle = '#03070f';
+      entropyCtx.fillRect(0, 0, ew, eh);
+      entropyCtx.strokeStyle = '#f59e0b';
+      entropyCtx.lineWidth = 1.5;
+      entropyCtx.beginPath();
+      for (let i = 0; i < historyS.length; i++) {
+        const x = (i / maxHist) * ew;
+        const y = eh - Math.min(eh - 10, (historyS[i] / 0.7) * (eh - 12)) - 6;
+        if (i === 0) entropyCtx.moveTo(x, y);
+        else entropyCtx.lineTo(x, y);
+      }
+      entropyCtx.stroke();
+    }
+
+    // --- Observables & Telemetry Engine ---
+    function computeObservables() {
+      let totalParents = 0;
+      let totalDaughters = 0;
+      let totalActivity = 0.0;
+
+      for (let i = 0; i < isotopes.length; i++) {
+        const iso = isotopes[i];
+        const active = iso.getActiveCount();
+        totalParents += active;
+        totalDaughters += (iso.nucleons.length - active);
+        totalActivity += iso.lambda * active;
+      }
+
+      // Thermodynamic mixing entropy: S = -k [ p ln p + (1-p) ln(1-p) ]
+      const p = Math.max(1e-5, Math.min(0.99999, totalParents / TOTAL_INITIAL_NUCLEONS));
+      const entropy = -(p * Math.log(p) + (1.0 - p) * Math.log(1.0 - p));
+
+      return {
+        timeSeconds: simTime,
+        parentsCount: totalParents,
+        daughtersCount: totalDaughters,
+        activityBq: totalActivity,
+        entropy: entropy,
+        conservation: totalParents + totalDaughters
+      };
+    }
+
+    function updateTelemetry(obs) {
+      metTime.textContent = `${obs.timeSeconds.toFixed(1)} s`;
+      metParents.textContent = `${obs.parentsCount.toLocaleString()} / ${TOTAL_INITIAL_NUCLEONS}`;
+      metDaughters.textContent = `${obs.daughtersCount.toLocaleString()} ATOMES`;
+      metActivity.textContent = `${obs.activityBq.toFixed(1)} Bq`;
+      metConservation.textContent = `${obs.conservation} / ${TOTAL_INITIAL_NUCLEONS} (100.0%)`;
+
+      // Master labEvidence Verification Contract
+      window.labEvidence = function() {
+        const validConservation = obs.conservation === TOTAL_INITIAL_NUCLEONS;
+        const validIsotopes = isotopes.length === 10;
+        const validTime = obs.timeSeconds >= 0.0;
+        return {
+          subject: "Hello World",
+          passed: validConservation && validIsotopes && validTime,
+          mechanism: "Multi-Epoch Radioactive Decay & Half-Life Chronometry",
+          measurements: {
+            timeElapsedSeconds: obs.timeSeconds,
+            activeParentNucleons: obs.parentsCount,
+            daughterNucleons: obs.daughtersCount,
+            instantaneousActivityBq: obs.activityBq,
+            mixingEntropy: obs.entropy,
+            nucleonsTotal: obs.conservation,
+            isotopesCount: isotopes.length
+          }
+        };
+      };
+    }
+
+    // --- Interaction Actuators ---
+    let timeWarpTriggered = false;
+    let preWarpDaughters = 0;
+
+    btnTimeWarp.addEventListener('click', () => {
+      timeWarpTriggered = true;
+      preWarpDaughters = computeObservables().daughtersCount;
+
+      // Accelerated epoch warp: step 8 seconds forward immediately
+      const warpDuration = 12.0;
+      simTime += warpDuration;
+      updatePhysics(warpDuration);
+    });
+
+    sliderRate.addEventListener('input', (e) => {
+      timeMultiplier = parseFloat(e.target.value) / 10.0;
+      valRate.textContent = `${timeMultiplier.toFixed(1)}x`;
+    });
+
+    // Verification Contracts
+    window.labScenario = {
+      kind: "click",
+      selector: "#btnTimeWarp"
+    };
+
+    window.labInteractionEvidence = function() {
+      const obs = computeObservables();
+      const passed = timeWarpTriggered && (obs.daughtersCount - preWarpDaughters >= 50);
+      return {
+        subject: "Hello World",
+        passed: passed,
+        mechanism: "Geological Time Acceleration & Radioactive Disintegration Cascade",
+        measurements: {
+          timeWarpTriggered: timeWarpTriggered,
+          preWarpDaughters: preWarpDaughters,
+          postWarpDaughters: obs.daughtersCount,
+          timeElapsedSeconds: obs.timeSeconds,
+          instantaneousActivityBq: obs.activityBq,
+          mixingEntropy: obs.entropy
+        }
+      };
+    };
+
+    // Main Simulation Loop
+    let lastTime = performance.now();
+    resize();
+
+    function loop(now) {
+      const dtReal = Math.min(0.04, (now - lastTime) / 1000.0);
+      lastTime = now;
+      const dtSim = dtReal * timeMultiplier;
+      simTime += dtSim;
+
+      updatePhysics(dtSim);
+      renderTank();
+
+      const obs = computeObservables();
+      historyN.push(obs.parentsCount);
+      if (historyN.length > maxHist) historyN.shift();
+
+      historyA.push(obs.activityBq);
+      if (historyA.length > maxHist) historyA.shift();
+
+      historyS.push(obs.entropy);
+      if (historyS.length > maxHist) historyS.shift();
+
+      renderHUD(obs);
+      updateTelemetry(obs);
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "displayCanvas"
+      },
+      {
+        "tag": "canvas",
+        "id": "anatomyCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "displayCanvas",
+        "width": 1280,
+        "height": 482,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "anatomyCanvas",
+        "width": 1280,
+        "height": 210,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 72,
+      "webgl": 0
+    },
+    "drawnText": [
+      "CAP HEIGHT",
+      "MEAN LINE",
+      "BASELINE",
+      "ANATOMICAL DISSECTION & ENCLOSED COUNTER TOPOLOGY (WHITE-SPACE CARTOUCHE)",
+      "H",
+      "E",
+      "L",
+      "L",
+      "COUNTER",
+      "O",
+      "W",
+      "COUNTER",
+      "O",
+      "COUNTER",
+      "R",
+      "L",
+      "COUNTER",
+      "D"
+    ],
+    "animations": [],
+    "title": "103 — Typographic Frontier & Punchcutter Anatomy of \"HELLO WORLD\""
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "displayCanvas"
+      },
+      {
+        "tag": "canvas",
+        "id": "anatomyCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "displayCanvas",
+        "width": 1280,
+        "height": 482,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "anatomyCanvas",
+        "width": 1280,
+        "height": 210,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 72,
+      "webgl": 0
+    },
+    "drawnText": [
+      "CAP HEIGHT",
+      "MEAN LINE",
+      "BASELINE",
+      "ANATOMICAL DISSECTION & ENCLOSED COUNTER TOPOLOGY (WHITE-SPACE CARTOUCHE)",
+      "H",
+      "E",
+      "L",
+      "L",
+      "COUNTER",
+      "O",
+      "W",
+      "COUNTER",
+      "O",
+      "COUNTER",
+      "R",
+      "L",
+      "COUNTER",
+      "D"
+    ],
+    "animations": [],
+    "title": "103 — Typographic Frontier & Punchcutter Anatomy of \"HELLO WORLD\""
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Typographic Bézier Anatomy & Topological Enclosed Counter Balance",
+    "measurements": {
+      "enclosedCountersCount": 4,
+      "meanCounterAreaPx2": 510.7663775360276,
+      "totalAdvanceWidthPx": 822.35,
+      "stemWeightPx": 16,
+      "serifRadiusPx": 8,
+      "contrastRatio": 4,
+      "isSerifMode": true
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnSerifToggle"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Typographic Master Axis Morphometry (Serif / Sans Mode Toggle)",
+      "measurements": {
+        "toggleCount": 1,
+        "isSerifMode": false,
+        "totalAdvanceWidthPx": 822.35,
+        "preToggleWidthPx": 822.35,
+        "stemWeightPx": 16,
+        "serifRadiusPx": 0
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "displayCanvas"
+        },
+        {
+          "tag": "canvas",
+          "id": "anatomyCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "displayCanvas",
+          "width": 1280,
+          "height": 482,
+          "pixels": true,
+          "readable": true
+        },
+        {
+          "id": "anatomyCanvas",
+          "width": 1280,
+          "height": 210,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 220,
+        "webgl": 0
+      },
+      "drawnText": [
+        "CAP HEIGHT",
+        "MEAN LINE",
+        "BASELINE",
+        "ANATOMICAL DISSECTION & ENCLOSED COUNTER TOPOLOGY (WHITE-SPACE CARTOUCHE)",
+        "H",
+        "E",
+        "L",
+        "L",
+        "COUNTER",
+        "O",
+        "W",
+        "COUNTER",
+        "O",
+        "COUNTER",
+        "R",
+        "L",
+        "COUNTER",
+        "D",
+        "CAP HEIGHT",
+        "MEAN LINE",
+        "BASELINE",
+        "CAP HEIGHT",
+        "MEAN LINE",
+        "BASELINE",
+        "ANATOMICAL DISSECTION & ENCLOSED COUNTER TOPOLOGY (WHITE-SPACE CARTOUCHE)",
+        "H",
+        "E",
+        "L",
+        "L",
+        "COUNTER",
+        "O",
+        "W",
+        "COUNTER",
+        "O",
+        "COUNTER",
+        "R",
+        "L",
+        "COUNTER",
+        "D",
+        "CAP HEIGHT",
+        "MEAN LINE",
+        "BASELINE"
+      ],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 33.26599999647595,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "103 — Typographic Frontier & Punchcutter Anatomy of \"HELLO WORLD\""
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "displayCanvas"
+        },
+        {
+          "tag": "canvas",
+          "id": "anatomyCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "displayCanvas",
+          "width": 1280,
+          "height": 482,
+          "pixels": true,
+          "readable": true
+        },
+        {
+          "id": "anatomyCanvas",
+          "width": 1280,
+          "height": 210,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 220,
+        "webgl": 0
+      },
+      "drawnText": [
+        "CAP HEIGHT",
+        "MEAN LINE",
+        "BASELINE",
+        "ANATOMICAL DISSECTION & ENCLOSED COUNTER TOPOLOGY (WHITE-SPACE CARTOUCHE)",
+        "H",
+        "E",
+        "L",
+        "L",
+        "COUNTER",
+        "O",
+        "W",
+        "COUNTER",
+        "O",
+        "COUNTER",
+        "R",
+        "L",
+        "COUNTER",
+        "D",
+        "CAP HEIGHT",
+        "MEAN LINE",
+        "BASELINE",
+        "CAP HEIGHT",
+        "MEAN LINE",
+        "BASELINE",
+        "ANATOMICAL DISSECTION & ENCLOSED COUNTER TOPOLOGY (WHITE-SPACE CARTOUCHE)",
+        "H",
+        "E",
+        "L",
+        "L",
+        "COUNTER",
+        "O",
+        "W",
+        "COUNTER",
+        "O",
+        "COUNTER",
+        "R",
+        "L",
+        "COUNTER",
+        "D",
+        "CAP HEIGHT",
+        "MEAN LINE",
+        "BASELINE"
+      ],
+      "animations": [],
+      "title": "103 — Typographic Frontier & Punchcutter Anatomy of \"HELLO WORLD\""
+    }
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 64,
+      "webgl": 0
+    },
+    "drawnText": [
+      "BASELINE: 402.0px",
+      "66.7w",
+      "52.9w",
+      "29.8w",
+      "29.8w",
+      "57.5w",
+      "29.1k",
+      "85.2w",
+      "57.5w",
+      "39.0w",
+      "29.8w",
+      "57.5w",
+      "BASELINE: 402.0px",
+      "66.7w",
+      "52.9w",
+      "29.8w",
+      "29.8w",
+      "57.5w",
+      "29.1k",
+      "85.2w",
+      "57.5w",
+      "39.0w",
+      "29.8w",
+      "57.5w"
+    ],
+    "animations": [],
+    "title": "102 — Browser-Native Frontier & DOM Range Morphometry of \"HELLO WORLD\""
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 64,
+      "webgl": 0
+    },
+    "drawnText": [
+      "BASELINE: 402.0px",
+      "66.7w",
+      "52.9w",
+      "29.8w",
+      "29.8w",
+      "57.5w",
+      "29.1k",
+      "85.2w",
+      "57.5w",
+      "39.0w",
+      "29.8w",
+      "57.5w",
+      "BASELINE: 402.0px",
+      "66.7w",
+      "52.9w",
+      "29.8w",
+      "29.8w",
+      "57.5w",
+      "29.1k",
+      "85.2w",
+      "57.5w",
+      "39.0w",
+      "29.8w",
+      "57.5w"
+    ],
+    "animations": [],
+    "title": "102 — Browser-Native Frontier & DOM Range Morphometry of \"HELLO WORLD\""
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Native DOM Range Subpixel Decomposition & HarfBuzz Layout Morphometry",
+    "measurements": {
+      "totalAdvancePx": 505.671875,
+      "totalSpanPx": 534.78125,
+      "baselineCoordPx": 401.994375,
+      "glyphTokensCount": 10,
+      "isDeconstructed": false,
+      "subpixelCoverageRatio": 1
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnDeconstruct"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "CSS Custom Property Spatial Dispersion & Range Rect Transformation",
+      "measurements": {
+        "isDeconstructed": true,
+        "totalSpanPx": 534.78125,
+        "totalAdvancePx": 505.671875,
+        "dispersionDeltaPx": 29.109375,
+        "glyphCount": 10
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 64,
+        "webgl": 0
+      },
+      "drawnText": [
+        "BASELINE: 402.0px",
+        "66.7w",
+        "52.9w",
+        "29.8w",
+        "29.8w",
+        "57.5w",
+        "29.1k",
+        "85.2w",
+        "57.5w",
+        "39.0w",
+        "29.8w",
+        "57.5w",
+        "BASELINE: 402.0px",
+        "66.7w",
+        "52.9w",
+        "29.8w",
+        "29.8w",
+        "57.5w",
+        "29.1k",
+        "85.2w",
+        "57.5w",
+        "39.0w",
+        "29.8w",
+        "57.5w"
+      ],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 33.333000011881886,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 33.333000011881886,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 0,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 0,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 0,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 0,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 0,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 0,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 0,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 0,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 0,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 0,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "102 — Browser-Native Frontier & DOM Range Morphometry of \"HELLO WORLD\""
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 160,
+        "webgl": 0
+      },
+      "drawnText": [
+        "BASELINE: 402.0px",
+        "66.7w",
+        "52.9w",
+        "29.8w",
+        "29.8w",
+        "57.5w",
+        "29.1k",
+        "85.2w",
+        "57.5w",
+        "39.0w",
+        "29.8w",
+        "57.5w",
+        "BASELINE: 402.0px",
+        "66.7w",
+        "52.9w",
+        "29.8w",
+        "29.8w",
+        "57.5w",
+        "29.1k",
+        "85.2w",
+        "57.5w",
+        "39.0w",
+        "29.8w",
+        "57.5w",
+        "BASELINE: 398.5px",
+        "77.8w",
+        "61.7w",
+        "36.0w",
+        "33.7w",
+        "59.6w",
+        "30.2k",
+        "87.8w",
+        "61.9w",
+        "45.4w",
+        "38.2w",
+        "68.5w",
+        "BASELINE: 384.3px",
+        "109.3w",
+        "88.9w",
+        "56.8w",
+        "47.3w",
+        "66.9w",
+        "33.5k",
+        "96.6w",
+        "76.6w",
+        "66.4w",
+        "65.7w",
+        "100.4w",
+        "BASELINE: 382.5px",
+        "112.0w",
+        "91.6w",
+        "59.0w",
+        "48.7w",
+        "67.7w",
+        "33.9k",
+        "97.5w",
+        "78.2w",
+        "68.6w",
+        "68.5w",
+        "103.2w"
+      ],
+      "animations": [],
+      "title": "102 — Browser-Native Frontier & DOM Range Morphometry of \"HELLO WORLD\""
+    }
+  }
+}

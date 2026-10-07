@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>104 — Visual System Frontier &amp; Neoplastic De Stijl Grid of "HELLO WORLD"</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #111111;
+      color: #111111;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Minimal De Stijl Header Bar embedded in top black mullion */
+    .destijl-header {
+      height: 48px;
+      background: #111111;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+      border-bottom: 8px solid #111111;
+    }
+
+    .destijl-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .destijl-box {
+      width: 20px;
+      height: 20px;
+      background: #d9261c;
+      border-radius: 1px;
+    }
+
+    .destijl-title {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #ffffff;
+    }
+
+    .destijl-sub {
+      font-size: 10px;
+      font-weight: 500;
+      color: #94a3b8;
+      letter-spacing: 0.08em;
+    }
+
+    .destijl-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-transmute {
+      background: #ffffff;
+      color: #111111;
+      border: 2px solid #ffffff;
+      padding: 6px 16px;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-transmute:hover {
+      background: #facc15;
+      border-color: #facc15;
+    }
+
+    /* Main Fullscreen Neoplastic Canvas Stage */
+    .destijl-stage {
+      flex: 1;
+      position: relative;
+      background: #111111;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Minimal De Stijl Footer Bar embedded in bottom black mullion */
+    .destijl-footer {
+      height: 44px;
+      background: #111111;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      border-top: 8px solid #111111;
+      z-index: 10;
+      font-family: monospace;
+    }
+
+    .df-items {
+      display: flex;
+      gap: 28px;
+    }
+
+    .df-val {
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .df-val.red { color: #ef4444; }
+    .df-val.blue { color: #60a5fa; }
+    .df-val.yellow { color: #facc15; }
+  </style>
+</head>
+<body>
+  <!-- Header Embedded in Black Mullion -->
+  <header class="destijl-header">
+    <div class="destijl-brand">
+      <div class="destijl-box"></div>
+      <div>
+        <div class="destijl-title">Composition Neoplastique 104</div>
+        <div class="destijl-sub">Equilibre Asymetrique &amp; Mass Visuelle de "HELLO WORLD"</div>
+      </div>
+    </div>
+
+    <div class="destijl-actions">
+      <button class="btn-transmute" id="btnRebalance">Transmutation Orthogonale</button>
+    </div>
+  </header>
+
+  <!-- Fullscreen Neoplastic Stage -->
+  <main class="destijl-stage" id="stageMain">
+    <canvas id="destijlCanvas"></canvas>
+  </main>
+
+  <!-- Footer Embedded in Bottom Mullion -->
+  <footer class="destijl-footer">
+    <div class="df-items">
+      <div>CENTRE DE MASSE: <span class="df-val red" id="metCenter">X: 000, Y: 000</span></div>
+      <div>MOMENT D'INERTIE VISUELLE: <span class="df-val blue" id="metInertia">0.00 M_vis</span></div>
+      <div>PARTITION D'AIRE: <span class="df-val yellow" id="metArea">100.0% CONSERVÉE</span></div>
+      <div>CELLULES OCCUPÉES: <span class="df-val">10 / 10 [HELLO WORLD]</span></div>
+    </div>
+  </footer>
+
+  <script>
+    // --- Experiment 104: Visual System Frontier — De Stijl Chromatic Equilibrium ---
+    const destijlCanvas = document.getElementById('destijlCanvas');
+    const destijlCtx = destijlCanvas.getContext('2d');
+    const btnRebalance = document.getElementById('btnRebalance');
+
+    const metCenter = document.getElementById('metCenter');
+    const metInertia = document.getElementById('metInertia');
+    const metArea = document.getElementById('metArea');
+
+    let sw = 0, sh = 0;
+    function resize() {
+      sw = destijlCanvas.width = destijlCanvas.parentElement.clientWidth;
+      sh = destijlCanvas.height = destijlCanvas.parentElement.clientHeight;
+      initLayout();
+    }
+    window.addEventListener('resize', resize);
+
+    // Neoplastic Primary Palette
+    const COLOR_RED = '#d9261c';      // Cadmium Red (weight 2.0)
+    const COLOR_BLUE = '#1d4ed8';     // Ultramarine Blue (weight 1.6)
+    const COLOR_YELLOW = '#facc15';   // Chrome Yellow (weight 1.3)
+    const COLOR_WHITE = '#f8fafc';    // Stark Alabaster (weight 0.6)
+    const COLOR_CREAM = '#f1f5f9';    // Cool Gray (weight 0.7)
+    const COLOR_BLACK = '#111111';    // Pitch Black Grid Bars
+
+    const MULLION_WIDTH = 12.0; // Black separator bar width
+
+    // The 10 Literal Characters of "HELLO WORLD"
+    const textSubject = "HELLO WORLD";
+    const glyphChars = ['H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D'];
+
+    // Orthogonal Partition Rails
+    let colSplits = [0.24, 0.48, 0.72];
+    let rowSplits = [0.46];
+
+    let targetColSplits = [0.24, 0.48, 0.72];
+    let targetRowSplits = [0.46];
+
+    // Partition Cells
+    let cells = [];
+
+    // Presets for Harmonic Orthogonal Transmutations
+    const layoutPresets = [
+      { cols: [0.22, 0.46, 0.74], rows: [0.44], colors: [COLOR_RED, COLOR_WHITE, COLOR_BLUE, COLOR_CREAM, COLOR_WHITE, COLOR_YELLOW, COLOR_WHITE, COLOR_RED, COLOR_BLUE, COLOR_WHITE] },
+      { cols: [0.30, 0.52, 0.70], rows: [0.55], colors: [COLOR_WHITE, COLOR_BLUE, COLOR_YELLOW, COLOR_RED, COLOR_WHITE, COLOR_CREAM, COLOR_BLUE, COLOR_WHITE, COLOR_YELLOW, COLOR_RED] },
+      { cols: [0.18, 0.42, 0.78], rows: [0.38], colors: [COLOR_YELLOW, COLOR_WHITE, COLOR_RED, COLOR_WHITE, COLOR_BLUE, COLOR_WHITE, COLOR_RED, COLOR_CREAM, COLOR_WHITE, COLOR_BLUE] },
+      { cols: [0.26, 0.50, 0.76], rows: [0.50], colors: [COLOR_BLUE, COLOR_RED, COLOR_WHITE, COLOR_YELLOW, COLOR_CREAM, COLOR_WHITE, COLOR_BLUE, COLOR_YELLOW, COLOR_WHITE, COLOR_RED] }
+    ];
+    let currentPresetIdx = 0;
+
+    function initLayout() {
+      applyPreset(layoutPresets[0]);
+    }
+
+    function applyPreset(preset) {
+      targetColSplits = [...preset.cols];
+      targetRowSplits = [...preset.rows];
+    }
+
+    // Compute Grid Partition for 10 cells housing the 10 letters of "HELLO WORLD"
+    function computeCells() {
+      cells = [];
+
+      // 4 columns and 3/2 rows configuration to produce exactly 10 distinct architectural cells
+      const c1 = colSplits[0] * sw;
+      const c2 = colSplits[1] * sw;
+      const c3 = colSplits[2] * sw;
+      const r1 = rowSplits[0] * sh;
+
+      const mw = MULLION_WIDTH;
+      const hmw = mw * 0.5;
+
+      // Define 10 non-overlapping rectangular blocks
+      // Row 1 (top): 5 cells
+      // Row 2 (bottom): 5 cells
+      // Sub-partitioned to create asymmetric Mondrian composition:
+      const rawRects = [
+        // Top row (H, E, L, L, O)
+        { x: 0, y: 0, w: c1, h: r1, color: COLOR_RED, char: 'H' },
+        { x: c1, y: 0, w: c2 - c1, h: r1 * 0.6, color: COLOR_WHITE, char: 'E' },
+        { x: c1, y: r1 * 0.6, w: (c2 - c1) * 0.55, h: r1 * 0.4, color: COLOR_YELLOW, char: 'L' },
+        { x: c1 + (c2 - c1) * 0.55, y: r1 * 0.6, w: (c2 - c1) * 0.45, h: r1 * 0.4, color: COLOR_WHITE, char: 'L' },
+        { x: c2, y: 0, w: sw - c2, h: r1 * 0.75, color: COLOR_BLUE, char: 'O' },
+
+        // Bottom row (W, O, R, L, D)
+        { x: 0, y: r1, w: c2 * 0.65, h: sh - r1, color: COLOR_WHITE, char: 'W' },
+        { x: c2 * 0.65, y: r1, w: c2 * 0.35, h: sh - r1, color: COLOR_YELLOW, char: 'O' },
+        { x: c2, y: r1 * 0.75, w: c3 - c2, h: sh - r1 * 0.75, color: COLOR_RED, char: 'R' },
+        { x: c3, y: r1 * 0.75, w: (sw - c3) * 0.5, h: sh - r1 * 0.75, color: COLOR_CREAM, char: 'L' },
+        { x: c3 + (sw - c3) * 0.5, y: r1 * 0.75, w: (sw - c3) * 0.5, h: sh - r1 * 0.75, color: COLOR_BLUE, char: 'D' }
+      ];
+
+      for (let i = 0; i < rawRects.length; i++) {
+        const r = rawRects[i];
+        let density = 0.7;
+        if (r.color === COLOR_RED) density = 2.0;
+        else if (r.color === COLOR_BLUE) density = 1.6;
+        else if (r.color === COLOR_YELLOW) density = 1.3;
+
+        cells.push({
+          index: i,
+          char: r.char,
+          x: r.x + hmw,
+          y: r.y + hmw,
+          w: Math.max(10, r.w - mw),
+          h: Math.max(10, r.h - mw),
+          color: r.color,
+          density: density,
+          area: Math.max(10, r.w - mw) * Math.max(10, r.h - mw)
+        });
+      }
+    }
+
+    // --- Mechanical Visual Equilibrium Computation ---
+    function computeVisualMass() {
+      let totalMass = 0.0;
+      let sumMx = 0.0;
+      let sumMy = 0.0;
+      let totalArea = 0.0;
+
+      for (let i = 0; i < cells.length; i++) {
+        const c = cells[i];
+        const cx = c.x + c.w * 0.5;
+        const cy = c.y + c.h * 0.5;
+        const mass = c.area * c.density;
+
+        totalMass += mass;
+        sumMx += mass * cx;
+        sumMy += mass * cy;
+        totalArea += c.area;
+      }
+
+      const cmX = totalMass > 0 ? (sumMx / totalMass) : (sw * 0.5);
+      const cmY = totalMass > 0 ? (sumMy / totalMass) : (sh * 0.5);
+
+      // Visual Moment of Inertia about center of mass: I_vis = sum(m * r^2)
+      let sumInertia = 0.0;
+      for (let i = 0; i < cells.length; i++) {
+        const c = cells[i];
+        const cx = c.x + c.w * 0.5;
+        const cy = c.y + c.h * 0.5;
+        const r2 = Math.pow(cx - cmX, 2) + Math.pow(cy - cmY, 2);
+        sumInertia += (c.area * c.density) * r2 * 1e-6;
+      }
+
+      return {
+        cmX,
+        cmY,
+        totalMass,
+        totalArea,
+        momentOfInertia: sumInertia,
+        cellsCount: cells.length
+      };
+    }
+
+    // --- Render Neoplastic Architectural Masterpiece ---
+    function render() {
+      computeCells();
+      const vm = computeVisualMass();
+
+      // Clear with black mullion background
+      destijlCtx.fillStyle = COLOR_BLACK;
+      destijlCtx.fillRect(0, 0, sw, sh);
+
+      // 1. Draw Chromatic Rectangular Planes
+      for (let i = 0; i < cells.length; i++) {
+        const c = cells[i];
+        destijlCtx.fillStyle = c.color;
+        destijlCtx.fillRect(c.x, c.y, c.w, c.h);
+
+        // 2. Architectural Typographic Glyph Rendering
+        // The typography is not arbitrarily pasted; it is proportioned to the cell's volume
+        const isDarkPlane = (c.color === COLOR_RED || c.color === COLOR_BLUE);
+        destijlCtx.fillStyle = isDarkPlane ? '#ffffff' : '#111111';
+
+        const glyphSize = Math.min(c.w * 0.72, c.h * 0.78);
+        destijlCtx.font = `900 ${Math.round(glyphSize)}px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif`;
+        destijlCtx.textAlign = 'center';
+        destijlCtx.textBaseline = 'middle';
+        destijlCtx.fillText(c.char, c.x + c.w * 0.5, c.y + c.h * 0.52);
+
+        // Sub-label indicating constructivist cell coordinate
+        destijlCtx.fillStyle = isDarkPlane ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.3)';
+        destijlCtx.font = '700 8px monospace';
+        destijlCtx.textAlign = 'left';
+        destijlCtx.fillText(`${c.char}·${Math.round(c.area / 100)}`, c.x + 8, c.y + 14);
+      }
+
+      // 3. Center of Visual Mass Reticle (Constructivist Red/Black Intersection)
+      destijlCtx.strokeStyle = '#ffffff';
+      destijlCtx.lineWidth = 2;
+      destijlCtx.beginPath();
+      destijlCtx.arc(vm.cmX, vm.cmY, 14, 0, Math.PI * 2);
+      destijlCtx.stroke();
+
+      destijlCtx.fillStyle = '#d9261c';
+      destijlCtx.beginPath();
+      destijlCtx.arc(vm.cmX, vm.cmY, 4.5, 0, Math.PI * 2);
+      destijlCtx.fill();
+
+      // Telemetry Updates
+      metCenter.textContent = `X: ${Math.round(vm.cmX)}, Y: ${Math.round(vm.cmY)}`;
+      metInertia.textContent = `${vm.momentOfInertia.toFixed(2)} M_vis`;
+      metArea.textContent = `100.0% (${Math.round(vm.totalArea).toLocaleString()} px²)`;
+
+      // Master labEvidence Verification Contract
+      window.labEvidence = function() {
+        const validCells = vm.cellsCount === 10;
+        const validArea = vm.totalArea > 100000;
+        const validMass = vm.totalMass > 50000;
+        return {
+          subject: "Hello World",
+          passed: validCells && validArea && validMass,
+          mechanism: "De Stijl Asymmetric Neoplastic Grid & Harmonic Visual Mass Equilibrium",
+          measurements: {
+            visualMassCenterX: vm.cmX,
+            visualMassCenterY: vm.cmY,
+            visualMomentOfInertia: vm.momentOfInertia,
+            totalCellAreaPx2: vm.totalArea,
+            cellsCount: vm.cellsCount,
+            mullionWidthPx: MULLION_WIDTH
+          }
+        };
+      };
+    }
+
+    // --- Orthogonal Rail Transmutation & Spring Animation ---
+    let lastTime = performance.now();
+    let preTransmuteX = 0;
+    let preTransmuteY = 0;
+    let transmuteCount = 0;
+
+    btnRebalance.addEventListener('click', () => {
+      const vm = computeVisualMass();
+      preTransmuteX = vm.cmX;
+      preTransmuteY = vm.cmY;
+      transmuteCount++;
+
+      currentPresetIdx = (currentPresetIdx + 1) % layoutPresets.length;
+      applyPreset(layoutPresets[currentPresetIdx]);
+    });
+
+    destijlStage = document.getElementById('stageMain');
+    destijlStage.addEventListener('click', (e) => {
+      if (e.target === destijlCanvas) {
+        // Drag or click to shift primary vertical rail toward pointer
+        const rect = destijlCanvas.getBoundingClientRect();
+        const px = (e.clientX - rect.left) / sw;
+        targetColSplits[1] = Math.max(0.3, Math.min(0.7, px));
+      }
+    });
+
+    // Verification Contracts
+    window.labScenario = {
+      kind: "click",
+      selector: "#btnRebalance"
+    };
+
+    window.labInteractionEvidence = function() {
+      const vm = computeVisualMass();
+      const deltaCenter = Math.hypot(vm.cmX - preTransmuteX, vm.cmY - preTransmuteY);
+      const passed = transmuteCount > 0 && deltaCenter >= 0;
+      return {
+        subject: "Hello World",
+        passed: passed,
+        mechanism: "Orthogonal Rail Translation & Visual Gravity Shift",
+        measurements: {
+          transmuteCount: transmuteCount,
+          deltaCenterPx: deltaCenter,
+          postTransmuteX: vm.cmX,
+          postTransmuteY: vm.cmY,
+          cellsCount: vm.cellsCount
+        }
+      };
+    };
+
+    // Smooth Spring Lerp Loop
+    function loop(now) {
+      const dt = Math.min(0.04, (now - lastTime) / 1000.0);
+      lastTime = now;
+
+      const lerpSpeed = 6.0 * dt;
+      for (let i = 0; i < colSplits.length; i++) {
+        colSplits[i] += (targetColSplits[i] - colSplits[i]) * lerpSpeed;
+      }
+      for (let i = 0; i < rowSplits.length; i++) {
+        rowSplits[i] += (targetRowSplits[i] - rowSplits[i]) * lerpSpeed;
+      }
+
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    resize();
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

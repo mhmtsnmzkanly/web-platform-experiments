@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Experiment 107 — Multi-Context Frontier: Distributed Raft Consensus across Worker Boundary</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #090d16;
+      color: #cbd5e1;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 16px;
+    }
+    .imp-console {
+      width: 100%;
+      max-width: 1140px;
+      background: #0d131f;
+      border: 1px solid #1e293b;
+      border-radius: 4px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .console-header {
+      background: #111827;
+      border-bottom: 2px solid #374151;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .console-title h1 {
+      font-size: 1.15rem;
+      color: #f3f4f6;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .console-title p {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      font-family: ui-monospace, monospace;
+      margin-top: 3px;
+    }
+    .status-badges {
+      display: flex;
+      gap: 8px;
+    }
+    .status-badge {
+      font-size: 0.7rem;
+      font-family: ui-monospace, monospace;
+      padding: 4px 8px;
+      border-radius: 3px;
+      background: #1f2937;
+      border: 1px solid #374151;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .status-badge.leader {
+      background: #065f46;
+      color: #34d399;
+      border-color: #059669;
+    }
+    .status-badge.worker {
+      background: #1e3a8a;
+      color: #60a5fa;
+      border-color: #2563eb;
+    }
+    .status-badge.partitioned {
+      background: #7f1d1d;
+      color: #f87171;
+      border-color: #dc2626;
+    }
+    .console-body {
+      display: grid;
+      grid-template-columns: 680px 1fr;
+      min-height: 560px;
+    }
+    .topology-section {
+      padding: 20px;
+      border-right: 1px solid #1e293b;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .section-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      font-family: ui-monospace, monospace;
+      color: #6b7280;
+    }
+    .canvas-container {
+      position: relative;
+      background: #090e17;
+      border: 1px solid #1e293b;
+      border-radius: 4px;
+    }
+    canvas#topologyCanvas {
+      display: block;
+      width: 640px;
+      height: 360px;
+    }
+    .committed-terminal {
+      background: #030712;
+      border: 1px solid #1f2937;
+      border-radius: 4px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: ui-monospace, monospace;
+    }
+    .committed-word {
+      font-size: 1.4rem;
+      letter-spacing: 0.25em;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .committed-meta {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      text-align: right;
+    }
+    .sidebar-section {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: #0c121e;
+    }
+    .panel-card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 4px;
+      padding: 12px;
+    }
+    .panel-card-title {
+      font-size: 0.72rem;
+      font-family: ui-monospace, monospace;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .btn-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    button.imp-btn {
+      background: #1f2937;
+      color: #f3f4f6;
+      border: 1px solid #374151;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      font-family: ui-monospace, monospace;
+      border-radius: 3px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    button.imp-btn:hover {
+      background: #374151;
+      border-color: #4b5563;
+    }
+    button.imp-btn.primary {
+      background: #0284c7;
+      border-color: #0369a1;
+    }
+    button.imp-btn.primary:hover {
+      background: #0ea5e9;
+    }
+    button.imp-btn.danger {
+      background: #991b1b;
+      border-color: #7f1d1d;
+    }
+    button.imp-btn.danger:hover {
+      background: #b91c1c;
+    }
+    .log-stream {
+      font-family: ui-monospace, monospace;
+      font-size: 0.68rem;
+      background: #030712;
+      border: 1px solid #1f2937;
+      border-radius: 3px;
+      height: 120px;
+      overflow-y: auto;
+      padding: 8px;
+      color: #94a3b8;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .log-entry.commit { color: #34d399; }
+    .log-entry.rpc { color: #38bdf8; }
+    .log-entry.warn { color: #f59e0b; }
+    .metrics-grid {
+      width: 100%;
+      font-family: ui-monospace, monospace;
+      font-size: 0.72rem;
+      border-collapse: collapse;
+    }
+    .metrics-grid td {
+      padding: 3px 0;
+      border-bottom: 1px dashed #1f2937;
+      color: #9ca3af;
+    }
+    .metrics-grid td.val {
+      text-align: right;
+      color: #f3f4f6;
+      font-weight: 600;
+    }
+    .console-footer {
+      background: #111827;
+      border-top: 1px solid #1f2937;
+      padding: 10px 20px;
+      font-size: 0.7rem;
+      font-family: ui-monospace, monospace;
+      color: #6b7280;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <div class="imp-console">
+    <div class="console-header">
+      <div class="console-title">
+        <h1>Distributed Raft Consensus & MessagePort Cluster</h1>
+        <p>FRONTIER ATLAS 107 &bull; MULTI-CONTEXT FRONTIER &bull; MAIN THREAD + DEDICATED WEB WORKER</p>
+      </div>
+      <div class="status-badges">
+        <span class="status-badge leader" id="badgeLeader">LEADER: NODE 0</span>
+        <span class="status-badge worker" id="badgeWorker">WORKER: NODES 1 & 2 ACTIVE</span>
+        <span class="status-badge" id="badgePartition">NETWORK: COHESIVE</span>
+      </div>
+    </div>
+
+    <div class="console-body">
+      <!-- Cluster Topology & Execution Boundary -->
+      <div class="topology-section">
+        <div class="section-meta">
+          <span>CROSS-CONTEXT TOPOLOGY (NODE 0 ON WINDOW THREAD &bull; NODES 1 & 2 ON DEDICATED WORKER)</span>
+          <span id="rateReadout">RPC RATE: 8.3 msgs/sec</span>
+        </div>
+        <div class="canvas-container">
+          <canvas id="topologyCanvas" width="640" height="360"></canvas>
+        </div>
+        <div class="committed-terminal">
+          <div>
+            <div style="font-size:0.68rem; color:#6b7280; margin-bottom:2px;">CLUSTER CANONICAL COMMITTED LOG:</div>
+            <div class="committed-word" id="committedWordOutput">_ _ _ _ _   _ _ _ _ _</div>
+          </div>
+          <div class="committed-meta" id="consensusReadout">
+            TERM: 1 &bull; COMMITTED: 0 / 10 &bull; QUORUM: 3/3
+          </div>
+        </div>
+      </div>
+
+      <!-- Protocol Controls & Telemetry -->
+      <div class="sidebar-section">
+        <!-- Cluster Transaction Proposal -->
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <span>DISTRIBUTED TRANSACTION PROPOSAL</span>
+            <span id="nextCharLabel">NEXT: 'H'</span>
+          </div>
+          <p style="font-size:0.7rem; color:#9ca3af; margin-bottom:6px;">
+            Propose next typographic glyph transaction across the MessagePort boundary to achieve 2/3 consensus.
+          </p>
+          <div class="btn-row">
+            <button class="imp-btn primary" id="btnProposeNext">PROPOSE TRANSACTION</button>
+            <button class="imp-btn" id="btnReplicateAll">AUTO-REPLICATE ALL</button>
+            <button class="imp-btn danger" id="btnPartitionWorker">PARTITION WORKER</button>
+          </div>
+        </div>
+
+        <!-- Distributed Log Stream -->
+        <div class="panel-card">
+          <div class="panel-card-title">RPC PACKET & CONSENSUS AUDIT TRAIL</div>
+          <div class="log-stream" id="logStream"></div>
+        </div>
+
+        <!-- Telemetry Table -->
+        <div class="panel-card">
+          <div class="panel-card-title">MULTI-CONTEXT TELEMETRY</div>
+          <table class="metrics-grid">
+            <tr>
+              <td>EXECUTION CONTEXTS:</td>
+              <td class="val">2 (WINDOW + DEDICATED WORKER)</td>
+            </tr>
+            <tr>
+              <td>TOTAL RPC PACKETS EXCHANGED:</td>
+              <td class="val" id="metricTotalPackets">0</td>
+            </tr>
+            <tr>
+              <td>NODE 0 COMMIT INDEX:</td>
+              <td class="val" id="metricCommit0">0</td>
+            </tr>
+            <tr>
+              <td>NODE 1 COMMIT INDEX (WORKER):</td>
+              <td class="val" id="metricCommit1">0</td>
+            </tr>
+            <tr>
+              <td>NODE 2 COMMIT INDEX (WORKER):</td>
+              <td class="val" id="metricCommit2">0</td>
+            </tr>
+            <tr>
+              <td>QUORUM VERIFICATION:</td>
+              <td class="val" id="metricQuorumStatus">REACHED (&ge;2/3)</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="console-footer">
+      <span>1974 BBN INTERFACE MESSAGE PROCESSOR SPECIFICATION &bull; STRICT ASYNCHRONOUS PROTOCOL</span>
+      <span id="workerIdLabel">WORKER PID: DEDICATED BLOB-WORKER #1</span>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // --- HELLO WORLD 10-CHARACTER SEQUENCE ---
+      const HELLO_CHARS = ["H", "E", "L", "L", "O", "W", "O", "R", "L", "D"];
+      const TOTAL_CHARS = HELLO_CHARS.length; // 10
+
+      // Network / Partition state
+      let isPartitioned = false;
+      let totalPacketsExchanged = 0;
+      let currentTerm = 1;
+      let leaderNodeId = 0; // Node 0 (Main Thread) starts as Leader
+
+      // Node state representation
+      // Node 0: Main Thread
+      // Node 1 & Node 2: Dedicated Web Worker
+      const nodeStates = [
+        { id: 0, role: "LEADER", term: 1, log: [], commitIndex: 0, matchIndex: [0, 0, 0], x: 160, y: 180, context: "WINDOW" },
+        { id: 1, role: "FOLLOWER", term: 1, log: [], commitIndex: 0, matchIndex: [0, 0, 0], x: 480, y: 110, context: "WORKER" },
+        { id: 2, role: "FOLLOWER", term: 1, log: [], commitIndex: 0, matchIndex: [0, 0, 0], x: 480, y: 250, context: "WORKER" }
+      ];
+
+      // In-flight animated packet visualizer
+      // [{ fromX, fromY, toX, toY, progress: 0..1, label: string, color: string }]
+      const inFlightPackets = [];
+
+      // UI References
+      const topologyCanvas = document.getElementById('topologyCanvas');
+      const ctx = topologyCanvas.getContext('2d');
+      const committedWordOutput = document.getElementById('committedWordOutput');
+      const consensusReadout = document.getElementById('consensusReadout');
+      const nextCharLabel = document.getElementById('nextCharLabel');
+      const logStream = document.getElementById('logStream');
+      const badgeLeader = document.getElementById('badgeLeader');
+      const badgeWorker = document.getElementById('badgeWorker');
+      const badgePartition = document.getElementById('badgePartition');
+      const metricTotalPackets = document.getElementById('metricTotalPackets');
+      const metricCommit0 = document.getElementById('metricCommit0');
+      const metricCommit1 = document.getElementById('metricCommit1');
+      const metricCommit2 = document.getElementById('metricCommit2');
+      const metricQuorumStatus = document.getElementById('metricQuorumStatus');
+
+      function appendLog(text, type = "rpc") {
+        const div = document.createElement('div');
+        div.className = `log-entry ${type}`;
+        const time = (performance.now() / 1000).toFixed(2);
+        div.textContent = `[${time}s] ${text}`;
+        logStream.appendChild(div);
+        logStream.scrollTop = logStream.scrollHeight;
+        if (logStream.children.length > 50) {
+          logStream.removeChild(logStream.firstChild);
+        }
+      }
+
+      // --- CREATE DEDICATED WEB WORKER INLINE ---
+      // The Worker manages Node 1 and Node 2 internally and talks to Node 0 over MessagePorts!
+      const workerCode = `
+        let isPartitioned = false;
+        let workerNodes = {
+          1: { id: 1, role: 'FOLLOWER', term: 1, log: [], commitIndex: 0 },
+          2: { id: 2, role: 'FOLLOWER', term: 1, log: [], commitIndex: 0 }
+        };
+
+        let portNode1 = null;
+        let portNode2 = null;
+
+        self.onmessage = function(e) {
+          const msg = e.data;
+          if (msg.type === 'INIT_PORTS') {
+            portNode1 = e.ports[0];
+            portNode2 = e.ports[1];
+
+            setupPort(portNode1, 1);
+            setupPort(portNode2, 2);
+            self.postMessage({ type: 'WORKER_READY', nodes: [1, 2] });
+          } else if (msg.type === 'SET_PARTITION') {
+            isPartitioned = msg.value;
+          }
+        };
+
+        function setupPort(port, nodeId) {
+          port.onmessage = function(evt) {
+            if (isPartitioned) return; // dropped due to network partition
+            const rpc = evt.data;
+
+            if (rpc.type === 'APPEND_ENTRIES') {
+              const node = workerNodes[nodeId];
+              // Accept heartbeat or log replication
+              let success = false;
+              if (rpc.term >= node.term) {
+                node.term = rpc.term;
+                // Replicate log entry if provided
+                if (rpc.entries && rpc.entries.length > 0) {
+                  for (const entry of rpc.entries) {
+                    if (entry.index > node.log.length) {
+                      node.log.push(entry);
+                    }
+                  }
+                }
+                if (rpc.leaderCommit > node.commitIndex) {
+                  node.commitIndex = Math.min(rpc.leaderCommit, node.log.length);
+                }
+                success = true;
+              }
+
+              // Send AppendEntriesReply back to Node 0 on Main Thread
+              port.postMessage({
+                type: 'APPEND_ENTRIES_REPLY',
+                from: nodeId,
+                to: 0,
+                term: node.term,
+                success: success,
+                matchIndex: node.log.length,
+                commitIndex: node.commitIndex
+              });
+            }
+          };
+        }
+      `;
+
+      const blob = new Blob([workerCode], { type: 'application/javascript' });
+      const worker = new Worker(URL.createObjectURL(blob));
+
+      // Create two MessageChannels for direct port-to-port links:
+      // Channel 1: Node 0 (Main Thread) <---> Node 1 (Worker Thread)
+      // Channel 2: Node 0 (Main Thread) <---> Node 2 (Worker Thread)
+      const ch1 = new MessageChannel();
+      const ch2 = new MessageChannel();
+
+      // Hand port1 and port2 to the Worker
+      worker.postMessage({ type: 'INIT_PORTS' }, [ch1.port2, ch2.port2]);
+
+      worker.onmessage = function(e) {
+        if (e.data.type === 'WORKER_READY') {
+          appendLog("Dedicated Web Worker spawned and bound to Node 1 & Node 2 via MessageChannels.", "commit");
+        }
+      };
+
+      // Set up Main Thread MessagePorts
+      function setupMainPort(port, targetNodeId) {
+        port.onmessage = function(evt) {
+          if (isPartitioned) return; // dropped in partition
+          totalPacketsExchanged++;
+          const reply = evt.data;
+
+          // Animate return packet
+          const fromNode = nodeStates[reply.from];
+          const toNode = nodeStates[0];
+          inFlightPackets.push({
+            fromX: fromNode.x, fromY: fromNode.y,
+            toX: toNode.x, toY: toNode.y,
+            progress: 0,
+            label: "ACK",
+            color: "#34d399"
+          });
+
+          // Handle AppendEntriesReply
+          if (reply.type === 'APPEND_ENTRIES_REPLY') {
+            nodeStates[reply.from].commitIndex = reply.commitIndex;
+            nodeStates[0].matchIndex[reply.from] = reply.matchIndex;
+
+            // Check if leader can advance commitIndex (Quorum: >= 2 nodes have replicated)
+            const n0 = nodeStates[0];
+            for (let idx = n0.commitIndex + 1; idx <= n0.log.length; idx++) {
+              let matches = 1; // leader itself matches
+              if (n0.matchIndex[1] >= idx) matches++;
+              if (n0.matchIndex[2] >= idx) matches++;
+
+              if (matches >= 2) {
+                // Quorum reached! Advance leader commitIndex
+                n0.commitIndex = idx;
+                appendLog(`Log entry #${idx} ('${n0.log[idx-1].char}') COMMITTED to cluster! (Quorum: ${matches}/3)`, "commit");
+              }
+            }
+            updateCommittedUI();
+          }
+        };
+      }
+
+      setupMainPort(ch1.port1, 1);
+      setupMainPort(ch2.port1, 2);
+
+      // --- SEND APPEND_ENTRIES RPC (HEARTBEAT / REPLICATION) ---
+      function sendAppendEntries(targetPort, targetNodeId, entries = []) {
+        if (isPartitioned) return;
+        totalPacketsExchanged++;
+
+        const leader = nodeStates[0];
+        const rpcPayload = {
+          type: 'APPEND_ENTRIES',
+          from: 0,
+          to: targetNodeId,
+          term: currentTerm,
+          leaderId: 0,
+          entries: entries,
+          leaderCommit: leader.commitIndex
+        };
+
+        // Visual packet from Node 0 to target
+        const targetNode = nodeStates[targetNodeId];
+        inFlightPackets.push({
+          fromX: leader.x, fromY: leader.y,
+          toX: targetNode.x, toY: targetNode.y,
+          progress: 0,
+          label: entries.length > 0 ? `PROP '${entries[0].char}'` : "HEARTBEAT",
+          color: entries.length > 0 ? "#38bdf8" : "#94a3b8"
+        });
+
+        targetPort.postMessage(rpcPayload);
+      }
+
+      // Heartbeat interval (Node 0 on Main Thread sends heartbeats every 150ms)
+      setInterval(() => {
+        if (!isPartitioned) {
+          sendAppendEntries(ch1.port1, 1, []);
+          sendAppendEntries(ch2.port1, 2, []);
+        }
+      }, 160);
+
+      // --- PROPOSE NEXT TYPOGRAPHIC TRANSACTION ---
+      function proposeNextTransaction() {
+        const leader = nodeStates[0];
+        if (leader.log.length >= TOTAL_CHARS) {
+          appendLog('All 10 "HELLO WORLD" characters have already been proposed!', 'warn');
+          return;
+        }
+
+        const nextIdx = leader.log.length;
+        const charToPropose = HELLO_CHARS[nextIdx];
+        const newEntry = {
+          index: nextIdx + 1,
+          term: currentTerm,
+          char: charToPropose,
+          timestamp: Date.now()
+        };
+
+        leader.log.push(newEntry);
+        leader.matchIndex[0] = leader.log.length;
+        appendLog(`Leader (Node 0) proposed transaction #${newEntry.index}: '${newEntry.char}'`, "rpc");
+
+        // Broadcast transaction over MessagePorts to Worker nodes
+        sendAppendEntries(ch1.port1, 1, [newEntry]);
+        sendAppendEntries(ch2.port1, 2, [newEntry]);
+
+        updateCommittedUI();
+      }
+
+      // Propose all sequentially
+      async function autoReplicateAll() {
+        while (nodeStates[0].log.length < TOTAL_CHARS) {
+          proposeNextTransaction();
+          await new Promise(r => setTimeout(r, 140));
+        }
+      }
+
+      // Toggle partition
+      function togglePartition() {
+        isPartitioned = !isPartitioned;
+        worker.postMessage({ type: 'SET_PARTITION', value: isPartitioned });
+
+        if (isPartitioned) {
+          badgePartition.textContent = "NETWORK: PARTITIONED";
+          badgePartition.className = "status-badge partitioned";
+          appendLog("WARNING: Network partition simulated! MessagePort RPCs dropped.", "warn");
+        } else {
+          badgePartition.textContent = "NETWORK: COHESIVE";
+          badgePartition.className = "status-badge";
+          appendLog("Network partition healed. Catch-up RPCs resuming.", "commit");
+          // Re-replicate missing entries
+          const leader = nodeStates[0];
+          if (leader.log.length > 0) {
+            sendAppendEntries(ch1.port1, 1, leader.log);
+            sendAppendEntries(ch2.port1, 2, leader.log);
+          }
+        }
+      }
+
+      // --- UI UPDATES ---
+      function updateCommittedUI() {
+        const leader = nodeStates[0];
+        const committedChars = [];
+        for (let i = 0; i < TOTAL_CHARS; i++) {
+          if (i < leader.commitIndex) {
+            committedChars.push(leader.log[i].char);
+          } else {
+            committedChars.push("_");
+          }
+        }
+
+        // Insert space between HELLO and WORLD for display
+        const displayStr = committedChars.slice(0, 5).join(" ") + "   " + committedChars.slice(5).join(" ");
+        committedWordOutput.textContent = displayStr;
+
+        const nextIdx = leader.log.length;
+        nextCharLabel.textContent = nextIdx < TOTAL_CHARS ? `NEXT: '${HELLO_CHARS[nextIdx]}'` : "COMPLETED";
+
+        const quorumCount = (1 + (leader.matchIndex[1] >= leader.commitIndex ? 1 : 0) + (leader.matchIndex[2] >= leader.commitIndex ? 1 : 0));
+        consensusReadout.textContent = `TERM: ${currentTerm} • COMMITTED: ${leader.commitIndex} / 10 • QUORUM: ${quorumCount}/3`;
+
+        metricTotalPackets.textContent = totalPacketsExchanged.toString();
+        metricCommit0.textContent = leader.commitIndex.toString();
+        metricCommit1.textContent = nodeStates[1].commitIndex.toString();
+        metricCommit2.textContent = nodeStates[2].commitIndex.toString();
+        metricQuorumStatus.textContent = quorumCount >= 2 ? `REACHED (${quorumCount}/3)` : `LOST (${quorumCount}/3)`;
+      }
+
+      // --- TOPOLOGY CANVAS RENDER ---
+      function renderTopology() {
+        ctx.clearRect(0, 0, 640, 360);
+
+        // 1. Draw thread boundary partition line
+        ctx.strokeStyle = "rgba(75, 85, 99, 0.4)";
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(320, 20);
+        ctx.lineTo(320, 340);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Thread Labels
+        ctx.font = "bold 9px ui-monospace, monospace";
+        ctx.fillStyle = "#38bdf8";
+        ctx.fillText("EXECUTION CONTEXT: WINDOW (MAIN THREAD)", 25, 30);
+
+        ctx.fillStyle = "#34d399";
+        ctx.fillText("EXECUTION CONTEXT: DEDICATED WEB WORKER", 345, 30);
+
+        // 2. Draw MessagePort communication links
+        const n0 = nodeStates[0];
+        const n1 = nodeStates[1];
+        const n2 = nodeStates[2];
+
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = isPartitioned ? "rgba(239, 68, 68, 0.4)" : "rgba(56, 189, 248, 0.4)";
+
+        // Link 0 <--> 1
+        ctx.beginPath();
+        ctx.moveTo(n0.x, n0.y);
+        ctx.lineTo(n1.x, n1.y);
+        ctx.stroke();
+
+        // Link 0 <--> 2
+        ctx.beginPath();
+        ctx.moveTo(n0.x, n0.y);
+        ctx.lineTo(n2.x, n2.y);
+        ctx.stroke();
+
+        // Link 1 <--> 2 (Internal Worker link)
+        ctx.strokeStyle = "rgba(52, 211, 153, 0.3)";
+        ctx.beginPath();
+        ctx.moveTo(n1.x, n1.y);
+        ctx.lineTo(n2.x, n2.y);
+        ctx.stroke();
+
+        // Port Labels
+        ctx.font = "8px ui-monospace, monospace";
+        ctx.fillStyle = "#64748b";
+        ctx.fillText("MessagePort 1", 240, 130);
+        ctx.fillText("MessagePort 2", 240, 230);
+
+        // 3. Update & render in-flight animated packets
+        for (let i = inFlightPackets.length - 1; i >= 0; i--) {
+          const p = inFlightPackets[i];
+          p.progress += 0.04;
+          if (p.progress >= 1.0) {
+            inFlightPackets.splice(i, 1);
+            continue;
+          }
+
+          const curX = p.fromX + (p.toX - p.fromX) * p.progress;
+          const curY = p.fromY + (p.toY - p.fromY) * p.progress;
+
+          ctx.beginPath();
+          ctx.arc(curX, curY, 4, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowColor = p.color;
+          ctx.shadowBlur = 6;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Tiny text label
+          ctx.font = "8px ui-monospace, monospace";
+          ctx.fillStyle = "#cbd5e1";
+          ctx.fillText(p.label, curX + 6, curY + 3);
+        }
+
+        // 4. Render Nodes
+        for (const node of nodeStates) {
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, 26, 0, Math.PI * 2);
+
+          if (node.id === 0) {
+            ctx.fillStyle = "#0c4a6e";
+            ctx.strokeStyle = "#38bdf8";
+          } else {
+            ctx.fillStyle = "#064e3b";
+            ctx.strokeStyle = "#34d399";
+          }
+          ctx.lineWidth = 2.5;
+          ctx.fill();
+          ctx.stroke();
+
+          // Node ID & Role
+          ctx.font = "bold 11px ui-monospace, monospace";
+          ctx.fillStyle = "#ffffff";
+          ctx.textAlign = "center";
+          ctx.fillText(`N${node.id}`, node.x, node.y - 2);
+
+          ctx.font = "8px ui-monospace, monospace";
+          ctx.fillStyle = node.id === 0 ? "#7dd3fc" : "#a7f3d0";
+          ctx.fillText(node.role, node.x, node.y + 11);
+
+          // Commit Index badge below node
+          ctx.font = "9px ui-monospace, monospace";
+          ctx.fillStyle = "#94a3b8";
+          ctx.fillText(`Commit: ${node.commitIndex}/10`, node.x, node.y + 40);
+        }
+        ctx.textAlign = "left"; // reset
+      }
+
+      function tick() {
+        renderTopology();
+        requestAnimationFrame(tick);
+      }
+
+      // --- ATTACH EVENT LISTENERS ---
+      document.getElementById('btnProposeNext').addEventListener('click', proposeNextTransaction);
+      document.getElementById('btnReplicateAll').addEventListener('click', autoReplicateAll);
+      document.getElementById('btnPartitionWorker').addEventListener('click', togglePartition);
+
+      // --- INITIALIZATION ---
+      // Auto-replicate initial characters so initial render shows active consensus
+      (async function init() {
+        await new Promise(r => setTimeout(r, 60));
+        for (let i = 0; i < 4; i++) {
+          proposeNextTransaction();
+          await new Promise(r => setTimeout(r, 100));
+        }
+      })();
+
+      requestAnimationFrame(tick);
+
+      // --- AUTOMATED TESTING & VERIFICATION CONTRACTS ---
+      window.labEvidence = function() {
+        const n0 = nodeStates[0];
+        const n1 = nodeStates[1];
+        const n2 = nodeStates[2];
+
+        const committedChars = [];
+        for (let i = 0; i < n0.commitIndex; i++) {
+          committedChars.push(n0.log[i].char);
+        }
+
+        const quorumCount = (1 + (n0.matchIndex[1] >= n0.commitIndex ? 1 : 0) + (n0.matchIndex[2] >= n0.commitIndex ? 1 : 0));
+        const quorumAchieved = quorumCount >= 2;
+
+        return {
+          subject: 'Hello World',
+          mechanism: 'Multi-context distributed Raft consensus cluster across Main Thread and Dedicated Web Worker via MessageChannel, coordinating log replication to commit "HELLO WORLD".',
+          passed: totalPacketsExchanged > 4 && n0.commitIndex > 0 && quorumAchieved,
+          measurements: {
+            totalContexts: 2,
+            totalClusterNodes: 3,
+            mainThreadNode: 0,
+            workerThreadNodes: [1, 2],
+            totalPacketsExchanged: totalPacketsExchanged,
+            leaderCommitIndex: n0.commitIndex,
+            workerNode1CommitIndex: n1.commitIndex,
+            workerNode2CommitIndex: n2.commitIndex,
+            quorumCount: quorumCount,
+            committedWord: committedChars.join(""),
+            targetWord: HELLO_CHARS.join("")
+          }
+        };
+      };
+
+      // Interaction scenario for automated CDP testing
+      window.labScenario = {
+        kind: "click",
+        selector: "#btnProposeNext"
+      };
+
+      window.labInteractionEvidence = function() {
+        const ev = window.labEvidence();
+        const packetsExchanged = ev.measurements.totalPacketsExchanged;
+        const commits = ev.measurements.leaderCommitIndex;
+        return {
+          subject: 'Hello World',
+          mechanism: 'Cross-context RPC transaction proposal dispatched over MessagePort, achieving distributed quorum and advancing committed log index.',
+          passed: packetsExchanged > 8 && commits >= 1,
+          measurements: {
+            postPackets: packetsExchanged,
+            postCommitIndex: commits,
+            committedString: ev.measurements.committedWord,
+            quorumStatus: ev.measurements.quorumCount
+          }
+        };
+      };
+    })();
+  </script>
+</body>
+</html>

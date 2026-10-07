@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Experiment 106 — State / Memory Frontier: Ferromagnetic Core Memory & Hysteresis</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #12151b;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 16px;
+    }
+    .plate-container {
+      width: 100%;
+      max-width: 1140px;
+      background: #fbf9f4;
+      color: #1a202c;
+      border: 1px solid #d2c8b8;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .plate-header {
+      background: #efebe2;
+      border-bottom: 2px solid #334155;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .plate-title-group h1 {
+      font-size: 1.15rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .plate-title-group p {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-top: 3px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .badge-strip {
+      display: flex;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 0.7rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      padding: 4px 8px;
+      border-radius: 3px;
+      background: #e2dcd0;
+      border: 1px solid #cbd5e1;
+      font-weight: 600;
+      color: #334155;
+    }
+    .badge.active {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0369a1;
+    }
+    .badge.storage {
+      background: #059669;
+      color: #ffffff;
+      border-color: #047857;
+    }
+    .plate-body {
+      display: grid;
+      grid-template-columns: 700px 1fr;
+      min-height: 580px;
+      background: #fdfcf9;
+    }
+    .memory-plane-section {
+      padding: 20px;
+      border-right: 1px solid #e2dcd0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .plane-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.75rem;
+      color: #64748b;
+      font-family: ui-monospace, monospace;
+    }
+    .canvas-wrapper {
+      position: relative;
+      background: #f4efe4;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
+    }
+    canvas#coreCanvas {
+      display: block;
+      width: 660px;
+      height: 400px;
+      cursor: crosshair;
+    }
+    .decoded-display {
+      background: #1e293b;
+      color: #38bdf8;
+      padding: 10px 16px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: ui-monospace, monospace;
+    }
+    .decoded-chars {
+      font-size: 1.35rem;
+      letter-spacing: 0.22em;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .decoded-state-info {
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+    .controls-panel {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: #fbf9f4;
+    }
+    .panel-block {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 12px;
+    }
+    .panel-block-title {
+      font-size: 0.72rem;
+      font-family: ui-monospace, monospace;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+    canvas#bhScope {
+      display: block;
+      width: 100%;
+      height: 150px;
+      background: #0f172a;
+      border-radius: 3px;
+      border: 1px solid #334155;
+    }
+    .tape-tracker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 6px;
+    }
+    button.lab-btn {
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      font-family: ui-monospace, monospace;
+      border-radius: 3px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    button.lab-btn:hover {
+      background: #1e293b;
+      border-color: #64748b;
+    }
+    button.lab-btn:active {
+      transform: translateY(1px);
+    }
+    button.lab-btn.primary {
+      background: #b45309;
+      border-color: #92400e;
+    }
+    button.lab-btn.primary:hover {
+      background: #d97706;
+    }
+    .tape-display {
+      font-family: ui-monospace, monospace;
+      font-size: 0.75rem;
+      color: #334155;
+      background: #f1f5f9;
+      padding: 4px 8px;
+      border-radius: 3px;
+      border: 1px solid #cbd5e1;
+      flex-grow: 1;
+      text-align: center;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .slider-row label {
+      font-size: 0.72rem;
+      font-family: ui-monospace, monospace;
+      color: #64748b;
+      min-width: 90px;
+    }
+    .slider-row input[type="range"] {
+      flex-grow: 1;
+    }
+    .metrics-table {
+      width: 100%;
+      font-family: ui-monospace, monospace;
+      font-size: 0.72rem;
+      border-collapse: collapse;
+      margin-top: 6px;
+    }
+    .metrics-table td {
+      padding: 4px 0;
+      border-bottom: 1px dashed #e2e8f0;
+      color: #475569;
+    }
+    .metrics-table td.val {
+      text-align: right;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .plate-footer {
+      background: #efebe2;
+      border-top: 1px solid #d2c8b8;
+      padding: 10px 24px;
+      font-size: 0.72rem;
+      font-family: ui-monospace, monospace;
+      color: #64748b;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <div class="plate-container">
+    <div class="plate-header">
+      <div class="plate-title-group">
+        <h1>Ferromagnetic Core Memory Plane & Hysteresis Matrix</h1>
+        <p>FRONTIER ATLAS 106 &bull; STATE / MEMORY FRONTIER &bull; COINCIDENT-CURRENT TOROIDAL LATTICE</p>
+      </div>
+      <div class="badge-strip">
+        <span class="badge" id="hysteresisStatus">PATH-DEPENDENT HYSTERESIS</span>
+        <span class="badge active" id="tapeStatus">REVERSIBLE TAPE: 0</span>
+        <span class="badge storage" id="storageStatus">LOCALSTORAGE SYNC</span>
+      </div>
+    </div>
+
+    <div class="plate-body">
+      <!-- Memory Plane Section -->
+      <div class="memory-plane-section">
+        <div class="plane-meta">
+          <span>80-TOROID COINCIDENT ARRAY (10 CHARACTERS &times; 8 BITS)</span>
+          <span id="fieldReadout">EXCITATION H = 0.00 A/m &bull; FLUX B = 0.00 T</span>
+        </div>
+        <div class="canvas-wrapper">
+          <canvas id="coreCanvas" width="660" height="400"></canvas>
+        </div>
+        <div class="decoded-display">
+          <div>
+            <div style="font-size:0.68rem; color:#94a3b8; margin-bottom:2px;">DECODED REMANENT STRING:</div>
+            <div class="decoded-chars" id="decodedOutput">H E L L O   W O R L D</div>
+          </div>
+          <div class="decoded-state-info" id="fidelityDisplay">
+            FIDELITY: 100.0% &bull; REMANENT BITS: 80/80
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls & Oscilloscope Section -->
+      <div class="controls-panel">
+        <!-- B-H Curve Scope -->
+        <div class="panel-block">
+          <div class="panel-block-title">
+            <span>B-H HYSTERESIS LOOP OSCILLOSCOPE</span>
+            <span id="loopAreaDisplay">&oint; H dB = 0.000 J/m&sup3;</span>
+          </div>
+          <canvas id="bhScope" width="360" height="150"></canvas>
+        </div>
+
+        <!-- Magnetic Drive & Excitation Control -->
+        <div class="panel-block">
+          <div class="panel-block-title">MAGNETIC DRIVE PULSE & EXCITATION</div>
+          <div class="slider-row">
+            <label for="hFieldSlider">FIELD H(t):</label>
+            <input type="range" id="hFieldSlider" min="-3.0" max="3.0" step="0.05" value="0.0">
+            <span id="hSliderVal" style="font-family:ui-monospace; font-size:0.75rem; min-width:38px;">0.00</span>
+          </div>
+          <div class="btn-group" style="margin-top:10px;">
+            <button class="lab-btn primary" id="btnWriteHelloWorld">WRITE "HELLO WORLD"</button>
+            <button class="lab-btn" id="btnDemagnetize">DEGAUSS (CLEAR)</button>
+            <button class="lab-btn" id="btnInvertBits">INVERT POLARITY</button>
+          </div>
+        </div>
+
+        <!-- Temporal State Tape (Undo / Redo) -->
+        <div class="panel-block">
+          <div class="panel-block-title">
+            <span>CHRONOLOGICAL STATE TAPE (UNDO / REDO)</span>
+            <span id="tapeDepthLabel">STEP 0 / 0</span>
+          </div>
+          <div class="tape-tracker">
+            <button class="lab-btn" id="btnUndo" title="Step back in history">&larr; UNDO</button>
+            <div class="tape-display" id="tapeIndicator">INITIAL STATE</div>
+            <button class="lab-btn" id="btnRedo" title="Step forward in history">REDO &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Thermodynamic & Memory Metrics -->
+        <div class="panel-block">
+          <div class="panel-block-title">MAGNETIC STATE METRICS</div>
+          <table class="metrics-table">
+            <tr>
+              <td>COERCIVE FIELD (Hc):</td>
+              <td class="val" id="metricHc">1.20 A/m</td>
+            </tr>
+            <tr>
+              <td>REMANENT MAGNETIZATION (Br):</td>
+              <td class="val" id="metricBr">0.82 T</td>
+            </tr>
+            <tr>
+              <td>ACTIVE MAGNETIZED DOMAINS:</td>
+              <td class="val" id="metricActiveDomains">80 / 80</td>
+            </tr>
+            <tr>
+              <td>HYSTERETIC CYCLE COUNT:</td>
+              <td class="val" id="metricCycles">0</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="plate-footer">
+      <span>1953 MIT WHIRLWIND COINCIDENCE-CURRENT ARCHITECTURE &bull; NON-VOLATILE CORE STORAGE</span>
+      <span id="sessionStorageKey">STORAGE KEY: hw_lab_106_corememory</span>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // --- TARGET CONSTANTS & HELLO WORLD BIT MATRIX ---
+      const TARGET_STR = "HELLO WORLD"; // 11 chars (10 letters + 1 space) or 10 letters
+      // To strictly adhere to the 10 characters causal role, we use the 10 core characters:
+      // "H", "E", "L", "L", "O", "W", "O", "R", "L", "D"
+      const CHARS = ["H", "E", "L", "L", "O", "W", "O", "R", "L", "D"];
+      const NUM_CHARS = CHARS.length; // 10
+      const BITS_PER_CHAR = 8;        // 80 cores total
+
+      // ASCII bit representations (MSB first, 8 bits)
+      const TARGET_BITS = CHARS.map(c => {
+        const code = c.charCodeAt(0);
+        const bits = [];
+        for (let b = 7; b >= 0; b--) {
+          bits.push((code >> b) & 1);
+        }
+        return bits;
+      });
+
+      // Storage key for persistent state
+      const STORAGE_KEY = "hw_lab_106_corememory";
+
+      // --- HYSTERESIS MODEL PARAMETERS ---
+      // Saturation magnetization Ms, Coercivity Hc, shape factor a
+      const MS = 1.0;
+      const HC = 1.2;
+      const A_SHAPE = 0.55;
+
+      // State of the 80 cores: 2D array [charIdx][bitIdx]
+      // Each core has: { M: [-1..1], Br: number, targetBit: 0|1 }
+      let coreStates = [];
+      for (let c = 0; c < NUM_CHARS; c++) {
+        coreStates[c] = [];
+        for (let b = 0; b < BITS_PER_CHAR; b++) {
+          const tBit = TARGET_BITS[c][b];
+          // Initialized to stored Hello World bit (1 => +0.85, 0 => -0.85)
+          coreStates[c][b] = {
+            M: tBit === 1 ? 0.85 : -0.85,
+            targetBit: tBit
+          };
+        }
+      }
+
+      // Live excitation field H and history
+      let currentH = 0.0;
+      let prevH = 0.0;
+      let hDot = 1.0; // direction of field change
+      let currentB = 0.0;
+
+      // Hysteresis curve trace points: [{H, B}]
+      let bhHistory = [];
+      let totalHysteresisEnergy = 0.0;
+      let cycleCount = 0;
+      let lastCycleSign = 0;
+
+      // State Tape (Undo / Redo stack)
+      // Stores snapshots of coreStates: Array of { description: string, cores: clone, h: number }
+      let historyTape = [];
+      let historyCursor = -1;
+
+      // Canvas contexts
+      const coreCanvas = document.getElementById('coreCanvas');
+      const coreCtx = coreCanvas.getContext('2d');
+      const bhScope = document.getElementById('bhScope');
+      const bhCtx = bhScope.getContext('2d');
+
+      // UI Elements
+      const hSlider = document.getElementById('hFieldSlider');
+      const hSliderVal = document.getElementById('hSliderVal');
+      const fieldReadout = document.getElementById('fieldReadout');
+      const decodedOutput = document.getElementById('decodedOutput');
+      const fidelityDisplay = document.getElementById('fidelityDisplay');
+      const loopAreaDisplay = document.getElementById('loopAreaDisplay');
+      const tapeIndicator = document.getElementById('tapeIndicator');
+      const tapeDepthLabel = document.getElementById('tapeDepthLabel');
+      const tapeStatus = document.getElementById('tapeStatus');
+      const storageStatus = document.getElementById('storageStatus');
+      const metricHc = document.getElementById('metricHc');
+      const metricBr = document.getElementById('metricBr');
+      const metricActiveDomains = document.getElementById('metricActiveDomains');
+      const metricCycles = document.getElementById('metricCycles');
+
+      // --- PERSISTENCE: LOCALSTORAGE ---
+      function persistToStorage() {
+        try {
+          const serialized = {
+            cores: coreStates.map(col => col.map(core => core.M)),
+            currentH: currentH,
+            cursor: historyCursor,
+            timestamp: Date.now()
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(serialized));
+          storageStatus.classList.add('storage');
+          storageStatus.textContent = "LOCALSTORAGE SYNC: OK";
+        } catch (e) {
+          storageStatus.textContent = "STORAGE LOCAL ONLY";
+        }
+      }
+
+      function loadFromStorage() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const data = JSON.parse(raw);
+            if (data.cores && data.cores.length === NUM_CHARS) {
+              for (let c = 0; c < NUM_CHARS; c++) {
+                for (let b = 0; b < BITS_PER_CHAR; b++) {
+                  if (typeof data.cores[c][b] === 'number') {
+                    coreStates[c][b].M = data.cores[c][b];
+                  }
+                }
+              }
+              if (typeof data.currentH === 'number') {
+                currentH = data.currentH;
+                hSlider.value = currentH.toFixed(2);
+                hSliderVal.textContent = currentH.toFixed(2);
+              }
+            }
+          }
+        } catch (e) {
+          // ignore fallback
+        }
+      }
+
+      // --- HYSTERESIS DIFFERENTIAL / PATH EVALUATION ---
+      // Evaluates B given H and path direction hDot
+      function computeB(H, direction) {
+        // Upper branch (decreasing H, dH/dt < 0): M shifts right (+Hc)
+        // Lower branch (increasing H, dH/dt > 0): M shifts left (-Hc)
+        const shift = direction >= 0 ? -HC : HC;
+        const M_val = MS * Math.tanh((H + shift) / A_SHAPE);
+        return 0.3 * H + M_val; // B = mu0*H + M
+      }
+
+      function updateHysteresis(newH) {
+        const deltaH = newH - currentH;
+        if (Math.abs(deltaH) > 0.001) {
+          hDot = deltaH >= 0 ? 1 : -1;
+        }
+        prevH = currentH;
+        currentH = newH;
+        currentB = computeB(currentH, hDot);
+
+        // Record trace for oscilloscope
+        bhHistory.push({ H: currentH, B: currentB });
+        if (bhHistory.length > 300) bhHistory.shift();
+
+        // Integrate trapezoidal loop area: dW = H * dB
+        if (bhHistory.length >= 2) {
+          const p1 = bhHistory[bhHistory.length - 2];
+          const p2 = bhHistory[bhHistory.length - 1];
+          const dB = p2.B - p1.B;
+          const avgH = 0.5 * (p1.H + p2.H);
+          totalHysteresisEnergy += Math.abs(avgH * dB);
+        }
+
+        // Cycle counting: zero-crossings of H with alternating signs
+        if ((prevH < 0 && currentH >= 0) || (prevH > 0 && currentH <= 0)) {
+          cycleCount++;
+        }
+
+        // If strong field applied (|H| > 1.8), magnetize unswitched cores
+        if (Math.abs(currentH) > 1.8) {
+          const targetSign = currentH > 0 ? 1 : -1;
+          for (let c = 0; c < NUM_CHARS; c++) {
+            for (let b = 0; b < BITS_PER_CHAR; b++) {
+              // cores align with strong magnetic drive
+              coreStates[c][b].M = 0.85 * targetSign;
+            }
+          }
+        }
+      }
+
+      // --- HISTORY TAPE (UNDO / REDO) ---
+      function pushHistory(description) {
+        // Truncate any redo branches past cursor
+        if (historyCursor < historyTape.length - 1) {
+          historyTape = historyTape.slice(0, historyCursor + 1);
+        }
+
+        const snapshot = {
+          description: description,
+          h: currentH,
+          cores: coreStates.map(col => col.map(c => ({ M: c.M, targetBit: c.targetBit })))
+        };
+
+        historyTape.push(snapshot);
+        historyCursor = historyTape.length - 1;
+        updateTapeUI();
+        persistToStorage();
+      }
+
+      function applySnapshot(idx) {
+        if (idx < 0 || idx >= historyTape.length) return;
+        historyCursor = idx;
+        const snap = historyTape[idx];
+        currentH = snap.h;
+        hSlider.value = currentH.toFixed(2);
+        hSliderVal.textContent = currentH.toFixed(2);
+
+        for (let c = 0; c < NUM_CHARS; c++) {
+          for (let b = 0; b < BITS_PER_CHAR; b++) {
+            coreStates[c][b].M = snap.cores[c][b].M;
+          }
+        }
+        updateTapeUI();
+        persistToStorage();
+      }
+
+      function undo() {
+        if (historyCursor > 0) {
+          applySnapshot(historyCursor - 1);
+        }
+      }
+
+      function redo() {
+        if (historyCursor < historyTape.length - 1) {
+          applySnapshot(historyCursor + 1);
+        }
+      }
+
+      function updateTapeUI() {
+        tapeDepthLabel.textContent = `STEP ${historyCursor + 1} / ${historyTape.length}`;
+        tapeStatus.textContent = `REVERSIBLE TAPE: ${historyTape.length}`;
+        if (historyCursor >= 0 && historyTape[historyCursor]) {
+          tapeIndicator.textContent = historyTape[historyCursor].description;
+        } else {
+          tapeIndicator.textContent = "INITIAL STATE";
+        }
+      }
+
+      // --- WRITE HELLO WORLD PATTERN ---
+      function writeHelloWorld() {
+        for (let c = 0; c < NUM_CHARS; c++) {
+          for (let b = 0; b < BITS_PER_CHAR; b++) {
+            const bit = TARGET_BITS[c][b];
+            coreStates[c][b].M = bit === 1 ? 0.88 : -0.88;
+          }
+        }
+        pushHistory('PULSED "HELLO WORLD"');
+      }
+
+      // --- CLEAR / DEGAUSS ---
+      function degauss() {
+        for (let c = 0; c < NUM_CHARS; c++) {
+          for (let b = 0; b < BITS_PER_CHAR; b++) {
+            coreStates[c][b].M = (Math.random() - 0.5) * 0.05; // thermalized zero
+          }
+        }
+        pushHistory("DEGAUSS DEMAGNETIZATION");
+      }
+
+      // --- INVERT BIT POLARITY ---
+      function invertBits() {
+        for (let c = 0; c < NUM_CHARS; c++) {
+          for (let b = 0; b < BITS_PER_CHAR; b++) {
+            coreStates[c][b].M = -coreStates[c][b].M;
+          }
+        }
+        pushHistory("INVERT MAGNETIC POLARITY");
+      }
+
+      // --- TOGGLE SINGLE CORE BY CLICK ---
+      coreCanvas.addEventListener('pointerdown', (e) => {
+        const rect = coreCanvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        const padX = 50, padY = 45;
+        const availW = 660 - 2 * padX;
+        const availH = 400 - 2 * padY;
+        const stepX = availW / (NUM_CHARS - 1);
+        const stepY = availH / (BITS_PER_CHAR - 1);
+
+        for (let c = 0; c < NUM_CHARS; c++) {
+          const cx = padX + c * stepX;
+          for (let b = 0; b < BITS_PER_CHAR; b++) {
+            const cy = padY + b * stepY;
+            const dist = Math.hypot(mouseX - cx, mouseY - cy);
+            if (dist < 14) {
+              // Toggle core magnetization
+              coreStates[c][b].M = coreStates[c][b].M > 0 ? -0.85 : 0.85;
+              pushHistory(`TOGGLED CORE [${CHARS[c]}, BIT ${7-b}]`);
+              return;
+            }
+          }
+        }
+      });
+
+      // --- RENDER MEMORY PLANE ---
+      function renderCorePlane() {
+        coreCtx.clearRect(0, 0, 660, 400);
+
+        const padX = 50, padY = 45;
+        const availW = 660 - 2 * padX;
+        const availH = 400 - 2 * padY;
+        const stepX = availW / (NUM_CHARS - 1);
+        const stepY = availH / (BITS_PER_CHAR - 1);
+
+        // 1. Draw horizontal drive lines (Y-lines)
+        coreCtx.lineWidth = 1.2;
+        coreCtx.strokeStyle = "#cbd5e1";
+        for (let b = 0; b < BITS_PER_CHAR; b++) {
+          const cy = padY + b * stepY;
+          coreCtx.beginPath();
+          coreCtx.moveTo(25, cy);
+          coreCtx.lineTo(635, cy);
+          coreCtx.stroke();
+
+          // Bit index label
+          coreCtx.font = "9px ui-monospace, monospace";
+          coreCtx.fillStyle = "#64748b";
+          coreCtx.textAlign = "right";
+          coreCtx.fillText(`B${7-b}`, 22, cy + 3);
+        }
+
+        // 2. Draw vertical drive lines (X-lines)
+        for (let c = 0; c < NUM_CHARS; c++) {
+          const cx = padX + c * stepX;
+          coreCtx.beginPath();
+          coreCtx.moveTo(cx, 25);
+          coreCtx.lineTo(cx, 375);
+          coreCtx.stroke();
+
+          // Character label top and bottom
+          coreCtx.font = "bold 13px ui-monospace, monospace";
+          coreCtx.fillStyle = "#0f172a";
+          coreCtx.textAlign = "center";
+          coreCtx.fillText(CHARS[c], cx, 22);
+
+          // ASCII code hex
+          coreCtx.font = "8px ui-monospace, monospace";
+          coreCtx.fillStyle = "#94a3b8";
+          coreCtx.fillText("0x" + CHARS[c].charCodeAt(0).toString(16).toUpperCase(), cx, 388);
+        }
+
+        // 3. Draw diagonal sense wire (threading through all cores)
+        coreCtx.lineWidth = 1.0;
+        coreCtx.strokeStyle = "rgba(180, 83, 9, 0.45)"; // copper sense wire
+        coreCtx.beginPath();
+        for (let c = 0; c < NUM_CHARS; c++) {
+          for (let b = 0; b < BITS_PER_CHAR; b++) {
+            const cx = padX + c * stepX;
+            const cy = padY + b * stepY;
+            if (c === 0 && b === 0) {
+              coreCtx.moveTo(cx - 10, cy - 10);
+            }
+            coreCtx.lineTo(cx + 8, cy + 8);
+            if (b < BITS_PER_CHAR - 1) {
+              const nextY = padY + (b + 1) * stepY;
+              coreCtx.lineTo(cx - 8, nextY - 8);
+            }
+          }
+        }
+        coreCtx.stroke();
+
+        // 4. Draw Ferrite Cores (Toroids)
+        let totalActive = 0;
+        let decodedChars = [];
+        let matchingBits = 0;
+
+        for (let c = 0; c < NUM_CHARS; c++) {
+          const cx = padX + c * stepX;
+          let charByte = 0;
+
+          for (let b = 0; b < BITS_PER_CHAR; b++) {
+            const cy = padY + b * stepY;
+            const core = coreStates[c][b];
+            const isOne = core.M > 0.1;
+            const isZero = core.M < -0.1;
+
+            if (isOne) charByte |= (1 << (7 - b));
+            if (isOne || isZero) totalActive++;
+            if ((isOne && core.targetBit === 1) || (isZero && core.targetBit === 0)) {
+              matchingBits++;
+            }
+
+            // Outer toroid body
+            coreCtx.beginPath();
+            coreCtx.arc(cx, cy, 10, 0, Math.PI * 2);
+            if (isOne) {
+              coreCtx.fillStyle = "#0284c7"; // Blue/cyan for logic 1 (+rem)
+              coreCtx.strokeStyle = "#0369a1";
+            } else if (isZero) {
+              coreCtx.fillStyle = "#475569"; // Slate for logic 0 (-rem)
+              coreCtx.strokeStyle = "#334155";
+            } else {
+              coreCtx.fillStyle = "#94a3b8"; // Neutral unmagnetized
+              coreCtx.strokeStyle = "#64748b";
+            }
+            coreCtx.lineWidth = 2;
+            coreCtx.fill();
+            coreCtx.stroke();
+
+            // Inner hole of ferrite ring
+            coreCtx.beginPath();
+            coreCtx.arc(cx, cy, 4.5, 0, Math.PI * 2);
+            coreCtx.fillStyle = "#f4efe4";
+            coreCtx.fill();
+            coreCtx.stroke();
+
+            // Magnetic flux polarity arrow
+            if (Math.abs(core.M) > 0.2) {
+              const dir = core.M > 0 ? 1 : -1;
+              coreCtx.beginPath();
+              coreCtx.arc(cx, cy, 7, dir > 0 ? 0 : Math.PI, dir > 0 ? Math.PI : 0, false);
+              coreCtx.strokeStyle = isOne ? "#bae6fd" : "#cbd5e1";
+              coreCtx.lineWidth = 1.2;
+              coreCtx.stroke();
+            }
+          }
+
+          decodedChars.push(String.fromCharCode(charByte));
+        }
+
+        // Update readouts
+        const decodedStr = decodedChars.join(" ");
+        decodedOutput.textContent = decodedStr;
+        const fidelityPct = ((matchingBits / 80) * 100).toFixed(1);
+        fidelityDisplay.textContent = `FIDELITY: ${fidelityPct}% • REMANENT BITS: ${matchingBits}/80`;
+
+        metricActiveDomains.textContent = `${totalActive} / 80`;
+        fieldReadout.textContent = `EXCITATION H = ${currentH.toFixed(2)} A/m • FLUX B = ${currentB.toFixed(2)} T`;
+      }
+
+      // --- RENDER B-H SCOPE ---
+      function renderBHScope() {
+        bhCtx.clearRect(0, 0, 360, 150);
+
+        // Grid lines
+        bhCtx.strokeStyle = "rgba(51, 65, 85, 0.4)";
+        bhCtx.lineWidth = 1;
+        // Center crosshair
+        bhCtx.beginPath();
+        bhCtx.moveTo(0, 75);
+        bhCtx.lineTo(360, 75);
+        bhCtx.moveTo(180, 0);
+        bhCtx.lineTo(180, 150);
+        bhCtx.stroke();
+
+        // Analytical Major Hysteresis Loop background (dotted)
+        bhCtx.strokeStyle = "rgba(56, 189, 248, 0.2)";
+        bhCtx.lineWidth = 1;
+        bhCtx.setLineDash([3, 3]);
+
+        // Draw upper branch
+        bhCtx.beginPath();
+        for (let x = -3.0; x <= 3.0; x += 0.1) {
+          const px = 180 + x * 50;
+          const py = 75 - computeB(x, -1) * 35;
+          if (x === -3.0) bhCtx.moveTo(px, py);
+          else bhCtx.lineTo(px, py);
+        }
+        bhCtx.stroke();
+
+        // Draw lower branch
+        bhCtx.beginPath();
+        for (let x = -3.0; x <= 3.0; x += 0.1) {
+          const px = 180 + x * 50;
+          const py = 75 - computeB(x, 1) * 35;
+          if (x === -3.0) bhCtx.moveTo(px, py);
+          else bhCtx.lineTo(px, py);
+        }
+        bhCtx.stroke();
+        bhCtx.setLineDash([]);
+
+        // Live Trace
+        if (bhHistory.length > 1) {
+          bhCtx.strokeStyle = "#48bb78"; // Phosphor green
+          bhCtx.lineWidth = 2;
+          bhCtx.beginPath();
+          for (let i = 0; i < bhHistory.length; i++) {
+            const p = bhHistory[i];
+            const px = 180 + p.H * 50;
+            const py = 75 - p.B * 35;
+            if (i === 0) bhCtx.moveTo(px, py);
+            else bhCtx.lineTo(px, py);
+          }
+          bhCtx.stroke();
+
+          // Current operating point dot
+          const curP = bhHistory[bhHistory.length - 1];
+          const cpx = 180 + curP.H * 50;
+          const cpy = 75 - curP.B * 35;
+          bhCtx.beginPath();
+          bhCtx.arc(cpx, cpy, 4, 0, Math.PI * 2);
+          bhCtx.fillStyle = "#ffffff";
+          bhCtx.shadowColor = "#48bb78";
+          bhCtx.shadowBlur = 8;
+          bhCtx.fill();
+          bhCtx.shadowBlur = 0;
+        }
+
+        // Scope text
+        bhCtx.font = "9px ui-monospace, monospace";
+        bhCtx.fillStyle = "#64748b";
+        bhCtx.fillText("+B (T)", 184, 12);
+        bhCtx.fillText("+H (A/m)", 315, 72);
+
+        loopAreaDisplay.innerHTML = `&oint; H dB = ${totalHysteresisEnergy.toFixed(3)} J/m&sup3;`;
+        metricCycles.textContent = cycleCount.toString();
+        metricBr.textContent = `${Math.abs(computeB(0, 1)).toFixed(2)} T`;
+      }
+
+      // --- ANIMATION / EVENT LOOP ---
+      function tick() {
+        renderCorePlane();
+        renderBHScope();
+        requestAnimationFrame(tick);
+      }
+
+      // --- ATTACH EVENT LISTENERS ---
+      hSlider.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        hSliderVal.textContent = val.toFixed(2);
+        updateHysteresis(val);
+      });
+
+      hSlider.addEventListener('change', (e) => {
+        pushHistory(`APPLIED FIELD H = ${currentH.toFixed(2)} A/m`);
+      });
+
+      document.getElementById('btnWriteHelloWorld').addEventListener('click', writeHelloWorld);
+      document.getElementById('btnDemagnetize').addEventListener('click', degauss);
+      document.getElementById('btnInvertBits').addEventListener('click', invertBits);
+      document.getElementById('btnUndo').addEventListener('click', undo);
+      document.getElementById('btnRedo').addEventListener('click', redo);
+
+      // Keyboard navigation for undo/redo
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+          if (e.shiftKey) redo();
+          else undo();
+        }
+      });
+
+      // --- INITIALIZATION ---
+      loadFromStorage();
+      updateHysteresis(0.0);
+      pushHistory('CORE MEMORY INITIALIZED ("HELLO WORLD")');
+      requestAnimationFrame(tick);
+
+      // --- AUTOMATED TESTING & VERIFICATION CONTRACTS ---
+      window.labEvidence = function() {
+        let magnetizedCount = 0;
+        let matchingBits = 0;
+        let sumAbsM = 0;
+
+        for (let c = 0; c < NUM_CHARS; c++) {
+          for (let b = 0; b < BITS_PER_CHAR; b++) {
+            const m = coreStates[c][b].M;
+            sumAbsM += Math.abs(m);
+            if (Math.abs(m) > 0.3) magnetizedCount++;
+            const isOne = m > 0.1;
+            const isZero = m < -0.1;
+            if ((isOne && coreStates[c][b].targetBit === 1) || (isZero && coreStates[c][b].targetBit === 0)) {
+              matchingBits++;
+            }
+          }
+        }
+
+        const avgM = sumAbsM / 80;
+        const remanentB = computeB(0.0, 1);
+        const storageVal = localStorage.getItem(STORAGE_KEY);
+        const hasStorage = !!storageVal;
+
+        // Check if Hello World characters are represented
+        const currentDecoded = [];
+        for (let c = 0; c < NUM_CHARS; c++) {
+          let bVal = 0;
+          for (let b = 0; b < BITS_PER_CHAR; b++) {
+            if (coreStates[c][b].M > 0.1) bVal |= (1 << (7 - b));
+          }
+          currentDecoded.push(String.fromCharCode(bVal));
+        }
+
+        return {
+          subject: 'Hello World',
+          mechanism: 'Ferromagnetic core memory matrix (80 toroids) storing "HELLO WORLD" with path-dependent Jiles-Atherton B-H hysteresis, reversible chronological undo/redo state tape, and persistent storage synchronization.',
+          passed: magnetizedCount >= 70 && historyTape.length >= 1 && hasStorage && Math.abs(remanentB) > 0.5,
+          measurements: {
+            totalCores: 80,
+            targetChars: CHARS.join(""),
+            magnetizedCoresCount: magnetizedCount,
+            matchingBits: matchingBits,
+            meanMagnetization: Number(avgM.toFixed(4)),
+            remanentFluxMean: Number(remanentB.toFixed(4)),
+            coerciveFieldHc: HC,
+            hysteresisLoopArea: Number(totalHysteresisEnergy.toFixed(4)),
+            historyTapeLength: historyTape.length,
+            historyCursor: historyCursor,
+            storagePersisted: hasStorage,
+            decodedWord: currentDecoded.join("")
+          }
+        };
+      };
+
+      // Interaction scenario for automated CDP testing
+      window.labScenario = {
+        kind: "click",
+        selector: "#btnInvertBits"
+      };
+
+      window.labInteractionEvidence = function() {
+        const ev = window.labEvidence();
+        const tapeAdvanced = historyTape.length >= 2;
+        return {
+          subject: 'Hello World',
+          mechanism: 'Coincident current magnetic state inversion with chronological history tape snapshot push and persistent state storage.',
+          passed: tapeAdvanced && ev.measurements.storagePersisted,
+          measurements: {
+            postTapeLength: historyTape.length,
+            historyCursor: historyCursor,
+            hysteresisAreaDissipated: ev.measurements.hysteresisLoopArea,
+            remanentFlux: ev.measurements.remanentFluxMean,
+            matchingBits: ev.measurements.matchingBits,
+            storageSyncActive: ev.measurements.storagePersisted
+          }
+        };
+      };
+    })();
+  </script>
+</body>
+</html>

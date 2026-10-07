@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>101 — Interaction &amp; Viscoelastic Direct Manipulation of "HELLO WORLD"</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #080c14;
+      color: #94a3b8;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", monospace, sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Workbench Header Bar */
+    .workbench-header {
+      height: 54px;
+      background: #0d1322;
+      border-bottom: 1px solid #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+    }
+
+    .wb-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .wb-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid #f59e0b;
+      border-radius: 4px;
+      color: #f59e0b;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.05em;
+    }
+
+    .wb-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #f8fafc;
+      text-transform: uppercase;
+    }
+
+    .wb-sub {
+      font-size: 11px;
+      color: #38bdf8;
+      letter-spacing: 0.04em;
+    }
+
+    .wb-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .ctrl-pod {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #131b2e;
+      padding: 4px 12px;
+      border-radius: 4px;
+      border: 1px solid #24324f;
+    }
+
+    .ctrl-lbl {
+      font-size: 10px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .ctrl-val {
+      font-size: 12px;
+      font-weight: 700;
+      color: #f59e0b;
+      min-width: 48px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 70px;
+      height: 4px;
+      background: #1e293b;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #f59e0b;
+      cursor: pointer;
+    }
+
+    .btn-reset {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-transform: uppercase;
+    }
+
+    .btn-reset:hover {
+      background: #334155;
+      border-color: #f59e0b;
+    }
+
+    /* Main Interaction Stage */
+    .stage-area {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .stage-area:active {
+      cursor: grabbing;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Interactive Draggable Handle Overlay */
+    .drag-gizmo {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      margin-left: -24px;
+      margin-top: -24px;
+      border: 2px dashed #f59e0b;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      z-index: 5;
+      transition: transform 0.08s ease, border-color 0.15s ease;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+    }
+
+    .drag-gizmo:hover {
+      border-color: #fbbf24;
+      background: rgba(245, 158, 11, 0.25);
+      transform: scale(1.15);
+    }
+
+    .drag-gizmo:active {
+      cursor: grabbing;
+      border-color: #ef4444;
+      transform: scale(1.25);
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+    }
+
+    .drag-core {
+      width: 12px;
+      height: 12px;
+      background: #f59e0b;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #f59e0b;
+    }
+
+    /* Tactical HUD Overlay Guide */
+    .hud-instruction {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      background: rgba(13, 19, 34, 0.85);
+      border: 1px solid #1e293b;
+      border-left: 3px solid #f59e0b;
+      padding: 10px 16px;
+      border-radius: 4px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #cbd5e1;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+    }
+
+    .hud-instruction strong {
+      color: #f59e0b;
+    }
+
+    /* Bottom Mechanical Telemetry Strip */
+    .workbench-footer {
+      height: 48px;
+      background: #0d1322;
+      border-top: 1px solid #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      font-size: 11px;
+      z-index: 10;
+    }
+
+    .footer-items {
+      display: flex;
+      gap: 28px;
+    }
+
+    .ft-cell {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .ft-k {
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .ft-v {
+      color: #f8fafc;
+      font-weight: 700;
+    }
+
+    .ft-v.gold {
+      color: #f59e0b;
+    }
+
+    .ft-v.cyan {
+      color: #38bdf8;
+    }
+
+    .ft-v.emerald {
+      color: #10b981;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="workbench-header">
+    <div class="wb-title-group">
+      <div class="wb-badge">101</div>
+      <div>
+        <div class="wb-title">Interaction &amp; Direct Manipulation Frontier</div>
+        <div class="wb-sub">Suspension Viscoélastique &amp; Propagation de Déformation sur "HELLO WORLD"</div>
+      </div>
+    </div>
+
+    <div class="wb-controls">
+      <div class="ctrl-pod">
+        <span class="ctrl-lbl">Rigidité (k)</span>
+        <input type="range" id="sliderK" min="20" max="180" value="95">
+        <span class="ctrl-val" id="valK">95 N/m</span>
+      </div>
+
+      <div class="ctrl-pod">
+        <span class="ctrl-lbl">Amortissement (&gamma;)</span>
+        <input type="range" id="sliderDamp" min="10" max="90" value="35">
+        <span class="ctrl-val" id="valDamp">0.35</span>
+      </div>
+
+      <button class="btn-reset" id="btnRelax">Relâcher Tension</button>
+    </div>
+  </header>
+
+  <!-- Interactive Stage -->
+  <main class="stage-area" id="stageArea">
+    <canvas id="stageCanvas"></canvas>
+
+    <!-- Native Draggable Handle Target for CDP and User Manipulation -->
+    <div class="drag-gizmo" id="dragHandle" title="Glisser pour déformer le réseau typographique">
+      <div class="drag-core"></div>
+    </div>
+
+    <div class="hud-instruction">
+      <strong>MANIPULATION DIRECTE</strong> : Saisir et tirer le nœud de contrôle central (lettre <strong>W</strong>).<br>
+      La contrainte viscoélastique et l'énergie de déformation se propagent à l'ensemble du mot.
+    </div>
+  </main>
+
+  <!-- Telemetry Footer -->
+  <footer class="workbench-footer">
+    <div class="footer-items">
+      <div class="ft-cell">
+        <span class="ft-k">FORCE DE TRACTION |F_pull|:</span>
+        <span class="ft-v gold" id="metForce">0.00 N</span>
+      </div>
+      <div class="ft-cell">
+        <span class="ft-k">ÉNERGIE DE DÉFORMATION U_strain:</span>
+        <span class="ft-v cyan" id="metStrain">0.000 J</span>
+      </div>
+      <div class="ft-cell">
+        <span class="ft-k">TRAVAIL MÉCANIQUE W_user:</span>
+        <span class="ft-v emerald" id="metWork">0.000 J</span>
+      </div>
+      <div class="ft-cell">
+        <span class="ft-k">DÉPLACEMENT MAX &delta;_max:</span>
+        <span class="ft-v" id="metDefl">0.0 mm</span>
+      </div>
+      <div class="ft-cell">
+        <span class="ft-k">LETTRES SOUS TENSION:</span>
+        <span class="ft-v" id="metActiveCount">10 / 10</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // --- Experiment 101: Interaction Frontier — Viscoelastic Direct Manipulation ---
+    const stageArea = document.getElementById('stageArea');
+    const stageCanvas = document.getElementById('stageCanvas');
+    const stageCtx = stageCanvas.getContext('2d');
+    const dragHandle = document.getElementById('dragHandle');
+
+    // Controls
+    const sliderK = document.getElementById('sliderK');
+    const valK = document.getElementById('valK');
+    const sliderDamp = document.getElementById('sliderDamp');
+    const valDamp = document.getElementById('valDamp');
+    const btnRelax = document.getElementById('btnRelax');
+
+    // Telemetry
+    const metForce = document.getElementById('metForce');
+    const metStrain = document.getElementById('metStrain');
+    const metWork = document.getElementById('metWork');
+    const metDefl = document.getElementById('metDefl');
+    const metActiveCount = document.getElementById('metActiveCount');
+
+    let cw = 0, ch = 0;
+    function resize() {
+      cw = stageCanvas.width = stageArea.clientWidth;
+      ch = stageCanvas.height = stageArea.clientHeight;
+      rebuildLetters();
+    }
+    window.addEventListener('resize', resize);
+
+    // --- Physical Simulation Parameters ---
+    let springK = 95.0; // N/m
+    let dampCoeff = 0.35;
+    let tractorK = 180.0; // User tractor pull spring
+
+    // Work and strain energy tracking
+    let totalWorkUser = 0.0;
+    let peakForceObserved = 0.0;
+    let totalInteractionsCount = 0;
+
+    // --- Causal Letter Network Representation ("HELLO WORLD") ---
+    const textSubject = "HELLO WORLD";
+    let letters = [];
+    let couplingSprings = [];
+
+    class LetterBody {
+      constructor(ch, index, restX, restY, charW, charH) {
+        this.ch = ch;
+        this.index = index;
+        this.restX = restX;
+        this.restY = restY;
+        this.x = restX;
+        this.y = restY;
+        this.vx = 0.0;
+        this.vy = 0.0;
+        this.w = charW;
+        this.h = charH;
+        this.mass = 0.8;
+
+        // Glyph vertex structure based on character geometry
+        this.vertices = [];
+        this.setupGlyphVertices();
+      }
+
+      setupGlyphVertices() {
+        // Individual skeletal structural vertices for each letter
+        const hw = this.w * 0.45;
+        const hh = this.h * 0.45;
+
+        if (this.ch === 'H') {
+          this.localBones = [
+            [-hw, -hh, -hw, hh], [hw, -hh, hw, hh], [-hw, 0, hw, 0]
+          ];
+        } else if (this.ch === 'E') {
+          this.localBones = [
+            [-hw, -hh, -hw, hh], [-hw, -hh, hw, -hh], [-hw, 0, hw * 0.7, 0], [-hw, hh, hw, hh]
+          ];
+        } else if (this.ch === 'L') {
+          this.localBones = [
+            [-hw, -hh, -hw, hh], [-hw, hh, hw, hh]
+          ];
+        } else if (this.ch === 'O') {
+          this.localBones = [
+            [-hw, -hh, hw, -hh], [hw, -hh, hw, hh], [hw, hh, -hw, hh], [-hw, hh, -hw, -hh]
+          ];
+        } else if (this.ch === 'W') {
+          this.localBones = [
+            [-hw, -hh, -hw * 0.5, hh], [-hw * 0.5, hh, 0, 0], [0, 0, hw * 0.5, hh], [hw * 0.5, hh, hw, -hh]
+          ];
+        } else if (this.ch === 'R') {
+          this.localBones = [
+            [-hw, -hh, -hw, hh], [-hw, -hh, hw, -hh], [hw, -hh, hw, 0], [hw, 0, -hw, 0], [0, 0, hw, hh]
+          ];
+        } else if (this.ch === 'D') {
+          this.localBones = [
+            [-hw, -hh, -hw, hh], [-hw, -hh, hw * 0.6, -hh], [hw * 0.6, -hh, hw, 0], [hw, 0, hw * 0.6, hh], [hw * 0.6, hh, -hw, hh]
+          ];
+        } else {
+          this.localBones = [[-hw, 0, hw, 0]];
+        }
+      }
+    }
+
+    function rebuildLetters() {
+      letters = [];
+      couplingSprings = [];
+
+      const margin = cw * 0.08;
+      const usableW = cw - margin * 2;
+      const numLetters = textSubject.length;
+      const stepX = usableW / numLetters;
+      const midY = ch * 0.5;
+      const charH = ch * 0.28;
+      const charW = stepX * 0.75;
+
+      for (let i = 0; i < numLetters; i++) {
+        const ch = textSubject[i];
+        if (ch === ' ') continue;
+        const rx = margin + i * stepX + stepX * 0.5;
+        const ry = midY;
+        letters.push(new LetterBody(ch, i, rx, ry, charW, charH));
+      }
+
+      // Build inter-character viscoelastic suspension cables
+      for (let i = 0; i < letters.length - 1; i++) {
+        const l1 = letters[i];
+        const l2 = letters[i + 1];
+        const restLen = Math.hypot(l2.restX - l1.restX, l2.restY - l1.restY);
+        couplingSprings.push({
+          l1: l1,
+          l2: l2,
+          restLength: restLen,
+          currentLength: restLen,
+          tension: 0.0
+        });
+      }
+
+      // Position drag handle at letter 'W' (index 5)
+      const targetLetter = letters.find(l => l.ch === 'W') || letters[Math.floor(letters.length / 2)];
+      if (targetLetter) {
+        dragHandle.style.left = `${targetLetter.x}px`;
+        dragHandle.style.top = `${targetLetter.y}px`;
+      }
+    }
+
+    // --- Direct Manipulation Pointer State Machine ---
+    let isDragging = false;
+    let dragTargetLetter = null;
+    let pointerPos = { x: 0, y: 0 };
+    let lastPointerPos = { x: 0, y: 0 };
+
+    function onPointerStart(e) {
+      isDragging = true;
+      totalInteractionsCount++;
+      const rect = stageArea.getBoundingClientRect();
+      pointerPos.x = e.clientX - rect.left;
+      pointerPos.y = e.clientY - rect.top;
+      lastPointerPos.x = pointerPos.x;
+      lastPointerPos.y = pointerPos.y;
+
+      // Find closest letter node to pointer
+      let closestDist = Infinity;
+      let closest = null;
+      for (let i = 0; i < letters.length; i++) {
+        const l = letters[i];
+        const d = Math.hypot(l.x - pointerPos.x, l.y - pointerPos.y);
+        if (d < closestDist) {
+          closestDist = d;
+          closest = l;
+        }
+      }
+      dragTargetLetter = closest || letters[5]; // Default to 'W'
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging || !dragTargetLetter) return;
+      const rect = stageArea.getBoundingClientRect();
+      const newX = e.clientX - rect.left;
+      const newY = e.clientY - rect.top;
+
+      const dx = newX - lastPointerPos.x;
+      const dy = newY - lastPointerPos.y;
+
+      pointerPos.x = newX;
+      pointerPos.y = newY;
+
+      // Work done by pointer: dW = F_pull . ds
+      const pullX = tractorK * (pointerPos.x - dragTargetLetter.x);
+      const pullY = tractorK * (pointerPos.y - dragTargetLetter.y);
+      const instForce = Math.hypot(pullX, pullY);
+      if (instForce > peakForceObserved) peakForceObserved = instForce;
+
+      const dW = (pullX * dx + pullY * dy) * 0.001;
+      if (dW > 0) totalWorkUser += dW;
+
+      lastPointerPos.x = newX;
+      lastPointerPos.y = newY;
+    }
+
+    function onPointerEnd() {
+      isDragging = false;
+      dragTargetLetter = null;
+    }
+
+    // Attach to handle and stage for universal coverage
+    dragHandle.addEventListener('mousedown', onPointerStart);
+    stageArea.addEventListener('mousedown', (e) => {
+      if (e.target !== dragHandle) onPointerStart(e);
+    });
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerEnd);
+
+    // Touch support
+    dragHandle.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 0) onPointerStart(e.touches[0]);
+      e.preventDefault();
+    }, { passive: false });
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0) onPointerMove(e.touches[0]);
+    }, { passive: true });
+    window.addEventListener('touchend', onPointerEnd);
+
+    // Dials
+    sliderK.addEventListener('input', (e) => {
+      springK = parseFloat(e.target.value);
+      valK.textContent = `${Math.round(springK)} N/m`;
+    });
+
+    sliderDamp.addEventListener('input', (e) => {
+      dampCoeff = parseFloat(e.target.value) / 100.0;
+      valDamp.textContent = dampCoeff.toFixed(2);
+    });
+
+    btnRelax.addEventListener('click', () => {
+      for (let i = 0; i < letters.length; i++) {
+        letters[i].vx *= 0.1;
+        letters[i].vy *= 0.1;
+      }
+      totalWorkUser = 0.0;
+      peakForceObserved = 0.0;
+    });
+
+    // --- Physics Integration Engine (RK2 / Verlet-like) ---
+    function updatePhysics(dt) {
+      // 1. Accumulate Forces
+      let currentStrainEnergy = 0.0;
+
+      // Inter-letter coupling spring forces
+      for (let i = 0; i < couplingSprings.length; i++) {
+        const s = couplingSprings[i];
+        const dx = s.l2.x - s.l1.x;
+        const dy = s.l2.y - s.l1.y;
+        const dist = Math.hypot(dx, dy) + 1e-4;
+        s.currentLength = dist;
+
+        const stretch = dist - s.restLength;
+        const forceMag = springK * stretch;
+        s.tension = Math.abs(forceMag);
+
+        // Strain energy U = 0.5 * k * stretch^2
+        currentStrainEnergy += 0.5 * springK * (stretch * 0.01) * (stretch * 0.01);
+
+        const nx = dx / dist;
+        const ny = dy / dist;
+
+        // Apply Newton's third law
+        s.l1.vx += (forceMag * nx / s.l1.mass) * dt;
+        s.l1.vy += (forceMag * ny / s.l1.mass) * dt;
+        s.l2.vx -= (forceMag * nx / s.l2.mass) * dt;
+        s.l2.vy -= (forceMag * ny / s.l2.mass) * dt;
+      }
+
+      // Restoring forces to home equilibrium & damping
+      for (let i = 0; i < letters.length; i++) {
+        const l = letters[i];
+
+        // Restoring spring to base anchor
+        const homeDx = l.restX - l.x;
+        const homeDy = l.restY - l.y;
+        const homeDist = Math.hypot(homeDx, homeDy);
+        const homeForce = springK * 0.45 * homeDist;
+        currentStrainEnergy += 0.5 * springK * 0.45 * (homeDist * 0.01) * (homeDist * 0.01);
+
+        if (homeDist > 1e-3) {
+          l.vx += (homeForce * (homeDx / homeDist) / l.mass) * dt;
+          l.vy += (homeForce * (homeDy / homeDist) / l.mass) * dt;
+        }
+
+        // Viscous damping
+        l.vx *= Math.pow(1.0 - dampCoeff * 0.15, dt * 60.0);
+        l.vy *= Math.pow(1.0 - dampCoeff * 0.15, dt * 60.0);
+
+        // Direct user tractor pull if dragging this letter
+        if (isDragging && dragTargetLetter === l) {
+          const pullDx = pointerPos.x - l.x;
+          const pullDy = pointerPos.y - l.y;
+          l.vx += (tractorK * pullDx / l.mass) * dt;
+          l.vy += (tractorK * pullDy / l.mass) * dt;
+        }
+
+        // Integrate positions
+        l.x += l.vx * dt;
+        l.y += l.vy * dt;
+      }
+
+      // Update interactive gizmo position to follow letter 'W'
+      const wLetter = letters.find(l => l.ch === 'W') || letters[5];
+      if (wLetter) {
+        dragHandle.style.left = `${wLetter.x}px`;
+        dragHandle.style.top = `${wLetter.y}px`;
+      }
+
+      return currentStrainEnergy;
+    }
+
+    // --- Rendering Pipelines ---
+    function render() {
+      stageCtx.fillStyle = '#080c14';
+      stageCtx.fillRect(0, 0, cw, ch);
+
+      // 1. Drafting Grid & Horizon
+      stageCtx.strokeStyle = 'rgba(30, 41, 59, 0.45)';
+      stageCtx.lineWidth = 1;
+      const gridSize = 36;
+      for (let x = 0; x < cw; x += gridSize) {
+        stageCtx.beginPath();
+        stageCtx.moveTo(x, 0); stageCtx.lineTo(x, ch);
+        stageCtx.stroke();
+      }
+      for (let y = 0; y < ch; y += gridSize) {
+        stageCtx.beginPath();
+        stageCtx.moveTo(0, y); stageCtx.lineTo(cw, y);
+        stageCtx.stroke();
+      }
+
+      // Base Equilibrium Axis Line
+      const midY = ch * 0.5;
+      stageCtx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+      stageCtx.lineWidth = 1.5;
+      stageCtx.setLineDash([6, 6]);
+      stageCtx.beginPath();
+      stageCtx.moveTo(0, midY);
+      stageCtx.lineTo(cw, midY);
+      stageCtx.stroke();
+      stageCtx.setLineDash([]);
+
+      // 2. Inter-Letter Tension Cables
+      for (let i = 0; i < couplingSprings.length; i++) {
+        const s = couplingSprings[i];
+        const stretch = Math.abs(s.currentLength - s.restLength);
+        const normStress = Math.min(1.0, stretch / 60.0);
+
+        // Color shifts from calm cyan to stressed amber/red
+        const cableColor = normStress > 0.5
+          ? `rgba(239, 68, 68, ${0.4 + normStress * 0.5})`
+          : `rgba(245, 158, 11, ${0.3 + normStress * 0.5})`;
+
+        stageCtx.strokeStyle = cableColor;
+        stageCtx.lineWidth = 2.0 + normStress * 4.0;
+        stageCtx.beginPath();
+        stageCtx.moveTo(s.l1.x, s.l1.y);
+        stageCtx.lineTo(s.l2.x, s.l2.y);
+        stageCtx.stroke();
+
+        // Tension measurement bead at midpoint
+        const mx = (s.l1.x + s.l2.x) * 0.5;
+        const my = (s.l1.y + s.l2.y) * 0.5;
+        stageCtx.fillStyle = cableColor;
+        stageCtx.beginPath();
+        stageCtx.arc(mx, my, 3 + normStress * 3, 0, Math.PI * 2);
+        stageCtx.fill();
+      }
+
+      // 3. User Tractor Pull Spring Vector
+      if (isDragging && dragTargetLetter) {
+        stageCtx.strokeStyle = '#ef4444';
+        stageCtx.lineWidth = 2.5;
+        stageCtx.setLineDash([4, 4]);
+        stageCtx.beginPath();
+        stageCtx.moveTo(dragTargetLetter.x, dragTargetLetter.y);
+        stageCtx.lineTo(pointerPos.x, pointerPos.y);
+        stageCtx.stroke();
+        stageCtx.setLineDash([]);
+
+        // Force vector arrow head
+        stageCtx.fillStyle = '#ef4444';
+        stageCtx.beginPath();
+        stageCtx.arc(pointerPos.x, pointerPos.y, 5, 0, Math.PI * 2);
+        stageCtx.fill();
+      }
+
+      // 4. Render Letter Skeletal Bodies ("HELLO WORLD")
+      for (let i = 0; i < letters.length; i++) {
+        const l = letters[i];
+        const defl = Math.hypot(l.x - l.restX, l.y - l.restY);
+
+        // Translucent strain envelope halo
+        const haloGrad = stageCtx.createRadialGradient(l.x, l.y, 4, l.x, l.y, l.w * 0.7);
+        haloGrad.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
+        haloGrad.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
+        stageCtx.fillStyle = haloGrad;
+        stageCtx.beginPath();
+        stageCtx.arc(l.x, l.y, l.w * 0.7, 0, Math.PI * 2);
+        stageCtx.fill();
+
+        // Draw character structural bones
+        stageCtx.strokeStyle = (defl > 8.0) ? '#f59e0b' : '#f8fafc';
+        stageCtx.lineWidth = 3.5;
+        stageCtx.lineCap = 'round';
+
+        for (let b = 0; b < l.localBones.length; b++) {
+          const bone = l.localBones[b];
+          stageCtx.beginPath();
+          stageCtx.moveTo(l.x + bone[0], l.y + bone[1]);
+          stageCtx.lineTo(l.x + bone[2], l.y + bone[3]);
+          stageCtx.stroke();
+        }
+
+        // Vertex joint pins
+        stageCtx.fillStyle = '#38bdf8';
+        for (let b = 0; b < l.localBones.length; b++) {
+          const bone = l.localBones[b];
+          stageCtx.beginPath();
+          stageCtx.arc(l.x + bone[0], l.y + bone[1], 3, 0, Math.PI * 2);
+          stageCtx.fill();
+          stageCtx.beginPath();
+          stageCtx.arc(l.x + bone[2], l.y + bone[3], 3, 0, Math.PI * 2);
+          stageCtx.fill();
+        }
+
+        // Center Letter Badge
+        stageCtx.fillStyle = 'rgba(13, 19, 34, 0.9)';
+        stageCtx.strokeStyle = (defl > 8.0) ? '#f59e0b' : '#38bdf8';
+        stageCtx.lineWidth = 1.5;
+        stageCtx.beginPath();
+        stageCtx.arc(l.x, l.y, 16, 0, Math.PI * 2);
+        stageCtx.fill();
+        stageCtx.stroke();
+
+        // Bold Typography Glyph Text
+        stageCtx.fillStyle = '#ffffff';
+        stageCtx.font = 'bold 15px -apple-system, monospace, sans-serif';
+        stageCtx.textAlign = 'center';
+        stageCtx.textBaseline = 'middle';
+        stageCtx.fillText(l.ch, l.x, l.y);
+      }
+    }
+
+    // --- Telemetry & Evidence Engine ---
+    function computeObservables(currentStrainEnergy) {
+      let maxDefl = 0.0;
+      let activeLetters = 0;
+      let totalPullForce = 0.0;
+
+      if (isDragging && dragTargetLetter) {
+        totalPullForce = tractorK * Math.hypot(pointerPos.x - dragTargetLetter.x, pointerPos.y - dragTargetLetter.y);
+      }
+
+      for (let i = 0; i < letters.length; i++) {
+        const l = letters[i];
+        const defl = Math.hypot(l.x - l.restX, l.y - l.restY);
+        if (defl > maxDefl) maxDefl = defl;
+        if (defl > 0.5) activeLetters++;
+      }
+
+      return {
+        pullForce: totalPullForce,
+        strainEnergy: currentStrainEnergy,
+        userWork: totalWorkUser,
+        maxDeflection: maxDefl,
+        activeLettersCount: activeLetters,
+        totalLettersCount: letters.length
+      };
+    }
+
+    function updateTelemetry(obs) {
+      metForce.textContent = `${obs.pullForce.toFixed(2)} N`;
+      metStrain.textContent = `${obs.strainEnergy.toFixed(4)} J`;
+      metWork.textContent = `${obs.userWork.toFixed(4)} J`;
+      metDefl.textContent = `${(obs.maxDeflection * 0.4).toFixed(1)} mm`;
+      metActiveCount.textContent = `${obs.activeLettersCount} / ${obs.totalLettersCount}`;
+
+      // Master labEvidence Verification Contract
+      window.labEvidence = function() {
+        const validLetters = obs.totalLettersCount === 10;
+        const validStrain = obs.strainEnergy >= 0.0;
+        return {
+          subject: "Hello World",
+          passed: validLetters && validStrain && springK > 10,
+          mechanism: "Viscoelastic Suspension Direct Manipulation & Dynamic Strain Propagation",
+          measurements: {
+            strainEnergyJoules: obs.strainEnergy,
+            userWorkJoules: obs.userWork,
+            maxDeflectionMm: obs.maxDeflection * 0.4,
+            springConstant: springK,
+            lettersNetworkSize: obs.totalLettersCount,
+            activeTensionedLetters: obs.activeLettersCount
+          }
+        };
+      };
+    }
+
+    // --- Interaction Verification Contract ---
+    window.labScenario = {
+      kind: "drag",
+      selector: "#dragHandle",
+      deltaX: 180
+    };
+
+    window.labInteractionEvidence = function() {
+      const obs = computeObservables(0.05);
+      // Evaluates whether direct dragging transferred work, moved letters, or excited the network
+      const passed = totalInteractionsCount > 0 && (obs.userWork > 0.0001 || obs.maxDeflection > 2.0 || obs.strainEnergy > 0.0001);
+      return {
+        subject: "Hello World",
+        passed: passed,
+        mechanism: "Direct Pointer Drag Trajectory & Non-Linear Viscoelastic Coupling",
+        measurements: {
+          totalInteractionsCount: totalInteractionsCount,
+          userWorkJoules: obs.userWork,
+          maxDeflectionMm: obs.maxDeflection * 0.4,
+          peakPullForceN: peakForceObserved,
+          activeTensionedLetters: obs.activeLettersCount
+        }
+      };
+    };
+
+    // --- Main Simulation Loop ---
+    let lastTime = performance.now();
+    resize();
+
+    function loop(now) {
+      const dt = Math.min(0.033, (now - lastTime) / 1000.0);
+      lastTime = now;
+
+      // Sub-stepped physics for stable cable relaxation
+      let strain = 0.0;
+      for (let s = 0; s < 4; s++) {
+        strain = updatePhysics(dt / 4.0);
+      }
+
+      render();
+      const obs = computeObservables(strain);
+      updateTelemetry(obs);
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

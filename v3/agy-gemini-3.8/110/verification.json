@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "div",
+        "text": "Hello World : CONSTRAINT FRONTIER"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 110 — Constraint Frontier: Strict 1-Bit Monochrome Text Matrix"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "div",
+        "text": "Hello World : CONSTRAINT FRONTIER"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "Experiment 110 — Constraint Frontier: Strict 1-Bit Monochrome Text Matrix"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "mechanism": "Strict 1-bit monochrome and pure text glyph cellular morphological matrix operating on \"HELLO WORLD\" bitmap without canvas or SVG.",
+    "passed": true,
+    "measurements": {
+      "assignedCode": 110,
+      "frontier": "Constraint Frontier",
+      "declaredColors": [
+        "#000000",
+        "#ffffff"
+      ],
+      "graphicElementsTotal": 0,
+      "liveCells": 154,
+      "gridDimensions": "7x59",
+      "generation": 0,
+      "targetWord": "HELLOWORLD"
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnStepLife"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "mechanism": "Conway cellular automaton B3/S23 generation step evaluated over 1-bit text bitboard.",
+      "passed": true,
+      "measurements": {
+        "postGeneration": 1,
+        "postLiveCells": 216,
+        "strictMonochromeValid": true
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "div",
+          "text": "Hello World : CONSTRAINT FRONTIER"
+        }
+      ],
+      "graphics": [],
+      "canvasEvidence": [],
+      "frames": 0,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "Experiment 110 — Constraint Frontier: Strict 1-Bit Monochrome Text Matrix"
+    },
+    "late": null
+  }
+}
