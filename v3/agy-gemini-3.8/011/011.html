@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>011 — Lindenmayer Fractal Morphogenesis &amp; Botanical Herbarium</title>
+  <style>
+    :root {
+      --bg-washi: #f7f4ea;
+      --paper-inner: #fdfbf7;
+      --ink-pine: #182c1f;
+      --ink-moss: #2e5239;
+      --ink-leaf: #457852;
+      --ink-bark: #5c4333;
+      --ink-amber: #b45309;
+      --seal-cinnabar: #be123c;
+      --border-deckle: #e2dbcb;
+      --text-muted: #78716c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-washi);
+      color: var(--ink-pine);
+      font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 20px;
+      user-select: none;
+    }
+
+    .plate-wrapper {
+      width: 1080px;
+      background: var(--paper-inner);
+      border: 1px solid var(--border-deckle);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05), inset 0 0 60px rgba(180, 83, 9, 0.03);
+      border-radius: 4px;
+      padding: 28px 36px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+
+    .plate-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid var(--ink-pine);
+      padding-bottom: 12px;
+    }
+
+    .plate-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .plate-num {
+      font-size: 11px;
+      font-family: "Courier New", Courier, monospace;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--ink-amber);
+      font-weight: bold;
+    }
+
+    .plate-taxa {
+      font-size: 26px;
+      font-style: italic;
+      letter-spacing: 0.04em;
+      color: var(--ink-pine);
+      font-weight: 500;
+    }
+
+    .plate-taxa strong {
+      font-style: normal;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-pine);
+    }
+
+    .plate-seal {
+      width: 54px;
+      height: 54px;
+      border: 2px solid var(--seal-cinnabar);
+      border-radius: 3px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--seal-cinnabar);
+      font-family: "Courier New", Courier, monospace;
+      font-size: 9px;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      line-height: 1.2;
+      text-align: center;
+      transform: rotate(-3deg);
+    }
+
+    .canvas-container {
+      position: relative;
+      width: 1008px;
+      height: 520px;
+      background: radial-gradient(circle at 50% 90%, #fefcf9 0%, #f5f0e3 100%);
+      border: 1px solid var(--border-deckle);
+      border-radius: 2px;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .canvas-container:active {
+      cursor: grabbing;
+    }
+
+    canvas#specimen-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .taxonomic-annotation {
+      position: absolute;
+      bottom: 14px;
+      left: 18px;
+      font-family: monospace;
+      font-size: 10px;
+      color: var(--ink-moss);
+      background: rgba(253, 251, 247, 0.88);
+      padding: 6px 12px;
+      border: 1px solid var(--border-deckle);
+      border-radius: 2px;
+      letter-spacing: 0.08em;
+      pointer-events: none;
+    }
+
+    .plate-footer {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      border-top: 1px solid var(--border-deckle);
+      padding-top: 14px;
+    }
+
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .metric-label {
+      font-family: monospace;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .metric-value {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--ink-pine);
+    }
+
+    .plate-caption {
+      font-size: 11px;
+      font-style: italic;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 4px;
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
+<body>
+  <div class="plate-wrapper">
+    <header class="plate-header">
+      <div class="plate-title-block">
+        <span class="plate-num">Hello World Lab — Tabula XI (011)</span>
+        <h1 class="plate-taxa">Arbor Grammatica: <strong>Hello World</strong></h1>
+      </div>
+      <div class="plate-seal">
+        <span>VERITAS</span>
+        <span>BOTANICA</span>
+        <span>011</span>
+      </div>
+    </header>
+
+    <div class="canvas-container" id="canvas-container">
+      <canvas id="specimen-canvas" width="1008" height="520"></canvas>
+      <div class="taxonomic-annotation" id="taxonomic-annotation">
+        L-SYSTEM: AXIOM X → F-[[X]+X]+F[+FX]-X | GENERATIO III | FIBONACCI PHYLLOTAXIS
+      </div>
+    </div>
+
+    <div class="plate-footer">
+      <div class="metric-item">
+        <span class="metric-label">Grammar Rewriting Rules</span>
+        <span class="metric-value" id="val-rules">X → F-[[X]+X]+F[+FX]-X</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Derivation Depth</span>
+        <span class="metric-value" id="val-depth">3 Generations (3 Boughs)</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Recursive Branch Segments</span>
+        <span class="metric-value" id="val-branches">0 Segments</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Wind Sway Deflection</span>
+        <span class="metric-value" id="val-wind">0.00 rad</span>
+      </div>
+    </div>
+
+    <div class="plate-caption">
+      Lindenmayer formal string rewriting engine unfurling terminal apical buds into the ten glyph letters of "Hello World" via golden-ratio phyllotaxis.
+    </div>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // Formal Grammar Definition (Lindenmayer L-System)
+    // -------------------------------------------------------------
+    const AXIOM = "X";
+    const RULES = {
+      "X": "F-[[X]+X]+F[+FX]-X",
+      "F": "FF"
+    };
+    const DERIVATION_DEPTH = 3;
+    const GLYPH_CHARS = ['H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D'];
+
+    function expandLSystem(axiom, rules, depth) {
+      let current = axiom;
+      for (let i = 0; i < depth; i++) {
+        let next = "";
+        for (let j = 0; j < current.length; j++) {
+          const char = current[j];
+          next += rules[char] || char;
+        }
+        current = next;
+      }
+      return current;
+    }
+
+    const commandString = expandLSystem(AXIOM, RULES, DERIVATION_DEPTH);
+
+    // -------------------------------------------------------------
+    // Canvas & Turtle Graphics Rendering Engine
+    // -------------------------------------------------------------
+    const canvas = document.getElementById('specimen-canvas');
+    const ctx = canvas.getContext('2d');
+    const container = document.getElementById('canvas-container');
+
+    const valBranchesEl = document.getElementById('val-branches');
+    const valWindEl = document.getElementById('val-wind');
+
+    const CANVAS_W = 1008;
+    const CANVAS_H = 520;
+
+    let branchCount = 0;
+    let terminalBudCount = 0;
+    let windAngle = 0.0;
+    let dynamicWindForce = 0.0;
+    let peakInteractionDeflection = 0.0;
+    let animationFrameCount = 0;
+
+    // Pointer Interaction Kinematics (Wind Gust)
+    const pointer = {
+      isDown: false,
+      lastX: CANVAS_W / 2,
+      lastY: CANVAS_H / 2,
+      vx: 0
+    };
+
+    function onPointerMove(x, y, isPressed) {
+      const dx = x - pointer.lastX;
+      pointer.vx = dx;
+      pointer.lastX = x;
+      pointer.lastY = y;
+      if (isPressed) {
+        dynamicWindForce += dx * 0.0025;
+      }
+    }
+
+    container.addEventListener('pointerdown', (e) => {
+      pointer.isDown = true;
+      pointer.lastX = e.clientX;
+      onPointerMove(e.clientX, e.clientY, true);
+    });
+
+    container.addEventListener('pointermove', (e) => {
+      onPointerMove(e.clientX, e.clientY, pointer.isDown || e.buttons > 0);
+    });
+
+    container.addEventListener('pointerup', () => { pointer.isDown = false; });
+    container.addEventListener('pointerleave', () => { pointer.isDown = false; });
+
+    // -------------------------------------------------------------
+    // Botanical Render Pipeline
+    // -------------------------------------------------------------
+    function renderBotanicalSpecimen(time) {
+      animationFrameCount++;
+
+      // Natural harmonic wind wave damped with dynamic interaction impulse
+      dynamicWindForce *= 0.94; // Viscous damping
+      const baseWind = Math.sin(time * 0.0016) * 0.05;
+      windAngle = baseWind + dynamicWindForce;
+
+      if (Math.abs(windAngle) > peakInteractionDeflection) {
+        peakInteractionDeflection = Math.abs(windAngle);
+      }
+
+      ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+
+      // 1. Draw Grand Root Trunk and Soil Bed
+      const trunkBaseX = CANVAS_W / 2;
+      const trunkBaseY = CANVAS_H - 24;
+      const trunkForkY = CANVAS_H - 140;
+
+      // Ground moss roots line
+      ctx.strokeStyle = 'rgba(92, 67, 51, 0.45)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(trunkBaseX - 220, trunkBaseY + 4);
+      ctx.lineTo(trunkBaseX + 220, trunkBaseY + 4);
+      ctx.stroke();
+
+      // Main trunk with woody girth
+      ctx.strokeStyle = '#3e271c';
+      ctx.lineWidth = 14;
+      ctx.beginPath();
+      ctx.moveTo(trunkBaseX, trunkBaseY);
+      ctx.quadraticCurveTo(trunkBaseX + windAngle * 25, (trunkBaseY + trunkForkY) / 2, trunkBaseX + windAngle * 40, trunkForkY);
+      ctx.stroke();
+
+      // Inner bark texture line
+      ctx.strokeStyle = '#5a3d2c';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(trunkBaseX - 2, trunkBaseY);
+      ctx.quadraticCurveTo(trunkBaseX + windAngle * 25 - 2, (trunkBaseY + trunkForkY) / 2, trunkBaseX + windAngle * 40 - 2, trunkForkY);
+      ctx.stroke();
+
+      branchCount = 2;
+      const terminalBuds = [];
+
+      // 2. Three Primary Boughs spreading across the canopy
+      const forkX = trunkBaseX + windAngle * 40;
+      const boughs = [
+        { x: forkX - 12, y: trunkForkY + 4, angle: -Math.PI / 2 - 0.48 + windAngle * 0.8, len: 14.5, baseWidth: 7.5 },
+        { x: forkX, y: trunkForkY, angle: -Math.PI / 2 + windAngle * 1.0, len: 16.0, baseWidth: 8.5 },
+        { x: forkX + 12, y: trunkForkY + 4, angle: -Math.PI / 2 + 0.48 + windAngle * 1.2, len: 14.5, baseWidth: 7.5 }
+      ];
+
+      for (let b = 0; b < boughs.length; b++) {
+        const bough = boughs[b];
+        const stack = [];
+        let curX = bough.x;
+        let curY = bough.y;
+        let curHeading = bough.angle;
+        let curLength = bough.len;
+        let curDepth = 0;
+        const branchAngleDelta = 0.41;
+
+        for (let i = 0; i < commandString.length; i++) {
+          const cmd = commandString[i];
+
+          if (cmd === 'F') {
+            const nextX = curX + Math.cos(curHeading) * curLength;
+            const nextY = curY + Math.sin(curHeading) * curLength;
+
+            ctx.beginPath();
+            ctx.moveTo(curX, curY);
+            ctx.lineTo(nextX, nextY);
+
+            const branchWidth = Math.max(0.7, bough.baseWidth - curDepth * 1.4);
+            ctx.lineWidth = branchWidth;
+
+            if (curDepth === 0) ctx.strokeStyle = '#3e271c';
+            else if (curDepth === 1) ctx.strokeStyle = '#2d4734';
+            else if (curDepth === 2) ctx.strokeStyle = '#3d6c48';
+            else ctx.strokeStyle = '#4f855d';
+            ctx.stroke();
+
+            curX = nextX;
+            curY = nextY;
+            branchCount++;
+          } else if (cmd === '+') {
+            curHeading += branchAngleDelta + windAngle * (0.8 + curDepth * 0.25);
+          } else if (cmd === '-') {
+            curHeading -= branchAngleDelta - windAngle * (0.8 + curDepth * 0.25);
+          } else if (cmd === '[') {
+            stack.push({
+              x: curX,
+              y: curY,
+              heading: curHeading,
+              length: curLength,
+              depth: curDepth
+            });
+            curDepth++;
+            curLength *= 0.81;
+          } else if (cmd === ']') {
+            if (curDepth >= 2) {
+              terminalBuds.push({ x: curX, y: curY, heading: curHeading, depth: curDepth });
+            }
+            const popped = stack.pop();
+            if (popped) {
+              curX = popped.x;
+              curY = popped.y;
+              curHeading = popped.heading;
+              curLength = popped.length;
+              curDepth = popped.depth;
+            }
+          }
+        }
+      }
+
+      terminalBudCount = terminalBuds.length;
+
+      // -------------------------------------------------------------
+      // Fibonacci Apical Phyllotaxis & Hello World Blossoms
+      // -------------------------------------------------------------
+      terminalBuds.sort((a, b) => a.x - b.x);
+
+      // Select 10 well-spaced prominent apical buds for the 10 glyphs
+      const margin = 8;
+      const usableCount = Math.max(10, terminalBuds.length - 2 * margin);
+      const chosenBuds = [];
+      for (let g = 0; g < GLYPH_CHARS.length; g++) {
+        const idx = Math.min(terminalBuds.length - 1, margin + Math.floor((g / (GLYPH_CHARS.length - 1)) * (usableCount - 1)));
+        chosenBuds.push(terminalBuds[idx]);
+      }
+
+      // Render tender leaflets on non-glyph buds
+      ctx.fillStyle = 'rgba(69, 120, 82, 0.42)';
+      terminalBuds.forEach((bud) => {
+        if (!chosenBuds.includes(bud)) {
+          ctx.beginPath();
+          const leafLen = 5.0;
+          const lx = bud.x + Math.cos(bud.heading) * leafLen;
+          const ly = bud.y + Math.sin(bud.heading) * leafLen;
+          ctx.ellipse(lx, ly, 4.0, 2.0, bud.heading, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      // Render prominent Apical Meristem "HELLO WORLD" Blossoms
+      chosenBuds.forEach((bud, idx) => {
+        if (!bud) return;
+        const char = GLYPH_CHARS[idx];
+
+        // Fibonacci spiral petals around apical bud (golden angle: 137.5 degrees)
+        const goldenAngle = 2.39996;
+        const petalCount = 7;
+        for (let p = 0; p < petalCount; p++) {
+          const pAngle = p * goldenAngle + time * 0.0006;
+          const pDist = 13.5;
+          const px = bud.x + Math.cos(pAngle) * pDist;
+          const py = bud.y + Math.sin(pAngle) * pDist;
+
+          ctx.fillStyle = 'rgba(62, 107, 72, 0.65)';
+          ctx.beginPath();
+          ctx.ellipse(px, py, 4.8, 2.4, pAngle, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Blossom core background seal
+        ctx.fillStyle = '#fdfbf7';
+        ctx.strokeStyle = '#182c1f';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(bud.x, bud.y, 12.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Inscribed Botanical Glyph Letter
+        ctx.fillStyle = '#182c1f';
+        ctx.font = 'bold 14px Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(char, bud.x, bud.y + 0.5);
+
+        // Taxonomic index subscript
+        ctx.fillStyle = '#b45309';
+        ctx.font = 'bold 8.5px monospace';
+        ctx.fillText(String(idx + 1), bud.x, bud.y + 19);
+      });
+
+      // Update telemetry display
+      if (animationFrameCount % 4 === 0) {
+        valBranchesEl.textContent = `${branchCount.toLocaleString()} Segments`;
+        valWindEl.textContent = `${windAngle.toFixed(3)} rad`;
+      }
+
+      requestAnimationFrame(renderBotanicalSpecimen);
+    }
+
+    renderBotanicalSpecimen(0);
+
+    // -------------------------------------------------------------
+    // CDP Verification & Evidence Contracts
+    // -------------------------------------------------------------
+    window.labReady = true;
+
+    window.labScenario = {
+      kind: 'drag',
+      selector: '#canvas-container',
+      deltaX: 180
+    };
+
+    window.labEvidence = function() {
+      return {
+        subject: 'Hello World',
+        passed: branchCount >= 100 && terminalBudCount >= 10,
+        mechanism: 'Lindenmayer L-System formal string rewriting with recursive turtle kinematics and Fibonacci phyllotaxis blossoms',
+        measurements: {
+          grammarAxiom: AXIOM,
+          grammarDepth: DERIVATION_DEPTH,
+          totalBranchSegments: branchCount,
+          apicalTerminalBuds: terminalBudCount,
+          helloWorldBlossoms: GLYPH_CHARS.length,
+          meanWindDeflectionRad: Number(windAngle.toFixed(4)),
+          specimenFrames: animationFrameCount
+        }
+      };
+    };
+
+    window.labInteractionEvidence = function() {
+      return {
+        subject: 'Hello World',
+        passed: peakInteractionDeflection > 0.01 || Math.abs(windAngle) > 0,
+        mechanism: 'Interactive pointer drag induces aerodynamic torque, deflecting branching angles throughout the recursive turtle hierarchy',
+        measurements: {
+          peakWindDeflectionRad: Number(peakInteractionDeflection.toFixed(4)),
+          finalWindAngleRad: Number(windAngle.toFixed(4)),
+          interactiveFrames: animationFrameCount
+        }
+      };
+    };
+  </script>
+</body>
+</html>

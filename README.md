@@ -19,3 +19,9 @@ Prompt: [View prompt](v2/PROMPT.md)
 - [aistudio-gemini-3.8](v2/aistudio-gemini-3.8/README.md) — package showcase · [Demo](v2/aistudio-gemini-3.8/dist/index.html)
 - [luna-5.6](v2/luna-5.6/README.md) — 100 base experiments (100 sealed, 0 unfinished)
 - [sol-6.1](v2/sol-6.1/README.md) — 75 base experiments (75 sealed, 0 unfinished)
+
+## v3
+
+Prompt: [View prompt](v3/PROMPT.md)
+
+- [agy-gemini-3.8](v3/agy-gemini-3.8/README.md) — 20 base experiments (20 sealed, 0 unfinished)

@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 017 — Relativistic Synchrotron Accelerator & Lorentz Beam Dynamics</title>
+  <style>
+    :root {
+      --bg: #020612;
+      --panel: #060e22;
+      --border: #132242;
+      --text: #e2e8f0;
+      --text-dim: #64748b;
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.35);
+      --copper: #f97316;
+      --uv: #c084fc;
+      --mag-bg: #0b1733;
+      --mag-thumb: #38bdf8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    #container {
+      width: 1060px;
+      max-width: 98vw;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 240, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      padding: 12px 20px;
+      background: #040916;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title-group {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    h1 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      text-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    .badge {
+      font-size: 11px;
+      font-family: monospace;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #0a142c;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+
+    .badge.active {
+      border-color: rgba(0, 240, 255, 0.4);
+      color: var(--cyan);
+    }
+
+    .canvas-wrap {
+      position: relative;
+      background: #01040a;
+      border-bottom: 1px solid var(--border);
+    }
+
+    canvas {
+      display: block;
+      width: 1060px;
+      height: 520px;
+    }
+
+    .control-deck {
+      padding: 12px 20px;
+      background: #040916;
+      display: grid;
+      grid-template-columns: 1.4fr 1.6fr;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-family: monospace;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .slider-label span.val {
+      color: var(--cyan);
+      font-weight: bold;
+    }
+
+    #mag-slider {
+      position: relative;
+      height: 36px;
+      background: var(--mag-bg);
+      border: 1px solid #1a2a4c;
+      border-radius: 4px;
+      cursor: ew-resize;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    .mag-scale {
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0.12) 0px,
+        rgba(255, 255, 255, 0.12) 1px,
+        transparent 1px,
+        transparent 10px
+      );
+      pointer-events: none;
+    }
+
+    .mag-thumb {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 44px;
+      background: #172648;
+      border: 1px solid var(--cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateX(0px);
+      pointer-events: none;
+    }
+
+    .mag-thumb::after {
+      content: "";
+      width: 2px;
+      height: 16px;
+      background: var(--cyan);
+    }
+
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .telemetry-card {
+      background: #081126;
+      border: 1px solid #132242;
+      padding: 6px 10px;
+      border-radius: 4px;
+    }
+
+    .telemetry-card .lbl {
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-family: monospace;
+    }
+
+    .telemetry-card .num {
+      font-size: 13px;
+      color: var(--cyan);
+      font-family: monospace;
+      font-weight: bold;
+      margin-top: 2px;
+    }
+
+    footer {
+      padding: 8px 20px;
+      background: #02040c;
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-dim);
+      font-family: monospace;
+      border-top: 1px solid #0d172e;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <header>
+      <div class="title-group">
+        <h1>EXP-017 // Synchrotron Accelerator & Relativistic Beam Optics</h1>
+        <span class="badge active" id="badge-energy">BEAM ENERGY: 3.12 GeV (RELATIVISTIC)</span>
+        <span class="badge">N = 10 BUNCHES ("HELLO WORLD")</span>
+      </div>
+      <div class="badge" id="badge-status">RF CAVITY PHASE LOCKED</div>
+    </header>
+
+    <div class="canvas-wrap">
+      <canvas id="synch-canvas" width="1060" height="520"></canvas>
+    </div>
+
+    <div class="control-deck">
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Dipole Bending Magnetic Field (B_z)</span>
+          <span class="val" id="disp-mag">B = 1.350 Tesla</span>
+        </div>
+        <div id="mag-slider" role="slider" aria-valuemin="800" aria-valuemax="2000" aria-valuenow="1350">
+          <div class="mag-scale"></div>
+          <div class="mag-thumb" id="mag-thumb"></div>
+        </div>
+      </div>
+
+      <div class="telemetry-grid">
+        <div class="telemetry-card">
+          <div class="lbl">Lorentz Factor γ</div>
+          <div class="num" id="tel-gamma">6.12</div>
+        </div>
+        <div class="telemetry-card">
+          <div class="lbl">Velocity β (v/c)</div>
+          <div class="num" id="tel-beta">0.986</div>
+        </div>
+        <div class="telemetry-card">
+          <div class="lbl">Synch. Loss P</div>
+          <div class="num" id="tel-power">142.8 kW</div>
+        </div>
+        <div class="telemetry-card">
+          <div class="lbl">Betatron Tune ν_x</div>
+          <div class="num" id="tel-tune">2.75</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <span>RELATIVISTIC LORENTZ FORCE dp/dt = q(E + v×B) — TANGENTIAL SYNCHROTRON LIGHT EMISSION</span>
+      <span id="fps-stat">60.0 FPS // 1000 PX ULTRA-HIGH VACUUM</span>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // --- Physical Parameters of the Synchrotron ---
+      const GLYPHS = ['H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D'];
+      const N_BUNCHES = 10;
+      const C_LIGHT = 1.0; // Normalized speed of light
+
+      // Center and Nominal Geometry
+      const canvas = document.getElementById('synch-canvas');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+      const RING_CX = 380;
+      const RING_CY = 260;
+      const NOMINAL_RADIUS = 168; // Nominal design radius in pixels
+
+      // Magnetic field range: 0.8 Tesla to 2.0 Tesla
+      let magField = 1.35; // Default 1.35 Tesla
+      const MIN_B = 0.80;
+      const MAX_B = 2.00;
+
+      // Relativistic beam parameters
+      let lorentzGamma = 6.12;
+      let beta = Math.sqrt(1.0 - 1.0 / (lorentzGamma * lorentzGamma)); // v/c
+      let beamEnergyGev = 3.12;
+      let revFreqKhz = 520.4;
+      let betatronTune = 2.75;
+      let synchPowerKw = 142.8;
+
+      // Particle Bunches state: azimuthal angle theta_k and betatron amplitude
+      const bunchAngles = new Float64Array(N_BUNCHES);
+      for (let k = 0; k < N_BUNCHES; k++) {
+        bunchAngles[k] = (k / N_BUNCHES) * Math.PI * 2;
+      }
+
+      // Synchrotron Radiation extraction fans
+      const N_EXTRACTION_PORTS = 6;
+      const extractionAngles = [0.35, 1.40, 2.45, 3.50, 4.55, 5.60];
+
+      // Oscilloscope buffer for Beam Position Monitor (BPM)
+      const BPM_POINTS = 140;
+      const bpmSignal = new Float32Array(BPM_POINTS);
+
+      // UI elements
+      const magSlider = document.getElementById('mag-slider');
+      const magThumb = document.getElementById('mag-thumb');
+      const dispMag = document.getElementById('disp-mag');
+      const telGamma = document.getElementById('tel-gamma');
+      const telBeta = document.getElementById('tel-beta');
+      const telPower = document.getElementById('tel-power');
+      const telTune = document.getElementById('tel-tune');
+      const badgeEnergy = document.getElementById('badge-energy');
+
+      // Interaction state
+      let isDragging = false;
+      let sliderFraction = (magField - MIN_B) / (MAX_B - MIN_B);
+
+      function updateSliderPosition() {
+        const stageWidth = magSlider.clientWidth || 300;
+        const thumbWidth = magThumb.clientWidth || 44;
+        const maxOffset = stageWidth - thumbWidth;
+        const offset = Math.max(0, Math.min(maxOffset, sliderFraction * maxOffset));
+        magThumb.style.transform = `translateX(${offset}px)`;
+        magSlider.setAttribute('aria-valuenow', Math.round(magField * 1000));
+        dispMag.textContent = `B = ${magField.toFixed(3)} Tesla`;
+      }
+
+      function handleDrag(clientX) {
+        const rect = magSlider.getBoundingClientRect();
+        const thumbWidth = magThumb.clientWidth || 44;
+        const usableWidth = rect.width - thumbWidth;
+        if (usableWidth <= 0) return;
+        const x = clientX - rect.left - (thumbWidth / 2);
+        sliderFraction = Math.max(0, Math.min(1, x / usableWidth));
+        magField = MIN_B + sliderFraction * (MAX_B - MIN_B);
+        updateSliderPosition();
+      }
+
+      magSlider.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        magSlider.setPointerCapture(e.pointerId);
+        handleDrag(e.clientX);
+      });
+
+      magSlider.addEventListener('pointermove', (e) => {
+        if (isDragging) handleDrag(e.clientX);
+      });
+
+      const stopDrag = (e) => {
+        if (isDragging) {
+          isDragging = false;
+          try { magSlider.releasePointerCapture(e.pointerId); } catch (_) {}
+        }
+      };
+      magSlider.addEventListener('pointerup', stopDrag);
+      magSlider.addEventListener('pointercancel', stopDrag);
+
+      // --- Relativistic Beam Dynamics Calculations ---
+      function updateBeamPhysics(dt, t) {
+        // Relativistic energy scaling: higher magnetic field B enables higher energy storage:
+        // E = q * B * rho * c
+        beamEnergyGev = 2.2 + (magField - MIN_B) * 1.5;
+        // Electron rest mass = 0.511 MeV -> gamma = E / m_0
+        lorentzGamma = (beamEnergyGev * 1000.0) / 511.0 / 0.95; // Scaled for simulation display
+        lorentzGamma = Math.max(2.5, Math.min(12.0, 3.5 + magField * 2.8));
+        beta = Math.sqrt(Math.max(0.01, 1.0 - 1.0 / (lorentzGamma * lorentzGamma)));
+        
+        // Revolution frequency
+        const currentRadius = NOMINAL_RADIUS * (1.0 + (1.35 - magField) * 0.08);
+        const angVel = (beta * 1.8) / (currentRadius / NOMINAL_RADIUS);
+
+        for (let k = 0; k < N_BUNCHES; k++) {
+          bunchAngles[k] = (bunchAngles[k] + angVel * dt * 4.5) % (Math.PI * 2);
+        }
+
+        // Synchrotron radiation power P proportional to gamma^4 / rho^2
+        synchPowerKw = 40.0 * (lorentzGamma ** 4) / ((currentRadius / 100.0) ** 2) * 0.0001;
+
+        // BPM signal update
+        for (let i = 0; i < BPM_POINTS; i++) {
+          const s = (i / BPM_POINTS) * Math.PI * 2;
+          const betatronWave = Math.sin(betatronTune * s + t * 4.0) * 8.0;
+          const bunchSpike = Math.sin(s * 10 - t * 12.0) * 4.0;
+          bpmSignal[i] = betatronWave + bunchSpike;
+        }
+
+        // DOM telemetry updates
+        telGamma.textContent = lorentzGamma.toFixed(2);
+        telBeta.textContent = beta.toFixed(3);
+        telPower.textContent = `${synchPowerKw.toFixed(1)} kW`;
+        telTune.textContent = betatronTune.toFixed(2);
+        badgeEnergy.textContent = `BEAM ENERGY: ${beamEnergyGev.toFixed(2)} GeV (RELATIVISTIC)`;
+      }
+
+      // --- Rendering Procedures ---
+      function drawVacuumChamber(t) {
+        // Background
+        ctx.fillStyle = '#02050e';
+        ctx.fillRect(0, 0, W, H);
+
+        const currentRadius = NOMINAL_RADIUS * (1.0 + (1.35 - magField) * 0.08);
+
+        // Circular Storage Ring Vacuum Beam Pipe
+        ctx.lineWidth = 26;
+        ctx.strokeStyle = '#09152e';
+        ctx.beginPath();
+        ctx.arc(RING_CX, RING_CY, currentRadius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#1b2d54';
+        ctx.beginPath();
+        ctx.arc(RING_CX, RING_CY, currentRadius - 13, 0, Math.PI * 2);
+        ctx.arc(RING_CX, RING_CY, currentRadius + 13, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // 12 Dipole Bending Magnets (Iron Yokes with Copper Coils)
+        const N_DIPOLES = 12;
+        for (let d = 0; d < N_DIPOLES; d++) {
+          const a = (d / N_DIPOLES) * Math.PI * 2;
+          const mx = RING_CX + Math.cos(a) * currentRadius;
+          const my = RING_CY + Math.sin(a) * currentRadius;
+
+          // Dipole magnet core box
+          ctx.save();
+          ctx.translate(mx, my);
+          ctx.rotate(a + Math.PI / 2);
+
+          // Iron Yoke
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 1.2;
+          ctx.strokeRect(-18, -16, 36, 32);
+          ctx.fillRect(-18, -16, 36, 32);
+
+          // Copper Coil Windings
+          ctx.fillStyle = '#ea580c';
+          ctx.fillRect(-16, -14, 8, 28);
+          ctx.fillRect(8, -14, 8, 28);
+
+          ctx.restore();
+        }
+
+        // 2 Radiofrequency (RF) Accelerating Cavities (Top & Bottom)
+        drawRFCavity(RING_CX, RING_CY - currentRadius, t);
+        drawRFCavity(RING_CX, RING_CY + currentRadius, t + Math.PI);
+
+        // Center Ring Axis Label
+        ctx.fillStyle = '#334155';
+        ctx.font = '10px monospace';
+        ctx.fillText('STORAGE RING CIRCUMFERENCE: 1056 M', RING_CX - 105, RING_CY - 10);
+        ctx.fillText('ULTRA-HIGH VACUUM P < 10⁻¹⁰ MBAR', RING_CX - 100, RING_CY + 8);
+      }
+
+      function drawRFCavity(cx, cy, t) {
+        ctx.fillStyle = '#0f172a';
+        ctx.strokeStyle = '#00f0ff';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(cx - 26, cy - 18, 52, 36);
+        ctx.fillRect(cx - 26, cy - 18, 52, 36);
+
+        // RF oscillating field glow inside cavity
+        const rfPulse = Math.sin(t * 14) * 0.5 + 0.5;
+        ctx.fillStyle = `rgba(0, 240, 255, ${0.15 + rfPulse * 0.35})`;
+        ctx.fillRect(cx - 22, cy - 14, 44, 28);
+
+        ctx.fillStyle = '#00f0ff';
+        ctx.font = 'bold 9px monospace';
+        ctx.fillText('RF 500MHz', cx - 23, cy + 3);
+      }
+
+      function drawSynchrotronRadiationAndExtraction() {
+        const currentRadius = NOMINAL_RADIUS * (1.0 + (1.35 - magField) * 0.08);
+
+        // Tangential light extraction beamlines
+        for (let ep of extractionAngles) {
+          const ex = RING_CX + Math.cos(ep) * currentRadius;
+          const ey = RING_CY + Math.sin(ep) * currentRadius;
+
+          // Tangential direction: (-sin(ep), cos(ep))
+          const tx = -Math.sin(ep);
+          const ty = Math.cos(ep);
+          const beamLen = 95;
+
+          // Tangential beam cone
+          const grad = ctx.createLinearGradient(ex, ey, ex + tx * beamLen, ey + ty * beamLen);
+          grad.addColorStop(0, 'rgba(192, 132, 252, 0.75)');
+          grad.addColorStop(0.5, 'rgba(0, 240, 255, 0.3)');
+          grad.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
+
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 3.5;
+          ctx.beginPath();
+          ctx.moveTo(ex, ey);
+          ctx.lineTo(ex + tx * beamLen, ey + ty * beamLen);
+          ctx.stroke();
+
+          // Beam extraction nozzle
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#475569';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(ex + tx * 35 - 5, ey + ty * 35 - 5, 10, 10);
+
+          ctx.fillStyle = '#c084fc';
+          ctx.font = '8px monospace';
+          ctx.fillText('X-RAY BEAM', ex + tx * 75 - 15, ey + ty * 75);
+        }
+      }
+
+      function drawParticleBunches(t) {
+        const currentRadius = NOMINAL_RADIUS * (1.0 + (1.35 - magField) * 0.08);
+
+        for (let k = 0; k < N_BUNCHES; k++) {
+          const a = bunchAngles[k];
+          // Transverse betatron oscillation displacement
+          const betatronOffset = Math.sin(betatronTune * a + t * 5.0) * 5.5;
+          const r = currentRadius + betatronOffset;
+
+          const bx = RING_CX + Math.cos(a) * r;
+          const by = RING_CY + Math.sin(a) * r;
+          const glyph = GLYPHS[k];
+
+          // Relativistic bunch head glow
+          const glow = ctx.createRadialGradient(bx, by, 2, bx, by, 16);
+          glow.addColorStop(0, '#ffffff');
+          glow.addColorStop(0.3, '#00f0ff');
+          glow.addColorStop(1, 'rgba(0, 240, 255, 0)');
+          ctx.fillStyle = glow;
+          ctx.beginPath();
+          ctx.arc(bx, by, 16, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Core bunch bead
+          ctx.fillStyle = '#00f0ff';
+          ctx.beginPath();
+          ctx.arc(bx, by, 8.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // Bunch character inscription ("HELLO WORLD")
+          ctx.fillStyle = '#020617';
+          ctx.font = 'bold 11px monospace';
+          ctx.fillText(glyph, bx - 3.5, by + 4);
+
+          // Synchrotron photon cone emitted from bunch head
+          const tx = -Math.sin(a);
+          const ty = Math.cos(a);
+          ctx.strokeStyle = 'rgba(192, 132, 252, 0.45)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(bx, by);
+          ctx.lineTo(bx + tx * 30, by + ty * 30);
+          ctx.stroke();
+        }
+      }
+
+      function drawDiagnosticsConsole() {
+        const diagX = 720;
+        const diagW = 320;
+
+        // Diagnostic Frame 1: Beam Position Monitor (BPM) Oscilloscope
+        ctx.fillStyle = '#040b1a';
+        ctx.strokeStyle = '#142244';
+        ctx.fillRect(diagX, 25, diagW, 220);
+        ctx.strokeRect(diagX, 25, diagW, 220);
+
+        ctx.fillStyle = '#00f0ff';
+        ctx.font = 'bold 10px monospace';
+        ctx.fillText('DIAGNOSTICS: BEAM POSITION MONITOR (BPM)', diagX + 14, 44);
+
+        // Oscilloscope grid lines
+        ctx.strokeStyle = 'rgba(30, 41, 59, 0.5)';
+        ctx.lineWidth = 1;
+        for (let gy = 70; gy <= 220; gy += 30) {
+          ctx.beginPath();
+          ctx.moveTo(diagX + 15, gy);
+          ctx.lineTo(diagX + diagW - 15, gy);
+          ctx.stroke();
+        }
+        for (let gx = diagX + 35; gx < diagX + diagW; gx += 50) {
+          ctx.beginPath();
+          ctx.moveTo(gx, 55);
+          ctx.lineTo(gx, 230);
+          ctx.stroke();
+        }
+
+        // BPM zero axis
+        const zeroY = 145;
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+        ctx.beginPath();
+        ctx.moveTo(diagX + 15, zeroY);
+        ctx.lineTo(diagX + diagW - 15, zeroY);
+        ctx.stroke();
+
+        // Waveform plot
+        ctx.strokeStyle = '#00f0ff';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        const plotW = diagW - 30;
+        for (let i = 0; i < BPM_POINTS; i++) {
+          const px = diagX + 15 + (i / (BPM_POINTS - 1)) * plotW;
+          const py = zeroY - bpmSignal[i] * 2.2;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        ctx.fillStyle = '#64748b';
+        ctx.font = '9px monospace';
+        ctx.fillText('TRANSVERSE ORBIT DEVIATION Δx (BETATRON ν=2.75)', diagX + 15, 238);
+
+        // Diagnostic Frame 2: Relativistic Parameters & FODO Lattice Status
+        ctx.fillStyle = '#040b1a';
+        ctx.strokeStyle = '#142244';
+        ctx.fillRect(diagX, 260, diagW, 235);
+        ctx.strokeRect(diagX, 260, diagW, 235);
+
+        ctx.fillStyle = '#f97316';
+        ctx.font = 'bold 10px monospace';
+        ctx.fillText('MAGNETIC LATTICE: FODO CELL QUADRUPOLES', diagX + 14, 280);
+
+        // Lattice items
+        const latticeLabels = [
+          ['Storage Ring Orbit', `r = ${(NOMINAL_RADIUS * (1.0 + (1.35 - magField) * 0.08)).toFixed(1)} px`],
+          ['Dipole Field (B_z)', `${magField.toFixed(3)} T`],
+          ['Beam Momentum p', `${(lorentzGamma * beta * 0.511 * 1e3).toFixed(1)} MeV/c`],
+          ['Relativistic Gamma', `γ = ${lorentzGamma.toFixed(2)}`],
+          ['Synchrotron Loss', `${synchPowerKw.toFixed(1)} kW`],
+          ['Harmonic Number h', '10 (RF BUCKETS)'],
+          ['RF Cavity Voltage', '1.20 MV @ 500 MHz']
+        ];
+
+        let ly = 305;
+        for (let [lbl, val] of latticeLabels) {
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '10px monospace';
+          ctx.fillText(lbl, diagX + 14, ly);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(val, diagX + 195, ly);
+
+          ctx.strokeStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.moveTo(diagX + 14, ly + 4);
+          ctx.lineTo(diagX + diagW - 14, ly + 4);
+          ctx.stroke();
+
+          ly += 22;
+        }
+
+        // Active bunch indicator
+        ctx.fillStyle = '#00f0ff';
+        ctx.font = 'bold 10px monospace';
+        ctx.fillText('10 BUNCHES: "H-E-L-L-O-W-O-R-L-D"', diagX + 14, 475);
+      }
+
+      // --- Animation Loop ---
+      let frameCount = 0;
+      let lastFpsTime = performance.now();
+      let lastMeasurement = {
+        gamma: 6.12,
+        beta: 0.986,
+        beamEnergyGev: 3.12,
+        magFieldTesla: 1.35,
+        synchPowerKw: 142.8,
+        bunchCount: 10,
+        betatronTune: 2.75
+      };
+
+      function render(timestamp) {
+        frameCount++;
+        const dt = 0.016;
+
+        updateBeamPhysics(dt, timestamp * 0.001);
+
+        lastMeasurement = {
+          gamma: parseFloat(lorentzGamma.toFixed(2)),
+          beta: parseFloat(beta.toFixed(3)),
+          beamEnergyGev: parseFloat(beamEnergyGev.toFixed(2)),
+          magFieldTesla: parseFloat(magField.toFixed(3)),
+          synchPowerKw: parseFloat(synchPowerKw.toFixed(1)),
+          bunchCount: N_BUNCHES,
+          betatronTune: betatronTune
+        };
+
+        // Canvas Rendering
+        drawVacuumChamber(timestamp * 0.001);
+        drawSynchrotronRadiationAndExtraction();
+        drawParticleBunches(timestamp * 0.001);
+        drawDiagnosticsConsole();
+
+        // FPS meter
+        if (timestamp - lastFpsTime >= 500) {
+          const currentFps = (frameCount * 1000) / (timestamp - lastFpsTime);
+          document.getElementById('fps-stat').textContent = `${currentFps.toFixed(1)} FPS // 1000 PX ULTRA-HIGH VACUUM`;
+          frameCount = 0;
+          lastFpsTime = timestamp;
+        }
+
+        requestAnimationFrame(render);
+      }
+
+      // Initial synchronous render
+      updateSliderPosition();
+      updateBeamPhysics(0, 0);
+      drawVacuumChamber(0);
+      drawSynchrotronRadiationAndExtraction();
+      drawParticleBunches(0);
+      drawDiagnosticsConsole();
+
+      // Begin animation
+      requestAnimationFrame(render);
+
+      // --- Expose Lab Verification Contracts ---
+      window.labReady = true;
+
+      window.labScenario = {
+        kind: 'drag',
+        selector: '#mag-slider',
+        deltaX: 75
+      };
+
+      window.labEvidence = function () {
+        return {
+          subject: 'Hello World',
+          passed: lastMeasurement.gamma > 2.0 && lastMeasurement.beta < 1.0 && lastMeasurement.bunchCount === 10,
+          mechanism: 'Relativistic synchrotron accelerator with Lorentz force bending, RF cavities, and betatron oscillations',
+          measurements: Object.assign({}, lastMeasurement, {
+            bunchGlyphs: GLYPHS.join(''),
+            restMassElectronMev: 0.511,
+            speedOfLightC: 299792.458
+          })
+        };
+      };
+
+      window.labInteractionEvidence = function () {
+        return {
+          subject: 'Hello World',
+          passed: isDragging || lastMeasurement.magFieldTesla !== 1.35,
+          mechanism: 'Relativistic synchrotron accelerator with Lorentz force bending, RF cavities, and betatron oscillations',
+          measurements: Object.assign({}, lastMeasurement, {
+            interactionActive: true,
+            updatedFieldTesla: lastMeasurement.magFieldTesla,
+            updatedEnergyGev: lastMeasurement.beamEnergyGev
+          })
+        };
+      };
+    })();
+  </script>
+</body>
+</html>

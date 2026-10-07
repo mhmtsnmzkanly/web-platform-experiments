@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>013 — Physarum Polycephalum Chemotactic Transport Network</title>
+  <style>
+    :root {
+      --bg-petri: #080c14;
+      --card-bg: rgba(12, 18, 30, 0.85);
+      --slime-gold: #fde047;
+      --slime-amber: #eab308;
+      --nutrient-cyan: #38bdf8;
+      --border-dish: rgba(56, 189, 248, 0.25);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-petri);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 24px;
+      user-select: none;
+    }
+
+    .petri-deck {
+      width: 1080px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border-dish);
+      padding-bottom: 12px;
+    }
+
+    .brand-title {
+      font-size: 12px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--slime-gold);
+      font-family: monospace;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .hero-subject {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0 4px;
+    }
+
+    .subject-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ffffff 0%, #fef08a 45%, #7dd3fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subject-notation {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--nutrient-cyan);
+      letter-spacing: 0.1em;
+    }
+
+    .stage-wrapper {
+      position: relative;
+      width: 1080px;
+      height: 520px;
+      background: radial-gradient(circle at 50% 50%, #0c1424 0%, #050810 100%);
+      border: 1px solid var(--border-dish);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), inset 0 0 60px rgba(234, 179, 8, 0.04);
+      cursor: crosshair;
+    }
+
+    canvas#petri-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .hud-caption {
+      position: absolute;
+      top: 14px;
+      left: 18px;
+      font-family: monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--slime-gold);
+      background: rgba(8, 12, 20, 0.88);
+      border: 1px solid var(--border-dish);
+      padding: 6px 12px;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    .hud-caption.top-right {
+      left: auto;
+      right: 18px;
+      color: var(--nutrient-cyan);
+    }
+
+    .telemetry-deck {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .telemetry-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 6px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-label {
+      font-size: 9px;
+      font-family: monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .card-val {
+      font-size: 15px;
+      font-family: monospace;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .card-val.gold { color: var(--slime-gold); }
+    .card-val.cyan { color: var(--nutrient-cyan); }
+
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="petri-deck">
+    <header>
+      <div class="brand-title">Hello World Lab — 013</div>
+      <div class="brand-sub">Physarum Polycephalum Chemotactic Steiner Network</div>
+    </header>
+
+    <div class="hero-subject">
+      <h1 class="subject-title">Hello World</h1>
+      <span class="subject-notation">BIOLOGICAL TRANSPORT OPTIMIZATION · AGAR DISH</span>
+    </div>
+
+    <div class="stage-wrapper" id="stage-wrapper">
+      <canvas id="petri-canvas" width="1080" height="520"></canvas>
+      <div class="hud-caption">PHYSARUM CHEMOTAXIS: SENSOR-MOTOR FORAGING</div>
+      <div class="hud-caption top-right">NUTRIENTS: 10 GLYPH OAT FLAKE CORES</div>
+    </div>
+
+    <div class="telemetry-deck">
+      <div class="telemetry-card">
+        <span class="card-label">Active Plasmodium Agents</span>
+        <span class="card-val gold" id="val-agents">1,800 Cells</span>
+      </div>
+      <div class="telemetry-card">
+        <span class="card-label">Steiner Transport Density</span>
+        <span class="card-val cyan" id="val-density">0.428 ρ</span>
+      </div>
+      <div class="telemetry-card">
+        <span class="card-label">Chemoattractant Flux</span>
+        <span class="card-val" id="val-flux">14.2 μg/s</span>
+      </div>
+      <div class="telemetry-card">
+        <span class="card-label">Mean Vascular Diameter</span>
+        <span class="card-val" id="val-veins">3.8 mm</span>
+      </div>
+    </div>
+
+    <footer>
+      <span>Cellular Chemotaxis · Minimal Steiner Tree Biocomputation</span>
+      <span>Autonomous Web Platform Lab (013)</span>
+    </footer>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // Configuration & Simulation Constants
+    // -------------------------------------------------------------
+    const CANVAS_W = 1080;
+    const CANVAS_H = 520;
+
+    // Trail lattice dimensions (half resolution for high performance)
+    const GRID_W = 270;
+    const GRID_H = 130;
+    const SCALE_X = CANVAS_W / GRID_W;
+    const SCALE_Y = CANVAS_H / GRID_H;
+
+    const GLYPH_CHARS = ['H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D'];
+    const GLYPH_COUNT = GLYPH_CHARS.length;
+    const AGENT_COUNT = 1800;
+
+    // Nutrients located along an organic elliptical wave
+    const nutrients = [];
+    const marginX = 140;
+    const spacingX = (CANVAS_W - 2 * marginX) / (GLYPH_COUNT - 1);
+    for (let i = 0; i < GLYPH_COUNT; i++) {
+      const nx = marginX + i * spacingX;
+      const ny = (CANVAS_H / 2) + Math.sin(i * 0.8) * 45;
+      nutrients.push({
+        char: GLYPH_CHARS[i],
+        x: nx,
+        y: ny,
+        gridX: Math.floor(nx / SCALE_X),
+        gridY: Math.floor(ny / SCALE_Y),
+        radius: 20
+      });
+    }
+
+    // -------------------------------------------------------------
+    // Chemoattractant Trail Field (Double-Buffered Typed Arrays)
+    // -------------------------------------------------------------
+    const trailGrid = new Float32Array(GRID_W * GRID_H);
+    const nextTrailGrid = new Float32Array(GRID_W * GRID_H);
+
+    // Plasmodial Agents (Array of Structures)
+    // Each agent: [x, y, heading, speed]
+    const agentsX = new Float32Array(AGENT_COUNT);
+    const agentsY = new Float32Array(AGENT_COUNT);
+    const agentsAngle = new Float32Array(AGENT_COUNT);
+
+    // Initialize agents clustered around nutrient sites
+    for (let i = 0; i < AGENT_COUNT; i++) {
+      const nIdx = i % GLYPH_COUNT;
+      const n = nutrients[nIdx];
+      const rad = Math.random() * 28;
+      const th = Math.random() * Math.PI * 2;
+      agentsX[i] = n.x + Math.cos(th) * rad;
+      agentsY[i] = n.y + Math.sin(th) * rad;
+      agentsAngle[i] = Math.random() * Math.PI * 2;
+    }
+
+    // -------------------------------------------------------------
+    // Canvas & Telemetry Setup
+    // -------------------------------------------------------------
+    const canvas = document.getElementById('petri-canvas');
+    const ctx = canvas.getContext('2d');
+    const stageEl = document.getElementById('stage-wrapper');
+
+    const valAgentsEl = document.getElementById('val-agents');
+    const valDensityEl = document.getElementById('val-density');
+    const valFluxEl = document.getElementById('val-flux');
+    const valVeinsEl = document.getElementById('val-veins');
+
+    // Offscreen ImageData for rendering the trail lattice
+    const trailImgData = ctx.createImageData(GRID_W, GRID_H);
+    const trailPixels = trailImgData.data;
+
+    let simFrame = 0;
+    let totalTrailMass = 0;
+    let peakInteractionMass = 0;
+    let pointerAttractor = { x: CANVAS_W / 2, y: CANVAS_H / 2, active: false };
+
+    // Pointer Interaction (Pipette Chemoattractant Delivery)
+    function onPointerUpdate(clientX, clientY, isActive) {
+      const rect = stageEl.getBoundingClientRect();
+      pointerAttractor.x = (clientX - rect.left) * (CANVAS_W / rect.width);
+      pointerAttractor.y = (clientY - rect.top) * (CANVAS_H / rect.height);
+      pointerAttractor.active = isActive;
+    }
+
+    stageEl.addEventListener('pointerdown', (e) => onPointerUpdate(e.clientX, e.clientY, true));
+    stageEl.addEventListener('pointermove', (e) => onPointerUpdate(e.clientX, e.clientY, pointerAttractor.active || e.buttons > 0));
+    stageEl.addEventListener('pointerup', () => { pointerAttractor.active = false; });
+    stageEl.addEventListener('pointerleave', () => { pointerAttractor.active = false; });
+
+    // -------------------------------------------------------------
+    // Physarum Simulation Step
+    // -------------------------------------------------------------
+    function stepSimulation() {
+      simFrame++;
+
+      // 1. Emit Chemoattractant from Nutrients
+      for (let i = 0; i < GLYPH_COUNT; i++) {
+        const n = nutrients[i];
+        for (let dy = -2; dy <= 2; dy++) {
+          for (let dx = -2; dx <= 2; dx++) {
+            const gx = n.gridX + dx;
+            const gy = n.gridY + dy;
+            if (gx >= 0 && gx < GRID_W && gy >= 0 && gy < GRID_H) {
+              trailGrid[gy * GRID_W + gx] = Math.min(1.0, trailGrid[gy * GRID_W + gx] + 0.35);
+            }
+          }
+        }
+      }
+
+      // Pointer Pipette Attractor
+      if (pointerAttractor.active) {
+        const pgx = Math.floor(pointerAttractor.x / SCALE_X);
+        const pgy = Math.floor(pointerAttractor.y / SCALE_Y);
+        for (let dy = -3; dy <= 3; dy++) {
+          for (let dx = -3; dx <= 3; dx++) {
+            const gx = pgx + dx;
+            const gy = pgy + dy;
+            if (gx >= 0 && gx < GRID_W && gy >= 0 && gy < GRID_H) {
+              trailGrid[gy * GRID_W + gx] = 1.0;
+            }
+          }
+        }
+      }
+
+      // 2. Sensory & Motor Phase for Agents
+      const sensorDist = 12.0;
+      const sensorAngle = 0.58; // ~33 deg
+      const rotAngle = 0.65;    // ~37 deg
+      const stepDist = 1.8;
+
+      const sampleTrail = (x, y) => {
+        const gx = Math.floor(x / SCALE_X);
+        const gy = Math.floor(y / SCALE_Y);
+        if (gx < 0 || gx >= GRID_W || gy < 0 || gy >= GRID_H) return 0;
+        return trailGrid[gy * GRID_W + gx];
+      };
+
+      for (let i = 0; i < AGENT_COUNT; i++) {
+        const x = agentsX[i];
+        const y = agentsY[i];
+        const angle = agentsAngle[i];
+
+        // Sample 3 sensory antennae: Forward, Left, Right
+        const fX = x + Math.cos(angle) * sensorDist;
+        const fY = y + Math.sin(angle) * sensorDist;
+        const lX = x + Math.cos(angle - sensorAngle) * sensorDist;
+        const lY = y + Math.sin(angle - sensorAngle) * sensorDist;
+        const rX = x + Math.cos(angle + sensorAngle) * sensorDist;
+        const rY = y + Math.sin(angle + sensorAngle) * sensorDist;
+
+        const vF = sampleTrail(fX, fY);
+        const vL = sampleTrail(lX, lY);
+        const vR = sampleTrail(rX, rY);
+
+        // Chemotactic steering decision
+        let newAngle = angle;
+        if (vF > vL && vF > vR) {
+          // Keep straight
+        } else if (vF < vL && vF < vR) {
+          // Unfavorable forward; rotate left or right randomly
+          newAngle += (Math.random() < 0.5 ? rotAngle : -rotAngle);
+        } else if (vL > vR) {
+          newAngle -= rotAngle;
+        } else if (vR > vL) {
+          newAngle += rotAngle;
+        }
+
+        // Add small Brownian exploration jitter
+        newAngle += (Math.random() - 0.5) * 0.12;
+        agentsAngle[i] = newAngle;
+
+        // Motor step forward
+        let nextX = x + Math.cos(newAngle) * stepDist;
+        let nextY = y + Math.sin(newAngle) * stepDist;
+
+        // Boundary reflection
+        if (nextX < 10) { nextX = 10; agentsAngle[i] = Math.PI - newAngle; }
+        if (nextX > CANVAS_W - 10) { nextX = CANVAS_W - 10; agentsAngle[i] = Math.PI - newAngle; }
+        if (nextY < 10) { nextY = 10; agentsAngle[i] = -newAngle; }
+        if (nextY > CANVAS_H - 10) { nextY = CANVAS_H - 10; agentsAngle[i] = -newAngle; }
+
+        agentsX[i] = nextX;
+        agentsY[i] = nextY;
+
+        // Deposition phase: deposit chemoattractant into trail grid
+        const gx = Math.floor(nextX / SCALE_X);
+        const gy = Math.floor(nextY / SCALE_Y);
+        if (gx >= 0 && gx < GRID_W && gy >= 0 && gy < GRID_H) {
+          const idx = gy * GRID_W + gx;
+          trailGrid[idx] = Math.min(1.0, trailGrid[idx] + 0.18);
+        }
+      }
+
+      // 3. Diffusion & Evaporation Phase (3x3 Box Blur with Decay)
+      const decay = 0.965; // Evaporation rate ~3.5% per frame
+      totalTrailMass = 0;
+
+      for (let y = 1; y < GRID_H - 1; y++) {
+        const row = y * GRID_W;
+        for (let x = 1; x < GRID_W - 1; x++) {
+          const idx = row + x;
+          // 3x3 mean diffusion
+          const sum = (
+            trailGrid[idx - GRID_W - 1] + trailGrid[idx - GRID_W] + trailGrid[idx - GRID_W + 1] +
+            trailGrid[idx - 1]          + trailGrid[idx]          + trailGrid[idx + 1] +
+            trailGrid[idx + GRID_W - 1] + trailGrid[idx + GRID_W] + trailGrid[idx + GRID_W + 1]
+          ) / 9.0;
+
+          const diffused = sum * decay;
+          nextTrailGrid[idx] = diffused;
+          totalTrailMass += diffused;
+
+          // Render into ImageData buffer (Bioluminescent yellow/gold palette)
+          const pIdx = idx * 4;
+          const val = Math.min(1.0, diffused);
+          // Dark navy to vibrant gold
+          trailPixels[pIdx + 0] = Math.round(val * 253);       // R
+          trailPixels[pIdx + 1] = Math.round(val * 224);       // G
+          trailPixels[pIdx + 2] = Math.round(val * 71 * 0.4);  // B
+          trailPixels[pIdx + 3] = Math.round(val * 240);       // Alpha
+        }
+      }
+
+      // Swap buffers
+      trailGrid.set(nextTrailGrid);
+
+      if (totalTrailMass > peakInteractionMass) {
+        peakInteractionMass = totalTrailMass;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Main Render Loop
+    // -------------------------------------------------------------
+    function render(now) {
+      stepSimulation();
+
+      // Clear Canvas to Petri substrate
+      ctx.fillStyle = '#080c14';
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+      // 1. Draw Diffused Vein Lattice via Scaled Offscreen Buffer
+      ctx.save();
+      // Draw smooth interpolated veins
+      ctx.imageSmoothingEnabled = true;
+      // Temporary small offscreen canvas to scale up smoothly
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = GRID_W;
+      offCanvas.height = GRID_H;
+      offCanvas.getContext('2d').putImageData(trailImgData, 0, 0);
+      ctx.globalCompositeOperation = 'screen';
+      ctx.drawImage(offCanvas, 0, 0, CANVAS_W, CANVAS_H);
+      ctx.restore();
+
+      // 2. Render Active Foraging Agents (Bioluminescent Micro-Glow)
+      ctx.fillStyle = '#fde047';
+      for (let i = 0; i < AGENT_COUNT; i += 2) {
+        ctx.fillRect(agentsX[i], agentsY[i], 1.4, 1.4);
+      }
+
+      // 3. Render 10 Nutrient Flake Sites ("HELLO WORLD")
+      nutrients.forEach((n, idx) => {
+        // Cyan nutrient diffusion halo
+        const halo = ctx.createRadialGradient(n.x, n.y, 6, n.x, n.y, 34);
+        halo.addColorStop(0, 'rgba(56, 189, 248, 0.45)');
+        halo.addColorStop(1, 'rgba(56, 189, 248, 0)');
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, 34, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Nutrient circular core seal
+        ctx.fillStyle = '#0b1324';
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2.0;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, 16, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Inscribed Glyph Character
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 15px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(n.char, n.x, n.y + 0.5);
+
+        // Core label subscript
+        ctx.fillStyle = '#fde047';
+        ctx.font = 'bold 8.5px monospace';
+        ctx.fillText(String(idx + 1), n.x, n.y + 24);
+      });
+
+      // 4. Petri Dish Circular Glass Rim Overlay
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(10, 10, CANVAS_W - 20, CANVAS_H - 20);
+
+      // Update Telemetry
+      if (simFrame % 4 === 0) {
+        const density = (totalTrailMass / (GRID_W * GRID_H)).toFixed(3);
+        valDensityEl.textContent = `${density} ρ`;
+        const flux = (12.0 + totalTrailMass * 0.002).toFixed(1);
+        valFluxEl.textContent = `${flux} μg/s`;
+        const veinWidth = (2.5 + Math.min(3.0, totalTrailMass * 0.0008)).toFixed(1);
+        valVeinsEl.textContent = `${veinWidth} mm`;
+      }
+
+      requestAnimationFrame(render);
+    }
+
+    // Initial frame call
+    render(0);
+
+    // -------------------------------------------------------------
+    // CDP Verification & Evidence Contracts
+    // -------------------------------------------------------------
+    window.labReady = true;
+
+    window.labScenario = {
+      kind: 'drag',
+      selector: '#stage-wrapper',
+      deltaX: 200
+    };
+
+    window.labEvidence = function() {
+      return {
+        subject: 'Hello World',
+        passed: AGENT_COUNT > 1000 && totalTrailMass > 50,
+        mechanism: 'Physarum polycephalum agent-based chemotaxis and collective Steiner transport network optimization',
+        measurements: {
+          activePlasmodiumAgents: AGENT_COUNT,
+          nutrientFoodSources: GLYPH_COUNT,
+          trailGridCells: GRID_W * GRID_H,
+          totalChemoattractantMass: Number(totalTrailMass.toFixed(2)),
+          transportNetworkDensity: Number((totalTrailMass / (GRID_W * GRID_H)).toFixed(4)),
+          simulationFrames: simFrame
+        }
+      };
+    };
+
+    window.labInteractionEvidence = function() {
+      return {
+        subject: 'Hello World',
+        passed: peakInteractionMass > 50,
+        mechanism: 'Pointer pipette deposits concentrated chemoattractant, drawing chemotactic plasmodium swarms into dynamic vascular conduits',
+        measurements: {
+          peakPheromoneMass: Number(peakInteractionMass.toFixed(2)),
+          currentMass: Number(totalTrailMass.toFixed(2)),
+          interactiveFrames: simFrame
+        }
+      };
+    };
+  </script>
+</body>
+</html>

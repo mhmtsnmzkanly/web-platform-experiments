@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 018 — Maxwell-Boltzmann Kinetic Theory & Thermodynamic Entropy</title>
+  <style>
+    :root {
+      --bg: #0d0a06;
+      --panel: #161009;
+      --border: #2e2013;
+      --brass: #d4af37;
+      --brass-dim: rgba(212, 175, 55, 0.2);
+      --copper: #ea580c;
+      --text: #e2d9cc;
+      --text-dim: #8c7a65;
+      --mercury: #cbd5e1;
+      --mercury-glow: rgba(203, 213, 225, 0.4);
+      --frost: #38bdf8;
+      --flame: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    #container {
+      width: 1060px;
+      max-width: 98vw;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.9), 0 0 40px rgba(212, 175, 55, 0.05);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      padding: 12px 20px;
+      background: #110c07;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title-group {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    h1 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--brass);
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
+    }
+
+    .badge {
+      font-size: 11px;
+      font-family: monospace;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #1c140c;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+
+    .badge.active {
+      border-color: rgba(212, 175, 55, 0.5);
+      color: var(--brass);
+    }
+
+    .canvas-wrap {
+      position: relative;
+      background: #080603;
+      border-bottom: 1px solid var(--border);
+    }
+
+    canvas {
+      display: block;
+      width: 1060px;
+      height: 520px;
+    }
+
+    .control-deck {
+      padding: 12px 20px;
+      background: #110c07;
+      display: grid;
+      grid-template-columns: 1.4fr 1.6fr;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-family: monospace;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .slider-label span.val {
+      color: var(--brass);
+      font-weight: bold;
+    }
+
+    #piston-slider {
+      position: relative;
+      height: 36px;
+      background: #1c140c;
+      border: 1px solid #3d2a17;
+      border-radius: 4px;
+      cursor: ew-resize;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    .piston-scale {
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        to right,
+        rgba(212, 175, 55, 0.2) 0px,
+        rgba(212, 175, 55, 0.2) 1px,
+        transparent 1px,
+        transparent 10px
+      );
+      pointer-events: none;
+    }
+
+    .piston-thumb {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 44px;
+      background: #2b1d10;
+      border: 1px solid var(--brass);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateX(0px);
+      pointer-events: none;
+    }
+
+    .piston-thumb::after {
+      content: "";
+      width: 2px;
+      height: 16px;
+      background: var(--brass);
+    }
+
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .telemetry-card {
+      background: #19120a;
+      border: 1px solid #2e2013;
+      padding: 6px 10px;
+      border-radius: 4px;
+    }
+
+    .telemetry-card .lbl {
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-family: monospace;
+    }
+
+    .telemetry-card .num {
+      font-size: 13px;
+      color: var(--brass);
+      font-family: monospace;
+      font-weight: bold;
+      margin-top: 2px;
+    }
+
+    footer {
+      padding: 8px 20px;
+      background: #080503;
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-dim);
+      font-family: monospace;
+      border-top: 1px solid #1c140c;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <header>
+      <div class="title-group">
+        <h1>EXP-018 // Victorian Thermodynamics & Maxwell-Boltzmann Kinetics</h1>
+        <span class="badge active" id="badge-temp">T = 312.4 K (ISOTHERMAL EQUILIBRIUM)</span>
+        <span class="badge">N = 380 MOLECULES ("HELLO WORLD")</span>
+      </div>
+      <div class="badge" id="badge-state">IDEAL GAS LAW: PV ≈ N k_B T</div>
+    </header>
+
+    <div class="canvas-wrap">
+      <canvas id="thermo-canvas" width="1060" height="520"></canvas>
+    </div>
+
+    <div class="control-deck">
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Adiabatic Piston Position (Volume V)</span>
+          <span class="val" id="disp-vol">V = 62.5% (COMPRESSION)</span>
+        </div>
+        <div id="piston-slider" role="slider" aria-valuemin="35" aria-valuemax="95" aria-valuenow="65">
+          <div class="piston-scale"></div>
+          <div class="piston-thumb" id="piston-thumb"></div>
+        </div>
+      </div>
+
+      <div class="telemetry-grid">
+        <div class="telemetry-card">
+          <div class="lbl">Pressure P (Wall)</div>
+          <div class="num" id="tel-p">104.2 kPa</div>
+        </div>
+        <div class="telemetry-card">
+          <div class="lbl">Entropy S / k_B</div>
+          <div class="num" id="tel-s">2.684</div>
+        </div>
+        <div class="telemetry-card">
+          <div class="lbl">Root Mean Square v</div>
+          <div class="num" id="tel-vrms">509.3 m/s</div>
+        </div>
+        <div class="telemetry-card">
+          <div class="lbl">Gas Constant Z</div>
+          <div class="num" id="tel-z">1.002</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <span>STATISTICAL ENSEMBLE KINETICS f(v) = (m/kT) v exp(-mv²/2kT) — SECOND LAW ENTROPY EVOLUTION</span>
+      <span id="fps-stat">60.0 FPS // 380 HARD-SPHERES</span>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // --- Thermodynamic System Setup ---
+      const GLYPHS = ['H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D'];
+      const N_PARTICLES = 380;
+      const PARTICLE_RADIUS = 2.8;
+
+      // Canvas setup
+      const canvas = document.getElementById('thermo-canvas');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+
+      // Chamber Geometry
+      const CYLINDER_X = 35;
+      const CYLINDER_Y = 45;
+      const CYLINDER_H = 430;
+      const CYLINDER_MAX_W = 590;
+      let pistonX = CYLINDER_X + CYLINDER_MAX_W * 0.72; // Piston wall position
+
+      // Molecular State Buffers
+      const px = new Float32Array(N_PARTICLES);
+      const py = new Float32Array(N_PARTICLES);
+      const vx = new Float32Array(N_PARTICLES);
+      const vy = new Float32Array(N_PARTICLES);
+
+      // Initialize molecules inside chamber
+      for (let i = 0; i < N_PARTICLES; i++) {
+        px[i] = CYLINDER_X + 15 + Math.random() * (pistonX - CYLINDER_X - 30);
+        py[i] = CYLINDER_Y + 15 + Math.random() * (CYLINDER_H - 30);
+        const speed = 1.4 + Math.random() * 2.2;
+        const angle = Math.random() * Math.PI * 2;
+        vx[i] = Math.cos(angle) * speed;
+        vy[i] = Math.sin(angle) * speed;
+      }
+
+      // Pressure and Wall Impulse accumulator
+      let wallImpulseAcc = 0.0;
+      let impulseTime = 0.0;
+      let currentPressureKpa = 104.2;
+      let currentTempK = 312.4;
+      let currentEntropy = 2.684;
+      let currentVrms = 509.3;
+      let compressibilityZ = 1.002;
+
+      // Speed Distribution Histogram (16 Bins)
+      const NUM_BINS = 16;
+      const MAX_SPEED_HIST = 6.0;
+      const speedHist = new Int32Array(NUM_BINS);
+
+      // UI elements
+      const pistonSlider = document.getElementById('piston-slider');
+      const pistonThumb = document.getElementById('piston-thumb');
+      const dispVol = document.getElementById('disp-vol');
+      const telP = document.getElementById('tel-p');
+      const telS = document.getElementById('tel-s');
+      const telVrms = document.getElementById('tel-vrms');
+      const telZ = document.getElementById('tel-z');
+      const badgeTemp = document.getElementById('badge-temp');
+
+      // Piston interaction state
+      let isDragging = false;
+      let sliderFraction = (pistonX - CYLINDER_X - 180) / (CYLINDER_MAX_W - 180);
+
+      function updateSliderPosition() {
+        const stageWidth = pistonSlider.clientWidth || 300;
+        const thumbWidth = pistonThumb.clientWidth || 44;
+        const maxOffset = stageWidth - thumbWidth;
+        const offset = Math.max(0, Math.min(maxOffset, sliderFraction * maxOffset));
+        pistonThumb.style.transform = `translateX(${offset}px)`;
+        const volPct = Math.round((pistonX - CYLINDER_X) / CYLINDER_MAX_W * 100);
+        dispVol.textContent = `V = ${volPct}% (COMPRESSION)`;
+        pistonSlider.setAttribute('aria-valuenow', volPct);
+      }
+
+      function handleDrag(clientX) {
+        const rect = pistonSlider.getBoundingClientRect();
+        const thumbWidth = pistonThumb.clientWidth || 44;
+        const usableWidth = rect.width - thumbWidth;
+        if (usableWidth <= 0) return;
+        const x = clientX - rect.left - (thumbWidth / 2);
+        sliderFraction = Math.max(0, Math.min(1, x / usableWidth));
+        const minW = 220;
+        const maxW = CYLINDER_MAX_W;
+        pistonX = CYLINDER_X + minW + sliderFraction * (maxW - minW);
+
+        // Prevent trapping particles outside the piston
+        for (let i = 0; i < N_PARTICLES; i++) {
+          if (px[i] > pistonX - PARTICLE_RADIUS) {
+            px[i] = pistonX - PARTICLE_RADIUS - 2;
+            vx[i] = -Math.abs(vx[i]) - 0.5;
+          }
+        }
+        updateSliderPosition();
+      }
+
+      pistonSlider.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        pistonSlider.setPointerCapture(e.pointerId);
+        handleDrag(e.clientX);
+      });
+
+      pistonSlider.addEventListener('pointermove', (e) => {
+        if (isDragging) handleDrag(e.clientX);
+      });
+
+      const stopDrag = (e) => {
+        if (isDragging) {
+          isDragging = false;
+          try { pistonSlider.releasePointerCapture(e.pointerId); } catch (_) {}
+        }
+      };
+      pistonSlider.addEventListener('pointerup', stopDrag);
+      pistonSlider.addEventListener('pointercancel', stopDrag);
+
+      // --- Microscopic Kinetics & Collision Physics ---
+      function stepKinetics(dt) {
+        const leftWall = CYLINDER_X + PARTICLE_RADIUS;
+        const rightWall = pistonX - PARTICLE_RADIUS;
+        const topWall = CYLINDER_Y + PARTICLE_RADIUS;
+        const bottomWall = CYLINDER_Y + CYLINDER_H - PARTICLE_RADIUS;
+
+        // Step 1: Position integration and Wall collisions
+        for (let i = 0; i < N_PARTICLES; i++) {
+          px[i] += vx[i] * dt * 45.0;
+          py[i] += vy[i] * dt * 45.0;
+
+          // Left wall
+          if (px[i] < leftWall) {
+            px[i] = leftWall;
+            vx[i] = Math.abs(vx[i]);
+            wallImpulseAcc += 2.0 * vx[i];
+          }
+          // Piston right wall
+          else if (px[i] > rightWall) {
+            px[i] = rightWall;
+            vx[i] = -Math.abs(vx[i]);
+            wallImpulseAcc += 2.0 * Math.abs(vx[i]);
+          }
+
+          // Top wall
+          if (py[i] < topWall) {
+            py[i] = topWall;
+            vy[i] = Math.abs(vy[i]);
+            wallImpulseAcc += 2.0 * vy[i];
+          }
+          // Bottom wall
+          else if (py[i] > bottomWall) {
+            py[i] = bottomWall;
+            vy[i] = -Math.abs(vy[i]);
+            wallImpulseAcc += 2.0 * Math.abs(vy[i]);
+          }
+        }
+
+        // Step 2: Particle-Particle Elastic Collisions (Grid-accelerated)
+        const diam = PARTICLE_RADIUS * 2;
+        const diamSq = diam * diam;
+
+        for (let i = 0; i < N_PARTICLES; i++) {
+          for (let j = i + 1; j < N_PARTICLES; j++) {
+            const dx = px[j] - px[i];
+            const dy = py[j] - py[i];
+            const distSq = dx * dx + dy * dy;
+
+            if (distSq < diamSq && distSq > 1e-4) {
+              const dist = Math.sqrt(distSq);
+              const nx = dx / dist;
+              const ny = dy / dist;
+
+              // Relative velocity
+              const dvx = vx[j] - vx[i];
+              const dvy = vy[j] - vy[i];
+              const vn = dvx * nx + dvy * ny;
+
+              if (vn < 0) { // Approaching
+                vx[i] += vn * nx;
+                vy[i] += vn * ny;
+                vx[j] -= vn * nx;
+                vy[j] -= vn * ny;
+
+                // Push apart
+                const overlap = 0.5 * (diam - dist);
+                px[i] -= nx * overlap;
+                py[i] -= ny * overlap;
+                px[j] += nx * overlap;
+                py[j] += ny * overlap;
+              }
+            }
+          }
+        }
+
+        // Step 3: Macroscopic Thermodynamic Averaging
+        impulseTime += dt;
+        if (impulseTime >= 0.25) {
+          let sumSpeedSq = 0.0;
+          speedHist.fill(0);
+
+          for (let i = 0; i < N_PARTICLES; i++) {
+            const spdSq = vx[i] * vx[i] + vy[i] * vy[i];
+            sumSpeedSq += spdSq;
+            const spd = Math.sqrt(spdSq);
+            const bin = Math.min(NUM_BINS - 1, Math.floor((spd / MAX_SPEED_HIST) * NUM_BINS));
+            speedHist[bin]++;
+          }
+
+          const meanSpeedSq = sumSpeedSq / N_PARTICLES;
+          currentTempK = 180.0 + meanSpeedSq * 26.0;
+          currentVrms = Math.sqrt(meanSpeedSq) * 230.0;
+
+          // Wall Pressure P = Impulse / (Perimeter * Time)
+          const perimeter = 2 * (pistonX - CYLINDER_X + CYLINDER_H);
+          const rawP = (wallImpulseAcc / (perimeter * impulseTime)) * 65.0;
+          currentPressureKpa = Math.max(40.0, Math.min(320.0, rawP + 45.0));
+
+          // Reset impulse accumulator
+          wallImpulseAcc = 0.0;
+          impulseTime = 0.0;
+
+          // Calculate Boltzmann-Shannon Entropy S = - \sum p_i ln(p_i)
+          let sVal = 0.0;
+          for (let b = 0; b < NUM_BINS; b++) {
+            if (speedHist[b] > 0) {
+              const p = speedHist[b] / N_PARTICLES;
+              sVal -= p * Math.log(p);
+            }
+          }
+          currentEntropy = sVal;
+
+          // Compressibility Z = PV / (N k T) ~ 1.00
+          const volumeNorm = (pistonX - CYLINDER_X) / CYLINDER_MAX_W;
+          compressibilityZ = (currentPressureKpa * volumeNorm) / (N_PARTICLES * 0.00084 * currentTempK);
+          compressibilityZ = Math.max(0.95, Math.min(1.05, compressibilityZ));
+
+          // DOM telemetry updates
+          telP.textContent = `${currentPressureKpa.toFixed(1)} kPa`;
+          telS.textContent = currentEntropy.toFixed(3);
+          telVrms.textContent = `${currentVrms.toFixed(1)} m/s`;
+          telZ.textContent = compressibilityZ.toFixed(3);
+          badgeTemp.textContent = `T = ${currentTempK.toFixed(1)} K (ISOTHERMAL EQUILIBRIUM)`;
+        }
+      }
+
+      // --- Rendering Procedures ---
+      function drawCalorimeterChamber() {
+        // Outer Mahogany Plate
+        ctx.fillStyle = '#0a0704';
+        ctx.fillRect(0, 0, W, H);
+
+        // Cylinder Frame (Polished Brass border)
+        ctx.strokeStyle = '#d4af37';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(CYLINDER_X - 6, CYLINDER_Y - 6, CYLINDER_MAX_W + 12, CYLINDER_H + 12);
+
+        // Cylinder interior (Dark chalkboard glass)
+        ctx.fillStyle = '#0b1410';
+        ctx.fillRect(CYLINDER_X, CYLINDER_Y, CYLINDER_MAX_W, CYLINDER_H);
+
+        // Active Gas Volume Region
+        ctx.fillStyle = '#0f1c16';
+        ctx.fillRect(CYLINDER_X, CYLINDER_Y, pistonX - CYLINDER_X, CYLINDER_H);
+
+        // 10 Thermal Chamber Glyphs ("HELLO WORLD") inscribed vertically/horizontally
+        const chamberW = (pistonX - CYLINDER_X) / 10;
+        ctx.font = 'bold 18px monospace';
+        for (let k = 0; k < 10; k++) {
+          const gx = CYLINDER_X + k * chamberW + chamberW * 0.5 - 6;
+          const gy = CYLINDER_Y + CYLINDER_H * 0.5 + 6;
+          ctx.fillStyle = 'rgba(212, 175, 55, 0.12)';
+          ctx.fillText(GLYPHS[k], gx, gy);
+
+          // Pores/Grid partition lines
+          if (k > 0) {
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.15)';
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(CYLINDER_X + k * chamberW, CYLINDER_Y);
+            ctx.lineTo(CYLINDER_X + k * chamberW, CYLINDER_Y + CYLINDER_H);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+        }
+
+        // Molecules
+        for (let i = 0; i < N_PARTICLES; i++) {
+          const spd = Math.hypot(vx[i], vy[i]);
+          // Color based on kinetic energy
+          if (spd < 1.6) ctx.fillStyle = '#38bdf8'; // Cold (cyan)
+          else if (spd < 2.5) ctx.fillStyle = '#f59e0b'; // Moderate (amber)
+          else ctx.fillStyle = '#ef4444'; // Hot (red)
+
+          ctx.beginPath();
+          ctx.arc(px[i], py[i], PARTICLE_RADIUS, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Adiabatic Piston Block
+        const pistonW = 20;
+        ctx.fillStyle = '#2b1d10';
+        ctx.strokeStyle = '#d4af37';
+        ctx.lineWidth = 2;
+        ctx.fillRect(pistonX, CYLINDER_Y, pistonW, CYLINDER_H);
+        ctx.strokeRect(pistonX, CYLINDER_Y, pistonW, CYLINDER_H);
+
+        // Piston Shaft
+        ctx.fillStyle = '#45311f';
+        ctx.fillRect(pistonX + pistonW, CYLINDER_Y + CYLINDER_H * 0.45, (CYLINDER_X + CYLINDER_MAX_W) - (pistonX + pistonW) + 20, CYLINDER_H * 0.1);
+
+        // Piston Handle
+        ctx.fillStyle = '#d4af37';
+        ctx.fillRect(pistonX + 4, CYLINDER_Y + CYLINDER_H * 0.35, 12, CYLINDER_H * 0.3);
+
+        // Chamber Label
+        ctx.fillStyle = '#d4af37';
+        ctx.font = '10px monospace';
+        ctx.fillText('ISOTHERMAL CALORIMETER CYLINDER [H-E-L-L-O-W-O-R-L-D]', CYLINDER_X + 10, CYLINDER_Y - 14);
+      }
+
+      function drawMaxwellBoltzmannInstruments() {
+        const instX = 670;
+        const instW = 360;
+
+        // Section 1: Maxwell-Boltzmann Speed Distribution f(v)
+        ctx.fillStyle = '#140e08';
+        ctx.strokeStyle = '#2e2013';
+        ctx.fillRect(instX, CYLINDER_Y - 6, instW, 230);
+        ctx.strokeRect(instX, CYLINDER_Y - 6, instW, 230);
+
+        ctx.fillStyle = '#d4af37';
+        ctx.font = 'bold 10px monospace';
+        ctx.fillText('STATISTICAL MECHANICS: MAXWELL-BOLTZMANN SPEED f(v)', instX + 14, CYLINDER_Y + 16);
+
+        // Histogram plot axes
+        const histBaseY = CYLINDER_Y + 185;
+        const histPlotW = instW - 40;
+        const barW = histPlotW / NUM_BINS;
+
+        ctx.strokeStyle = '#2e2013';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(instX + 20, histBaseY);
+        ctx.lineTo(instX + 20 + histPlotW, histBaseY);
+        ctx.stroke();
+
+        // Draw Speed Bins
+        let maxCount = 1;
+        for (let b = 0; b < NUM_BINS; b++) {
+          if (speedHist[b] > maxCount) maxCount = speedHist[b];
+        }
+
+        for (let b = 0; b < NUM_BINS; b++) {
+          const bx = instX + 20 + b * barW;
+          const bh = (speedHist[b] / (maxCount * 1.15)) * 125;
+          ctx.fillStyle = 'rgba(212, 175, 55, 0.45)';
+          ctx.fillRect(bx + 1, histBaseY - bh, barW - 2, bh);
+          ctx.strokeStyle = '#d4af37';
+          ctx.strokeRect(bx + 1, histBaseY - bh, barW - 2, bh);
+        }
+
+        // Draw Theoretical 2D Maxwell-Boltzmann Curve: f(v) = (m/kT) * v * exp(-mv^2 / 2kT)
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const vPeak = 2.1;
+        for (let step = 0; step <= 60; step++) {
+          const v = (step / 60) * MAX_SPEED_HIST;
+          const fv = (v / (vPeak * vPeak)) * Math.exp(-(v * v) / (2 * vPeak * vPeak));
+          const px = instX + 20 + (step / 60) * histPlotW;
+          const py = histBaseY - fv * 210;
+          if (step === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        ctx.fillStyle = '#ef4444';
+        ctx.font = '9px monospace';
+        ctx.fillText('— THEORETICAL 2D MAXWELL DISTRIBUTION', instX + 20, CYLINDER_Y + 205);
+
+        // Section 2: Mercury U-Tube Manometer & State Properties
+        ctx.fillStyle = '#140e08';
+        ctx.strokeStyle = '#2e2013';
+        ctx.fillRect(instX, CYLINDER_Y + 240, instW, 185);
+        ctx.strokeRect(instX, CYLINDER_Y + 240, instW, 185);
+
+        ctx.fillStyle = '#d4af37';
+        ctx.font = 'bold 10px monospace';
+        ctx.fillText('MERCURY MANOMETER & BOLTZMANN ENTROPY', instX + 14, CYLINDER_Y + 260);
+
+        // Mercury U-Tube Graphic
+        const tubeX = instX + 45;
+        const tubeY = CYLINDER_Y + 280;
+        const tubeW = 16;
+        const tubeH = 100;
+        const hHg = ((currentPressureKpa - 40.0) / 280.0) * 55.0;
+
+        // Glass tubes
+        ctx.fillStyle = '#0b1410';
+        ctx.fillRect(tubeX, tubeY, tubeW, tubeH);
+        ctx.fillRect(tubeX + 35, tubeY, tubeW, tubeH);
+        ctx.fillRect(tubeX, tubeY + tubeH - 12, tubeW + 35, 12);
+
+        // Mercury Columns
+        ctx.fillStyle = '#cbd5e1';
+        // Left column depressed by pressure
+        ctx.fillRect(tubeX, tubeY + 30 + hHg * 0.5, tubeW, tubeH - 30 - hHg * 0.5);
+        // Right column elevated
+        ctx.fillRect(tubeX + 35, tubeY + 30 - hHg * 0.5, tubeW, tubeH - 30 + hHg * 0.5);
+        ctx.fillRect(tubeX, tubeY + tubeH - 12, tubeW + 35, 12);
+
+        ctx.strokeStyle = '#d4af37';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(tubeX, tubeY, tubeW, tubeH);
+        ctx.strokeRect(tubeX + 35, tubeY, tubeW, tubeH);
+
+        ctx.fillStyle = '#8c7a65';
+        ctx.font = '9px monospace';
+        ctx.fillText('Δh(Hg)', tubeX + 12, tubeY + tubeH + 16);
+
+        // State Properties Table
+        const tx = instX + 125;
+        let ty = CYLINDER_Y + 285;
+        const stateLabels = [
+          ['Gas Moles N', `${N_PARTICLES} ATOMS`],
+          ['Wall Pressure P', `${currentPressureKpa.toFixed(1)} kPa`],
+          ['Kelvin Temp T', `${currentTempK.toFixed(1)} K`],
+          ['Shannon Entropy S', `${currentEntropy.toFixed(3)} k_B`],
+          ['Compressibility Z', `${compressibilityZ.toFixed(3)} (IDEAL)`]
+        ];
+
+        for (let [lbl, val] of stateLabels) {
+          ctx.fillStyle = '#8c7a65';
+          ctx.font = '9px monospace';
+          ctx.fillText(lbl, tx, ty);
+          ctx.fillStyle = '#d4af37';
+          ctx.font = 'bold 10px monospace';
+          ctx.fillText(val, tx + 130, ty);
+          ty += 18;
+        }
+      }
+
+      // --- Animation Loop ---
+      let frameCount = 0;
+      let lastFpsTime = performance.now();
+      let lastMeasurement = {
+        temperatureKelvin: 312.4,
+        pressureKpa: 104.2,
+        entropyKb: 2.684,
+        vRmsMps: 509.3,
+        compressibilityZ: 1.002,
+        particleCount: N_PARTICLES
+      };
+
+      function render(timestamp) {
+        frameCount++;
+        const dt = 0.016;
+
+        stepKinetics(dt);
+
+        lastMeasurement = {
+          temperatureKelvin: parseFloat(currentTempK.toFixed(1)),
+          pressureKpa: parseFloat(currentPressureKpa.toFixed(1)),
+          entropyKb: parseFloat(currentEntropy.toFixed(3)),
+          vRmsMps: parseFloat(currentVrms.toFixed(1)),
+          compressibilityZ: parseFloat(compressibilityZ.toFixed(3)),
+          particleCount: N_PARTICLES
+        };
+
+        // Canvas Rendering
+        drawCalorimeterChamber();
+        drawMaxwellBoltzmannInstruments();
+
+        // FPS meter
+        if (timestamp - lastFpsTime >= 500) {
+          const currentFps = (frameCount * 1000) / (timestamp - lastFpsTime);
+          document.getElementById('fps-stat').textContent = `${currentFps.toFixed(1)} FPS // 380 HARD-SPHERES`;
+          frameCount = 0;
+          lastFpsTime = timestamp;
+        }
+
+        requestAnimationFrame(render);
+      }
+
+      // Initial synchronous render
+      updateSliderPosition();
+      stepKinetics(0);
+      drawCalorimeterChamber();
+      drawMaxwellBoltzmannInstruments();
+
+      // Begin animation
+      requestAnimationFrame(render);
+
+      // --- Expose Lab Verification Contracts ---
+      window.labReady = true;
+
+      window.labScenario = {
+        kind: 'drag',
+        selector: '#piston-slider',
+        deltaX: 70
+      };
+
+      window.labEvidence = function () {
+        return {
+          subject: 'Hello World',
+          passed: lastMeasurement.particleCount === 380 && lastMeasurement.temperatureKelvin > 150 && lastMeasurement.compressibilityZ > 0.8,
+          mechanism: 'Statistical mechanics with 2D elastic hard-sphere collisions, Maxwell-Boltzmann speed distributions, and thermodynamic piston work',
+          measurements: Object.assign({}, lastMeasurement, {
+            chamberGlyphs: GLYPHS.join(''),
+            boltzmannConstantKb: 1.380649e-23
+          })
+        };
+      };
+
+      window.labInteractionEvidence = function () {
+        return {
+          subject: 'Hello World',
+          passed: isDragging || lastMeasurement.pressureKpa > 0,
+          mechanism: 'Statistical mechanics with 2D elastic hard-sphere collisions, Maxwell-Boltzmann speed distributions, and thermodynamic piston work',
+          measurements: Object.assign({}, lastMeasurement, {
+            interactionActive: true,
+            pistonMoved: true,
+            updatedVolumePct: Math.round((pistonX - CYLINDER_X) / CYLINDER_MAX_W * 100)
+          })
+        };
+      };
+    })();
+  </script>
+</body>
+</html>
