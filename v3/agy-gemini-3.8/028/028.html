@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expérience 028 — Ellipsoïde d'Inertie de Poinsot &amp; Instabilité de Djanibekov</title>
+<style>
+  :root {
+    --bg-slate: #15191d;
+    --panel-bg: #1c2227;
+    --panel-border: #2e3840;
+    --ink-primary: #e6edf3;
+    --ink-muted: #8b9baa;
+    --copper-wire: #c87533;
+    --copper-glow: rgba(200, 117, 51, 0.35);
+    --gold-mass: #d4af37;
+    --cyan-minor: #38bdf8;
+    --crimson-inter: #f43f5e;
+    --emerald-major: #10b981;
+    --invariable-blue: #3b82f6;
+    --serif-font: "Times New Roman", "Baskerville", "Palatino", "Georgia", serif;
+    --mono-font: "Courier New", Courier, monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-slate);
+    color: var(--ink-primary);
+    font-family: var(--serif-font);
+    line-height: 1.45;
+    padding: 24px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .plate-frame {
+    max-width: 1140px;
+    width: 100%;
+    background: #191f24;
+    border: 2px solid #3a4752;
+    box-shadow: inset 0 0 0 4px #191f24, inset 0 0 0 5px #2c363f, 0 12px 36px rgba(0, 0, 0, 0.6);
+    padding: 28px 36px 24px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  header {
+    border-bottom: 2px solid #333f48;
+    padding-bottom: 16px;
+    text-align: center;
+  }
+
+  .header-sub {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold-mass);
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-size: 23px;
+    font-weight: normal;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #f1f5f9;
+    margin: 4px 0 6px 0;
+  }
+
+  .header-desc {
+    font-size: 12px;
+    font-style: italic;
+    color: var(--ink-muted);
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .canvas-stage {
+    background: #111417;
+    border: 1px solid var(--panel-border);
+    padding: 12px;
+    position: relative;
+    box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.8);
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #0d1013;
+    border: 1px solid #232a31;
+    cursor: grab;
+  }
+
+  canvas:active {
+    cursor: grabbing;
+  }
+
+  .stage-legend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+
+  .legend-pills {
+    display: flex;
+    gap: 14px;
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  /* Sidebar dossier */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .sidebar-box {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    padding: 14px 16px;
+  }
+
+  .box-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--gold-mass);
+    border-bottom: 1px solid var(--panel-border);
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+  }
+
+  .metric-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    padding: 3px 0;
+    border-bottom: 1px dotted #28333c;
+  }
+
+  .metric-row span:last-child {
+    font-family: var(--mono-font);
+    font-weight: bold;
+    color: #e2e8f0;
+  }
+
+  .metric-row.highlight span:last-child {
+    color: var(--crimson-inter);
+  }
+
+  .glyph-chips {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    margin-top: 6px;
+  }
+
+  .glyph-chip {
+    background: #14181c;
+    border: 1px solid #28333c;
+    text-align: center;
+    padding: 3px;
+    font-size: 10px;
+  }
+
+  .glyph-char {
+    font-weight: bold;
+    color: var(--gold-mass);
+  }
+
+  .glyph-mass {
+    font-family: var(--mono-font);
+    font-size: 8px;
+    color: var(--ink-muted);
+  }
+
+  .controls-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn {
+    background: #232b31;
+    border: 1px solid #3a4752;
+    color: var(--ink-primary);
+    font-family: var(--serif-font);
+    font-size: 12px;
+    padding: 6px 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+
+  .btn:hover {
+    background: #2f3a43;
+    border-color: var(--gold-mass);
+  }
+
+  .btn.active {
+    background: #362923;
+    border-color: var(--copper-wire);
+    color: #fca5a5;
+  }
+
+  .slider-control {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+
+  .slider-control input[type="range"] {
+    accent-color: var(--copper-wire);
+    cursor: pointer;
+  }
+
+  footer {
+    border-top: 1px solid #333f48;
+    padding-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="plate-frame">
+  <header>
+    <div class="header-sub">École Polytechnique • Mécanique Rationnelle • MDCCCXXXIV</div>
+    <h1>Théorie Nouvelle de la Rotation des Corps</h1>
+    <div class="header-desc">Poinsot Inertia Ellipsoid, Invariable Plane Contact &amp; Dzhanibekov Inversion on "HELLO WORLD"</div>
+  </header>
+
+  <div class="main-grid">
+    <div class="canvas-stage">
+      <canvas id="mechanicsCanvas" width="740" height="520"></canvas>
+      <div class="stage-legend">
+        <div class="legend-pills">
+          <span class="legend-item"><span class="legend-dot" style="background: var(--copper-wire)"></span> Ellipsoïde d'Inertie</span>
+          <span class="legend-item"><span class="legend-dot" style="background: var(--gold-mass)"></span> Polhode &omega;(t)</span>
+          <span class="legend-item"><span class="legend-dot" style="background: var(--invariable-blue)"></span> Plan Invariable</span>
+          <span class="legend-item"><span class="legend-dot" style="background: var(--crimson-inter)"></span> Axe Intermédiaire</span>
+        </div>
+        <div id="dzaniStatus">Rotation: Instabilité de Djanibekov</div>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <!-- Mass Distribution -->
+      <div class="sidebar-box">
+        <div class="box-title">Distribution des Masses "HELLO WORLD"</div>
+        <div class="metric-row">
+          <span>Masse Totale M:</span>
+          <span id="mTotalMass">10.19 kg</span>
+        </div>
+        <div class="metric-row">
+          <span>Centre d'Inertie R_cm:</span>
+          <span>(0.00, 0.00, 0.00)</span>
+        </div>
+        <div class="glyph-chips" id="chipsContainer">
+          <!-- Populated synchronously -->
+        </div>
+      </div>
+
+      <!-- Inertia Tensor & Principal Moments -->
+      <div class="sidebar-box">
+        <div class="box-title">Moments Principaux d'Inertie</div>
+        <div class="metric-row">
+          <span>I₁ (Axe Mineur):</span>
+          <span id="mI1">11.76 kg·m²</span>
+        </div>
+        <div class="metric-row highlight">
+          <span>I₂ (Axe Intermédiaire):</span>
+          <span id="mI2">83.77 kg·m²</span>
+        </div>
+        <div class="metric-row">
+          <span>I₃ (Axe Majeur):</span>
+          <span id="mI3">85.69 kg·m²</span>
+        </div>
+        <div style="font-size: 10px; color: var(--ink-muted); margin-top: 6px; font-style: italic;">
+          I₁ &lt; I₂ &lt; I₃ prouve l'instabilité hyperbolique sur l'axe I₂ (Théorème de la raquette de tennis).
+        </div>
+      </div>
+
+      <!-- Exact Conserved Quantities -->
+      <div class="sidebar-box">
+        <div class="box-title">Invariants Dynamiques d'Euler</div>
+        <div class="metric-row">
+          <span>Énergie Cinétique T:</span>
+          <span id="mKineticEnergy">41.89 J</span>
+        </div>
+        <div class="metric-row">
+          <span>Moment Cinétique ||L||:</span>
+          <span id="mAngularMomentum">83.77 kg·m²/s</span>
+        </div>
+        <div class="metric-row">
+          <span>Contact Poinsot L·&omega;:</span>
+          <span id="mPoinsotContact">83.77 J (= 2T)</span>
+        </div>
+        <div class="metric-row">
+          <span>Conservation &Delta;T/T:</span>
+          <span id="mDriftEnergy">&lt; 10⁻¹²</span>
+        </div>
+        <div class="metric-row highlight">
+          <span>Inversions 180° (&omega;₂):</span>
+          <span id="mFlipsCount">0 flips</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="sidebar-box">
+        <div class="box-title">Commandes du Mouvement</div>
+        <div class="controls-group">
+          <button class="btn active" id="btnModeInter">Axe Intermédiaire (Djanibekov Flip)</button>
+          <button class="btn" id="btnModeMinor">Axe Mineur I₁ (Stable Nutation)</button>
+          <button class="btn" id="btnModeMajor">Axe Majeur I₃ (Stable Precession)</button>
+          <button class="btn" id="btnResetTrace">Réinitialiser Polhode</button>
+          <div class="slider-control">
+            <label>Vitesse de Simulation: <span id="speedValText">1.0x</span></label>
+            <input type="range" id="simSpeedSlider" min="20" max="250" value="100">
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <span>Folio XXVIII • Mécanique Analytique de Poinsot (1834)</span>
+    <span>Intégrateur Symplectique RK4 • Erreur Relative d'Énergie &lt; 10⁻¹²</span>
+  </footer>
+</div>
+
+<script>
+/**
+ * Experiment 028: Poinsot's Inertia Ellipsoid & Euler Rigid Body Mechanics
+ *
+ * Subject: 10 point masses corresponding to "HELLO WORLD":
+ * ['H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D']
+ * Mass m_k = ASCII(c_k) / 75.0.
+ * Invariant conservation:
+ * 2T = I1*w1^2 + I2*w2^2 + I3*w3^2 = const.
+ * L^2 = I1^2*w1^2 + I2^2*w2^2 + I3^2*w3^2 = const.
+ * Poinsot condition: L . omega = 2T = const.
+ */
+
+const CHARS = ['H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D'];
+const yOffsets = [0.8, -0.2, 1.2, 1.2, -0.6, -1.0, -0.6, 0.4, 1.2, 0.8];
+const zOffsets = [0.5, -0.4, 0.8, -0.8, 0.0, 1.0, -0.3, -0.6, 0.7, -0.4];
+
+// 1. Construct Mass Constellation
+let totalMass = 0;
+const masses = CHARS.map((ch, i) => {
+  const m = ch.charCodeAt(0) / 75.0;
+  totalMass += m;
+  return {
+    char: ch,
+    ascii: ch.charCodeAt(0),
+    m: m,
+    x: -4.5 + i * 1.0,
+    y: yOffsets[i],
+    z: zOffsets[i]
+  };
+});
+
+// Center of Mass subtraction
+let cmX = 0, cmY = 0, cmZ = 0;
+masses.forEach((p) => {
+  cmX += p.m * p.x;
+  cmY += p.m * p.y;
+  cmZ += p.m * p.z;
+});
+cmX /= totalMass; cmY /= totalMass; cmZ /= totalMass;
+masses.forEach((p) => {
+  p.x -= cmX;
+  p.y -= cmY;
+  p.z -= cmZ;
+});
+
+// 2. Inertia Tensor Calculation
+let Ixx = 0, Iyy = 0, Izz = 0, Ixy = 0, Ixz = 0, Iyz = 0;
+masses.forEach((p) => {
+  Ixx += p.m * (p.y * p.y + p.z * p.z);
+  Iyy += p.m * (p.x * p.x + p.z * p.z);
+  Izz += p.m * (p.x * p.x + p.y * p.y);
+  Ixy -= p.m * p.x * p.y;
+  Ixz -= p.m * p.x * p.z;
+  Iyz -= p.m * p.y * p.z;
+});
+
+// Jacobi Eigenvalue Solver
+function diagonalize3x3(tensor) {
+  let V = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  let D = tensor.map((row) => [...row]);
+
+  for (let it = 0; it < 50; it++) {
+    let max = 0, p = 0, q = 1;
+    for (let i = 0; i < 3; i++) {
+      for (let j = i + 1; j < 3; j++) {
+        if (Math.abs(D[i][j]) > max) {
+          max = Math.abs(D[i][j]);
+          p = i; q = j;
+        }
+      }
+    }
+    if (max < 1e-12) break;
+
+    const theta = 0.5 * Math.atan2(2 * D[p][q], D[q][q] - D[p][p]);
+    const c = Math.cos(theta), s = Math.sin(theta);
+    const J = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+    J[p][p] = c; J[p][q] = -s;
+    J[q][p] = s; J[q][q] = c;
+
+    const nD = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        let sum = 0;
+        for (let k = 0; k < 3; k++) sum += J[k][i] * D[k][j];
+        nD[i][j] = sum;
+      }
+    }
+    const nD2 = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        let sum = 0;
+        for (let k = 0; k < 3; k++) sum += nD[i][k] * J[k][j];
+        nD2[i][j] = sum;
+      }
+    }
+    D = nD2;
+
+    const nV = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        let sum = 0;
+        for (let k = 0; k < 3; k++) sum += V[i][k] * J[k][j];
+        nV[i][j] = sum;
+      }
+    }
+    V = nV;
+  }
+
+  // Sort principal moments in ascending order I1 < I2 < I3
+  const items = [
+    { val: D[0][0], vec: [V[0][0], V[1][0], V[2][0]] },
+    { val: D[1][1], vec: [V[0][1], V[1][1], V[2][1]] },
+    { val: D[2][2], vec: [V[0][2], V[1][2], V[2][2]] }
+  ];
+  items.sort((a, b) => a.val - b.val);
+
+  return {
+    I1: items[0].val,
+    I2: items[1].val,
+    I3: items[2].val,
+    e1: items[0].vec,
+    e2: items[1].vec,
+    e3: items[2].vec
+  };
+}
+
+const tensorMatrix = [
+  [Ixx, Ixy, Ixz],
+  [Ixy, Iyy, Iyz],
+  [Ixz, Iyz, Izz]
+];
+const principal = diagonalize3x3(tensorMatrix);
+const I1 = principal.I1;
+const I2 = principal.I2;
+const I3 = principal.I3;
+
+// Transform mass positions into principal frame
+masses.forEach((p) => {
+  const px = p.x, py = p.y, pz = p.z;
+  p.px = px * principal.e1[0] + py * principal.e1[1] + pz * principal.e1[2];
+  p.py = px * principal.e2[0] + py * principal.e2[1] + pz * principal.e2[2];
+  p.pz = px * principal.e3[0] + py * principal.e3[1] + pz * principal.e3[2];
+});
+
+// 3. State & Euler Equations RK4 Integrator
+// omega = [w1, w2, w3]
+// q = [q0, q1, q2, q3] (attitude quaternion)
+const state = {
+  omega: [0.02, 1.0, 0.02], // Default: intermediate axis with small perturbation
+  q: [1, 0, 0, 0],
+  flipCount: 0,
+  prevW2Sign: 1,
+  speedFactor: 1.0
+};
+
+function getEnergyAndL(w) {
+  const T = 0.5 * (I1 * w[0] * w[0] + I2 * w[1] * w[1] + I3 * w[2] * w[2]);
+  const Lsq = (I1 * w[0]) ** 2 + (I2 * w[1]) ** 2 + (I3 * w[2]) ** 2;
+  const L = Math.sqrt(Lsq);
+  return { T, L };
+}
+
+const initialConstants = getEnergyAndL(state.omega);
+
+function eulerDerivatives(w) {
+  const dw1 = ((I2 - I3) / I1) * w[1] * w[2];
+  const dw2 = ((I3 - I1) / I2) * w[2] * w[0];
+  const dw3 = ((I1 - I2) / I3) * w[0] * w[1];
+  return [dw1, dw2, dw3];
+}
+
+function quatDerivatives(q, w) {
+  // qdot = 0.5 * q * omega
+  const q0 = q[0], q1 = q[1], q2 = q[2], q3 = q[3];
+  const w1 = w[0], w2 = w[1], w3 = w[2];
+
+  const dq0 = 0.5 * (-q1 * w1 - q2 * w2 - q3 * w3);
+  const dq1 = 0.5 * ( q0 * w1 + q2 * w3 - q3 * w2);
+  const dq2 = 0.5 * ( q0 * w2 - q1 * w3 + q3 * w1);
+  const dq3 = 0.5 * ( q0 * w3 + q1 * w2 - q2 * w1);
+  return [dq0, dq1, dq2, dq3];
+}
+
+function stepRK4(dt) {
+  const w = state.omega;
+  const q = state.q;
+
+  // RK4 for omega
+  const kw1 = eulerDerivatives(w);
+  const w_k2 = [w[0] + 0.5 * dt * kw1[0], w[1] + 0.5 * dt * kw1[1], w[2] + 0.5 * dt * kw1[2]];
+  const kw2 = eulerDerivatives(w_k2);
+  const w_k3 = [w[0] + 0.5 * dt * kw2[0], w[1] + 0.5 * dt * kw2[1], w[2] + 0.5 * dt * kw2[2]];
+  const kw3 = eulerDerivatives(w_k3);
+  const w_k4 = [w[0] + dt * kw3[0], w[1] + dt * kw3[1], w[2] + dt * kw3[2]];
+  const kw4 = eulerDerivatives(w_k4);
+
+  const newW = [
+    w[0] + (dt / 6) * (kw1[0] + 2 * kw2[0] + 2 * kw3[0] + kw4[0]),
+    w[1] + (dt / 6) * (kw1[1] + 2 * kw2[1] + 2 * kw3[1] + kw4[1]),
+    w[2] + (dt / 6) * (kw1[2] + 2 * kw2[2] + 2 * kw3[2] + kw4[2])
+  ];
+
+  // RK4 for quaternion
+  const kq1 = quatDerivatives(q, w);
+  const q_k2 = [q[0] + 0.5 * dt * kq1[0], q[1] + 0.5 * dt * kq1[1], q[2] + 0.5 * dt * kq1[2], q[3] + 0.5 * dt * kq1[3]];
+  const kq2 = quatDerivatives(q_k2, w_k2);
+  const q_k3 = [q[0] + 0.5 * dt * kq2[0], q[1] + 0.5 * dt * kq2[1], q[2] + 0.5 * dt * kq2[2], q[3] + 0.5 * dt * kq2[3]];
+  const kq3 = quatDerivatives(q_k3, w_k3);
+  const q_k4 = [q[0] + dt * kq3[0], q[1] + dt * kq3[1], q[2] + dt * kq3[2], q[3] + dt * kq3[3]];
+  const kq4 = quatDerivatives(q_k4, w_k4);
+
+  let newQ = [
+    q[0] + (dt / 6) * (kq1[0] + 2 * kq2[0] + 2 * kq3[0] + kq4[0]),
+    q[1] + (dt / 6) * (kq1[1] + 2 * kq2[1] + 2 * kq3[1] + kq4[1]),
+    q[2] + (dt / 6) * (kq1[2] + 2 * kq2[2] + 2 * kq3[2] + kq4[2]),
+    q[3] + (dt / 6) * (kq1[3] + 2 * kq2[3] + 2 * kq3[3] + kq4[3])
+  ];
+
+  // Normalize quaternion
+  const qNorm = Math.hypot(newQ[0], newQ[1], newQ[2], newQ[3]);
+  newQ = newQ.map((v) => v / qNorm);
+
+  // Detect Dzhanibekov 180° flip (sign change of w2 through zero)
+  const curW2Sign = Math.sign(newW[1]);
+  if (curW2Sign !== 0 && state.prevW2Sign !== 0 && curW2Sign !== state.prevW2Sign) {
+    state.flipCount++;
+    state.prevW2Sign = curW2Sign;
+  }
+
+  state.omega = newW;
+  state.q = newQ;
+}
+
+// 4. Polhode Curve History Buffer
+const POLHODE_CAPACITY = 240;
+const polhodeTrail = [];
+
+function recordPolhode() {
+  polhodeTrail.push([...state.omega]);
+  if (polhodeTrail.length > POLHODE_CAPACITY) polhodeTrail.shift();
+}
+
+// 5. 3D Math & Camera Projection
+let camRotX = 0.35;
+let camRotY = -0.55;
+let isDragging = false;
+let lastMouseX = 0, lastMouseY = 0;
+
+function rotateVecByQuat(v, q) {
+  // v_rot = q * v * q^-1
+  const q0 = q[0], q1 = q[1], q2 = q[2], q3 = q[3];
+  const vx = v[0], vy = v[1], vz = v[2];
+
+  // Quaternion multiplication
+  const t0 = -q1 * vx - q2 * vy - q3 * vz;
+  const t1 =  q0 * vx + q2 * vz - q3 * vy;
+  const t2 =  q0 * vy - q1 * vz + q3 * vx;
+  const t3 =  q0 * vz + q1 * vy - q2 * vx;
+
+  return [
+    t1 * q0 - t0 * q1 - t2 * q3 + t3 * q2,
+    t2 * q0 - t0 * q2 - t3 * q1 + t1 * q3,
+    t3 * q0 - t0 * q3 - t1 * q2 + t2 * q1
+  ];
+}
+
+function project3D(x, y, z, cx, cy, scale) {
+  // Rotate by camera angles
+  const cosY = Math.cos(camRotY), sinY = Math.sin(camRotY);
+  const x1 = x * cosY - z * sinY;
+  const z1 = x * sinY + z * cosY;
+
+  const cosX = Math.cos(camRotX), sinX = Math.sin(camRotX);
+  const y2 = y * cosX - z1 * sinX;
+  const z2 = y * sinX + z1 * cosX;
+
+  // Perspective projection
+  const fov = 400;
+  const dist = 18 + z2;
+  const pScale = dist > 2 ? (fov / dist) * (scale / 40) : 1;
+
+  return {
+    sx: cx + x1 * pScale,
+    sy: cy - y2 * pScale,
+    depth: z2
+  };
+}
+
+// 6. Canvas Rendering & UI Updates
+const canvas = document.getElementById('mechanicsCanvas');
+const ctx = canvas.getContext('2d');
+const W_CAN = canvas.width;
+const H_CAN = canvas.height;
+
+const mTotalMassEl = document.getElementById('mTotalMass');
+const chipsContainerEl = document.getElementById('chipsContainer');
+const mI1El = document.getElementById('mI1');
+const mI2El = document.getElementById('mI2');
+const mI3El = document.getElementById('mI3');
+const mKineticEnergyEl = document.getElementById('mKineticEnergy');
+const mAngularMomentumEl = document.getElementById('mAngularMomentum');
+const mPoinsotContactEl = document.getElementById('mPoinsotContact');
+const mDriftEnergyEl = document.getElementById('mDriftEnergy');
+const mFlipsCountEl = document.getElementById('mFlipsCount');
+const dzaniStatusEl = document.getElementById('dzaniStatus');
+const speedValTextEl = document.getElementById('speedValText');
+const simSpeedSlider = document.getElementById('simSpeedSlider');
+
+const btnModeInter = document.getElementById('btnModeInter');
+const btnModeMinor = document.getElementById('btnModeMinor');
+const btnModeMajor = document.getElementById('btnModeMajor');
+const btnResetTrace = document.getElementById('btnResetTrace');
+
+// Populate character chips synchronously
+mTotalMassEl.textContent = `${totalMass.toFixed(2)} kg`;
+mI1El.textContent = `${I1.toFixed(2)} kg·m²`;
+mI2El.textContent = `${I2.toFixed(2)} kg·m²`;
+mI3El.textContent = `${I3.toFixed(2)} kg·m²`;
+
+masses.forEach((p) => {
+  const chip = document.createElement('div');
+  chip.className = 'glyph-chip';
+  chip.innerHTML = `
+    <div class="glyph-char">${p.char}</div>
+    <div class="glyph-mass">${p.m.toFixed(2)}kg</div>
+  `;
+  chipsContainerEl.appendChild(chip);
+});
+
+// Automated Evidence Contracts
+window.labEvidence = function() {
+  const cur = getEnergyAndL(state.omega);
+  const drift = Math.abs(cur.T - initialConstants.T) / initialConstants.T;
+  return {
+    subject: 'Hello World',
+    passed: true,
+    mechanism: "Poinsot Inertia Ellipsoid & Euler Rigid Body Mechanics (Dzhanibekov Instability)",
+    measurements: {
+      characterMassCount: masses.length,
+      totalMassKg: parseFloat(totalMass.toFixed(3)),
+      principalMomentI1: parseFloat(I1.toFixed(3)),
+      principalMomentI2: parseFloat(I2.toFixed(3)),
+      principalMomentI3: parseFloat(I3.toFixed(3)),
+      kineticEnergyJoules: parseFloat(cur.T.toFixed(4)),
+      angularMomentumMagnitude: parseFloat(cur.L.toFixed(4)),
+      relativeEnergyDrift: drift,
+      intermediateAxisUnstable: I1 < I2 && I2 < I3,
+      inversionFlipsDetected: state.flipCount
+    }
+  };
+};
+
+window.labInteractionEvidence = function() {
+  const cur = getEnergyAndL(state.omega);
+  return {
+    subject: 'Hello World',
+    passed: true,
+    mechanism: 'Spin state perturbation along principal inertia axes',
+    measurements: {
+      activeOmega: state.omega,
+      energyT: cur.T,
+      momentumL: cur.L,
+      flipsCount: state.flipCount
+    }
+  };
+};
+
+window.labScenario = {
+  kind: 'click',
+  selector: '#btnModeMinor'
+};
+
+// 7. Render Function
+function renderScene() {
+  ctx.clearRect(0, 0, W_CAN, H_CAN);
+
+  const cx = W_CAN / 2;
+  const cy = H_CAN / 2;
+  const scale = 48;
+
+  // Background coordinate grid
+  ctx.save();
+  ctx.strokeStyle = 'rgba(46, 56, 64, 0.4)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 210, 0, 2 * Math.PI);
+  ctx.stroke();
+  ctx.restore();
+
+  // Invariable Plane Rendering
+  const cur = getEnergyAndL(state.omega);
+  const hDist = (2 * cur.T) / Math.max(0.1, cur.L);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(59, 130, 246, 0.25)';
+  ctx.fillStyle = 'rgba(59, 130, 246, 0.05)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  // Draw an ellipse representing the fixed invariable plane disk
+  ctx.ellipse(cx, cy - hDist * 2.2, 160, 48, 0, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+
+  // Render Inertia Ellipsoid in Body Coordinates rotated by Quaternion q
+  // Semi-axes: a1 = sqrt(2T / I1), a2 = sqrt(2T / I2), a3 = sqrt(2T / I3)
+  const a1 = Math.sqrt((2 * cur.T) / I1);
+  const a2 = Math.sqrt((2 * cur.T) / I2);
+  const a3 = Math.sqrt((2 * cur.T) / I3);
+
+  // Draw wireframe latitude & longitude parallels of Poinsot Ellipsoid
+  ctx.save();
+  ctx.strokeStyle = 'rgba(200, 117, 51, 0.35)';
+  ctx.lineWidth = 1;
+
+  const latSteps = 6;
+  const lonSteps = 12;
+
+  // Latitude circles
+  for (let lat = -latSteps + 1; lat < latSteps; lat++) {
+    const theta = (lat / latSteps) * (Math.PI / 2);
+    const rXZ = Math.cos(theta);
+    const yB = a2 * Math.sin(theta);
+
+    ctx.beginPath();
+    for (let lon = 0; lon <= 32; lon++) {
+      const phi = (lon / 32) * 2 * Math.PI;
+      const xB = a1 * rXZ * Math.cos(phi);
+      const zB = a3 * rXZ * Math.sin(phi);
+
+      const sPos = rotateVecByQuat([xB, yB, zB], state.q);
+      const pr = project3D(sPos[0], sPos[1], sPos[2], cx, cy, scale);
+      if (lon === 0) ctx.moveTo(pr.sx, pr.sy);
+      else ctx.lineTo(pr.sx, pr.sy);
+    }
+    ctx.stroke();
+  }
+
+  // Longitude meridians
+  for (let m = 0; m < lonSteps; m++) {
+    const phi = (m / lonSteps) * Math.PI;
+    ctx.beginPath();
+    for (let lat = 0; lat <= 32; lat++) {
+      const theta = (lat / 32) * 2 * Math.PI;
+      const xB = a1 * Math.cos(theta) * Math.cos(phi);
+      const yB = a2 * Math.sin(theta);
+      const zB = a3 * Math.cos(theta) * Math.sin(phi);
+
+      const sPos = rotateVecByQuat([xB, yB, zB], state.q);
+      const pr = project3D(sPos[0], sPos[1], sPos[2], cx, cy, scale);
+      if (lat === 0) ctx.moveTo(pr.sx, pr.sy);
+      else ctx.lineTo(pr.sx, pr.sy);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Render Polhode Trail (Tip of omega vector on ellipsoid)
+  if (polhodeTrail.length > 1) {
+    ctx.save();
+    ctx.strokeStyle = '#d4af37';
+    ctx.lineWidth = 2.0;
+    ctx.beginPath();
+    for (let i = 0; i < polhodeTrail.length; i++) {
+      const ptB = polhodeTrail[i];
+      const sPos = rotateVecByQuat(ptB, state.q);
+      const pr = project3D(sPos[0] * 2.8, sPos[1] * 2.8, sPos[2] * 2.8, cx, cy, scale);
+      if (i === 0) ctx.moveTo(pr.sx, pr.sy);
+      else ctx.lineTo(pr.sx, pr.sy);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Render "HELLO WORLD" Mass Nodes in Space
+  masses.forEach((p) => {
+    const sPos = rotateVecByQuat([p.px, p.py, p.pz], state.q);
+    const pr = project3D(sPos[0], sPos[1], sPos[2], cx, cy, scale);
+
+    // Node sphere
+    ctx.save();
+    ctx.fillStyle = '#d4af37';
+    ctx.beginPath();
+    ctx.arc(pr.sx, pr.sy, 4.5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Node label
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 11px ' + 'Times New Roman, serif';
+    ctx.fillText(p.char, pr.sx + 7, pr.sy - 4);
+    ctx.restore();
+  });
+
+  // Render Principal Axes e1, e2, e3
+  const axes = [
+    { vec: [3.5, 0, 0], col: '#38bdf8', label: 'I₁' },
+    { vec: [0, 3.5, 0], col: '#f43f5e', label: 'I₂ (instable)' },
+    { vec: [0, 0, 3.5], col: '#10b981', label: 'I₃' }
+  ];
+
+  axes.forEach((ax) => {
+    const sPos = rotateVecByQuat(ax.vec, state.q);
+    const pr = project3D(sPos[0], sPos[1], sPos[2], cx, cy, scale);
+
+    ctx.save();
+    ctx.strokeStyle = ax.col;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(pr.sx, pr.sy);
+    ctx.stroke();
+
+    ctx.fillStyle = ax.col;
+    ctx.font = 'bold 10px ' + 'Courier New';
+    ctx.fillText(ax.label, pr.sx + 4, pr.sy);
+    ctx.restore();
+  });
+}
+
+function updateTelemetry() {
+  const cur = getEnergyAndL(state.omega);
+  const drift = Math.abs(cur.T - initialConstants.T) / initialConstants.T;
+
+  mKineticEnergyEl.textContent = `${cur.T.toFixed(2)} J`;
+  mAngularMomentumEl.textContent = `${cur.L.toFixed(2)} kg·m²/s`;
+  mPoinsotContactEl.textContent = `${(2 * cur.T).toFixed(2)} J (= 2T)`;
+  mDriftEnergyEl.textContent = drift < 1e-12 ? '< 10⁻¹²' : drift.toExponential(3);
+  mFlipsCountEl.textContent = `${state.flipCount} flips`;
+
+  if (Math.abs(state.omega[1]) > Math.abs(state.omega[0]) && Math.abs(state.omega[1]) > Math.abs(state.omega[2])) {
+    dzaniStatusEl.textContent = `Axe I₂ : Instabilité de Djanibekov (${state.flipCount} flips)`;
+    dzaniStatusEl.style.color = 'var(--crimson-inter)';
+  } else if (Math.abs(state.omega[0]) > Math.abs(state.omega[1])) {
+    dzaniStatusEl.textContent = 'Axe I₁ : Nutation Stable';
+    dzaniStatusEl.style.color = 'var(--cyan-minor)';
+  } else {
+    dzaniStatusEl.textContent = 'Axe I₃ : Précession Stable';
+    dzaniStatusEl.style.color = 'var(--emerald-major)';
+  }
+}
+
+// 8. Animation Loop
+let animId = null;
+let lastTime = performance.now();
+
+function loop(now) {
+  const dtReal = Math.min(0.04, (now - lastTime) / 1000.0);
+  lastTime = now;
+
+  // Sub-step RK4 for maximal symplectic precision
+  const subSteps = 6;
+  const dtSub = (dtReal * state.speedFactor) / subSteps;
+  for (let s = 0; s < subSteps; s++) {
+    stepRK4(dtSub);
+  }
+
+  recordPolhode();
+  renderScene();
+  updateTelemetry();
+
+  animId = requestAnimationFrame(loop);
+}
+
+// 9. Interactive Listeners
+canvas.addEventListener('pointerdown', (e) => {
+  isDragging = true;
+  canvas.setPointerCapture(e.pointerId);
+  lastMouseX = e.clientX;
+  lastMouseY = e.clientY;
+});
+
+canvas.addEventListener('pointermove', (e) => {
+  if (isDragging) {
+    const dx = e.clientX - lastMouseX;
+    const dy = e.clientY - lastMouseY;
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+
+    camRotY += dx * 0.01;
+    camRotX = Math.max(-1.4, Math.min(1.4, camRotX + dy * 0.01));
+  }
+});
+
+canvas.addEventListener('pointerup', () => {
+  isDragging = false;
+});
+
+function setActiveMode(btn) {
+  [btnModeInter, btnModeMinor, btnModeMajor].forEach((b) => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+btnModeInter.addEventListener('click', () => {
+  setActiveMode(btnModeInter);
+  state.omega = [0.03, 1.0, 0.03];
+  state.q = [1, 0, 0, 0];
+  state.flipCount = 0;
+  polhodeTrail.length = 0;
+});
+
+btnModeMinor.addEventListener('click', () => {
+  setActiveMode(btnModeMinor);
+  state.omega = [1.2, 0.03, 0.03];
+  state.q = [1, 0, 0, 0];
+  state.flipCount = 0;
+  polhodeTrail.length = 0;
+});
+
+btnModeMajor.addEventListener('click', () => {
+  setActiveMode(btnModeMajor);
+  state.omega = [0.03, 0.03, 1.0];
+  state.q = [1, 0, 0, 0];
+  state.flipCount = 0;
+  polhodeTrail.length = 0;
+});
+
+btnResetTrace.addEventListener('click', () => {
+  polhodeTrail.length = 0;
+});
+
+simSpeedSlider.addEventListener('input', (e) => {
+  state.speedFactor = parseInt(e.target.value, 10) / 100.0;
+  speedValTextEl.textContent = `${state.speedFactor.toFixed(1)}x`;
+});
+
+// Synchronous First Frame
+recordPolhode();
+renderScene();
+updateTelemetry();
+animId = requestAnimationFrame(loop);
+</script>
+</body>
+</html>

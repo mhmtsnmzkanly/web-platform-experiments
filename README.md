@@ -24,4 +24,4 @@ Prompt: [View prompt](v2/PROMPT.md)
 
 Prompt: [View prompt](v3/PROMPT.md)
 
-- [agy-gemini-3.8](v3/agy-gemini-3.8/README.md) — 20 base experiments (20 sealed, 0 unfinished)
+- [agy-gemini-3.8](v3/agy-gemini-3.8/README.md) — 30 base experiments (30 sealed, 0 unfinished)

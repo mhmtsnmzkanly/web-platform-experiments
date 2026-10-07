@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "crtCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "crtCanvas",
+        "width": 528,
+        "height": 528,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 537,
+      "webgl": 0
+    },
+    "drawnText": [
+      "HELLO",
+      "WORLD"
+    ],
+    "animations": [],
+    "title": "Experiment 027 — Arnold's Cat Map & Discrete Toroidal Poincaré Recurrence"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "crtCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "crtCanvas",
+        "width": 528,
+        "height": 528,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 537,
+      "webgl": 0
+    },
+    "drawnText": [
+      "HELLO",
+      "WORLD"
+    ],
+    "animations": [],
+    "title": "Experiment 027 — Arnold's Cat Map & Discrete Toroidal Poincaré Recurrence"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Arnold's Cat Map Symplectic Torus Diffeomorphism & Discrete Poincaré Recurrence",
+    "measurements": {
+      "latticeDimension": 64,
+      "totalCells": 4096,
+      "activeTypographicPixels": 512,
+      "matrixDeterminant": 1,
+      "lyapunovExponentNats": 0.96242,
+      "poincarePeriodSteps": 48,
+      "fidelityAtStep0": 100,
+      "fidelityAtStep48": 100,
+      "bitwiseDiscrepancyAtRecurrence": 0,
+      "massConservationVerified": true
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnStepFwd"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Interactive phase space exploration and orbit line reconstruction",
+      "measurements": {
+        "currentStep": 1,
+        "livePixels": 512,
+        "hammingDistance": 998,
+        "bitwiseFidelityPercent": 75.634765625,
+        "probeInitialCoords": {
+          "x": 32,
+          "y": 22
+        },
+        "probeCurrentCoords": {
+          "x": 54,
+          "y": 12
+        }
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "crtCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "crtCanvas",
+          "width": 528,
+          "height": 528,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 1071,
+        "webgl": 0
+      },
+      "drawnText": [
+        "HELLO",
+        "WORLD"
+      ],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 16.633999999999816,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 25.251000001840218,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 33.29999999999988,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "Experiment 027 — Arnold's Cat Map & Discrete Toroidal Poincaré Recurrence"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "crtCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "crtCanvas",
+          "width": 528,
+          "height": 528,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 1071,
+        "webgl": 0
+      },
+      "drawnText": [
+        "HELLO",
+        "WORLD"
+      ],
+      "animations": [],
+      "title": "Experiment 027 — Arnold's Cat Map & Discrete Toroidal Poincaré Recurrence"
+    }
+  }
+}

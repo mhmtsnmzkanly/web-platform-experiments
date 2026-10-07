@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "penroseCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "penroseCanvas",
+        "width": 740,
+        "height": 520,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 512,
+      "webgl": 0
+    },
+    "drawnText": [
+      "H",
+      "E",
+      "L",
+      "L",
+      "O",
+      "W",
+      "O",
+      "R",
+      "L",
+      "D"
+    ],
+    "animations": [],
+    "title": "Experiment 029 — Aperiodic Penrose Tiling & Robinson Golden Triangle Inflation"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "penroseCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "penroseCanvas",
+        "width": 740,
+        "height": 520,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 512,
+      "webgl": 0
+    },
+    "drawnText": [
+      "H",
+      "E",
+      "L",
+      "L",
+      "O",
+      "W",
+      "O",
+      "R",
+      "L",
+      "D"
+    ],
+    "animations": [],
+    "title": "Experiment 029 — Aperiodic Penrose Tiling & Robinson Golden Triangle Inflation"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Aperiodic Penrose P2 Tiling & Robinson Golden Triangle Inflation",
+    "measurements": {
+      "decagonalSeedSectors": 10,
+      "currentGeneration": 4,
+      "totalRobinsonTriangles": 160,
+      "acuteHalfKites": 80,
+      "obtuseHalfDarts": 80,
+      "goldenRatioPhi": 1.618033988749895,
+      "matchingRuleViolations": 0,
+      "aperiodicQuasicrystalOrder": true
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnToggleArcs"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Deflation level tuning and Robinson triangle inspection",
+      "measurements": {
+        "activeGeneration": 4,
+        "triangleCount": 160,
+        "goldenRatio": 1.618033988749895
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "penroseCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "penroseCanvas",
+          "width": 740,
+          "height": 520,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 864,
+        "webgl": 0
+      },
+      "drawnText": [
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        "W",
+        "O",
+        "R",
+        "L",
+        "D",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        "W",
+        "O",
+        "R",
+        "L",
+        "D"
+      ],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 50.038999997859435,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 50.038999997859435,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 50.038999997859435,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 50.038999997859435,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 50.038999997859435,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "Experiment 029 — Aperiodic Penrose Tiling & Robinson Golden Triangle Inflation"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "penroseCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "penroseCanvas",
+          "width": 740,
+          "height": 520,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 864,
+        "webgl": 0
+      },
+      "drawnText": [
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        "W",
+        "O",
+        "R",
+        "L",
+        "D",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        "W",
+        "O",
+        "R",
+        "L",
+        "D"
+      ],
+      "animations": [],
+      "title": "Experiment 029 — Aperiodic Penrose Tiling & Robinson Golden Triangle Inflation"
+    }
+  }
+}

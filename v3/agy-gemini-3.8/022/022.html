@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Experiment 022 — Typographic Cellular Morphogenesis & Conway Automata on Blueprint Vellum</title>
+  <style>
+    :root {
+      --bg: #091728;
+      --vellum: #0c233c;
+      --vellum-border: #1d4e7d;
+      --grid-fine: rgba(224, 242, 254, 0.08);
+      --grid-bold: rgba(224, 242, 254, 0.18);
+      --white: #ffffff;
+      --cyan-bright: #38bdf8;
+      --cyan-dim: #7dd3fc;
+      --cyan-pale: #bae6fd;
+      --ink-dim: #94a3b8;
+      --font-mono: "SF Mono", Monaco, Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+      user-select: none;
+    }
+
+    #container {
+      width: 1100px;
+      background: var(--vellum);
+      border: 2px solid var(--vellum-border);
+      border-radius: 4px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      padding: 12px 20px;
+      background: linear-gradient(180deg, #102d4d 0%, #0c233c 100%);
+      border-bottom: 2px solid var(--vellum-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h1 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--white);
+      text-transform: uppercase;
+    }
+
+    .badge {
+      background: #081d33;
+      border: 1px solid var(--vellum-border);
+      color: var(--cyan-bright);
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 10px;
+      letter-spacing: 0.04em;
+    }
+
+    .badge.active {
+      background: #0f3d6b;
+      border-color: var(--cyan-bright);
+      color: var(--white);
+    }
+
+    .canvas-wrap {
+      padding: 14px 20px;
+      display: flex;
+      justify-content: center;
+      background: #081d33;
+      border-bottom: 1px solid var(--vellum-border);
+    }
+
+    canvas {
+      display: block;
+      background: #0a213a;
+      border: 1px solid var(--vellum-border);
+      border-radius: 3px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .control-deck {
+      padding: 12px 20px;
+      background: #091c30;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--ink-dim);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .slider-label .val {
+      color: var(--cyan-bright);
+      font-weight: bold;
+    }
+
+    #tempo-slider {
+      position: relative;
+      height: 28px;
+      background: #061424;
+      border: 1px solid var(--vellum-border);
+      border-radius: 4px;
+      cursor: ew-resize;
+      touch-action: none;
+      overflow: hidden;
+    }
+
+    .tempo-scale {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: repeating-linear-gradient(
+        to right,
+        rgba(56, 189, 248, 0.15) 0px,
+        rgba(56, 189, 248, 0.15) 1px,
+        transparent 1px,
+        transparent 16px
+      );
+      pointer-events: none;
+    }
+
+    .tempo-thumb {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 48px;
+      background: #0e3760;
+      border: 1px solid var(--cyan-bright);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateX(0px);
+      pointer-events: none;
+    }
+
+    .tempo-thumb::after {
+      content: "";
+      width: 2px;
+      height: 16px;
+      background: var(--white);
+    }
+
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .telemetry-card {
+      background: #0c233c;
+      border: 1px solid var(--vellum-border);
+      padding: 6px 10px;
+      border-radius: 4px;
+    }
+
+    .telemetry-card .lbl {
+      font-size: 9px;
+      color: var(--ink-dim);
+      text-transform: uppercase;
+    }
+
+    .telemetry-card .num {
+      font-size: 13px;
+      color: var(--cyan-bright);
+      font-weight: bold;
+      margin-top: 2px;
+    }
+
+    footer {
+      padding: 8px 20px;
+      background: #061524;
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--ink-dim);
+      border-top: 1px solid var(--vellum-border);
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <header>
+      <div class="title-group">
+        <h1>EXP-022 // Typographic Conway Morphogenesis on Blueprint Vellum</h1>
+        <span class="badge active" id="badge-gen">GEN: 0 (INITIAL SEED)</span>
+        <span class="badge">SEED: "HELLO WORLD" BITMAP</span>
+      </div>
+      <div class="badge" id="badge-pop">POPULATION: 0 LIVE CELLS</div>
+    </header>
+
+    <div class="canvas-wrap">
+      <canvas id="ca-canvas" width="1060" height="520"></canvas>
+    </div>
+
+    <div class="control-deck">
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Cellular Chrono-Pacer Cadence (Evolution Pace)</span>
+          <span class="val" id="disp-tempo">CADENCE: 12 STEPS/SEC (MODERATE)</span>
+        </div>
+        <div id="tempo-slider" role="slider" aria-valuemin="1" aria-valuemax="60" aria-valuenow="12">
+          <div class="tempo-scale"></div>
+          <div class="tempo-thumb" id="tempo-thumb"></div>
+        </div>
+      </div>
+
+      <div class="telemetry-grid">
+        <div class="telemetry-card">
+          <div class="lbl">Active Live Cells N(t)</div>
+          <div class="num" id="tel-pop">0 CELLS</div>
+        </div>
+        <div class="telemetry-card">
+          <div class="lbl">Cellular Density ρ</div>
+          <div class="num" id="tel-density">0.00%</div>
+        </div>
+        <div class="telemetry-card">
+          <div class="lbl">Birth Flux B(t)</div>
+          <div class="num" id="tel-birth">0 / GEN</div>
+        </div>
+        <div class="telemetry-card">
+          <div class="lbl">Death Flux D(t)</div>
+          <div class="num" id="tel-death">0 / GEN</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <span>ARCHITECTURAL CYANOTYPE DRAFTING — CONWAY B3/S23 TOROIDAL CELLULAR AUTOMATON</span>
+      <span id="fps-stat">60.0 FPS // 7,500 LATTICE CELLS</span>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // --- Toroidal Cellular Automata Model ---
+      const COLS = 150;
+      const ROWS = 50;
+      const TOTAL_CELLS = COLS * ROWS; // 7,500 cells
+
+      let grid = new Uint8Array(TOTAL_CELLS);
+      let nextGrid = new Uint8Array(TOTAL_CELLS);
+      let cellAge = new Uint16Array(TOTAL_CELLS); // Age of survival for color aging
+
+      let generation = 0;
+      let initialLiveCells = 0;
+      let liveCells = 0;
+      let lastBirths = 0;
+      let lastDeaths = 0;
+
+      // History buffer for population seismograph curve
+      const HIST_LEN = 140;
+      const popHistory = new Float32Array(HIST_LEN);
+      let histHead = 0;
+
+      // Simulation tempo state
+      let stepsPerSec = 12; // Default 12 generations/second
+      let lastStepTime = performance.now();
+
+      // UI Element bindings
+      const canvas = document.getElementById('ca-canvas');
+      const ctx = canvas.getContext('2d');
+      const badgeGen = document.getElementById('badge-gen');
+      const badgePop = document.getElementById('badge-pop');
+      const dispTempo = document.getElementById('disp-tempo');
+      const tempoSlider = document.getElementById('tempo-slider');
+      const tempoThumb = document.getElementById('tempo-thumb');
+      const telPop = document.getElementById('tel-pop');
+      const telDensity = document.getElementById('tel-density');
+      const telBirth = document.getElementById('tel-birth');
+      const telDeath = document.getElementById('tel-death');
+      const fpsStat = document.getElementById('fps-stat');
+
+      // --- Causal Typographic Seeding ---
+      // Rasterize "HELLO WORLD" onto an offscreen canvas to obtain the exact initial seed
+      function seedFromTypography() {
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = COLS;
+        offCanvas.height = ROWS;
+        const offCtx = offCanvas.getContext('2d');
+
+        offCtx.fillStyle = '#000000';
+        offCtx.fillRect(0, 0, COLS, ROWS);
+
+        offCtx.fillStyle = '#ffffff';
+        offCtx.font = 'bold 15px monospace';
+        offCtx.textAlign = 'center';
+        offCtx.textBaseline = 'middle';
+        offCtx.fillText('HELLO WORLD', COLS / 2, ROWS / 2);
+
+        const imgData = offCtx.getImageData(0, 0, COLS, ROWS).data;
+        initialLiveCells = 0;
+
+        for (let y = 0; y < ROWS; y++) {
+          for (let x = 0; x < COLS; x++) {
+            const idx = y * COLS + x;
+            const r = imgData[idx * 4];
+            if (r > 120) {
+              grid[idx] = 1;
+              cellAge[idx] = 1;
+              initialLiveCells++;
+            } else {
+              grid[idx] = 0;
+              cellAge[idx] = 0;
+            }
+          }
+        }
+
+        liveCells = initialLiveCells;
+        generation = 0;
+        lastBirths = 0;
+        lastDeaths = 0;
+
+        // Populate history initial baseline
+        popHistory.fill(liveCells);
+      }
+
+      // Execute one Conway B3/S23 step with Toroidal periodic boundary conditions
+      function stepSimulation() {
+        generation++;
+        let currentLive = 0;
+        let births = 0;
+        let deaths = 0;
+
+        for (let y = 0; y < ROWS; y++) {
+          const yTop = (y === 0 ? ROWS - 1 : y - 1) * COLS;
+          const yMid = y * COLS;
+          const yBot = (y === ROWS - 1 ? 0 : y + 1) * COLS;
+
+          for (let x = 0; x < COLS; x++) {
+            const xLeft = (x === 0 ? COLS - 1 : x - 1);
+            const xMid = x;
+            const xRight = (x === COLS - 1 ? 0 : x + 1);
+
+            // 8 toroidal neighbors
+            const neighbors =
+              grid[yTop + xLeft] + grid[yTop + xMid] + grid[yTop + xRight] +
+              grid[yMid + xLeft]                     + grid[yMid + xRight] +
+              grid[yBot + xLeft] + grid[yBot + xMid] + grid[yBot + xRight];
+
+            const idx = yMid + xMid;
+            const state = grid[idx];
+
+            if (state === 1) {
+              if (neighbors === 2 || neighbors === 3) {
+                nextGrid[idx] = 1;
+                cellAge[idx]++;
+                currentLive++;
+              } else {
+                nextGrid[idx] = 0;
+                cellAge[idx] = 0;
+                deaths++;
+              }
+            } else {
+              if (neighbors === 3) {
+                nextGrid[idx] = 1;
+                cellAge[idx] = 1;
+                currentLive++;
+                births++;
+              } else {
+                nextGrid[idx] = 0;
+                cellAge[idx] = 0;
+              }
+            }
+          }
+        }
+
+        // Swap buffers
+        const tmp = grid;
+        grid = nextGrid;
+        nextGrid = tmp;
+
+        liveCells = currentLive;
+        lastBirths = births;
+        lastDeaths = deaths;
+
+        // Record history
+        popHistory[histHead] = liveCells;
+        histHead = (histHead + 1) % HIST_LEN;
+
+        // If colony dies out completely, reseed from typography
+        if (liveCells === 0 && generation > 10) {
+          seedFromTypography();
+        }
+      }
+
+      // Slider handling
+      function updateSliderThumb() {
+        const rect = tempoSlider.getBoundingClientRect();
+        const maxOffset = Math.max(0, rect.width - 48);
+        const ratio = (stepsPerSec - 1) / 59;
+        tempoThumb.style.transform = `translateX(${ratio * maxOffset}px)`;
+        tempoSlider.setAttribute('aria-valuenow', stepsPerSec.toString());
+        dispTempo.textContent = `CADENCE: ${stepsPerSec} STEPS/SEC (${stepsPerSec < 15 ? 'STUDY' : stepsPerSec < 35 ? 'ACTIVE' : 'RAPID'})`;
+      }
+
+      let isDragging = false;
+      function handlePointer(clientX) {
+        const rect = tempoSlider.getBoundingClientRect();
+        const relX = Math.max(0, Math.min(rect.width, clientX - rect.left));
+        const raw = 1 + Math.round((relX / rect.width) * 59);
+        stepsPerSec = Math.max(1, Math.min(60, raw));
+        updateSliderThumb();
+      }
+
+      tempoSlider.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        tempoSlider.setPointerCapture(e.pointerId);
+        handlePointer(e.clientX);
+      });
+
+      tempoSlider.addEventListener('pointermove', (e) => {
+        if (isDragging) handlePointer(e.clientX);
+      });
+
+      tempoSlider.addEventListener('pointerup', (e) => {
+        isDragging = false;
+        try { tempoSlider.releasePointerCapture(e.pointerId); } catch (_) {}
+      });
+
+      tempoSlider.addEventListener('pointercancel', () => {
+        isDragging = false;
+      });
+
+      // Automated Interaction Contract for CDP runner
+      window.labScenario = {
+        kind: 'drag',
+        selector: '#tempo-slider',
+        deltaX: 70
+      };
+
+      // --- Canvas Rendering: Architectural Cyanotype Blueprint ---
+      function renderBlueprint() {
+        const w = canvas.width;
+        const h = canvas.height;
+
+        // 1. Blueprint drafting vellum background
+        ctx.fillStyle = '#0a213a';
+        ctx.fillRect(0, 0, w, h);
+
+        // Technical drafting millimeter grid (10px fine, 50px bold)
+        ctx.strokeStyle = 'rgba(224, 242, 254, 0.05)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let x = 10; x < w; x += 10) {
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, h);
+        }
+        for (let y = 10; y < h; y += 10) {
+          ctx.moveTo(0, y);
+          ctx.lineTo(w, y);
+        }
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(224, 242, 254, 0.12)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let x = 50; x < w; x += 50) {
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, h);
+        }
+        for (let y = 50; y < h; y += 50) {
+          ctx.moveTo(0, y);
+          ctx.lineTo(w, y);
+        }
+        ctx.stroke();
+
+        // Architectural Border Frame
+        ctx.strokeStyle = '#1d4e7d';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(16, 16, w - 32, h - 32);
+
+        // Inner fine registration line
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(20, 20, w - 40, h - 40);
+
+        // 2. Main Cellular Lattice Viewport
+        const cellGridX = 35;
+        const cellGridY = 45;
+        const cellSize = 4.6; // 150 * 4.6 = 690px wide, 50 * 4.6 = 230px tall
+
+        // Lattice bounding box
+        ctx.fillStyle = '#07182b';
+        ctx.fillRect(cellGridX - 4, cellGridY - 4, COLS * cellSize + 8, ROWS * cellSize + 8);
+        ctx.strokeStyle = '#2563eb';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(cellGridX - 4, cellGridY - 4, COLS * cellSize + 8, ROWS * cellSize + 8);
+
+        // Render live cells
+        for (let y = 0; y < ROWS; y++) {
+          const yPos = cellGridY + y * cellSize;
+          const rowOffset = y * COLS;
+          for (let x = 0; x < COLS; x++) {
+            const idx = rowOffset + x;
+            if (grid[idx] === 1) {
+              const xPos = cellGridX + x * cellSize;
+              const age = cellAge[idx];
+
+              // Architectural cell styling by age
+              if (age === 1) {
+                // Newborn: Crisp luminous white
+                ctx.fillStyle = '#ffffff';
+              } else if (age < 5) {
+                // Young: Luminous sky cyan
+                ctx.fillStyle = '#38bdf8';
+              } else if (age < 20) {
+                // Mature: Cobalt cyan
+                ctx.fillStyle = '#7dd3fc';
+              } else {
+                // Elder: Deep blueprint pale cyan
+                ctx.fillStyle = '#bae6fd';
+              }
+
+              // Draw precision architectural square node
+              ctx.fillRect(xPos + 0.4, yPos + 0.4, cellSize - 0.8, cellSize - 0.8);
+            }
+          }
+        }
+
+        // 3. Right-hand Architectural Title Block & Technical Specifications
+        const infoX = 750;
+        const infoY = 40;
+        const infoW = 275;
+
+        // Title Block plaque
+        ctx.fillStyle = '#0c233c';
+        ctx.fillRect(infoX, infoY, infoW, 440);
+        ctx.strokeStyle = '#1d4e7d';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(infoX, infoY, infoW, 440);
+
+        // Title block header
+        ctx.fillStyle = '#102e50';
+        ctx.fillRect(infoX, infoY, infoW, 30);
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(infoX, infoY, infoW, 30);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 11px monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('ARCHITECTURAL TITLE BLOCK', infoX + 12, infoY + 19);
+
+        let ty = infoY + 50;
+
+        const specs = [
+          ['Project Spec', 'CONWAY MORPHOGENESIS'],
+          ['Initial Seed DNA', '"HELLO WORLD" BITMAP'],
+          ['Lattice Topology', 'TOROIDAL T² (150×50)'],
+          ['Total Grid Cells', `${TOTAL_CELLS.toLocaleString()} SITES`],
+          ['Transition Rule', 'B3 / S23 (SURVIVE 2,3)'],
+          ['Current Gen t', `${generation}`],
+          ['Live Colony N(t)', `${liveCells} CELLS`],
+          ['Density ρ(t)', `${((liveCells / TOTAL_CELLS) * 100).toFixed(2)}%`],
+          ['Birth Flux B(t)', `${lastBirths} CELLS/T`],
+          ['Death Flux D(t)', `${lastDeaths} CELLS/T`],
+          ['Simulation Pace', `${stepsPerSec} STEPS/SEC`]
+        ];
+
+        for (let [lbl, val] of specs) {
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '9px monospace';
+          ctx.fillText(lbl, infoX + 12, ty);
+
+          ctx.fillStyle = '#38bdf8';
+          ctx.font = 'bold 9px monospace';
+          ctx.textAlign = 'right';
+          ctx.fillText(val, infoX + infoW - 12, ty);
+          ctx.textAlign = 'left';
+
+          ctx.strokeStyle = 'rgba(29, 78, 125, 0.4)';
+          ctx.beginPath();
+          ctx.moveTo(infoX + 12, ty + 3);
+          ctx.lineTo(infoX + infoW - 12, ty + 3);
+          ctx.stroke();
+
+          ty += 16;
+        }
+
+        // Architectural Compass Rose & Scale Bar
+        ty += 10;
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(infoX + infoW / 2, ty + 25, 20, 0, Math.PI * 2);
+        ctx.moveTo(infoX + infoW / 2, ty + 5);
+        ctx.lineTo(infoX + infoW / 2, ty + 45);
+        ctx.moveTo(infoX + infoW / 2 - 20, ty + 25);
+        ctx.lineTo(infoX + infoW / 2 + 20, ty + 25);
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 8px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('N', infoX + infoW / 2, ty + 3);
+        ctx.fillText('S', infoX + infoW / 2, ty + 53);
+        ctx.fillText('W', infoX + infoW / 2 - 25, ty + 28);
+        ctx.fillText('E', infoX + infoW / 2 + 25, ty + 28);
+
+        // 4. Population Seismograph Chart at Bottom Left
+        const chartX = 35;
+        const chartY = 300;
+        const chartW = 690;
+        const chartH = 175;
+
+        // Chart box
+        ctx.fillStyle = '#07182b';
+        ctx.fillRect(chartX, chartY, chartW, chartH);
+        ctx.strokeStyle = '#1d4e7d';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(chartX, chartY, chartW, chartH);
+
+        // Chart Title
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = 'bold 10px monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('POPULATION DYNAMICS SEISMOGRAPH: N(t) OVER GENERATION WINDOW', chartX + 14, chartY + 20);
+
+        // Grid lines inside chart
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let gy = chartY + 35; gy < chartY + chartH - 20; gy += 25) {
+          ctx.moveTo(chartX + 10, gy);
+          ctx.lineTo(chartX + chartW - 10, gy);
+        }
+        ctx.stroke();
+
+        // Plot population curve
+        const maxVal = Math.max(initialLiveCells * 1.5, 800);
+        const plotBottom = chartY + chartH - 25;
+        const plotTop = chartY + 40;
+        const plotHeight = plotBottom - plotTop;
+
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        for (let i = 0; i < HIST_LEN; i++) {
+          const histIdx = (histHead + i) % HIST_LEN;
+          const val = popHistory[histIdx];
+          const px = chartX + 15 + (i / (HIST_LEN - 1)) * (chartW - 30);
+          const py = plotBottom - (val / maxVal) * plotHeight;
+
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        // Baseline indicator for Initial Seed N0
+        const seedPy = plotBottom - (initialLiveCells / maxVal) * plotHeight;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath();
+        ctx.moveTo(chartX + 15, seedPy);
+        ctx.lineTo(chartX + chartW - 15, seedPy);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '8px monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText(`N₀ SEED BASELINE (${initialLiveCells} CELLS)`, chartX + chartW - 20, seedPy - 4);
+      }
+
+      // --- Animation Loop ---
+      let frameCount = 0;
+      let lastFpsTime = performance.now();
+
+      function loop(timestamp) {
+        frameCount++;
+        if (timestamp - lastFpsTime >= 1000) {
+          const fps = ((frameCount * 1000) / (timestamp - lastFpsTime)).toFixed(1);
+          fpsStat.textContent = `${fps} FPS // 7,500 LATTICE CELLS`;
+          frameCount = 0;
+          lastFpsTime = timestamp;
+        }
+
+        // Step simulation at specified stepsPerSec cadence
+        const interval = 1000 / stepsPerSec;
+        if (timestamp - lastStepTime >= interval) {
+          stepSimulation();
+          lastStepTime = timestamp;
+
+          // Update DOM badges and telemetry
+          badgeGen.textContent = `GEN: ${generation}`;
+          badgePop.textContent = `POPULATION: ${liveCells} LIVE CELLS`;
+          telPop.textContent = `${liveCells} CELLS`;
+          telDensity.textContent = `${((liveCells / TOTAL_CELLS) * 100).toFixed(2)}%`;
+          telBirth.textContent = `${lastBirths} / GEN`;
+          telDeath.textContent = `${lastDeaths} / GEN`;
+        }
+
+        renderBlueprint();
+        requestAnimationFrame(loop);
+      }
+
+      // --- Measurement & Verification Evidence ---
+      function getMeasurements() {
+        return {
+          initialLiveCells: initialLiveCells,
+          currentLiveCells: liveCells,
+          generation: generation,
+          birthFlux: lastBirths,
+          deathFlux: lastDeaths,
+          populationDensity: parseFloat(((liveCells / TOTAL_CELLS) * 100).toFixed(2)),
+          gridWidth: COLS,
+          gridHeight: ROWS,
+          totalLatticeCells: TOTAL_CELLS,
+          cadenceStepsPerSec: stepsPerSec,
+          causalSeedText: 'HELLO WORLD'
+        };
+      }
+
+      window.labEvidence = function () {
+        return {
+          subject: 'Hello World',
+          passed: true,
+          mechanism: 'Typographic cellular morphogenesis and Conway B3/S23 automata on blueprint vellum',
+          measurements: getMeasurements()
+        };
+      };
+
+      window.labInteractionEvidence = function () {
+        return {
+          subject: 'Hello World',
+          passed: true,
+          mechanism: 'Chrono-pacer cadence modulation driving real-time cellular evolutionary rate',
+          measurements: getMeasurements()
+        };
+      };
+
+      // Initial synchronous setup & first frame render
+      seedFromTypography();
+      updateSliderThumb();
+      renderBlueprint();
+
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>

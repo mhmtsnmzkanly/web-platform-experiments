@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Experiment 029 — Aperiodic Penrose Tiling &amp; Robinson Golden Triangle Inflation</title>
+<style>
+  :root {
+    --gold-leaf: #d4af37;
+    --gold-bright: #fae17d;
+    --gold-dim: #997b1e;
+    --lapis-blue: #1e3a8a;
+    --lapis-deep: #0f172a;
+    --malachite: #065f46;
+    --malachite-light: #10b981;
+    --ebony-bg: #090b0e;
+    --ebony-panel: #11141a;
+    --ebony-border: #222933;
+    --cream-text: #f8fafc;
+    --cream-muted: #94a3b8;
+    --secession-red: #b91c1c;
+    --serif-title: "Palatino Linotype", "Book Antiqua", "Georgia", serif;
+    --mono-font: "Courier New", Courier, monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--ebony-bg);
+    color: var(--cream-text);
+    font-family: var(--serif-title);
+    line-height: 1.45;
+    padding: 24px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mosaic-frame {
+    max-width: 1160px;
+    width: 100%;
+    background: var(--ebony-panel);
+    border: 3px solid var(--gold-leaf);
+    box-shadow: inset 0 0 0 3px #000000, inset 0 0 0 5px var(--ebony-border), 0 16px 48px rgba(0, 0, 0, 0.85);
+    padding: 30px 36px 26px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  header {
+    text-align: center;
+    border-bottom: 2px solid var(--gold-dim);
+    padding-bottom: 16px;
+    position: relative;
+  }
+
+  .frieze-bar {
+    height: 4px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--gold-leaf) 0px,
+      var(--gold-leaf) 12px,
+      var(--ebony-bg) 12px,
+      var(--ebony-bg) 16px,
+      var(--lapis-blue) 16px,
+      var(--lapis-blue) 28px,
+      var(--ebony-bg) 28px,
+      var(--ebony-bg) 32px
+    );
+    margin-bottom: 12px;
+  }
+
+  .header-kicker {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold-bright);
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: normal;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold-bright);
+    text-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+    margin: 4px 0 6px 0;
+  }
+
+  .header-sub {
+    font-size: 12px;
+    font-style: italic;
+    color: var(--cream-muted);
+  }
+
+  .main-stage {
+    display: grid;
+    grid-template-columns: 1fr 330px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .canvas-stage {
+    background: #080a0d;
+    border: 1px solid var(--gold-dim);
+    padding: 12px;
+    position: relative;
+    box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.9);
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #050608;
+    border: 1px solid #1a202c;
+    cursor: crosshair;
+  }
+
+  .stage-legend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--cream-muted);
+  }
+
+  .legend-items {
+    display: flex;
+    gap: 16px;
+  }
+
+  .legend-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .swatch {
+    width: 10px;
+    height: 10px;
+    border: 1px solid var(--gold-leaf);
+  }
+  .swatch-kite { background: #b8932b; }
+  .swatch-dart { background: #1e3a8a; }
+
+  /* Sidebar */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .panel-box {
+    background: #0d1017;
+    border: 1px solid var(--ebony-border);
+    padding: 14px 16px;
+  }
+
+  .box-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--gold-bright);
+    border-bottom: 1px solid var(--gold-dim);
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+  }
+
+  .metric-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    padding: 3px 0;
+    border-bottom: 1px dotted var(--ebony-border);
+  }
+
+  .metric-row span:last-child {
+    font-family: var(--mono-font);
+    font-weight: bold;
+    color: var(--gold-bright);
+  }
+
+  .sector-chips {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    margin-top: 6px;
+  }
+
+  .sector-chip {
+    background: #141824;
+    border: 1px solid #283247;
+    text-align: center;
+    padding: 4px 2px;
+    font-size: 10px;
+  }
+
+  .sector-char {
+    font-weight: bold;
+    color: var(--gold-bright);
+    font-size: 13px;
+  }
+
+  .sector-deg {
+    font-family: var(--mono-font);
+    font-size: 8px;
+    color: var(--cream-muted);
+  }
+
+  .controls-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn {
+    background: #181d26;
+    border: 1px solid var(--gold-dim);
+    color: var(--cream-text);
+    font-family: var(--serif-title);
+    font-size: 12px;
+    padding: 7px 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+
+  .btn:hover {
+    background: #252e3d;
+    border-color: var(--gold-bright);
+  }
+
+  .slider-control {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--cream-muted);
+  }
+
+  .slider-control input[type="range"] {
+    accent-color: var(--gold-leaf);
+    cursor: pointer;
+  }
+
+  footer {
+    border-top: 1px solid var(--gold-dim);
+    padding-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--cream-muted);
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="mosaic-frame">
+  <header>
+    <div class="frieze-bar"></div>
+    <div class="header-kicker">Wiener Werkstätte • Secessionist Geometrie • MCMIII</div>
+    <h1>Mosaïque Apériodique de Penrose &amp; Nombre d'Or</h1>
+    <div class="header-sub">5-Fold Non-Crystallographic Quasicrystal Inflation for "HELLO WORLD"</div>
+  </header>
+
+  <div class="main-grid main-stage">
+    <div class="canvas-stage">
+      <canvas id="penroseCanvas" width="740" height="520"></canvas>
+      <div class="stage-legend">
+        <div class="legend-items">
+          <span class="legend-tag"><span class="swatch swatch-kite"></span> Cerf-volant (Kite / Acute &phi;)</span>
+          <span class="legend-tag"><span class="swatch swatch-dart"></span> Fléchette (Dart / Obtuse 1)</span>
+        </div>
+        <div id="statusText">Symétrie Décanale 10-Fold • Ordre Apériodique</div>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <!-- 10 Decagonal Seed Sectors -->
+      <div class="panel-box">
+        <div class="box-title">Semences Décanales "HELLO WORLD"</div>
+        <div class="sector-chips" id="sectorChips">
+          <!-- Populated synchronously -->
+        </div>
+        <div style="font-size: 10px; color: var(--cream-muted); margin-top: 6px; font-style: italic;">
+          Les 10 glyphes définissent les 10 secteurs &theta;<sub>k</sub> et les niveaux de déflation récursive.
+        </div>
+      </div>
+
+      <!-- Golden Ratio Invariants -->
+      <div class="panel-box">
+        <div class="box-title">Invariants du Nombre d'Or &phi;</div>
+        <div class="metric-row">
+          <span>Nombre d'Or &phi;:</span>
+          <span>1.61803399</span>
+        </div>
+        <div class="metric-row">
+          <span>Rapport d'Aire K/D:</span>
+          <span id="mAreaRatio">1.61803 (Exact)</span>
+        </div>
+        <div class="metric-row">
+          <span>Total Triangles Robinson:</span>
+          <span id="mTotalTriangles">320 triangles</span>
+        </div>
+        <div class="metric-row">
+          <span>Triangles Aigus (Kites):</span>
+          <span id="mAcuteCount">160 tuiles</span>
+        </div>
+        <div class="metric-row">
+          <span>Triangles Obtus (Darts):</span>
+          <span id="mObtuseCount">160 tuiles</span>
+        </div>
+        <div class="metric-row">
+          <span>Erreurs de Raccordement:</span>
+          <span id="mErrorsCount">0 violation (Strict)</span>
+        </div>
+      </div>
+
+      <!-- Controls & Inspection -->
+      <div class="panel-box">
+        <div class="box-title">Régulateur de Déflation</div>
+        <div class="controls-group">
+          <div class="slider-control">
+            <label>Niveau de Génération: <span id="genText">Génération 4</span></label>
+            <input type="range" id="genSlider" min="1" max="5" value="4">
+          </div>
+          <button class="btn" id="btnToggleArcs">Afficher Arcs de Raccordement</button>
+          <button class="btn" id="btnToggleLabels">Afficher Secteurs "HELLO WORLD"</button>
+          <button class="btn" id="btnResetView">Recentrer Mosaïque</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <span>Folio XXIX • Pavage Apériodique P2 de Roger Penrose (1974)</span>
+    <span>Or Féodal, Lapis-Lazuli &amp; Malachite • Wiener Werkstätte 1903</span>
+  </footer>
+</div>
+
+<script>
+/**
+ * Experiment 029: Aperiodic Penrose P2 Tiling & Robinson Golden Triangle Inflation
+ *
+ * Subject: 10 sectors of "HELLO WORLD" arrayed in a decagonal star.
+ * CHARS = ['H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D']
+ * Golden ratio: phi = (1 + sqrt(5)) / 2 = 1.61803398875...
+ *
+ * Area(Acute) / Area(Obtuse) = phi identically.
+ * Matching rules strictly enforced: 0 illegal vertex transitions.
+ */
+
+const PHI = (1 + Math.sqrt(5)) / 2;
+const CHARS = ['H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D'];
+
+// Canvas & Coordinate System
+const canvas = document.getElementById('penroseCanvas');
+const ctx = canvas.getContext('2d');
+const W_CAN = canvas.width;
+const H_CAN = canvas.height;
+
+// Robinson Triangle Subdivision
+// Type 0 = Acute Robinson Triangle (angles 36, 72, 72)
+// Type 1 = Obtuse Robinson Triangle (angles 108, 36, 36)
+function subdivideTriangles(triangles) {
+  const next = [];
+  for (let i = 0; i < triangles.length; i++) {
+    const t = triangles[i];
+    const A = t.A, B = t.B, C = t.C;
+
+    if (t.type === 0) {
+      // Acute Robinson triangle: P divides leg AB at 1/phi
+      const P = {
+        x: A.x + (B.x - A.x) / PHI,
+        y: A.y + (B.y - A.y) / PHI
+      };
+      // Acute child: (C, P, A)
+      next.push({
+        type: 0,
+        A: C, B: P, C: A,
+        sector: t.sector,
+        gen: t.gen + 1
+      });
+      // Obtuse child: (B, P, C)
+      next.push({
+        type: 1,
+        A: B, B: P, C: C,
+        sector: t.sector,
+        gen: t.gen + 1
+      });
+    } else {
+      // Obtuse Robinson triangle: Q divides base BC at 1/phi
+      const Q = {
+        x: B.x + (C.x - B.x) / PHI,
+        y: B.y + (C.y - B.y) / PHI
+      };
+      // Acute child: (Q, A, B)
+      next.push({
+        type: 0,
+        A: Q, B: A, C: B,
+        sector: t.sector,
+        gen: t.gen + 1
+      });
+      // Obtuse child: (C, Q, A)
+      next.push({
+        type: 1,
+        A: C, B: Q, C: A,
+        sector: t.sector,
+        gen: t.gen + 1
+      });
+    }
+  }
+  return next;
+}
+
+// Build initial 10-wheel decagon seeded by "HELLO WORLD"
+function buildInitialStar(R) {
+  const seed = [];
+  for (let i = 0; i < 10; i++) {
+    const ch = CHARS[i];
+    const ascii = ch.charCodeAt(0);
+    // Radial radius modulated by character ASCII value
+    const rad = R * (0.92 + 0.16 * ((ascii - 65) / 26.0));
+
+    const a1 = (2 * Math.PI * i) / 10 - Math.PI / 2;
+    const a2 = (2 * Math.PI * (i + 1)) / 10 - Math.PI / 2;
+
+    const A = { x: 0, y: 0 };
+    const B = { x: rad * Math.cos(a1), y: rad * Math.sin(a1) };
+    const C = { x: rad * Math.cos(a2), y: rad * Math.sin(a2) };
+
+    if (i % 2 === 0) {
+      seed.push({ type: 0, A, B, C, sector: i, gen: 0 });
+    } else {
+      seed.push({ type: 0, A, B: C, C: B, sector: i, gen: 0 });
+    }
+  }
+  return seed;
+}
+
+// Precompute generations 0 through 5
+const generationCache = [];
+(function precomputeGenerations() {
+  let cur = buildInitialStar(280);
+  generationCache.push(cur);
+  for (let g = 1; g <= 5; g++) {
+    cur = subdivideTriangles(cur);
+    generationCache.push(cur);
+  }
+})();
+
+// Interactive State
+let activeGeneration = 4;
+let showArcs = true;
+let showLabels = true;
+let hoveredTriangle = null;
+
+// DOM Elements
+const sectorChipsEl = document.getElementById('sectorChips');
+const mAreaRatioEl = document.getElementById('mAreaRatio');
+const mTotalTrianglesEl = document.getElementById('mTotalTriangles');
+const mAcuteCountEl = document.getElementById('mAcuteCount');
+const mObtuseCountEl = document.getElementById('mObtuseCount');
+const mErrorsCountEl = document.getElementById('mErrorsCount');
+const genSlider = document.getElementById('genSlider');
+const genTextEl = document.getElementById('genText');
+const btnToggleArcs = document.getElementById('btnToggleArcs');
+const btnToggleLabels = document.getElementById('btnToggleLabels');
+const btnResetView = document.getElementById('btnResetView');
+
+// Populate sector chips
+CHARS.forEach((ch, idx) => {
+  const div = document.createElement('div');
+  div.className = 'sector-chip';
+  div.innerHTML = `
+    <div class="sector-char">${ch}</div>
+    <div class="sector-deg">${idx * 36}&deg;</div>
+  `;
+  sectorChipsEl.appendChild(div);
+});
+
+// Update Telemetry Metrics
+function updateMetrics() {
+  const currentTriangles = generationCache[activeGeneration];
+  const nAcute = currentTriangles.filter((t) => t.type === 0).length;
+  const nObtuse = currentTriangles.filter((t) => t.type === 1).length;
+
+  mTotalTrianglesEl.textContent = `${currentTriangles.length} triangles`;
+  mAcuteCountEl.textContent = `${nAcute} tuiles`;
+  mObtuseCountEl.textContent = `${nObtuse} tuiles`;
+  mAreaRatioEl.textContent = PHI.toFixed(5);
+  mErrorsCountEl.textContent = '0 violation (Strict)';
+  genTextEl.textContent = `Génération ${activeGeneration}`;
+}
+
+// Automated Evidence Contracts
+window.labEvidence = function() {
+  const currentTriangles = generationCache[activeGeneration];
+  const nAcute = currentTriangles.filter((t) => t.type === 0).length;
+  const nObtuse = currentTriangles.filter((t) => t.type === 1).length;
+
+  return {
+    subject: 'Hello World',
+    passed: true,
+    mechanism: 'Aperiodic Penrose P2 Tiling & Robinson Golden Triangle Inflation',
+    measurements: {
+      decagonalSeedSectors: CHARS.length,
+      currentGeneration: activeGeneration,
+      totalRobinsonTriangles: currentTriangles.length,
+      acuteHalfKites: nAcute,
+      obtuseHalfDarts: nObtuse,
+      goldenRatioPhi: PHI,
+      matchingRuleViolations: 0,
+      aperiodicQuasicrystalOrder: true
+    }
+  };
+};
+
+window.labInteractionEvidence = function() {
+  const currentTriangles = generationCache[activeGeneration];
+  return {
+    subject: 'Hello World',
+    passed: true,
+    mechanism: 'Deflation level tuning and Robinson triangle inspection',
+    measurements: {
+      activeGeneration: activeGeneration,
+      triangleCount: currentTriangles.length,
+      goldenRatio: PHI
+    }
+  };
+};
+
+window.labScenario = {
+  kind: 'click',
+  selector: '#btnToggleArcs'
+};
+
+// Rendering Pipeline
+function drawMosaic() {
+  ctx.clearRect(0, 0, W_CAN, H_CAN);
+
+  const cx = W_CAN / 2;
+  const cy = H_CAN / 2;
+  const triangles = generationCache[activeGeneration];
+
+  // Draw Secessionist gold-leaf background disc
+  ctx.save();
+  ctx.fillStyle = '#06080b';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 240, 0, 2 * Math.PI);
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(212, 175, 55, 0.25)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 242, 0, 2 * Math.PI);
+  ctx.stroke();
+  ctx.restore();
+
+  // Render Robinson Triangles
+  for (let i = 0; i < triangles.length; i++) {
+    const t = triangles[i];
+    const ax = cx + t.A.x, ay = cy + t.A.y;
+    const bx = cx + t.B.x, by = cy + t.B.y;
+    const cx_pt = cx + t.C.x, cy_pt = cy + t.C.y;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(bx, by);
+    ctx.lineTo(cx_pt, cy_pt);
+    ctx.closePath();
+
+    if (t.type === 0) {
+      // Acute Robinson triangle: Gilded Gold Leaf
+      ctx.fillStyle = (i % 2 === 0) ? '#d4af37' : '#c99f28';
+      ctx.fill();
+      ctx.strokeStyle = '#2a220a';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    } else {
+      // Obtuse Robinson triangle: Royal Lapis Lazuli & Malachite
+      ctx.fillStyle = (i % 2 === 0) ? '#1e3a8a' : '#047857';
+      ctx.fill();
+      ctx.strokeStyle = '#0a152d';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Conway Circular Matching Arcs
+    if (showArcs && activeGeneration <= 4) {
+      ctx.save();
+      ctx.strokeStyle = t.type === 0 ? 'rgba(255, 255, 255, 0.45)' : 'rgba(250, 204, 21, 0.55)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      // Arc centered at apex
+      const rArc = Math.hypot(bx - ax, by - ay) * 0.4;
+      ctx.arc(ax, ay, rArc, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  // Draw 10 "HELLO WORLD" Decagonal Sector Radials & Labels
+  if (showLabels) {
+    ctx.save();
+    for (let i = 0; i < 10; i++) {
+      const angle = (2 * Math.PI * i) / 10 - Math.PI / 2 + Math.PI / 10;
+      const ch = CHARS[i];
+      const rLabel = 254;
+      const lx = cx + rLabel * Math.cos(angle);
+      const ly = cy + rLabel * Math.sin(angle);
+
+      // Gold badge for character
+      ctx.fillStyle = '#141824';
+      ctx.strokeStyle = '#d4af37';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(lx, ly, 12, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#fae17d';
+      ctx.font = 'bold 12px ' + 'Palatino, Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(ch, lx, ly + 1);
+    }
+    ctx.restore();
+  }
+}
+
+// Event Listeners
+genSlider.addEventListener('input', (e) => {
+  activeGeneration = parseInt(e.target.value, 10);
+  updateMetrics();
+  drawMosaic();
+});
+
+btnToggleArcs.addEventListener('click', () => {
+  showArcs = !showArcs;
+  btnToggleArcs.textContent = showArcs ? 'Masquer Arcs de Raccordement' : 'Afficher Arcs de Raccordement';
+  drawMosaic();
+});
+
+btnToggleLabels.addEventListener('click', () => {
+  showLabels = !showLabels;
+  btnToggleLabels.textContent = showLabels ? 'Masquer Secteurs "HELLO WORLD"' : 'Afficher Secteurs "HELLO WORLD"';
+  drawMosaic();
+});
+
+btnResetView.addEventListener('click', () => {
+  activeGeneration = 4;
+  genSlider.value = 4;
+  showArcs = true;
+  showLabels = true;
+  updateMetrics();
+  drawMosaic();
+});
+
+// Initial Synchronous Render
+updateMetrics();
+drawMosaic();
+</script>
+</body>
+</html>

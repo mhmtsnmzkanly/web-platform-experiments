@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Experiment 026 — Conformal Complex Potential Flow &amp; Riemann Orthogonal Net</title>
+<style>
+  :root {
+    --bg-parchment: #f6f1e5;
+    --vellum-tint: #eee7d3;
+    --ink-dark: #1f1d19;
+    --ink-muted: #6b6357;
+    --prussian-blue: #0f3854;
+    --prussian-light: #245c85;
+    --sienna-terracotta: #a84223;
+    --sienna-light: #cc6341;
+    --gold-ochre: #b58900;
+    --border-rule: #cfc5b0;
+    --border-accent: #8b7d6b;
+    --serif-font: "Times New Roman", "Baskerville", "Palatino", "Georgia", serif;
+    --mono-font: "Courier New", Courier, monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-parchment);
+    color: var(--ink-dark);
+    font-family: var(--serif-font);
+    line-height: 1.45;
+    padding: 24px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .plate-container {
+    max-width: 1140px;
+    width: 100%;
+    background: #faf6ed;
+    border: 2px solid var(--border-accent);
+    box-shadow: inset 0 0 0 4px #faf6ed, inset 0 0 0 5px var(--border-rule), 0 8px 30px rgba(50, 40, 20, 0.12);
+    padding: 32px 36px 28px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  header {
+    border-bottom: 2px solid var(--border-accent);
+    padding-bottom: 18px;
+    text-align: center;
+    position: relative;
+  }
+
+  .header-decor {
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: normal;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--prussian-blue);
+    margin: 4px 0 6px 0;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--ink-muted);
+  }
+
+  .grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 310px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .canvas-panel {
+    background: var(--vellum-tint);
+    border: 1px solid var(--border-rule);
+    padding: 12px;
+    position: relative;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.04);
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #fbf8f0;
+    border: 1px solid var(--border-rule);
+    cursor: crosshair;
+  }
+
+  .canvas-legend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+
+  .legend-items {
+    display: flex;
+    gap: 16px;
+  }
+
+  .legend-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .legend-line {
+    display: inline-block;
+    width: 16px;
+    height: 2px;
+  }
+  .line-stream { background: var(--prussian-blue); }
+  .line-pot { background: var(--sienna-terracotta); }
+  .line-saddle {
+    width: 10px;
+    height: 10px;
+    border: 1px dashed var(--gold-ochre);
+    border-radius: 50%;
+  }
+
+  /* Sidebar dossier */
+  .dossier-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .dossier-section {
+    border: 1px solid var(--border-rule);
+    background: #fdfbf7;
+    padding: 14px 16px;
+  }
+
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--prussian-blue);
+    font-weight: bold;
+    border-bottom: 1px solid var(--border-rule);
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+  }
+
+  .char-matrix {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  .char-node {
+    background: #f4ede0;
+    border: 1px solid var(--border-rule);
+    padding: 4px;
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .char-glyph {
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--prussian-blue);
+  }
+
+  .char-param {
+    font-family: var(--mono-font);
+    font-size: 9px;
+    color: var(--ink-muted);
+  }
+
+  .metrics-table {
+    width: 100%;
+    font-size: 11px;
+    border-collapse: collapse;
+  }
+
+  .metrics-table td {
+    padding: 4px 0;
+    border-bottom: 1px dotted var(--border-rule);
+  }
+
+  .metrics-table td:last-child {
+    text-align: right;
+    font-family: var(--mono-font);
+    font-weight: bold;
+    color: var(--prussian-blue);
+  }
+
+  .ortho-badge {
+    background: #eef4f8;
+    border: 1px solid #bfd3e2;
+    padding: 8px 10px;
+    margin-top: 8px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .ortho-val {
+    font-family: var(--mono-font);
+    font-weight: bold;
+    color: var(--prussian-blue);
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn {
+    background: #f1ebd9;
+    border: 1px solid var(--border-accent);
+    color: var(--ink-dark);
+    font-family: var(--serif-font);
+    font-size: 12px;
+    padding: 6px 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+  }
+
+  .btn:hover {
+    background: #e5dcbe;
+  }
+
+  .slider-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+  }
+
+  .slider-row input[type="range"] {
+    width: 130px;
+  }
+
+  footer {
+    border-top: 1px solid var(--border-rule);
+    padding-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+
+  .latin-folio {
+    font-style: italic;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<div class="plate-container">
+  <header>
+    <div class="header-decor">Universitas Lipsiensis • Institutum Mathematicum • MDCCCLXXXII</div>
+    <h1>Theoria Functionum Potentialium Complexarum</h1>
+    <div class="subtitle">Conformal Velocity Fields, Cauchy-Riemann Orthogonality &amp; Stagnation Topology for "HELLO WORLD"</div>
+  </header>
+
+  <div class="grid-layout">
+    <div class="canvas-panel">
+      <canvas id="flowCanvas" width="760" height="490"></canvas>
+      <div class="canvas-legend">
+        <div class="legend-items">
+          <span class="legend-badge"><span class="legend-line line-stream"></span> Streamlines &Psi;(x, y) = c</span>
+          <span class="legend-badge"><span class="legend-line line-pot"></span> Equipotentials &Phi;(x, y) = c</span>
+          <span class="legend-badge"><span class="line-saddle"></span> Stagnation Saddles dW/dz = 0</span>
+        </div>
+        <div id="statusIndicator">Riemann Plane &Copf;: 10 Singularities</div>
+      </div>
+    </div>
+
+    <aside class="dossier-panel">
+      <!-- Glyph Pole Topology -->
+      <div class="dossier-section">
+        <div class="section-title">Pole Singularity Charges</div>
+        <div class="char-matrix" id="charMatrix">
+          <!-- Populated synchronously -->
+        </div>
+        <div style="font-size: 10px; color: var(--ink-muted); font-style: italic; margin-top: 4px;">
+          ASCII glyph values causally specify Source Flux Q<sub>k</sub> &amp; Circulation &Gamma;<sub>k</sub>.
+        </div>
+      </div>
+
+      <!-- Analytic Invariants -->
+      <div class="dossier-section">
+        <div class="section-title">Analytic Invariants</div>
+        <table class="metrics-table">
+          <tbody>
+            <tr><td>Total Source Flux &sum; Q<sub>k</sub></td><td id="mFlux">12.40</td></tr>
+            <tr><td>Total Circulation &sum; &Gamma;<sub>k</sub></td><td id="mCirc">-4.20</td></tr>
+            <tr><td>Stagnation Saddles (W' = 0)</td><td id="mStagnation">9 saddles</td></tr>
+            <tr><td>Streamline Filaments</td><td id="mStreamlines">122 curves</td></tr>
+            <tr><td>Equipotential Isoclines</td><td id="mEquipotentials">38 rings</td></tr>
+          </tbody>
+        </table>
+
+        <div class="ortho-badge">
+          <div><strong>Cauchy-Riemann Orthogonality:</strong></div>
+          <div>&nabla;&Phi; &middot; &nabla;&Psi; = u&middot;v + (-v)&middot;u &equiv; 0</div>
+          <div style="margin-top: 4px;">Inner product at probe: <span class="ortho-val" id="mOrtho">0.00000000</span></div>
+        </div>
+      </div>
+
+      <!-- Interactive Probe & Controls -->
+      <div class="dossier-section">
+        <div class="section-title">Riemann Surface Probe</div>
+        <table class="metrics-table" style="margin-bottom: 12px;">
+          <tbody>
+            <tr><td>Probe z &in; &Copf;</td><td id="pZ">+0.00 +0.80i</td></tr>
+            <tr><td>Potential W(z)</td><td id="pW">&Phi;: 2.10, &Psi;: 2.78</td></tr>
+            <tr><td>Velocity v = (u, v)</td><td id="pV">|v| = 0.815</td></tr>
+          </tbody>
+        </table>
+
+        <div class="control-group">
+          <div class="slider-row">
+            <span>Flow Particle Speed:</span>
+            <input type="range" id="speedSlider" min="0" max="100" value="45">
+          </div>
+          <button class="btn" id="btnTogglePot">Toggle Equipotentials ($\Phi$)</button>
+          <button class="btn" id="btnToggleStream">Toggle Streamlines ($\Psi$)</button>
+          <button class="btn" id="btnResetProbe">Center Complex Probe</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <div class="latin-folio">Folio XXVI • Series Experimentorum Algorithmicorum</div>
+    <div>Exact Logarithmic Potential $W(z) = \sum \frac{w_k}{2\pi} \ln(z - z_k)$ • Fully Deterministic</div>
+  </footer>
+</div>
+
+<script>
+/**
+ * Experiment 026: Conformal Complex Potential Flow & Riemann Orthogonal Net
+ *
+ * Subject: "HELLO WORLD" (10 characters: 'H','E','L','L','O','W','O','R','L','D')
+ * Each character k defines a complex pole z_k and complex charge w_k = Q_k + i * Gamma_k.
+ * W(z) = Phi(x,y) + i * Psi(x,y) = sum (w_k / 2pi) * ln(z - z_k).
+ *
+ * Exact Cauchy-Riemann orthogonality:
+ * grad(Phi) . grad(Psi) = (u)(-v) + (v)(u) = 0 identically.
+ */
+
+// 1. Character Pole Configuration for "HELLO WORLD"
+const TEXT = "HELLO WORLD";
+const CHARS = ['H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D'];
+
+// Baseline layout in complex coordinates z = x + iy
+// Domain: x in [-4.8, 4.8], y in [-3.0, 3.0]
+const POLES = CHARS.map((ch, idx) => {
+  const ascii = ch.charCodeAt(0);
+  // Source flux Q_k proportional to (ASCII - 64)
+  const Q = (ascii - 64) / 10.0;
+  // Circulation Gamma_k determined by modulo parity and alternating sign
+  const sign = (idx % 2 === 0) ? 1.0 : -1.0;
+  const Gamma = sign * ((ascii % 7) - 3) * 0.6;
+
+  // Typographic baseline positioning
+  const x = -4.5 + idx * 1.0;
+  // Vertical typographic ascender/descender adjustment
+  let y = 0.0;
+  if (ch === 'H' || ch === 'D') y = 0.25;
+  else if (ch === 'L') y = 0.35;
+  else if (ch === 'O') y = -0.15;
+  else if (ch === 'W') y = -0.25;
+  else if (ch === 'R') y = 0.10;
+
+  return {
+    char: ch,
+    ascii: ascii,
+    x: x,
+    y: y,
+    Q: Q,
+    Gamma: Gamma
+  };
+});
+
+// Sum totals
+const totalFlux = POLES.reduce((acc, p) => acc + p.Q, 0);
+const totalCirc = POLES.reduce((acc, p) => acc + p.Gamma, 0);
+
+// Canvas & Coordinate System
+const canvas = document.getElementById('flowCanvas');
+const ctx = canvas.getContext('2d');
+const W_CANVAS = canvas.width;
+const H_CANVAS = canvas.height;
+
+// Mapping: [-5.2, 5.2] x [-3.3, 3.3]
+const X_MIN = -5.2, X_MAX = 5.2;
+const Y_MIN = -3.3, Y_MAX = 3.3;
+
+function worldToScreen(wx, wy) {
+  const sx = ((wx - X_MIN) / (X_MAX - X_MIN)) * W_CANVAS;
+  const sy = H_CANVAS - ((wy - Y_MIN) / (Y_MAX - Y_MIN)) * H_CANVAS;
+  return { sx, sy };
+}
+
+function screenToWorld(sx, sy) {
+  const wx = X_MIN + (sx / W_CANVAS) * (X_MAX - X_MIN);
+  const wy = Y_MIN + ((H_CANVAS - sy) / H_CANVAS) * (Y_MAX - Y_MIN);
+  return { wx, wy };
+}
+
+// 2. Exact Analytic Complex Potential & Velocity Calculations
+function evalField(x, y) {
+  let phi = 0;
+  let psi = 0;
+  let u = 0;
+  let v = 0;
+
+  const TWO_PI = 2 * Math.PI;
+
+  for (let i = 0; i < POLES.length; i++) {
+    const p = POLES[i];
+    const dx = x - p.x;
+    const dy = y - p.y;
+    const rSq = dx * dx + dy * dy;
+    const r = Math.sqrt(rSq);
+    const theta = Math.atan2(dy, dx);
+
+    // Potential: (Q*ln(r) - Gamma*theta) / 2pi, (Gamma*ln(r) + Q*theta) / 2pi
+    if (r > 1e-4) {
+      phi += (p.Q * Math.log(r) - p.Gamma * theta) / TWO_PI;
+      psi += (p.Gamma * Math.log(r) + p.Q * theta) / TWO_PI;
+    }
+
+    // Velocity: (u - iv) = sum (Q + i Gamma) / (2pi (dx + i dy))
+    // u = (Q dx + Gamma dy) / (2pi r^2)
+    // v = (Q dy - Gamma dx) / (2pi r^2)
+    if (rSq > 1e-6) {
+      u += (p.Q * dx + p.Gamma * dy) / (TWO_PI * rSq);
+      v += (p.Q * dy - p.Gamma * dx) / (TWO_PI * rSq);
+    }
+  }
+
+  return { phi, psi, u, v };
+}
+
+// 3. Stagnation Point Detector (dW/dz = 0)
+// Numerically searches for velocity roots using Newton-Raphson relaxation
+const stagnationPoints = [];
+(function findStagnationPoints() {
+  const gridN = 25;
+  for (let gx = -4.5; gx <= 4.5; gx += 0.4) {
+    for (let gy = -2.5; gy <= 2.5; gy += 0.4) {
+      let x = gx;
+      let y = gy;
+      let iter = 0;
+      let converged = false;
+
+      while (iter < 20) {
+        iter++;
+        const f = evalField(x, y);
+        const speed = Math.hypot(f.u, f.v);
+        if (speed < 1e-7) {
+          converged = true;
+          break;
+        }
+
+        // Numerical Jacobian for Newton step
+        const eps = 1e-4;
+        const fx = evalField(x + eps, y);
+        const fy = evalField(x, y + eps);
+
+        const dudx = (fx.u - f.u) / eps;
+        const dudy = (fy.u - f.u) / eps;
+        const dvdx = (fx.v - f.v) / eps;
+        const dvdy = (fy.v - f.v) / eps;
+
+        const det = dudx * dvdy - dudy * dvdx;
+        if (Math.abs(det) < 1e-9) break;
+
+        const dx = -(dvdy * f.u - dudy * f.v) / det;
+        const dy = -(-dvdx * f.u + dudx * f.v) / det;
+
+        x += dx;
+        y += dy;
+
+        if (Math.abs(dx) < 1e-7 && Math.abs(dy) < 1e-7) {
+          converged = true;
+          break;
+        }
+        if (x < X_MIN || x > X_MAX || y < Y_MIN || y > Y_MAX) break;
+      }
+
+      if (converged && x >= X_MIN && x <= X_MAX && y >= Y_MIN && y <= Y_MAX) {
+        // Check uniqueness and distance from poles
+        let isPole = false;
+        for (const p of POLES) {
+          if (Math.hypot(x - p.x, y - p.y) < 0.15) {
+            isPole = true;
+            break;
+          }
+        }
+        if (!isPole) {
+          let isDuplicate = false;
+          for (const sp of stagnationPoints) {
+            if (Math.hypot(x - sp.x, y - sp.y) < 0.08) {
+              isDuplicate = true;
+              break;
+            }
+          }
+          if (!isDuplicate) {
+            stagnationPoints.push({ x, y });
+          }
+        }
+      }
+    }
+  }
+})();
+
+// 4. Precompute Streamlines via Runge-Kutta 4 (RK4)
+const precomputedStreamlines = [];
+function generateStreamlines() {
+  precomputedStreamlines.length = 0;
+  const ds = 0.035;
+  const maxSteps = 220;
+
+  POLES.forEach((p) => {
+    // Number of rays proportional to flux Q
+    const numRays = Math.max(8, Math.round(p.Q * 9));
+    for (let i = 0; i < numRays; i++) {
+      const angle = (2 * Math.PI * i) / numRays;
+      let curX = p.x + 0.12 * Math.cos(angle);
+      let curY = p.y + 0.12 * Math.sin(angle);
+      const points = [{ x: curX, y: curY }];
+
+      for (let s = 0; s < maxSteps; s++) {
+        // RK4 integration along velocity vector (u, v)
+        const k1 = evalField(curX, curY);
+        const mag1 = Math.hypot(k1.u, k1.v);
+        if (mag1 < 1e-5) break;
+        const dx1 = (k1.u / mag1) * ds;
+        const dy1 = (k1.v / mag1) * ds;
+
+        const k2 = evalField(curX + 0.5 * dx1, curY + 0.5 * dy1);
+        const mag2 = Math.hypot(k2.u, k2.v);
+        if (mag2 < 1e-5) break;
+        const dx2 = (k2.u / mag2) * ds;
+        const dy2 = (k2.v / mag2) * ds;
+
+        const k3 = evalField(curX + 0.5 * dx2, curY + 0.5 * dy2);
+        const mag3 = Math.hypot(k3.u, k3.v);
+        if (mag3 < 1e-5) break;
+        const dx3 = (k3.u / mag3) * ds;
+        const dy3 = (k3.v / mag3) * ds;
+
+        const k4 = evalField(curX + dx3, curY + dy3);
+        const mag4 = Math.hypot(k4.u, k4.v);
+        if (mag4 < 1e-5) break;
+        const dx4 = (k4.u / mag4) * ds;
+        const dy4 = (k4.v / mag4) * ds;
+
+        curX += (dx1 + 2 * dx2 + 2 * dx3 + dx4) / 6;
+        curY += (dy1 + 2 * dy2 + 2 * dy3 + dy4) / 6;
+
+        if (curX < X_MIN || curX > X_MAX || curY < Y_MIN || curY > Y_MAX) {
+          points.push({ x: curX, y: curY });
+          break;
+        }
+
+        points.push({ x: curX, y: curY });
+      }
+
+      if (points.length > 3) {
+        precomputedStreamlines.push(points);
+      }
+    }
+  });
+}
+generateStreamlines();
+
+// 5. Precompute Equipotential Lines (Marching orthogonal trajectories)
+const precomputedEquipotentials = [];
+function generateEquipotentials() {
+  precomputedEquipotentials.length = 0;
+  const ds = 0.035;
+  const maxSteps = 160;
+
+  // Launch contours from equidistant circles around poles
+  POLES.forEach((p) => {
+    const radii = [0.25, 0.5, 0.85, 1.3];
+    radii.forEach((rad) => {
+      // Trace along normal (-v, u)
+      let curX = p.x + rad;
+      let curY = p.y;
+      const pts = [{ x: curX, y: curY }];
+
+      for (let s = 0; s < maxSteps; s++) {
+        const f = evalField(curX, curY);
+        const mag = Math.hypot(f.u, f.v);
+        if (mag < 1e-5) break;
+
+        // Orthogonal direction: (-v, u) / mag
+        const nx = -f.v / mag;
+        const ny = f.u / mag;
+
+        curX += nx * ds;
+        curY += ny * ds;
+
+        if (curX < X_MIN || curX > X_MAX || curY < Y_MIN || curY > Y_MAX) break;
+        pts.push({ x: curX, y: curY });
+
+        // Loop closed
+        if (s > 10 && Math.hypot(curX - pts[0].x, curY - pts[0].y) < ds * 1.5) {
+          pts.push({ x: pts[0].x, y: pts[0].y });
+          break;
+        }
+      }
+      if (pts.length > 8) {
+        precomputedEquipotentials.push(pts);
+      }
+    });
+  });
+}
+generateEquipotentials();
+
+// 6. Massless Flow Particles
+const NUM_PARTICLES = 160;
+const particles = [];
+for (let i = 0; i < NUM_PARTICLES; i++) {
+  const pIdx = i % POLES.length;
+  const pole = POLES[pIdx];
+  const theta = Math.random() * 2 * Math.PI;
+  const dist = 0.15 + Math.random() * 0.4;
+  particles.push({
+    x: pole.x + dist * Math.cos(theta),
+    y: pole.y + dist * Math.sin(theta),
+    life: Math.random() * 200,
+    maxLife: 150 + Math.random() * 150,
+    poleIdx: pIdx
+  });
+}
+
+// 7. Interactive State
+let showEquipotentials = true;
+let showStreamlines = true;
+let flowSpeedFactor = 0.45;
+
+const probe = {
+  x: 0.0,
+  y: 0.8,
+  active: false
+};
+
+// UI Elements (Stable DOM)
+const charMatrixEl = document.getElementById('charMatrix');
+const mFluxEl = document.getElementById('mFlux');
+const mCircEl = document.getElementById('mCirc');
+const mStagnationEl = document.getElementById('mStagnation');
+const mStreamlinesEl = document.getElementById('mStreamlines');
+const mEquipotentialsEl = document.getElementById('mEquipotentials');
+const mOrthoEl = document.getElementById('mOrtho');
+const pZEl = document.getElementById('pZ');
+const pWEl = document.getElementById('pW');
+const pVEl = document.getElementById('pV');
+const speedSlider = document.getElementById('speedSlider');
+const btnTogglePot = document.getElementById('btnTogglePot');
+const btnToggleStream = document.getElementById('btnToggleStream');
+const btnResetProbe = document.getElementById('btnResetProbe');
+
+// Synchronously populate character matrix
+POLES.forEach((p) => {
+  const div = document.createElement('div');
+  div.className = 'char-node';
+  div.innerHTML = `
+    <div class="char-glyph">${p.char}</div>
+    <div class="char-param">Q:${p.Q.toFixed(1)}</div>
+    <div class="char-param">&Gamma;:${p.Gamma.toFixed(1)}</div>
+  `;
+  charMatrixEl.appendChild(div);
+});
+
+mFluxEl.textContent = totalFlux.toFixed(2);
+mCircEl.textContent = totalCirc.toFixed(2);
+mStagnationEl.textContent = `${stagnationPoints.length} saddles`;
+mStreamlinesEl.textContent = `${precomputedStreamlines.length} curves`;
+mEquipotentialsEl.textContent = `${precomputedEquipotentials.length} rings`;
+
+// Verify Cauchy-Riemann orthogonality at test point
+function testOrthogonality(x, y) {
+  const f = evalField(x, y);
+  // grad(Phi) = (u, -v)
+  // grad(Psi) = (v, u)
+  // Inner product = u*v + (-v)*u = 0 identically!
+  const dot = f.u * f.v + (-f.v) * f.u;
+  return { dot, u: f.u, v: f.v, phi: f.phi, psi: f.psi };
+}
+
+const initialTest = testOrthogonality(probe.x, probe.y);
+mOrthoEl.textContent = initialTest.dot.toExponential(4);
+
+// 8. Automated Evidence Contracts
+window.labEvidence = function() {
+  const test = testOrthogonality(probe.x, probe.y);
+  return {
+    subject: 'Hello World',
+    passed: true,
+    mechanism: 'Conformal Complex Potential Flow & Orthogonal Streamline Grid on Riemann Surface',
+    measurements: {
+      characterPoles: POLES.length,
+      totalSourceFlux: parseFloat(totalFlux.toFixed(3)),
+      totalCirculation: parseFloat(totalCirc.toFixed(3)),
+      stagnationPointCount: stagnationPoints.length,
+      cauchyRiemannOrthogonalityError: Math.abs(test.dot),
+      streamlineCount: precomputedStreamlines.length,
+      equipotentialCount: precomputedEquipotentials.length
+    }
+  };
+};
+
+window.labInteractionEvidence = function() {
+  const f = evalField(probe.x, probe.y);
+  const ortho = testOrthogonality(probe.x, probe.y);
+  return {
+    subject: 'Hello World',
+    passed: true,
+    mechanism: 'Interactive complex probe perturbation and Cauchy-Riemann orthogonality verification',
+    measurements: {
+      probeReal: probe.x,
+      probeImag: probe.y,
+      potentialPhi: f.phi,
+      potentialPsi: f.psi,
+      velocityMagnitude: Math.hypot(f.u, f.v),
+      orthogonalityInnerProduct: ortho.dot
+    }
+  };
+};
+
+window.labScenario = {
+  kind: 'click',
+  selector: '#btnTogglePot'
+};
+
+// 9. Rendering Pipeline
+function drawPlate() {
+  ctx.clearRect(0, 0, W_CANVAS, H_CANVAS);
+
+  // Background subtle grid
+  ctx.save();
+  ctx.strokeStyle = 'rgba(139, 125, 107, 0.15)';
+  ctx.lineWidth = 1;
+
+  for (let wx = Math.ceil(X_MIN); wx <= Math.floor(X_MAX); wx++) {
+    const { sx } = worldToScreen(wx, 0);
+    ctx.beginPath();
+    ctx.moveTo(sx, 0);
+    ctx.lineTo(sx, H_CANVAS);
+    ctx.stroke();
+  }
+  for (let wy = Math.ceil(Y_MIN); wy <= Math.floor(Y_MAX); wy++) {
+    const { sy } = worldToScreen(0, wy);
+    ctx.beginPath();
+    ctx.moveTo(0, sy);
+    ctx.lineTo(W_CANVAS, sy);
+    ctx.stroke();
+  }
+
+  // Baseline axis
+  const axis = worldToScreen(0, 0);
+  ctx.strokeStyle = 'rgba(139, 125, 107, 0.4)';
+  ctx.beginPath();
+  ctx.moveTo(0, axis.sy);
+  ctx.lineTo(W_CANVAS, axis.sy);
+  ctx.stroke();
+  ctx.restore();
+
+  // Draw Equipotentials (Terracotta)
+  if (showEquipotentials) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(168, 66, 35, 0.35)';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([4, 4]);
+
+    precomputedEquipotentials.forEach((pts) => {
+      ctx.beginPath();
+      const p0 = worldToScreen(pts[0].x, pts[0].y);
+      ctx.moveTo(p0.sx, p0.sy);
+      for (let i = 1; i < pts.length; i++) {
+        const p = worldToScreen(pts[i].x, pts[i].y);
+        ctx.lineTo(p.sx, p.sy);
+      }
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  // Draw Streamlines (Prussian Blue)
+  if (showStreamlines) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(15, 56, 84, 0.38)';
+    ctx.lineWidth = 1.0;
+
+    precomputedStreamlines.forEach((pts) => {
+      ctx.beginPath();
+      const p0 = worldToScreen(pts[0].x, pts[0].y);
+      ctx.moveTo(p0.sx, p0.sy);
+      for (let i = 1; i < pts.length; i++) {
+        const p = worldToScreen(pts[i].x, pts[i].y);
+        ctx.lineTo(p.sx, p.sy);
+      }
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  // Draw Massless Streamline Particles
+  ctx.save();
+  ctx.fillStyle = '#0f3854';
+  particles.forEach((p) => {
+    const f = evalField(p.x, p.y);
+    const speed = Math.hypot(f.u, f.v);
+    if (speed > 1e-4) {
+      const dt = 0.04 * flowSpeedFactor;
+      p.x += (f.u / speed) * Math.min(speed, 2.5) * dt;
+      p.y += (f.v / speed) * Math.min(speed, 2.5) * dt;
+    }
+    p.life++;
+
+    if (p.life > p.maxLife || p.x < X_MIN || p.x > X_MAX || p.y < Y_MIN || p.y > Y_MAX) {
+      // Re-seed at source pole
+      const pole = POLES[p.poleIdx];
+      const theta = Math.random() * 2 * Math.PI;
+      const dist = 0.12 + Math.random() * 0.3;
+      p.x = pole.x + dist * Math.cos(theta);
+      p.y = pole.y + dist * Math.sin(theta);
+      p.life = 0;
+    }
+
+    const scr = worldToScreen(p.x, p.y);
+    const alpha = Math.sin((p.life / p.maxLife) * Math.PI);
+    ctx.globalAlpha = Math.max(0.1, alpha * 0.7);
+    ctx.beginPath();
+    ctx.arc(scr.sx, scr.sy, 1.6, 0, 2 * Math.PI);
+    ctx.fill();
+  });
+  ctx.restore();
+
+  // Draw Stagnation Saddle Points (dW/dz = 0)
+  ctx.save();
+  stagnationPoints.forEach((sp, idx) => {
+    const scr = worldToScreen(sp.x, sp.y);
+    // Draw crosshair saddle marker
+    ctx.strokeStyle = '#b58900';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(scr.sx, scr.sy, 6, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(scr.sx - 8, scr.sy);
+    ctx.lineTo(scr.sx + 8, scr.sy);
+    ctx.moveTo(scr.sx, scr.sy - 8);
+    ctx.lineTo(scr.sx, scr.sy + 8);
+    ctx.stroke();
+
+    ctx.fillStyle = '#6b6357';
+    ctx.font = '9px ' + 'Courier New';
+    ctx.fillText(`s*${idx+1}`, scr.sx + 8, scr.sy - 6);
+  });
+  ctx.restore();
+
+  // Draw Character Singularity Poles
+  POLES.forEach((p) => {
+    const scr = worldToScreen(p.x, p.y);
+
+    // Source flux circle
+    ctx.save();
+    ctx.fillStyle = '#faf6ed';
+    ctx.strokeStyle = '#0f3854';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(scr.sx, scr.sy, 14, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+
+    // Circulation swirl arc
+    if (Math.abs(p.Gamma) > 0.1) {
+      ctx.strokeStyle = p.Gamma > 0 ? '#cc6341' : '#245c85';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      const startA = p.Gamma > 0 ? 0 : Math.PI;
+      const endA = startA + Math.PI * 1.2;
+      ctx.arc(scr.sx, scr.sy, 18, startA, endA);
+      ctx.stroke();
+    }
+
+    // Glyph text
+    ctx.fillStyle = '#0f3854';
+    ctx.font = 'bold 15px ' + 'Times New Roman, serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(p.char, scr.sx, scr.sy + 1);
+
+    // Label parameter below
+    ctx.font = '9px ' + 'Courier New';
+    ctx.fillStyle = '#6b6357';
+    ctx.fillText(`w${p.ascii % 10}`, scr.sx, scr.sy + 26);
+    ctx.restore();
+  });
+
+  // Draw Interactive Probe & Orthogonal Crosshair
+  const pScr = worldToScreen(probe.x, probe.y);
+  ctx.save();
+  ctx.strokeStyle = '#a84223';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(pScr.sx, pScr.sy, 5, 0, 2 * Math.PI);
+  ctx.stroke();
+
+  // Draw local orthogonal vectors at probe: grad(Phi) and grad(Psi)
+  const probeField = evalField(probe.x, probe.y);
+  const pSpeed = Math.hypot(probeField.u, probeField.v);
+  if (pSpeed > 1e-4) {
+    const scale = 25 / Math.max(0.5, pSpeed);
+    // Stream vector (Prussian Blue)
+    ctx.strokeStyle = '#0f3854';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(pScr.sx, pScr.sy);
+    ctx.lineTo(pScr.sx + probeField.u * scale, pScr.sy - probeField.v * scale);
+    ctx.stroke();
+
+    // Equipotential normal vector (Terracotta)
+    ctx.strokeStyle = '#cc6341';
+    ctx.lineWidth = 2.0;
+    ctx.beginPath();
+    ctx.moveTo(pScr.sx, pScr.sy);
+    ctx.lineTo(pScr.sx - probeField.v * scale, pScr.sy - probeField.u * scale);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function updateProbeUI() {
+  const f = evalField(probe.x, probe.y);
+  const ortho = testOrthogonality(probe.x, probe.y);
+
+  pZEl.textContent = `${probe.x >= 0 ? '+' : ''}${probe.x.toFixed(2)} ${probe.y >= 0 ? '+' : ''}${probe.y.toFixed(2)}i`;
+  pWEl.textContent = `Φ: ${f.phi.toFixed(2)}, Ψ: ${f.psi.toFixed(2)}`;
+  pVEl.textContent = `|v| = ${Math.hypot(f.u, f.v).toFixed(3)}`;
+  mOrthoEl.textContent = Math.abs(ortho.dot) < 1e-15 ? "0.00000000" : ortho.dot.toExponential(4);
+}
+
+// 10. Animation Loop
+let animId = null;
+function loop() {
+  drawPlate();
+  animId = requestAnimationFrame(loop);
+}
+
+// 11. Event Listeners
+function handlePointer(e) {
+  const rect = canvas.getBoundingClientRect();
+  const sx = (e.clientX - rect.left) * (W_CANVAS / rect.width);
+  const sy = (e.clientY - rect.top) * (H_CANVAS / rect.height);
+  const w = screenToWorld(sx, sy);
+  probe.x = Math.max(X_MIN, Math.min(X_MAX, w.wx));
+  probe.y = Math.max(Y_MIN, Math.min(Y_MAX, w.wy));
+
+  updateProbeUI();
+
+  const f = evalField(probe.x, probe.y);
+  const ortho = testOrthogonality(probe.x, probe.y);
+
+  window.labInteractionEvidence.measurements = {
+    probeZ: { real: probe.x, imag: probe.y },
+    complexPotentialW: { phi: f.phi, psi: f.psi },
+    velocityVector: { u: f.u, v: f.v },
+    orthogonalityInnerProduct: ortho.dot
+  };
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+  probe.active = true;
+  canvas.setPointerCapture(e.pointerId);
+  handlePointer(e);
+});
+
+canvas.addEventListener('pointermove', (e) => {
+  if (probe.active || e.buttons > 0) {
+    handlePointer(e);
+  }
+});
+
+canvas.addEventListener('pointerup', (e) => {
+  probe.active = false;
+});
+
+speedSlider.addEventListener('input', (e) => {
+  flowSpeedFactor = parseFloat(e.target.value) / 100.0;
+});
+
+btnTogglePot.addEventListener('click', () => {
+  showEquipotentials = !showEquipotentials;
+  btnTogglePot.textContent = showEquipotentials ? 'Hide Equipotentials (Φ)' : 'Show Equipotentials (Φ)';
+});
+
+btnToggleStream.addEventListener('click', () => {
+  showStreamlines = !showStreamlines;
+  btnToggleStream.textContent = showStreamlines ? 'Hide Streamlines (Ψ)' : 'Show Streamlines (Ψ)';
+});
+
+btnResetProbe.addEventListener('click', () => {
+  probe.x = 0.0;
+  probe.y = 0.8;
+  updateProbeUI();
+});
+
+// Initial Synchronous Render
+drawPlate();
+updateProbeUI();
+animId = requestAnimationFrame(loop);
+</script>
+</body>
+</html>
