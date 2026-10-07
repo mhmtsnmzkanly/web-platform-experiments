@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "opticsCanvas"
+      },
+      {
+        "tag": "canvas",
+        "id": "sensorCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "opticsCanvas",
+        "width": 1280,
+        "height": 588,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "sensorCanvas",
+        "width": 1232,
+        "height": 152,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 15,
+    "draws": {
+      "canvas": 9408,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 216.67200000307056,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Banc Optique Caustique & Réfraction de Snell-Descartes à travers Prismes Typographiques (\"HELLO WORLD\")"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "opticsCanvas"
+      },
+      {
+        "tag": "canvas",
+        "id": "sensorCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "opticsCanvas",
+        "width": 1280,
+        "height": 588,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "sensorCanvas",
+        "width": 1232,
+        "height": 152,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 124,
+    "draws": {
+      "canvas": 73500,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 2149.8720000030708,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Banc Optique Caustique & Réfraction de Snell-Descartes à travers Prismes Typographiques (\"HELLO WORLD\")"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Snell-Descartes 2D Ray Tracing & Caustic Focus through Typographic Glass Prisms",
+    "measurements": {
+      "fresnelConservation": 1,
+      "snellMeanResidual": 3.1819903759584164e-17,
+      "causticPeakRatio": 1.9642284393310547,
+      "interceptCount": 417,
+      "refractiveIndex": 1.52,
+      "incidentAngleDeg": 0,
+      "totalRays": 200
+    }
+  },
+  "dynamic": true,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnSweep"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Goniometric Beam Angle Sweep & Dynamic Caustic Irradiance Redistribution",
+      "measurements": {
+        "incidentAngleDeg": 6,
+        "causticPeakRatio": 2.9332773208618166,
+        "fresnelConservation": 1,
+        "interceptCount": 474,
+        "totalRays": 200
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "opticsCanvas"
+        },
+        {
+          "tag": "canvas",
+          "id": "sensorCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "opticsCanvas",
+          "width": 1280,
+          "height": 588,
+          "pixels": true,
+          "readable": true
+        },
+        {
+          "id": "sensorCanvas",
+          "width": 1232,
+          "height": 152,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 141,
+      "draws": {
+        "canvas": 84319,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 83.30000000407445,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 83.30000000407445,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 2449.8720000030703,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "Banc Optique Caustique & Réfraction de Snell-Descartes à travers Prismes Typographiques (\"HELLO WORLD\")"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "opticsCanvas"
+        },
+        {
+          "tag": "canvas",
+          "id": "sensorCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "opticsCanvas",
+          "width": 1280,
+          "height": 588,
+          "pixels": true,
+          "readable": true
+        },
+        {
+          "id": "sensorCanvas",
+          "width": 1232,
+          "height": 152,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 245,
+      "draws": {
+        "canvas": 150359,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 4699.77200000307,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "Banc Optique Caustique & Réfraction de Snell-Descartes à travers Prismes Typographiques (\"HELLO WORLD\")"
+    }
+  }
+}

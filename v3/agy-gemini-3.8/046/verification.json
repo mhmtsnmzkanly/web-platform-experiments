@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "cultureCanvas"
+      },
+      {
+        "tag": "canvas",
+        "id": "phaseCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "cultureCanvas",
+        "width": 200,
+        "height": 100,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "phaseCanvas",
+        "width": 438,
+        "height": 140,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 15,
+    "draws": {
+      "canvas": 113,
+      "webgl": 0
+    },
+    "drawnText": [
+      "HELLO WORLD"
+    ],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 216.70100000910458,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Morphogenèse de Réaction-Diffusion de Gray-Scott sur Métrique Typographique (\"HELLO WORLD\")"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "cultureCanvas"
+      },
+      {
+        "tag": "canvas",
+        "id": "phaseCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "cultureCanvas",
+        "width": 200,
+        "height": 100,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "phaseCanvas",
+        "width": 438,
+        "height": 140,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 80,
+    "draws": {
+      "canvas": 568,
+      "webgl": 0
+    },
+    "drawnText": [
+      "HELLO WORLD"
+    ],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 1300.0010000091047,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Morphogenèse de Réaction-Diffusion de Gray-Scott sur Métrique Typographique (\"HELLO WORLD\")"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Gray-Scott Heterogeneous Reaction-Diffusion Morphogenesis on Typographic Metric",
+    "measurements": {
+      "totalBiomass": 349.7175558032501,
+      "totalReactionRate": 32.330536197783246,
+      "isBounded": true,
+      "courantNumber": 0.16,
+      "feedRate": 0.054,
+      "killRate": 0.062,
+      "typographicNodes": 1031
+    }
+  },
+  "dynamic": true,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnNutrient"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Nutrient Shock Injection & Autocatalytic Biomass Surge",
+      "measurements": {
+        "totalBiomass": 331.97218603824257,
+        "preShockBiomass": 347.69345701381144,
+        "reactionRate": 31.386048961320803,
+        "isBounded": true
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "cultureCanvas"
+        },
+        {
+          "tag": "canvas",
+          "id": "phaseCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "cultureCanvas",
+          "width": 200,
+          "height": 100,
+          "pixels": true,
+          "readable": true
+        },
+        {
+          "id": "phaseCanvas",
+          "width": 438,
+          "height": 140,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 91,
+      "draws": {
+        "canvas": 652,
+        "webgl": 0
+      },
+      "drawnText": [
+        "HELLO WORLD"
+      ],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 16.693000006652525,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 16.693000006652525,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 1483.3010000091047,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "Morphogenèse de Réaction-Diffusion de Gray-Scott sur Métrique Typographique (\"HELLO WORLD\")"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "cultureCanvas"
+        },
+        {
+          "tag": "canvas",
+          "id": "phaseCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "cultureCanvas",
+          "width": 200,
+          "height": 100,
+          "pixels": true,
+          "readable": true
+        },
+        {
+          "id": "phaseCanvas",
+          "width": 438,
+          "height": 140,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 154,
+      "draws": {
+        "canvas": 1093,
+        "webgl": 0
+      },
+      "drawnText": [
+        "HELLO WORLD"
+      ],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 2533.201000009105,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "Morphogenèse de Réaction-Diffusion de Gray-Scott sur Métrique Typographique (\"HELLO WORLD\")"
+    }
+  }
+}

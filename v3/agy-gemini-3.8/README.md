@@ -2,7 +2,7 @@
 
 [Repository index](../../README.md) · [Version prompt](../PROMPT.md)
 
-**40 base experiments** · 40 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
+**50 base experiments** · 50 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
 
 Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinished.
 
@@ -245,4 +245,64 @@ Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinishe
 [Demo](040/040.html) · [Report](040/report.md) · [Journal](040/journal.md) · [Screenshot](040/screenshot.png)
 
 ![Experiment 040](040/screenshot.png)
+
+## 041 — Experiment Report: 041 — 2D Lattice Boltzmann Method (D2Q9 BGK) Aerodynamic Tunnel through Typographic Porous Medium
+
+[Demo](041/041.html) · [Report](041/report.md) · [Journal](041/journal.md) · [Screenshot](041/screenshot.png)
+
+![Experiment 041](041/screenshot.png)
+
+## 042 — Experiment Report: 042 — Snell-Descartes Refraction & Caustic Irradiance through Typographic Glass Prisms ("HELLO WORLD")
+
+[Demo](042/042.html) · [Report](042/report.md) · [Journal](042/journal.md) · [Screenshot](042/screenshot.png)
+
+![Experiment 042](042/screenshot.png)
+
+## 043 — Experiment Report: 043 — Ergodic Markov Chain & Shannon Entropy Rate on Character Transition Kernel ("HELLO WORLD")
+
+[Demo](043/043.html) · [Report](043/report.md) · [Journal](043/journal.md) · [Screenshot](043/screenshot.png)
+
+![Experiment 043](043/screenshot.png)
+
+## 044 — Experiment Report: 044 — Euler-Bernoulli Elastic Truss Vibration & Modal Resonance on Typographic Truss ("HELLO WORLD")
+
+[Demo](044/044.html) · [Report](044/report.md) · [Journal](044/journal.md) · [Screenshot](044/screenshot.png)
+
+![Experiment 044](044/screenshot.png)
+
+## 045 — Experiment Report: 045 — 2D Yee-Lattice FDTD Electrodynamics & Wave Scattering through Typographic Dielectric Metasurface ("HELLO WORLD")
+
+[Demo](045/045.html) · [Report](045/report.md) · [Journal](045/journal.md) · [Screenshot](045/screenshot.png)
+
+![Experiment 045](045/screenshot.png)
+
+## 046 — Experiment Report: 046 — Gray-Scott Reaction-Diffusion Morphogenesis on Typographic Metric ("HELLO WORLD")
+
+[Demo](046/046.html) · [Report](046/report.md) · [Journal](046/journal.md) · [Screenshot](046/screenshot.png)
+
+![Experiment 046](046/screenshot.png)
+
+## 047 — Experiment Report: 047 — Bak-Tang-Wiesenfeld Abelian Sandpile & Self-Organized Criticality (SOC) through Typographic Chutes ("HELLO WORLD")
+
+[Demo](047/047.html) · [Report](047/report.md) · [Journal](047/journal.md) · [Screenshot](047/screenshot.png)
+
+![Experiment 047](047/screenshot.png)
+
+## 048 — Experiment Report: 048 — Relativistic Aberration, Lorentz Contraction & Doppler Beaming at Near-Light-Speed Flyby of Typographic Constellation ("HELLO WORLD")
+
+[Demo](048/048.html) · [Report](048/report.md) · [Journal](048/journal.md) · [Screenshot](048/screenshot.png)
+
+![Experiment 048](048/screenshot.png)
+
+## 049 — Experiment Report: 049 — Conformal Schwarz-Christoffel Mapping & Holomorphic Complex Potential Flow through Typographic Channels ("HELLO WORLD")
+
+[Demo](049/049.html) · [Report](049/report.md) · [Journal](049/journal.md) · [Screenshot](049/screenshot.png)
+
+![Experiment 049](049/screenshot.png)
+
+## 050 — Experiment Report: 050 — Fluid-Structure Interaction & Vortex-Induced Vibration of Typographic Cantilevers ("HELLO WORLD")
+
+[Demo](050/050.html) · [Report](050/report.md) · [Journal](050/journal.md) · [Screenshot](050/screenshot.png)
+
+![Experiment 050](050/screenshot.png)
 

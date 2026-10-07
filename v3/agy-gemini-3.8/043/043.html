@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chaîne de Markov Ergodique & Taux d'Entropie de Shannon sur "HELLO WORLD"</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #05070c;
+      color: #e2e8f0;
+      font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Top Information Telemetry Ribbon */
+    .top-ribbon {
+      height: 60px;
+      background: #090d16;
+      border-bottom: 2px solid #1a2234;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+    }
+
+    .title-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .markov-icon {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #8b5cf6;
+      box-shadow: 0 0 10px #8b5cf6, 0 0 20px #6d28d9;
+    }
+
+    .main-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #f8fafc;
+      text-transform: uppercase;
+    }
+
+    .sub-title {
+      font-size: 10px;
+      color: #64748b;
+      letter-spacing: 0.06em;
+    }
+
+    .telemetry-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .met-chip {
+      display: flex;
+      gap: 6px;
+      font-size: 11px;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 4px 10px;
+      border-radius: 3px;
+      border: 1px solid #1e293b;
+    }
+
+    .met-k {
+      color: #94a3b8;
+    }
+
+    .met-v {
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .met-v.accent {
+      color: #a78bfa;
+    }
+
+    .met-v.highlight {
+      color: #38bdf8;
+    }
+
+    .btn-action {
+      background: #5b21b6;
+      color: #f5f3ff;
+      border: 1px solid #7c3aed;
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-transform: uppercase;
+      font-family: inherit;
+    }
+
+    .btn-action:hover {
+      background: #6d28d9;
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+    }
+
+    /* Split Stage Layout */
+    .markov-stage {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      overflow: hidden;
+      background: radial-gradient(circle at 35% 50%, #0d1222 0%, #05070c 100%);
+    }
+
+    /* Left: Circular Chord Diagram */
+    .chord-pane {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-right: 1px solid #1a2234;
+    }
+
+    #chordCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .chord-overlay-label {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      font-size: 10px;
+      color: #64748b;
+      letter-spacing: 0.08em;
+      pointer-events: none;
+    }
+
+    /* Right: Matrix Heatmap & Stationary Distribution */
+    .matrix-pane {
+      display: flex;
+      flex-direction: column;
+      padding: 18px 24px;
+      gap: 16px;
+      overflow: hidden;
+      background: rgba(8, 12, 20, 0.6);
+    }
+
+    .pane-card {
+      background: #090e18;
+      border: 1px solid #1a2438;
+      border-radius: 4px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Transition Matrix Heatmap 8x8 */
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: 24px repeat(8, 1fr);
+      gap: 3px;
+      font-size: 9px;
+      align-items: center;
+    }
+
+    .matrix-cell {
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 2px;
+      color: #f8fafc;
+      font-weight: 600;
+    }
+
+    .matrix-header {
+      color: #64748b;
+      font-weight: 700;
+      font-size: 10px;
+    }
+
+    /* Stationary Distribution Bar Chart */
+    .dist-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .dist-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+    }
+
+    .dist-label {
+      width: 16px;
+      color: #94a3b8;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .dist-bar-track {
+      flex: 1;
+      height: 12px;
+      background: #111827;
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .dist-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6d28d9, #8b5cf6);
+      transition: width 0.15s ease;
+    }
+
+    .dist-val {
+      width: 46px;
+      text-align: right;
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+
+    /* Live Synthesized Markov Text Ribbon */
+    .synth-card {
+      flex: 1;
+      background: #090e18;
+      border: 1px solid #1a2438;
+      border-radius: 4px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 80px;
+    }
+
+    .synth-stream {
+      font-size: 11px;
+      line-height: 1.5;
+      color: #a78bfa;
+      word-break: break-all;
+      font-family: inherit;
+      overflow: hidden;
+      height: 48px;
+    }
+
+    .char-current {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.2);
+      padding: 0 2px;
+      border-radius: 2px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Telemetry Ribbon -->
+  <header class="top-ribbon">
+    <div class="title-block">
+      <div class="markov-icon"></div>
+      <div>
+        <div class="main-title">Chaîne de Markov Ergodique & Entropie Typographique</div>
+        <div class="sub-title">Générateur Stochastique & Mesure Invariante de "HELLO WORLD"</div>
+      </div>
+    </div>
+
+    <div class="telemetry-row">
+      <div class="met-chip">
+        <span class="met-k">TAUX ENTROPIE H:</span>
+        <span class="met-v accent" id="metEntropy">0.6141 bits</span>
+      </div>
+      <div class="met-chip">
+        <span class="met-k">RÉSIDU STATIONNAIRE ||&pi;P-&pi;||:</span>
+        <span class="met-v highlight" id="metResidual">1.42e-16</span>
+      </div>
+      <div class="met-chip">
+        <span class="met-k">CONSERVATION PROBA &Sigma;&pi;:</span>
+        <span class="met-v" id="metProbSum">1.000000</span>
+      </div>
+      <button class="btn-action" id="btnPerturb">Perturbation Thermique (+Noise)</button>
+    </div>
+  </header>
+
+  <!-- Main Split Layout -->
+  <main class="markov-stage">
+    <!-- Left: Circular Chord Network -->
+    <section class="chord-pane">
+      <div class="chord-overlay-label">RÉSEAU DE TRANSITIONS DU GRAPHE DE MARKOV (&Sigma; = {H, E, L, O, _, W, R, D})</div>
+      <canvas id="chordCanvas"></canvas>
+    </section>
+
+    <!-- Right: Transition Matrix Heatmap & Stationary Measures -->
+    <aside class="matrix-pane">
+      <!-- 8x8 Transition Matrix Heatmap -->
+      <div class="pane-card">
+        <div class="card-title">
+          <span>Matrice de Transition P<sub>ij</sub> = P(X<sub>t+1</sub> = j | X<sub>t</sub> = i)</span>
+          <span style="color:#64748b;">LIGNES STOCHASTIQUES &Sigma;=1.0</span>
+        </div>
+        <div class="matrix-grid" id="matrixGrid">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+      <!-- Stationary Distribution Bar Chart -->
+      <div class="pane-card">
+        <div class="card-title">
+          <span>Distribution Stationnaire Invariante (&pi; = &pi;P)</span>
+          <span style="color:#a78bfa;">PONDÉRATIONS EXACTES</span>
+        </div>
+        <div class="dist-chart" id="distChart">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+      <!-- Live Synthesized Markov Text Stream -->
+      <div class="synth-card">
+        <div class="card-title">
+          <span>Flux de Synthèse Pseudo-Aléatoire Dérivé de "HELLO WORLD"</span>
+          <span style="color:#38bdf8;">PAS t = <span id="labelStepCount">0</span></span>
+        </div>
+        <div class="synth-stream" id="synthStream">
+          HELLO WORLD...
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    // --- Experiment 043: Discrete Markov Chain on "HELLO WORLD" ---
+    // Alphabet states derived directly from unique characters in "HELLO WORLD"
+    const ALPHABET = ['H', 'E', 'L', 'O', ' ', 'W', 'R', 'D'];
+    const LABELS = ['H', 'E', 'L', 'O', '␣', 'W', 'R', 'D'];
+    const N = ALPHABET.length; // 8 states
+
+    // Text: "HELLO WORLD"
+    // Sequence of state indices:
+    // H:0, E:1, L:2, L:2, O:3, ' ':4, W:5, O:3, R:6, L:2, D:7, (loopback to H:0)
+    const SEQUENCE = [0, 1, 2, 2, 3, 4, 5, 3, 6, 2, 7];
+
+    // Compute base empirical transition counts
+    const baseP = Array.from({ length: N }, () => new Float32Array(N));
+    for (let i = 0; i < SEQUENCE.length; i++) {
+      const from = SEQUENCE[i];
+      const to = SEQUENCE[(i + 1) % SEQUENCE.length];
+      baseP[from][to]++;
+    }
+    // Normalize rows to be strictly stochastic: sum_j P_ij = 1.0
+    for (let i = 0; i < N; i++) {
+      let rowSum = 0;
+      for (let j = 0; j < N; j++) rowSum += baseP[i][j];
+      if (rowSum > 0) {
+        for (let j = 0; j < N; j++) baseP[i][j] /= rowSum;
+      } else {
+        baseP[i][i] = 1.0;
+      }
+    }
+
+    // Active Transition Matrix (can be perturbed with temperature)
+    let P = Array.from({ length: N }, (v, i) => new Float32Array(baseP[i]));
+    let stationaryPi = new Float32Array(N);
+
+    // Compute Stationary Distribution via Power Iteration: pi * P = pi
+    function computeStationaryDistribution(mat) {
+      let pi = new Float32Array(N).fill(1 / N);
+      let nextPi = new Float32Array(N);
+
+      for (let iter = 0; iter < 100; iter++) {
+        nextPi.fill(0);
+        for (let j = 0; j < N; j++) {
+          for (let i = 0; i < N; i++) {
+            nextPi[j] += pi[i] * mat[i][j];
+          }
+        }
+        // Normalize
+        let s = 0;
+        for (let j = 0; j < N; j++) s += nextPi[j];
+        for (let j = 0; j < N; j++) nextPi[j] /= s;
+
+        // Check L1 convergence
+        let diff = 0;
+        for (let j = 0; j < N; j++) diff += Math.abs(nextPi[j] - pi[j]);
+        for (let j = 0; j < N; j++) pi[j] = nextPi[j];
+        if (diff < 1e-9) break;
+      }
+      return pi;
+    }
+
+    // Compute Shannon Entropy Rate H(X) = - sum_i pi_i sum_j P_ij log2(P_ij)
+    function computeEntropyRate(mat, pi) {
+      let H = 0;
+      for (let i = 0; i < N; i++) {
+        if (pi[i] <= 0) continue;
+        let rowH = 0;
+        for (let j = 0; j < N; j++) {
+          const p = mat[i][j];
+          if (p > 1e-9) {
+            rowH -= p * Math.log2(p);
+          }
+        }
+        H += pi[i] * rowH;
+      }
+      return H;
+    }
+
+    // Stationarity residual ||pi * P - pi||_1
+    function computeStationarityResidual(mat, pi) {
+      let res = 0;
+      for (let j = 0; j < N; j++) {
+        let pNext = 0;
+        for (let i = 0; i < N; i++) pNext += pi[i] * mat[i][j];
+        res += Math.abs(pNext - pi[j]);
+      }
+      return res;
+    }
+
+    // DOM Setup
+    const chordCanvas = document.getElementById('chordCanvas');
+    const chordCtx = chordCanvas.getContext('2d');
+    const matrixGrid = document.getElementById('matrixGrid');
+    const distChart = document.getElementById('distChart');
+    const synthStream = document.getElementById('synthStream');
+    const labelStepCount = document.getElementById('labelStepCount');
+    const metEntropy = document.getElementById('metEntropy');
+    const metResidual = document.getElementById('metResidual');
+    const metProbSum = document.getElementById('metProbSum');
+    const btnPerturb = document.getElementById('btnPerturb');
+
+    // Create DOM Grid Cells for 8x8 matrix
+    function setupMatrixDOM() {
+      matrixGrid.innerHTML = '';
+      // Header row
+      const corner = document.createElement('div');
+      corner.className = 'matrix-cell matrix-header';
+      corner.textContent = '';
+      matrixGrid.appendChild(corner);
+      for (let j = 0; j < N; j++) {
+        const th = document.createElement('div');
+        th.className = 'matrix-cell matrix-header';
+        th.textContent = LABELS[j];
+        matrixGrid.appendChild(th);
+      }
+      // Data rows
+      for (let i = 0; i < N; i++) {
+        const rowH = document.createElement('div');
+        rowH.className = 'matrix-cell matrix-header';
+        rowH.textContent = LABELS[i];
+        matrixGrid.appendChild(rowH);
+
+        for (let j = 0; j < N; j++) {
+          const cell = document.createElement('div');
+          cell.className = 'matrix-cell';
+          cell.id = `cell_${i}_${j}`;
+          matrixGrid.appendChild(cell);
+        }
+      }
+    }
+
+    // Create DOM Rows for Stationary Distribution Chart
+    function setupDistChartDOM() {
+      distChart.innerHTML = '';
+      for (let i = 0; i < N; i++) {
+        const row = document.createElement('div');
+        row.className = 'dist-row';
+        row.innerHTML = `
+          <div class="dist-label">${LABELS[i]}</div>
+          <div class="dist-bar-track">
+            <div class="dist-bar-fill" id="barFill_${i}" style="width: 0%"></div>
+          </div>
+          <div class="dist-val" id="barVal_${i}">0.000</div>
+        `;
+        distChart.appendChild(row);
+      }
+    }
+
+    setupMatrixDOM();
+    setupDistChartDOM();
+
+    // Canvas Geometry
+    let width = 0, height = 0;
+    function resize() {
+      width = chordCanvas.width = chordCanvas.parentElement.clientWidth;
+      height = chordCanvas.height = chordCanvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Node Positions on Circle
+    function getNodePositions() {
+      const cx = width / 2;
+      const cy = height / 2;
+      const r = Math.min(width, height) * 0.36;
+      const nodes = [];
+      for (let i = 0; i < N; i++) {
+        const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
+        nodes.push({
+          x: cx + r * Math.cos(angle),
+          y: cy + r * Math.sin(angle),
+          angle,
+          char: LABELS[i]
+        });
+      }
+      return nodes;
+    }
+
+    // Stochastic Random Walk Particles
+    const particles = [];
+    let currentState = 0; // Starts at 'H'
+    let stepCount = 0;
+    let synthText = "H";
+
+    function stepRandomWalk() {
+      // Pick next state according to row P[currentState]
+      const row = P[currentState];
+      const rnd = Math.random();
+      let accum = 0;
+      let nextState = currentState;
+      for (let j = 0; j < N; j++) {
+        accum += row[j];
+        if (rnd <= accum) {
+          nextState = j;
+          break;
+        }
+      }
+
+      // Spawn visual particle along transition link
+      const nodes = getNodePositions();
+      particles.push({
+        from: currentState,
+        to: nextState,
+        progress: 0.0,
+        speed: 0.045
+      });
+
+      currentState = nextState;
+      stepCount++;
+      synthText += LABELS[currentState];
+      if (synthText.length > 80) synthText = synthText.slice(-80);
+
+      labelStepCount.textContent = stepCount;
+      synthStream.textContent = synthText;
+    }
+
+    // Dynamic Temperature Relaxation
+    let thermalNoise = 0.0;
+    function updateMatrixDynamics() {
+      if (thermalNoise > 1e-4) {
+        thermalNoise *= 0.96; // Exponential cooling relaxation
+      } else {
+        thermalNoise = 0.0;
+      }
+
+      // Mix baseP with uniform distribution
+      for (let i = 0; i < N; i++) {
+        for (let j = 0; j < N; j++) {
+          P[i][j] = (1.0 - thermalNoise) * baseP[i][j] + thermalNoise * (1.0 / N);
+        }
+      }
+
+      stationaryPi = computeStationaryDistribution(P);
+      const entropy = computeEntropyRate(P, stationaryPi);
+      const residual = computeStationarityResidual(P, stationaryPi);
+
+      let sumPi = 0;
+      for (let i = 0; i < N; i++) sumPi += stationaryPi[i];
+
+      // Update Telemetry
+      metEntropy.textContent = `${entropy.toFixed(4)} bits`;
+      metResidual.textContent = residual.toExponential(2);
+      metProbSum.textContent = sumPi.toFixed(6);
+
+      // Update Heatmap DOM
+      for (let i = 0; i < N; i++) {
+        for (let j = 0; j < N; j++) {
+          const val = P[i][j];
+          const cell = document.getElementById(`cell_${i}_${j}`);
+          if (cell) {
+            cell.textContent = val > 0.01 ? val.toFixed(2) : '·';
+            if (val > 0.01) {
+              const alpha = Math.min(0.9, 0.15 + val * 0.75);
+              cell.style.backgroundColor = `rgba(139, 92, 246, ${alpha})`;
+              cell.style.color = '#ffffff';
+            } else {
+              cell.style.backgroundColor = '#0b101c';
+              cell.style.color = '#334155';
+            }
+          }
+        }
+      }
+
+      // Update Stationary Chart DOM
+      for (let i = 0; i < N; i++) {
+        const val = stationaryPi[i];
+        const bar = document.getElementById(`barFill_${i}`);
+        const label = document.getElementById(`barVal_${i}`);
+        if (bar && label) {
+          bar.style.width = `${(val / 0.35) * 100}%`;
+          label.textContent = val.toFixed(3);
+        }
+      }
+
+      // labEvidence verification contract
+      window.labEvidence = function() {
+        const validSum = Math.abs(sumPi - 1.0) < 1e-5;
+        const validRes = residual < 1e-4;
+        const validH = entropy > 0.50 && entropy < 3.10;
+        return {
+          subject: "Hello World",
+          passed: validSum && validRes && validH && stepCount > 5,
+          mechanism: "Ergodic Markov Chain & Shannon Entropy Rate on Character Transition Kernel",
+          measurements: {
+            entropyRate: entropy,
+            stationaryResidual: residual,
+            probabilitySum: sumPi,
+            piL: stationaryPi[2], // 'L' state
+            piO: stationaryPi[3], // 'O' state
+            stepCount: stepCount,
+            thermalNoise: thermalNoise
+          }
+        };
+      };
+    }
+
+    // Render Circular Chord Graph
+    function renderChordGraph() {
+      chordCtx.clearRect(0, 0, width, height);
+      const nodes = getNodePositions();
+      const cx = width / 2;
+      const cy = height / 2;
+
+      // 1. Draw Chord Probability Ribbons
+      for (let i = 0; i < N; i++) {
+        for (let j = 0; j < N; j++) {
+          const prob = P[i][j];
+          if (prob < 0.01) continue;
+
+          const n1 = nodes[i];
+          const n2 = nodes[j];
+
+          chordCtx.beginPath();
+          if (i === j) {
+            // Self-loop on character (e.g. L -> L in HELLO)
+            const loopR = 24;
+            const lx = n1.x + Math.cos(n1.angle) * loopR;
+            const ly = n1.y + Math.sin(n1.angle) * loopR;
+            chordCtx.arc(lx, ly, loopR * 0.7, 0, Math.PI * 2);
+            chordCtx.strokeStyle = `rgba(167, 139, 250, ${0.25 + prob * 0.5})`;
+            chordCtx.lineWidth = 1.5 + prob * 3.5;
+            chordCtx.stroke();
+          } else {
+            // Quadratic Bezier curve through center
+            chordCtx.moveTo(n1.x, n1.y);
+            chordCtx.quadraticCurveTo(cx, cy, n2.x, n2.y);
+            chordCtx.strokeStyle = `rgba(139, 92, 246, ${0.15 + prob * 0.45})`;
+            chordCtx.lineWidth = 1.0 + prob * 4.0;
+            chordCtx.stroke();
+          }
+        }
+      }
+
+      // 2. Animate and Draw Streaming Particle Walkers
+      for (let p = particles.length - 1; p >= 0; p--) {
+        const pt = particles[p];
+        pt.progress += pt.speed;
+        if (pt.progress >= 1.0) {
+          particles.splice(p, 1);
+          continue;
+        }
+
+        const n1 = nodes[pt.from];
+        const n2 = nodes[pt.to];
+        let px, py;
+
+        if (pt.from === pt.to) {
+          const loopR = 24;
+          const lx = n1.x + Math.cos(n1.angle) * loopR;
+          const ly = n1.y + Math.sin(n1.angle) * loopR;
+          const th = pt.progress * Math.PI * 2;
+          px = lx + loopR * 0.7 * Math.cos(th);
+          py = ly + loopR * 0.7 * Math.sin(th);
+        } else {
+          const t = pt.progress;
+          const invT = 1 - t;
+          px = invT * invT * n1.x + 2 * invT * t * cx + t * t * n2.x;
+          py = invT * invT * n1.y + 2 * invT * t * cy + t * t * n2.y;
+        }
+
+        // Particle Glow
+        chordCtx.beginPath();
+        chordCtx.arc(px, py, 3.5, 0, Math.PI * 2);
+        chordCtx.fillStyle = '#38bdf8';
+        chordCtx.shadowColor = '#38bdf8';
+        chordCtx.shadowBlur = 8;
+        chordCtx.fill();
+        chordCtx.shadowBlur = 0;
+      }
+
+      // 3. Draw State Glyph Nodes
+      for (let i = 0; i < N; i++) {
+        const node = nodes[i];
+        const isCurrent = (i === currentState);
+        const piWeight = stationaryPi[i] || 0.125;
+        const nodeRadius = 16 + piWeight * 28;
+
+        // Outer glow circle
+        chordCtx.beginPath();
+        chordCtx.arc(node.x, node.y, nodeRadius, 0, Math.PI * 2);
+        chordCtx.fillStyle = isCurrent ? 'rgba(56, 189, 248, 0.25)' : 'rgba(15, 23, 42, 0.85)';
+        chordCtx.fill();
+
+        chordCtx.strokeStyle = isCurrent ? '#38bdf8' : (piWeight > 0.2 ? '#8b5cf6' : '#334155');
+        chordCtx.lineWidth = isCurrent ? 2.5 : 1.5;
+        chordCtx.stroke();
+
+        // Glyph Text
+        chordCtx.fillStyle = isCurrent ? '#ffffff' : '#f1f5f9';
+        chordCtx.font = `bold ${Math.floor(nodeRadius * 0.8)}px "JetBrains Mono", monospace`;
+        chordCtx.textAlign = 'center';
+        chordCtx.textBaseline = 'middle';
+        chordCtx.fillText(node.char, node.x, node.y);
+      }
+    }
+
+    // Interaction Perturbation Handler
+    let perturbTriggered = false;
+    let prePerturbEntropy = 0.6141;
+
+    btnPerturb.addEventListener('click', () => {
+      perturbTriggered = true;
+      prePerturbEntropy = computeEntropyRate(P, stationaryPi);
+      thermalNoise = 0.75; // Inject massive thermal perturbation
+      updateMatrixDynamics();
+      for (let i = 0; i < 4; i++) stepRandomWalk();
+    });
+
+    // Verification Contract
+    window.labScenario = {
+      kind: "click",
+      selector: "#btnPerturb"
+    };
+
+    window.labInteractionEvidence = function() {
+      if (!perturbTriggered) return null;
+      const currentH = computeEntropyRate(P, stationaryPi);
+      const passed = perturbTriggered && currentH > prePerturbEntropy && thermalNoise > 0.05;
+      return {
+        subject: "Hello World",
+        passed: passed,
+        mechanism: "Stochastic Thermal Perturbation & Dynamic Entropy Surge Relaxation",
+        measurements: {
+          currentEntropyRate: currentH,
+          prePerturbEntropy: prePerturbEntropy,
+          thermalNoise: thermalNoise,
+          stepCount: stepCount
+        }
+      };
+    };
+
+    // Main Animation & Step Loop
+    let walkTimer = 0;
+    function animLoop(time) {
+      walkTimer++;
+      if (walkTimer % 8 === 0) {
+        stepRandomWalk();
+      }
+      updateMatrixDynamics();
+      renderChordGraph();
+      requestAnimationFrame(animLoop);
+    }
+
+    // Initial Pre-run to establish state
+    for (let s = 0; s < 10; s++) stepRandomWalk();
+    updateMatrixDynamics();
+    requestAnimationFrame(animLoop);
+  </script>
+</body>
+</html>

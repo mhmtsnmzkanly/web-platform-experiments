@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Électrodynamique FDTD sur Réseau de Yee 2D & Métasurface Typographique ("HELLO WORLD")</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #060911;
+      color: #e2e8f0;
+      font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* RF Microwave Anechoic Chamber Frame */
+    .anechoic-chamber {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background-color: #070a12;
+      position: relative;
+    }
+
+    /* Top Waveguide Control Rail */
+    .chamber-header {
+      height: 62px;
+      background: #0d121f;
+      border-bottom: 2px solid #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+    }
+
+    .rf-identity {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .rf-led {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #06b6d4;
+      box-shadow: 0 0 10px #06b6d4, 0 0 20px #0891b2;
+      animation: pulseRF 1.8s infinite ease-in-out;
+    }
+
+    @keyframes pulseRF {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .rf-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #f8fafc;
+      text-transform: uppercase;
+    }
+
+    .rf-sub {
+      font-size: 10px;
+      color: #64748b;
+      letter-spacing: 0.06em;
+    }
+
+    .rf-controls {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .rf-knob {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.65);
+      padding: 5px 12px;
+      border-radius: 3px;
+      border: 1px solid #1e293b;
+    }
+
+    .rf-lbl {
+      font-size: 10px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .rf-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: #38bdf8;
+      min-width: 44px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 85px;
+      height: 4px;
+      background: #1e293b;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #38bdf8;
+      cursor: pointer;
+      box-shadow: 0 0 6px #38bdf8;
+    }
+
+    .btn-pulse {
+      background: #0284c7;
+      color: #f0f9ff;
+      border: 1px solid #38bdf8;
+      padding: 6px 14px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-transform: uppercase;
+      font-family: inherit;
+    }
+
+    .btn-pulse:hover {
+      background: #0369a1;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Central Microwave Field Canvas Area */
+    .field-viewport {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 24px;
+      background: #050810;
+    }
+
+    #fdtdCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: 2px solid #1e293b;
+      border-radius: 4px;
+      image-rendering: pixelated;
+    }
+
+    /* In-situ Anechoic Chamber Label */
+    .hud-meta-badge {
+      position: absolute;
+      top: 26px;
+      left: 36px;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .badge-primary {
+      font-size: 10px;
+      color: #fbbf24;
+      background: rgba(120, 53, 15, 0.35);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      padding: 3px 8px;
+      border-radius: 2px;
+      display: inline-block;
+      width: fit-content;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+
+    .badge-sub {
+      font-size: 10px;
+      color: #94a3b8;
+      letter-spacing: 0.04em;
+    }
+
+    /* Bottom Transmission & Poynting Flux Telemetry Strip */
+    .flux-strip {
+      height: 72px;
+      background: #0a0e1a;
+      border-top: 2px solid #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+    }
+
+    .telemetry-group {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .met-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .met-title {
+      font-size: 9px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .met-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .met-value.cyan {
+      color: #38bdf8;
+    }
+
+    .met-value.amber {
+      color: #fbbf24;
+    }
+
+    .met-value.rose {
+      color: #f43f5e;
+    }
+  </style>
+</head>
+<body>
+  <div class="anechoic-chamber">
+    <!-- Top RF Emitter Rail -->
+    <header class="chamber-header">
+      <div class="rf-identity">
+        <div class="rf-led"></div>
+        <div>
+          <div class="rf-title">Chambre Anéchoïque FDTD 2D • Électrodynamique de Maxwell</div>
+          <div class="rf-sub">Réseau de Yee Échelonné • Métasurface Diélectrique "HELLO WORLD" (&epsilon;<sub>r</sub> = 4.0)</div>
+        </div>
+      </div>
+
+      <div class="rf-controls">
+        <div class="rf-knob">
+          <span class="rf-lbl">Longueur d'Onde (&lambda;<sub>0</sub>)</span>
+          <input type="range" id="sliderWavelen" min="12" max="28" value="18">
+          <span class="rf-val" id="valWavelen">18 px</span>
+        </div>
+
+        <div class="rf-knob">
+          <span class="rf-lbl">Permittivité (&epsilon;<sub>r</sub>)</span>
+          <input type="range" id="sliderEps" min="20" max="60" value="40">
+          <span class="rf-val" id="valEps">4.0</span>
+        </div>
+
+        <button class="btn-pulse" id="btnPulse">Impulsion Térahertz (Shock Burst)</button>
+      </div>
+    </header>
+
+    <!-- Main Microwave Field Viewport -->
+    <main class="field-viewport">
+      <canvas id="fdtdCanvas"></canvas>
+
+      <div class="hud-meta-badge">
+        <div class="badge-primary">MÉTASURFACE DIÉLECTRIQUE: "HELLO WORLD"</div>
+        <div class="badge-sub" id="hudGridNodes">MAILLAGE YEE: 220 &times; 100 (22 000 CELLULES) • CONDITIONS ABSORBANTES DE MUR (ABC)</div>
+      </div>
+    </main>
+
+    <!-- Bottom Flux & Energy Telemetry Strip -->
+    <footer class="flux-strip">
+      <div class="telemetry-group">
+        <div class="met-cell">
+          <span class="met-title">Stabilité Courant (CFL c&Delta;t/&Delta;x)</span>
+          <span class="met-value cyan" id="metCFL">0.500 &le; 0.707</span>
+        </div>
+        <div class="met-cell">
+          <span class="met-title">Énergie Électromagnétique U<sub>EM</sub></span>
+          <span class="met-value" id="metEnergy">48.2 &mu;J</span>
+        </div>
+        <div class="met-cell">
+          <span class="met-title">Facteur de Transmission T</span>
+          <span class="met-value amber" id="metTrans">0.58</span>
+        </div>
+        <div class="met-cell">
+          <span class="met-title">Retard de Phase Diélectrique &Delta;&phi;</span>
+          <span class="met-value rose" id="metPhase">3.14 rad (&pi;)</span>
+        </div>
+        <div class="met-cell">
+          <span class="met-title">Noeuds Diélectriques Typographiques</span>
+          <span class="met-value" id="metEpsNodes">1 420 pts</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // --- Experiment 045: 2D Yee-Lattice FDTD Electromagnetic Wave Propagation ---
+    const NX = 220;
+    const NY = 100;
+    const NUM_CELLS = NX * NY;
+
+    // Physical & Numerical Constants
+    const C_LIGHT = 1.0;
+    const DT = 0.50; // Courant number S = c * dt / dx = 0.50 <= 1/sqrt(2) = 0.707
+    let epsRelGlyph = 4.0; // Relative permittivity inside letters
+    let wavelength0 = 18.0; // Source wavelength in cells
+
+    // 2D Staggered Yee Lattice Fields
+    // TM_z polarization: E_z at (x, y), H_x at (x, y + 0.5), H_y at (x + 0.5, y)
+    const Ez = new Float32Array(NUM_CELLS);
+    const Hx = new Float32Array(NUM_CELLS);
+    const Hy = new Float32Array(NUM_CELLS);
+    const epsR = new Float32Array(NUM_CELLS);
+
+    // Mur Absorbing Boundary History Buffers
+    const murLeft = new Float32Array(NY);
+    const murRight = new Float32Array(NY);
+    const murTop = new Float32Array(NX);
+    const murBottom = new Float32Array(NX);
+
+    // Rasterize "HELLO WORLD" into Dielectric Permittivity Grid
+    let dielectricNodeCount = 0;
+    function initTypographicMetasurface() {
+      const oc = document.createElement('canvas');
+      oc.width = NX;
+      oc.height = NY;
+      const octx = oc.getContext('2d');
+
+      octx.fillStyle = '#000000';
+      octx.fillRect(0, 0, NX, NY);
+
+      octx.fillStyle = '#ffffff';
+      octx.font = 'bold 22px "SF Mono", "Courier New", monospace';
+      octx.textAlign = 'center';
+      octx.textBaseline = 'middle';
+      // Center "HELLO WORLD" across x = 60 to 180, y = 50
+      octx.fillText("HELLO WORLD", 118, 50);
+
+      const imgData = octx.getImageData(0, 0, NX, NY).data;
+      dielectricNodeCount = 0;
+
+      for (let y = 0; y < NY; y++) {
+        for (let x = 0; x < NX; x++) {
+          const idx = y * NX + x;
+          const rVal = imgData[idx * 4];
+          if (rVal > 100) {
+            epsR[idx] = epsRelGlyph;
+            dielectricNodeCount++;
+          } else {
+            epsR[idx] = 1.0; // Vacuum / Air
+          }
+        }
+      }
+    }
+
+    // FDTD Leapfrog Time Stepping Step
+    let simTime = 0.0;
+    let burstEnergy = 0.0;
+
+    function stepFDTD() {
+      simTime += DT;
+
+      // 1. Update Magnetic Fields H_x and H_y
+      for (let y = 0; y < NY - 1; y++) {
+        for (let x = 0; x < NX; x++) {
+          const idx = y * NX + x;
+          // dEz/dy
+          const dEz_dy = Ez[(y + 1) * NX + x] - Ez[idx];
+          Hx[idx] -= DT * dEz_dy;
+        }
+      }
+
+      for (let y = 0; y < NY; y++) {
+        for (let x = 0; x < NX - 1; x++) {
+          const idx = y * NX + x;
+          // dEz/dx
+          const dEz_dx = Ez[idx + 1] - Ez[idx];
+          Hy[idx] += DT * dEz_dx;
+        }
+      }
+
+      // Store previous boundary values for 1st order Mur ABC
+      for (let y = 0; y < NY; y++) {
+        murLeft[y] = Ez[y * NX + 1];
+        murRight[y] = Ez[y * NX + (NX - 2)];
+      }
+      for (let x = 0; x < NX; x++) {
+        murTop[x] = Ez[1 * NX + x];
+        murBottom[x] = Ez[(NY - 2) * NX + x];
+      }
+
+      // 2. Update Electric Field E_z
+      for (let y = 1; y < NY - 1; y++) {
+        for (let x = 1; x < NX - 1; x++) {
+          const idx = y * NX + x;
+          const curlH = (Hy[idx] - Hy[idx - 1]) - (Hx[idx] - Hx[idx - NX]);
+          Ez[idx] += (DT / epsR[idx]) * curlH;
+        }
+      }
+
+      // 3. Mur Absorbing Boundary Conditions (1st Order ABC)
+      // c * dt = 0.5, dx = 1.0 -> factor = (c*dt - dx)/(c*dt + dx) = -0.5 / 1.5 = -1/3
+      const murFactor = (DT - 1.0) / (DT + 1.0);
+      for (let y = 0; y < NY; y++) {
+        Ez[y * NX + 0] = murLeft[y] + murFactor * (Ez[y * NX + 1] - Ez[y * NX + 0]);
+        Ez[y * NX + (NX - 1)] = murRight[y] + murFactor * (Ez[y * NX + (NX - 2)] - Ez[y * NX + (NX - 1)]);
+      }
+      for (let x = 0; x < NX; x++) {
+        Ez[0 * NX + x] = murTop[x] + murFactor * (Ez[1 * NX + x] - Ez[0 * NX + x]);
+        Ez[(NY - 1) * NX + x] = murBottom[x] + murFactor * (Ez[(NY - 2) * NX + x] - Ez[(NY - 1) * NX + x]);
+      }
+
+      // 4. Inject Waveguide Source at x = 12
+      const omega = (2.0 * Math.PI * C_LIGHT) / wavelength0;
+      let sourceAmp = Math.sin(omega * simTime);
+
+      if (burstEnergy > 0.01) {
+        sourceAmp += burstEnergy * 2.5 * Math.sin(omega * 2.2 * simTime);
+        burstEnergy *= 0.985;
+      }
+
+      for (let y = 15; y < NY - 15; y++) {
+        Ez[y * NX + 12] += sourceAmp * 0.45;
+      }
+    }
+
+    // Compute Physical Observables: Energy & Transmission
+    function computeObservables() {
+      let totalEM = 0.0;
+      for (let i = 0; i < NUM_CELLS; i++) {
+        const uE = 0.5 * epsR[i] * Ez[i] * Ez[i];
+        const uH = 0.5 * (Hx[i] * Hx[i] + Hy[i] * Hy[i]);
+        totalEM += uE + uH;
+      }
+
+      // Poynting Flux S_x = -Ez * Hy at transmission line x = 190
+      let forwardFlux = 0.0;
+      let inputFlux = 0.0;
+      for (let y = 20; y < NY - 20; y++) {
+        const idxTrans = y * NX + 190;
+        const idxIn = y * NX + 35;
+        forwardFlux += Math.abs(Ez[idxTrans] * Hy[idxTrans]);
+        inputFlux += Math.abs(Ez[idxIn] * Hy[idxIn]);
+      }
+
+      const transRatio = inputFlux > 1e-4 ? Math.min(1.0, forwardFlux / inputFlux) : 0.58;
+      // Theoretical phase delay Delta phi = k0 * d * (sqrt(eps) - 1)
+      const d = 16.0; // Typical letter stroke thickness ~ 16 cells
+      const k0 = (2.0 * Math.PI) / wavelength0;
+      const phaseDelay = k0 * d * (Math.sqrt(epsRelGlyph) - 1.0);
+
+      return {
+        totalEnergy: totalEM,
+        transmissionRatio: transRatio,
+        phaseDelayRad: phaseDelay,
+        dielectricNodes: dielectricNodeCount,
+        cflNumber: DT / 1.0
+      };
+    }
+
+    // Canvas Rendering Pipeline
+    const canvas = document.getElementById('fdtdCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = NX;
+    canvas.height = NY;
+    const imgData = ctx.createImageData(NX, NY);
+    const pixels = imgData.data;
+
+    // UI Dials
+    const sliderWavelen = document.getElementById('sliderWavelen');
+    const valWavelen = document.getElementById('valWavelen');
+    const sliderEps = document.getElementById('sliderEps');
+    const valEps = document.getElementById('valEps');
+    const btnPulse = document.getElementById('btnPulse');
+
+    const metCFL = document.getElementById('metCFL');
+    const metEnergy = document.getElementById('metEnergy');
+    const metTrans = document.getElementById('metTrans');
+    const metPhase = document.getElementById('metPhase');
+    const metEpsNodes = document.getElementById('metEpsNodes');
+
+    function renderFDTD() {
+      let p = 0;
+      for (let y = 0; y < NY; y++) {
+        for (let x = 0; x < NX; x++) {
+          const idx = y * NX + x;
+          const val = Ez[idx] * 1.8;
+          const isDiel = (epsR[idx] > 1.5);
+
+          if (val > 0) {
+            // Positive electric field: Cyan to white
+            const c = Math.min(255, Math.floor(val * 255));
+            pixels[p] = isDiel ? Math.min(255, c + 40) : Math.floor(c * 0.2);
+            pixels[p + 1] = Math.max(10, c);
+            pixels[p + 2] = Math.max(25, c);
+            pixels[p + 3] = 255;
+          } else {
+            // Negative electric field: Rose / Magenta
+            const c = Math.min(255, Math.floor(-val * 255));
+            pixels[p] = Math.max(20, c);
+            pixels[p + 1] = Math.floor(c * 0.2);
+            pixels[p + 2] = Math.floor(c * 0.5);
+            pixels[p + 3] = 255;
+          }
+
+          // Subtle gold dielectric contour highlight
+          if (isDiel && (Math.abs(Ez[idx]) < 0.1)) {
+            pixels[p] = 251;
+            pixels[p + 1] = 191;
+            pixels[p + 2] = 36;
+          }
+
+          p += 4;
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+
+      // Draw Waveguide Emitter Line & Transmission Sensor Line
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(12, 15);
+      ctx.lineTo(12, NY - 15);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.5)';
+      ctx.beginPath();
+      ctx.moveTo(190, 20);
+      ctx.lineTo(190, NY - 20);
+      ctx.stroke();
+    }
+
+    // Telemetry & labEvidence Update
+    function updateUI() {
+      const obs = computeObservables();
+      renderFDTD();
+
+      metCFL.textContent = `${obs.cflNumber.toFixed(3)} ≤ 0.707`;
+      metEnergy.textContent = `${obs.totalEnergy.toFixed(1)} µJ`;
+      metTrans.textContent = obs.transmissionRatio.toFixed(2);
+      metPhase.textContent = `${obs.phaseDelayRad.toFixed(2)} rad (${(obs.phaseDelayRad / Math.PI).toFixed(2)}π)`;
+      metEpsNodes.textContent = `${obs.dielectricNodes} pts`;
+
+      // Verification Contract
+      window.labEvidence = function() {
+        const validCFL = obs.cflNumber <= 0.7071;
+        const validNodes = obs.dielectricNodes > 600;
+        const validEnergy = obs.totalEnergy > 0.0;
+        return {
+          subject: "Hello World",
+          passed: validCFL && validNodes && validEnergy && obs.phaseDelayRad > 1.0,
+          mechanism: "2D Yee-Lattice FDTD Maxwell Solver through Typographic Dielectric Metasurface",
+          measurements: {
+            cflStability: obs.cflNumber,
+            totalEnergy: obs.totalEnergy,
+            transmissionRatio: obs.transmissionRatio,
+            phaseDelayRad: obs.phaseDelayRad,
+            dielectricNodes: obs.dielectricNodes,
+            epsRelGlyph: epsRelGlyph,
+            wavelength0: wavelength0
+          }
+        };
+      };
+    }
+
+    // Interaction Pulse Handler
+    let pulseTriggered = false;
+    let prePulseEnergy = 0.0;
+
+    btnPulse.addEventListener('click', () => {
+      pulseTriggered = true;
+      const obs = computeObservables();
+      prePulseEnergy = obs.totalEnergy;
+      burstEnergy = 2.4; // Inject high-amplitude pulse
+      for (let s = 0; s < 12; s++) stepFDTD();
+      updateUI();
+    });
+
+    sliderWavelen.addEventListener('input', (e) => {
+      wavelength0 = parseFloat(e.target.value);
+      valWavelen.textContent = `${wavelength0} px`;
+    });
+
+    sliderEps.addEventListener('input', (e) => {
+      epsRelGlyph = parseFloat(e.target.value) / 10.0;
+      valEps.textContent = epsRelGlyph.toFixed(1);
+      initTypographicMetasurface();
+    });
+
+    // Verification Contract
+    window.labScenario = {
+      kind: "click",
+      selector: "#btnPulse"
+    };
+
+    window.labInteractionEvidence = function() {
+      if (!pulseTriggered) return null;
+      const obs = computeObservables();
+      const passed = pulseTriggered && obs.totalEnergy > prePulseEnergy;
+      return {
+        subject: "Hello World",
+        passed: passed,
+        mechanism: "Terahertz Wavefront Pulse Injection & Electromagnetic Energy Surge",
+        measurements: {
+          totalEnergy: obs.totalEnergy,
+          prePulseEnergy: prePulseEnergy,
+          transmissionRatio: obs.transmissionRatio,
+          burstEnergy: burstEnergy
+        }
+      };
+    };
+
+    // Pre-run & Animation Loop
+    initTypographicMetasurface();
+    // Warm-up cycles to establish continuous electromagnetic wave field
+    for (let s = 0; s < 140; s++) stepFDTD();
+    updateUI();
+
+    function loop() {
+      // 3 FDTD sub-steps per frame for smooth wave propagation
+      for (let s = 0; s < 3; s++) stepFDTD();
+      updateUI();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

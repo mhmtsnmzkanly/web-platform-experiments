@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "fdtdCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "fdtdCanvas",
+        "width": 220,
+        "height": 100,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 16,
+    "draws": {
+      "canvas": 53,
+      "webgl": 0
+    },
+    "drawnText": [
+      "HELLO WORLD"
+    ],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 233.26800000672227,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Électrodynamique FDTD sur Réseau de Yee 2D & Métasurface Typographique (\"HELLO WORLD\")"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "fdtdCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "fdtdCanvas",
+        "width": 220,
+        "height": 100,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 74,
+    "draws": {
+      "canvas": 227,
+      "webgl": 0
+    },
+    "drawnText": [
+      "HELLO WORLD"
+    ],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 1199.9680000067224,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Électrodynamique FDTD sur Réseau de Yee 2D & Métasurface Typographique (\"HELLO WORLD\")"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "2D Yee-Lattice FDTD Maxwell Solver through Typographic Dielectric Metasurface",
+    "measurements": {
+      "cflStability": 0.5,
+      "totalEnergy": 1107.7169191362832,
+      "transmissionRatio": 0.05748431577486205,
+      "phaseDelayRad": 5.585053606381854,
+      "dielectricNodes": 1021,
+      "epsRelGlyph": 4,
+      "wavelength0": 18
+    }
+  },
+  "dynamic": true,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnPulse"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Terahertz Wavefront Pulse Injection & Electromagnetic Energy Surge",
+      "measurements": {
+        "totalEnergy": 5157.821955960179,
+        "prePulseEnergy": 1125.9813805265323,
+        "transmissionRatio": 0.21724081536205675,
+        "burstEnergy": 2.0019167240181046
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "fdtdCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "fdtdCanvas",
+          "width": 220,
+          "height": 100,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 84,
+      "draws": {
+        "canvas": 260,
+        "webgl": 0
+      },
+      "drawnText": [
+        "HELLO WORLD"
+      ],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 16.622000004630433,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 16.622000004630433,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 1366.5680000067223,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "Électrodynamique FDTD sur Réseau de Yee 2D & Métasurface Typographique (\"HELLO WORLD\")"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "fdtdCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "fdtdCanvas",
+          "width": 220,
+          "height": 100,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 142,
+      "draws": {
+        "canvas": 434,
+        "webgl": 0
+      },
+      "drawnText": [
+        "HELLO WORLD"
+      ],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 2333.168000006722,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "Électrodynamique FDTD sur Réseau de Yee 2D & Métasurface Typographique (\"HELLO WORLD\")"
+    }
+  }
+}

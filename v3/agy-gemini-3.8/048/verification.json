@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "spaceCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "spaceCanvas",
+        "width": 1280,
+        "height": 150,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 17,
+    "draws": {
+      "canvas": 1782,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 233.32099999326744,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Optique Relativiste d'Einstein & Effet Doppler sur Constellation Typographique (\"HELLO WORLD\")"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "spaceCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "spaceCanvas",
+        "width": 1280,
+        "height": 150,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 83,
+    "draws": {
+      "canvas": 8316,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [
+      {
+        "playState": "running",
+        "currentTime": 1333.2209999932675,
+        "timeline": "DocumentTimeline"
+      }
+    ],
+    "title": "Optique Relativiste d'Einstein & Effet Doppler sur Constellation Typographique (\"HELLO WORLD\")"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Special Relativity 4-Vector Light Aberration & Relativistic Doppler Beaming",
+    "measurements": {
+      "velocityBeta": 0.7,
+      "lorentzFactorGamma": 1.4002800840280099,
+      "forwardDopplerFactor": 2.3804761428476167,
+      "forwardBeamingFactor": 32.111111111111114,
+      "wavelengthShiftNm": 231.04621386462162,
+      "lorentzInvariantCheck": 1,
+      "constellationStarCount": 50
+    }
+  },
+  "dynamic": true,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnWarp"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Relativistic Velocity Boost & Forward Aberration Collapse",
+      "measurements": {
+        "boostedBeta": 0.94,
+        "boostedGamma": 2.931051908802745,
+        "initialGamma": 1.4002800840280099,
+        "forwardDoppler": 5.686240703077325
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "spaceCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "spaceCanvas",
+          "width": 1280,
+          "height": 150,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 93,
+      "draws": {
+        "canvas": 9405,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 0,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 0,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 1499.9209999932675,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "Optique Relativiste d'Einstein & Effet Doppler sur Constellation Typographique (\"HELLO WORLD\")"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "spaceCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "spaceCanvas",
+          "width": 1280,
+          "height": 150,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 150,
+      "draws": {
+        "canvas": 15048,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 2449.820999993268,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "Optique Relativiste d'Einstein & Effet Doppler sur Constellation Typographique (\"HELLO WORLD\")"
+    }
+  }
+}

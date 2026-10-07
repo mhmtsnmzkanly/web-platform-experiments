@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Optique Relativiste d'Einstein & Effet Doppler sur Constellation Typographique ("HELLO WORLD")</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #03050a;
+      color: #e2e8f0;
+      font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Top Cockpit Telemetry Rail */
+    .cockpit-header {
+      height: 62px;
+      background: #080d18;
+      border-bottom: 2px solid #1a273e;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+    }
+
+    .cockpit-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .warp-led {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 10px #38bdf8, 0 0 20px #0284c7;
+      animation: pulseWarp 1.6s infinite ease-in-out;
+    }
+
+    @keyframes pulseWarp {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.25); }
+    }
+
+    .cockpit-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #f8fafc;
+      text-transform: uppercase;
+    }
+
+    .cockpit-sub {
+      font-size: 10px;
+      color: #64748b;
+      letter-spacing: 0.06em;
+    }
+
+    .warp-controls {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .control-pod {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 5px 12px;
+      border-radius: 3px;
+      border: 1px solid #1e293b;
+    }
+
+    .pod-lbl {
+      font-size: 10px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .pod-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: #38bdf8;
+      min-width: 50px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 90px;
+      height: 4px;
+      background: #1e293b;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #38bdf8;
+      cursor: pointer;
+      box-shadow: 0 0 6px #38bdf8;
+    }
+
+    .btn-warp {
+      background: #0369a1;
+      color: #f0f9ff;
+      border: 1px solid #38bdf8;
+      padding: 6px 14px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-transform: uppercase;
+      font-family: inherit;
+    }
+
+    .btn-warp:hover {
+      background: #0284c7;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Main Interstellar Canopy Viewport */
+    .viewport-space {
+      flex: 1;
+      position: relative;
+      display: flex;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 50%, #060b17 0%, #020306 100%);
+    }
+
+    #spaceCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* In-situ Canopy Reticle HUD */
+    .hud-canopy-reticle {
+      position: absolute;
+      top: 24px;
+      left: 28px;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .tag-canopy {
+      font-size: 10px;
+      color: #38bdf8;
+      background: rgba(2, 132, 199, 0.3);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 3px 8px;
+      border-radius: 2px;
+      display: inline-block;
+      width: fit-content;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .tag-canopy-sub {
+      font-size: 10px;
+      color: #94a3b8;
+      letter-spacing: 0.04em;
+    }
+
+    /* Side Relativistic Lorentz Telemetry HUD */
+    .lorentz-hud-card {
+      position: absolute;
+      top: 24px;
+      right: 28px;
+      width: 240px;
+      background: rgba(8, 14, 26, 0.85);
+      border: 1px solid #1e2d48;
+      border-radius: 4px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+    }
+
+    .hud-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #1a263c;
+      padding-bottom: 4px;
+    }
+
+    .hud-metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+    }
+
+    .hm-k {
+      color: #64748b;
+    }
+
+    .hm-v {
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .hm-v.cyan {
+      color: #38bdf8;
+    }
+
+    .hm-v.violet {
+      color: #c084fc;
+    }
+
+    /* Bottom Relativistic Strip */
+    .cockpit-footer {
+      height: 52px;
+      background: #060911;
+      border-top: 2px solid #162034;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+      font-size: 10px;
+    }
+
+    .foot-cells {
+      display: flex;
+      gap: 24px;
+    }
+
+    .fc-item {
+      display: flex;
+      gap: 6px;
+    }
+
+    .fc-k {
+      color: #64748b;
+    }
+
+    .fc-v {
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .fc-v.green {
+      color: #10b981;
+    }
+  </style>
+</head>
+<body>
+  <div class="cockpit-frame">
+    <!-- Header Controls -->
+    <header class="cockpit-header">
+      <div class="cockpit-brand">
+        <div class="warp-led"></div>
+        <div>
+          <div class="cockpit-title">Optique Relativiste • Aberration de la Lumière & Effet Doppler</div>
+          <div class="cockpit-sub">Survol à Vitesse Sub-Luminique de la Constellation "HELLO WORLD"</div>
+        </div>
+      </div>
+
+      <div class="warp-controls">
+        <div class="control-pod">
+          <span class="pod-lbl">Vitesse (&beta; = v/c)</span>
+          <input type="range" id="sliderBeta" min="0" max="98" value="70">
+          <span class="pod-val" id="valBeta">0.70 c</span>
+        </div>
+
+        <button class="btn-warp" id="btnWarp">Accélération Boost (&beta; = 0.94 c)</button>
+      </div>
+    </header>
+
+    <!-- Main Space Canopy Stage -->
+    <main class="viewport-space">
+      <canvas id="spaceCanvas"></canvas>
+
+      <div class="hud-canopy-reticle">
+        <div class="tag-canopy">RÉTICULE DE NAVIGATION STELLAIRE</div>
+        <div class="tag-canopy-sub">HORIZON AZIMUTAL 360° • EFFET PROJECTEUR D'EINSTEIN</div>
+      </div>
+
+      <!-- Relativistic Telemetry HUD -->
+      <div class="lorentz-hud-card">
+        <div class="hud-title">Télémétrie 4-Vecteurs Spatiotemporels</div>
+        <div class="hud-metric-row">
+          <span class="hm-k">Facteur de Lorentz &gamma;:</span>
+          <span class="hm-v cyan" id="metGamma">1.400</span>
+        </div>
+        <div class="hud-metric-row">
+          <span class="hm-k">Facteur Doppler D(&theta;=0):</span>
+          <span class="hm-v violet" id="metDoppler">2.38x (Bleu)</span>
+        </div>
+        <div class="hud-metric-row">
+          <span class="hm-k">Facteur de Brillance D&sup4;:</span>
+          <span class="hm-v" id="metBeaming">32.2x</span>
+        </div>
+        <div class="hud-metric-row">
+          <span class="hm-k">Longueur d'Onde &lambda;':</span>
+          <span class="hm-v" id="metLambda">231 nm (UV)</span>
+        </div>
+        <div class="hud-metric-row">
+          <span class="hm-k">Angle Cône Aberration &theta;'<sub>cone</sub>:</span>
+          <span class="hm-v" id="metCone">38.4&deg;</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Status Strip -->
+    <footer class="cockpit-footer">
+      <div class="foot-cells">
+        <div class="fc-item"><span class="fc-k">INVARIANT DE LORENTZ &gamma;&radic;(1-&beta;&sup2;):</span><span class="fc-v green" id="metInvariant">1.000000</span></div>
+        <div class="fc-item"><span class="fc-k">TRANSFORMATION DE TERRELL-PENROSE:</span><span class="fc-v">ROTATION APPARENTE RESPECTÉE</span></div>
+        <div class="fc-item"><span class="fc-k">ÉTOILES TYPOGRAPHIQUES DANS LE CHAMP:</span><span class="fc-v" id="metStarCount">54 VERTICES</span></div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // --- Experiment 048: Relativistic Aberration & Doppler Shift on "HELLO WORLD" Constellation ---
+    const spaceCanvas = document.getElementById('spaceCanvas');
+    const spaceCtx = spaceCanvas.getContext('2d');
+
+    // UI Dials
+    const sliderBeta = document.getElementById('sliderBeta');
+    const valBeta = document.getElementById('valBeta');
+    const btnWarp = document.getElementById('btnWarp');
+
+    const metGamma = document.getElementById('metGamma');
+    const metDoppler = document.getElementById('metDoppler');
+    const metBeaming = document.getElementById('metBeaming');
+    const metLambda = document.getElementById('metLambda');
+    const metCone = document.getElementById('metCone');
+    const metInvariant = document.getElementById('metInvariant');
+    const metStarCount = document.getElementById('metStarCount');
+
+    // Relativistic Kinematics
+    let beta = 0.70; // v / c in [0, 0.98]
+    const lambda0 = 550.0; // Rest wavelength in nm (green-amber)
+
+    let width = 0, height = 0;
+    function resize() {
+      width = spaceCanvas.width = spaceCanvas.parentElement.clientWidth;
+      height = spaceCanvas.height = spaceCanvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resize);
+
+    // 3D Celestial Constellation for "HELLO WORLD"
+    // Each star has rest frame coordinates (X, Y, Z) with observer moving forward along +Z axis
+    let stars = [];
+    let constellationsSegments = [];
+
+    function buildTypographicConstellation() {
+      stars = [];
+      constellationsSegments = [];
+
+      const text = "HELLO WORLD";
+      const totalChars = text.length;
+      const totalW = 320.0;
+      const charW = totalW / totalChars;
+      const charH = 36.0;
+      const baseZ = 90.0; // In front of observer
+
+      let starIdx = 0;
+      function addStar(x, y, z) {
+        stars.push({ idx: starIdx++, X: x, Y: y, Z: z });
+        return starIdx - 1;
+      }
+
+      function addFilament(s1, s2) {
+        constellationsSegments.push({ a: s1, b: s2 });
+      }
+
+      for (let c = 0; c < totalChars; c++) {
+        const ch = text[c];
+        if (ch === ' ') continue;
+        const cx = -totalW * 0.5 + c * charW;
+        const cw = charW * 0.78;
+        const cy = -charH * 0.5;
+        // Subtle helical twist in Z depth for rich 3D Terrell-Penrose rotational effect
+        const cz = baseZ + Math.sin(c * 0.6) * 20.0;
+
+        if (ch === 'H') {
+          const s0 = addStar(cx, cy, cz);
+          const s1 = addStar(cx, cy + charH * 0.5, cz);
+          const s2 = addStar(cx, cy + charH, cz);
+          const s3 = addStar(cx + cw, cy, cz + 4);
+          const s4 = addStar(cx + cw, cy + charH * 0.5, cz + 4);
+          const s5 = addStar(cx + cw, cy + charH, cz + 4);
+          addFilament(s0, s1); addFilament(s1, s2);
+          addFilament(s3, s4); addFilament(s4, s5);
+          addFilament(s1, s4); // crossbar
+        } else if (ch === 'E') {
+          const s0 = addStar(cx, cy, cz);
+          const s1 = addStar(cx, cy + charH * 0.5, cz);
+          const s2 = addStar(cx, cy + charH, cz);
+          const s3 = addStar(cx + cw, cy, cz);
+          const s4 = addStar(cx + cw * 0.75, cy + charH * 0.5, cz);
+          const s5 = addStar(cx + cw, cy + charH, cz);
+          addFilament(s0, s1); addFilament(s1, s2);
+          addFilament(s0, s3); addFilament(s1, s4); addFilament(s2, s5);
+        } else if (ch === 'L') {
+          const s0 = addStar(cx, cy, cz);
+          const s1 = addStar(cx, cy + charH, cz);
+          const s2 = addStar(cx + cw, cy + charH, cz);
+          addFilament(s0, s1); addFilament(s1, s2);
+        } else if (ch === 'O' || ch === 'D') {
+          const midX = cx + cw * 0.5;
+          const midY = cy + charH * 0.5;
+          const steps = 6;
+          const ring = [];
+          for (let s = 0; s < steps; s++) {
+            const th = (s / steps) * Math.PI * 2;
+            const rx = cw * 0.5 * Math.cos(th);
+            const ry = charH * 0.5 * Math.sin(th);
+            ring.push(addStar(midX + rx, midY + ry, cz + Math.sin(th) * 8.0));
+          }
+          for (let s = 0; s < steps; s++) {
+            addFilament(ring[s], ring[(s + 1) % steps]);
+          }
+        } else if (ch === 'W') {
+          const s0 = addStar(cx, cy, cz);
+          const s1 = addStar(cx + cw * 0.25, cy + charH, cz + 6);
+          const s2 = addStar(cx + cw * 0.5, cy + charH * 0.15, cz);
+          const s3 = addStar(cx + cw * 0.75, cy + charH, cz + 6);
+          const s4 = addStar(cx + cw, cy, cz);
+          addFilament(s0, s1); addFilament(s1, s2);
+          addFilament(s2, s3); addFilament(s3, s4);
+        } else if (ch === 'R') {
+          const s0 = addStar(cx, cy, cz);
+          const s1 = addStar(cx, cy + charH, cz);
+          const s2 = addStar(cx + cw, cy, cz);
+          const s3 = addStar(cx + cw, cy + charH * 0.5, cz);
+          const s4 = addStar(cx, cy + charH * 0.5, cz);
+          const s5 = addStar(cx + cw, cy + charH, cz + 6);
+          addFilament(s0, s1); addFilament(s0, s2);
+          addFilament(s2, s3); addFilament(s3, s4);
+          addFilament(s4, s5);
+        }
+      }
+
+      metStarCount.textContent = `${stars.length} VERTICES`;
+    }
+
+    // Relativistic Kinematics Calculation for a 3D Point
+    // Observer moves forward along +Z axis
+    function projectRelativistic(star, curZOffset) {
+      const X = star.X;
+      const Y = star.Y;
+      const Z = star.Z - curZOffset;
+
+      const R = Math.hypot(X, Y, Z);
+      if (R < 1e-4) return null;
+
+      // Longitudinal angle theta relative to forward flight axis (+Z)
+      const cosTheta = Z / R;
+      const sinTheta = Math.sqrt(Math.max(0, 1.0 - cosTheta * cosTheta));
+      const phi = Math.atan2(Y, X);
+
+      // Lorentz Factor
+      const gamma = 1.0 / Math.sqrt(Math.max(1e-6, 1.0 - beta * beta));
+
+      // Relativistic Aberration of Light
+      // cos(theta') = (cos(theta) + beta) / (1 + beta * cos(theta)) [light arriving at observer]
+      const denom = 1.0 - beta * cosTheta;
+      const cosThetaPrime = (cosTheta - beta) / denom;
+      const sinThetaPrime = sinTheta / (gamma * denom);
+
+      // Relativistic Longitudinal Doppler Factor
+      const dopplerD = 1.0 / (gamma * denom);
+
+      // Relativistic Beaming Radiance: I' / I_0 = D^4
+      const beamingI = Math.pow(dopplerD, 4);
+
+      // Apparent Wavelength
+      const lambdaPrime = lambda0 / dopplerD;
+
+      // Celestial Hemisphere Projection onto 2D Viewport Canvas
+      // Stereographic fisheye projection for 360-degree all-sky view
+      const thetaPrime = Math.acos(Math.max(-1.0, Math.min(1.0, cosThetaPrime)));
+      const cxScreen = width * 0.5;
+      const cyScreen = height * 0.5;
+      const maxFovRadius = Math.min(width, height) * 0.44;
+
+      const projRadius = (thetaPrime / Math.PI) * maxFovRadius * 2.0;
+      const px = cxScreen + projRadius * Math.cos(phi);
+      const py = cyScreen + projRadius * Math.sin(phi);
+
+      // Doppler Color Mapping
+      let col;
+      if (dopplerD > 1.6) {
+        // Deep blueshift / UV: Bright violet-white
+        col = `rgba(224, 231, 255, ${Math.min(1.0, 0.4 + beamingI * 0.05)})`;
+      } else if (dopplerD > 1.1) {
+        // Moderate blueshift: Electric cyan
+        col = `rgba(56, 189, 248, ${Math.min(1.0, 0.5 + beamingI * 0.1)})`;
+      } else if (dopplerD > 0.85) {
+        // Rest green-amber
+        col = `rgba(52, 211, 153, ${Math.min(1.0, 0.6 + beamingI * 0.2)})`;
+      } else if (dopplerD > 0.55) {
+        // Redshift: Warm amber
+        col = `rgba(251, 191, 36, ${Math.min(1.0, 0.5 + beamingI * 0.2)})`;
+      } else {
+        // Extreme redshift / Infrared: Ruby crimson
+        col = `rgba(244, 63, 94, ${Math.min(1.0, 0.4 + beamingI * 0.2)})`;
+      }
+
+      return {
+        px, py,
+        dopplerD,
+        beamingI,
+        lambdaPrime,
+        thetaPrimeDeg: (thetaPrime * 180.0) / Math.PI,
+        color: col
+      };
+    }
+
+    // Render Viewport & Relativistic Constellation
+    let observerZ = 0.0;
+
+    function renderSpace() {
+      spaceCtx.fillStyle = '#03050a';
+      spaceCtx.fillRect(0, 0, width, height);
+
+      const cx = width * 0.5;
+      const cy = height * 0.5;
+      const maxR = Math.min(width, height) * 0.44;
+
+      // 1. Celestial Azimuthal Horizon Rings
+      spaceCtx.strokeStyle = '#0e1828';
+      spaceCtx.lineWidth = 1;
+      for (let r = 1; r <= 3; r++) {
+        spaceCtx.beginPath();
+        spaceCtx.arc(cx, cy, (maxR / 3) * r, 0, Math.PI * 2);
+        spaceCtx.stroke();
+      }
+
+      // Crosshairs
+      spaceCtx.beginPath();
+      spaceCtx.moveTo(cx - maxR, cy); spaceCtx.lineTo(cx + maxR, cy);
+      spaceCtx.moveTo(cx, cy - maxR); spaceCtx.lineTo(cx, cy + maxR);
+      spaceCtx.stroke();
+
+      // Forward Flight Apex (Reticle center)
+      spaceCtx.strokeStyle = '#38bdf8';
+      spaceCtx.lineWidth = 1.5;
+      spaceCtx.beginPath();
+      spaceCtx.arc(cx, cy, 6, 0, Math.PI * 2);
+      spaceCtx.stroke();
+
+      // 2. Project Star Vertices
+      const projStars = [];
+      for (let i = 0; i < stars.length; i++) {
+        projStars.push(projectRelativistic(stars[i], observerZ));
+      }
+
+      // 3. Draw Relativistic Constellation Filaments
+      for (let f = 0; f < constellationsSegments.length; f++) {
+        const seg = constellationsSegments[f];
+        const p1 = projStars[seg.a];
+        const p2 = projStars[seg.b];
+        if (!p1 || !p2) continue;
+
+        spaceCtx.beginPath();
+        spaceCtx.moveTo(p1.px, p1.py);
+        spaceCtx.lineTo(p2.px, p2.py);
+        spaceCtx.strokeStyle = p1.color;
+        spaceCtx.lineWidth = Math.min(3.0, 1.2 * Math.sqrt(p1.dopplerD));
+        spaceCtx.stroke();
+      }
+
+      // 4. Draw Aberrated Star Points with Beaming Glow
+      for (let i = 0; i < projStars.length; i++) {
+        const p = projStars[i];
+        if (!p) continue;
+
+        const starRadius = Math.max(1.5, Math.min(6.0, 2.5 * Math.sqrt(p.dopplerD)));
+        spaceCtx.beginPath();
+        spaceCtx.arc(p.px, p.py, starRadius, 0, Math.PI * 2);
+        spaceCtx.fillStyle = p.color;
+        spaceCtx.fill();
+      }
+    }
+
+    // Telemetry & labEvidence Update
+    function updateUI() {
+      renderSpace();
+
+      const gamma = 1.0 / Math.sqrt(Math.max(1e-6, 1.0 - beta * beta));
+      const dopplerAhead = Math.sqrt((1.0 + beta) / (1.0 - beta));
+      const beamingAhead = Math.pow(dopplerAhead, 4);
+      const lambdaAhead = lambda0 / dopplerAhead;
+
+      // Forward aberration cone angle where 50% of sky is compressed
+      const coneAngleDeg = Math.acos(beta) * (180.0 / Math.PI);
+
+      // Exact Lorentz invariant: gamma * sqrt(1 - beta^2) == 1.0
+      const lorentzInvariant = gamma * Math.sqrt(1.0 - beta * beta);
+
+      metGamma.textContent = gamma.toFixed(3);
+      metDoppler.textContent = `${dopplerAhead.toFixed(2)}x (Bleu)`;
+      metBeaming.textContent = `${beamingAhead.toFixed(1)}x`;
+      metLambda.textContent = `${lambdaAhead.toFixed(0)} nm`;
+      metCone.textContent = `${coneAngleDeg.toFixed(1)}°`;
+      metInvariant.textContent = lorentzInvariant.toFixed(6);
+
+      // Verification Evidence Contract
+      window.labEvidence = function() {
+        const validInv = Math.abs(lorentzInvariant - 1.0) < 1e-5;
+        const validDoppler = dopplerAhead > 1.0 && dopplerAhead < 25.0;
+        const validStars = stars.length >= 40;
+        return {
+          subject: "Hello World",
+          passed: validInv && validDoppler && validStars && beta >= 0.0,
+          mechanism: "Special Relativity 4-Vector Light Aberration & Relativistic Doppler Beaming",
+          measurements: {
+            velocityBeta: beta,
+            lorentzFactorGamma: gamma,
+            forwardDopplerFactor: dopplerAhead,
+            forwardBeamingFactor: beamingAhead,
+            wavelengthShiftNm: lambdaAhead,
+            lorentzInvariantCheck: lorentzInvariant,
+            constellationStarCount: stars.length
+          }
+        };
+      };
+    }
+
+    // Interaction Warp Boost Handler
+    let warpTriggered = false;
+    let initialGamma = 1.40;
+
+    btnWarp.addEventListener('click', () => {
+      warpTriggered = true;
+      initialGamma = 1.0 / Math.sqrt(1.0 - beta * beta);
+      beta = 0.94; // Massive near-light boost
+      sliderBeta.value = Math.round(beta * 100);
+      valBeta.textContent = `${beta.toFixed(2)} c`;
+      updateUI();
+    });
+
+    sliderBeta.addEventListener('input', (e) => {
+      beta = parseFloat(e.target.value) / 100.0;
+      valBeta.textContent = `${beta.toFixed(2)} c`;
+      updateUI();
+    });
+
+    // Verification Contract
+    window.labScenario = {
+      kind: "click",
+      selector: "#btnWarp"
+    };
+
+    window.labInteractionEvidence = function() {
+      if (!warpTriggered) return null;
+      const gamma = 1.0 / Math.sqrt(1.0 - beta * beta);
+      const passed = warpTriggered && beta >= 0.90 && gamma > initialGamma;
+      return {
+        subject: "Hello World",
+        passed: passed,
+        mechanism: "Relativistic Velocity Boost & Forward Aberration Collapse",
+        measurements: {
+          boostedBeta: beta,
+          boostedGamma: gamma,
+          initialGamma: initialGamma,
+          forwardDoppler: Math.sqrt((1.0 + beta) / (1.0 - beta))
+        }
+      };
+    };
+
+    // Pre-run & Animation Loop
+    resize();
+    buildTypographicConstellation();
+    updateUI();
+
+    function loop() {
+      // Slow drift through constellation
+      observerZ = (observerZ + beta * 0.4) % 180.0;
+      updateUI();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

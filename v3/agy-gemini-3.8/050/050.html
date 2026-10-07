@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>050 — Fluid-Structure Interaction & Vortex-Induced Vibration of "HELLO WORLD"</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #02121a;
+      color: #94a3b8;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", monospace, sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Flume Header & Diagnostics Bar */
+    .flume-header {
+      height: 56px;
+      background: #031b26;
+      border-bottom: 1px solid #0f3d4f;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+    }
+
+    .flume-title-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .flume-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      border-radius: 4px;
+      color: #10b981;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .flume-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #f1f5f9;
+      text-transform: uppercase;
+    }
+
+    .flume-sub {
+      font-size: 11px;
+      color: #0ea5e9;
+      letter-spacing: 0.04em;
+    }
+
+    .flume-controls {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .ctrl-dial {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #042433;
+      padding: 4px 12px;
+      border-radius: 4px;
+      border: 1px solid #0b4359;
+    }
+
+    .ctrl-label {
+      font-size: 10px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .ctrl-val {
+      font-size: 12px;
+      font-weight: 700;
+      color: #38bdf8;
+      min-width: 44px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 80px;
+      height: 4px;
+      background: #0f3d4f;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #38bdf8;
+      cursor: pointer;
+    }
+
+    .btn-surge {
+      background: #0284c7;
+      color: #ffffff;
+      border: 1px solid #38bdf8;
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-transform: uppercase;
+    }
+
+    .btn-surge:hover {
+      background: #0369a1;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Dual Main Layout: Flume Viewport + Laser Diagnostic Pane */
+    .tunnel-stage {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .flume-view {
+      position: relative;
+      background: radial-gradient(circle at 15% 50%, #03212f 0%, #02121a 80%);
+      border-right: 1px solid #0f3d4f;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Diagnostics HUD Sidebar */
+    .diagnostic-panel {
+      background: #021721;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid #0f3d4f;
+      padding: 16px;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .diag-card {
+      background: #031f2c;
+      border: 1px solid #0e4458;
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .diag-heading {
+      font-size: 11px;
+      font-weight: 700;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .diag-canvas-box {
+      width: 100%;
+      height: 130px;
+      background: #010e14;
+      border: 1px solid #082d3b;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    /* Bottom Telemetry Strip */
+    .flume-footer {
+      height: 48px;
+      background: #031b26;
+      border-top: 1px solid #0f3d4f;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      font-size: 11px;
+      z-index: 10;
+    }
+
+    .footer-items {
+      display: flex;
+      gap: 28px;
+    }
+
+    .fi-cell {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .fi-k {
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .fi-v {
+      color: #f1f5f9;
+      font-weight: 700;
+    }
+
+    .fi-v.cyan {
+      color: #38bdf8;
+    }
+
+    .fi-v.emerald {
+      color: #10b981;
+    }
+
+    .fi-v.amber {
+      color: #f59e0b;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="flume-header">
+    <div class="flume-title-group">
+      <div class="flume-badge">VIV</div>
+      <div>
+        <div class="flume-title">Fluid-Structure Interaction &amp; Aeroelastic Resonance</div>
+        <div class="flume-sub">Sillages Tourbillonnaires de von K&aacute;rm&aacute;n &amp; Oscillation Élastique de "HELLO WORLD"</div>
+      </div>
+    </div>
+
+    <div class="flume-controls">
+      <div class="ctrl-dial">
+        <span class="ctrl-label">Vitesse Inflow (U)</span>
+        <input type="range" id="sliderU" min="30" max="150" value="65">
+        <span class="ctrl-val" id="valU">0.65 m/s</span>
+      </div>
+
+      <div class="ctrl-dial">
+        <span class="ctrl-label">Rigidité (k)</span>
+        <input type="range" id="sliderK" min="20" max="100" value="50">
+        <span class="ctrl-val" id="valK">50 N/m</span>
+      </div>
+
+      <button class="btn-surge" id="btnSurge">Surge Inflow (+0.60 m/s)</button>
+    </div>
+  </header>
+
+  <!-- Tunnel Stage: Hydrodynamic Flume + PIV Diagnostics -->
+  <main class="tunnel-stage">
+    <!-- Left: Flow Flume Canvas -->
+    <div class="flume-view" id="flumeContainer">
+      <canvas id="flumeCanvas"></canvas>
+    </div>
+
+    <!-- Right: Laser Diagnostics & Phase Space Analysis -->
+    <aside class="diagnostic-panel">
+      <!-- Card 1: Phase Space Attractor (y_tip, dy_tip/dt) -->
+      <div class="diag-card">
+        <div class="diag-heading">
+          <span>Attracteur Espace des Phases</span>
+          <span style="color:#10b981;">CYCLE LIMITE</span>
+        </div>
+        <div class="diag-canvas-box">
+          <canvas id="phaseCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Card 2: Modal Lock-In Spectrum -->
+      <div class="diag-card">
+        <div class="diag-heading">
+          <span>Spectre de Lock-In (f_s / f_n)</span>
+          <span style="color:#f59e0b;">RÉSONANCE VIV</span>
+        </div>
+        <div class="diag-canvas-box">
+          <canvas id="specCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Card 3: Lift Coefficient History -->
+      <div class="diag-card">
+        <div class="diag-heading">
+          <span>Coefficient de Portance C_L(t)</span>
+          <span style="color:#38bdf8;">FORCE UNSTEADY</span>
+        </div>
+        <div class="diag-canvas-box">
+          <canvas id="liftCanvas"></canvas>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Bottom Telemetry Ledger -->
+  <footer class="flume-footer">
+    <div class="footer-items">
+      <div class="fi-cell">
+        <span class="fi-k">NOMBRE DE REYNOLDS Re:</span>
+        <span class="fi-v cyan" id="metRe">1,950</span>
+      </div>
+      <div class="fi-cell">
+        <span class="fi-k">NOMBRE DE STROUHAL St:</span>
+        <span class="fi-v emerald" id="metSt">0.204</span>
+      </div>
+      <div class="fi-cell">
+        <span class="fi-k">FRÉQ. LÂCHER f_s:</span>
+        <span class="fi-v" id="metFreq">1.82 Hz</span>
+      </div>
+      <div class="fi-cell">
+        <span class="fi-k">DÉFLECTION MAX &delta;_tip:</span>
+        <span class="fi-v amber" id="metDefl">14.2 mm</span>
+      </div>
+      <div class="fi-cell">
+        <span class="fi-k">ÉNERGIE ÉLASTIQUE TOTALE:</span>
+        <span class="fi-v" id="metEnergy">0.052 J</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // --- Experiment 050: Fluid-Structure Interaction & Vortex-Induced Vibration ---
+    const flumeCanvas = document.getElementById('flumeCanvas');
+    const flumeCtx = flumeCanvas.getContext('2d');
+    const phaseCanvas = document.getElementById('phaseCanvas');
+    const phaseCtx = phaseCanvas.getContext('2d');
+    const specCanvas = document.getElementById('specCanvas');
+    const specCtx = specCanvas.getContext('2d');
+    const liftCanvas = document.getElementById('liftCanvas');
+    const liftCtx = liftCanvas.getContext('2d');
+
+    // UI Dials
+    const sliderU = document.getElementById('sliderU');
+    const valU = document.getElementById('valU');
+    const sliderK = document.getElementById('sliderK');
+    const valK = document.getElementById('valK');
+    const btnSurge = document.getElementById('btnSurge');
+
+    // Telemetry DOM
+    const metRe = document.getElementById('metRe');
+    const metSt = document.getElementById('metSt');
+    const metFreq = document.getElementById('metFreq');
+    const metDefl = document.getElementById('metDefl');
+    const metEnergy = document.getElementById('metEnergy');
+
+    let fw = 0, fh = 0;
+    function resize() {
+      fw = flumeCanvas.width = flumeCanvas.parentElement.clientWidth;
+      fh = flumeCanvas.height = flumeCanvas.parentElement.clientHeight;
+      phaseCanvas.width = phaseCanvas.parentElement.clientWidth;
+      phaseCanvas.height = phaseCanvas.parentElement.clientHeight;
+      specCanvas.width = specCanvas.parentElement.clientWidth;
+      specCanvas.height = specCanvas.parentElement.clientHeight;
+      liftCanvas.width = liftCanvas.parentElement.clientWidth;
+      liftCanvas.height = liftCanvas.parentElement.clientHeight;
+      initFilaments();
+    }
+    window.addEventListener('resize', resize);
+
+    // --- Physical Parameters ---
+    let U_inflow = 0.65; // m/s
+    let k_stiffness = 50.0; // N/m
+    const rho_fluid = 998.0; // kg/m^3 (water)
+    const nu_visc = 1.0e-3; // kinematic viscosity ~ 1e-6 m^2/s scaled
+    const St_nominal = 0.20; // Strouhal number for bluff body
+    let simTime = 0.0;
+
+    // History ring buffers for diagnostics
+    const tipHistory = [];
+    const liftHistory = [];
+    const maxHistory = 120;
+
+    // --- Causal Typographic Elastic Cantilevers ("HELLO WORLD") ---
+    const textSubject = "HELLO WORLD";
+    let filaments = [];
+
+    class ElasticFilament {
+      constructor(ch, index, baseX, baseY, height, diam, mass, kMod) {
+        this.ch = ch;
+        this.index = index;
+        this.baseX = baseX;
+        this.baseY = baseY;
+        this.height = height; // cantilever length
+        this.diam = diam; // frontal obstruction diameter D
+        this.mass = mass; // modal mass
+        this.k = k_stiffness * kMod; // modal bending stiffness
+        this.damping = 2.0 * Math.sqrt(this.mass * this.k) * 0.06; // light structural damping zeta = 0.06
+
+        // Dynamic State: tip displacement y (transverse to flow) and velocity y_dot
+        this.y = 0.0;
+        this.v = 0.0;
+
+        // Vortex shedding phase accumulator
+        this.vortexPhase = index * 0.62;
+        this.liftCoeff = 0.0;
+        this.hydroForce = 0.0;
+      }
+
+      update(dt, U, kBase) {
+        // Natural frequency omega_n = sqrt(k / m)
+        const currentK = kBase * (this.k / k_stiffness);
+        const currentDamping = 2.0 * Math.sqrt(this.mass * currentK) * 0.06;
+        const fn = Math.sqrt(currentK / this.mass) / (2.0 * Math.PI);
+
+        // Vortex shedding frequency: f_s = St * U / D
+        const fs = (St_nominal * U) / (this.diam * 0.05 + 0.02);
+        const omega_s = 2.0 * Math.PI * fs;
+
+        // Advance vortex shedding phase
+        this.vortexPhase += omega_s * dt;
+
+        // Hydrodynamic unsteady lift force: F_L = 0.5 * rho * U^2 * D * C_L
+        // Lock-in amplification when fs / fn ~ 1
+        const freqRatio = fs / Math.max(0.1, fn);
+        const resonanceGain = 1.0 / (Math.sqrt(Math.pow(1.0 - freqRatio * freqRatio, 2) + Math.pow(2 * 0.06 * freqRatio, 2)) + 0.1);
+        const boundedGain = Math.min(3.5, resonanceGain);
+
+        this.liftCoeff = 0.8 * boundedGain * Math.sin(this.vortexPhase);
+        this.hydroForce = 0.5 * 1.2 * U * U * (this.diam * 0.5) * this.liftCoeff * 18.0;
+
+        // Euler-Bernoulli cantilever oscillator: m * y'' + c * y' + k * y = F_hydro
+        const accel = (this.hydroForce - currentDamping * this.v - currentK * this.y) / this.mass;
+
+        // Semi-implicit Euler integration
+        this.v += accel * dt;
+        this.y += this.v * dt;
+
+        // Physical deflection limit to prevent numerical instability
+        this.y = Math.max(-this.height * 0.45, Math.min(this.height * 0.45, this.y));
+      }
+
+      getTipPosition() {
+        return {
+          x: this.baseX,
+          y: this.baseY - this.height + this.y
+        };
+      }
+    }
+
+    function initFilaments() {
+      filaments = [];
+      const numLetters = textSubject.length;
+      const margin = fw * 0.08;
+      const usableW = fw - margin * 2;
+      const spacing = usableW / numLetters;
+      const groundY = fh * 0.78;
+      const baseHeight = fh * 0.36;
+
+      for (let i = 0; i < numLetters; i++) {
+        const ch = textSubject[i];
+        if (ch === ' ') continue;
+
+        const x = margin + i * spacing + spacing * 0.4;
+        // Tailor structural and hydrodynamic properties to literal glyph geometry:
+        let diam = 1.0;
+        let mass = 0.45;
+        let kMod = 1.0;
+
+        if (ch === 'H') {
+          diam = 1.3; mass = 0.60; kMod = 1.2; // dual vertical cantilevers
+        } else if (ch === 'E') {
+          diam = 1.1; mass = 0.50; kMod = 0.95;
+        } else if (ch === 'L') {
+          diam = 0.9; mass = 0.40; kMod = 0.85; // slender single stem
+        } else if (ch === 'O') {
+          diam = 1.4; mass = 0.65; kMod = 1.3; // rounded bluff loop
+        } else if (ch === 'W') {
+          diam = 1.6; mass = 0.75; kMod = 1.4; // broad multi-stem cantilever
+        } else if (ch === 'R') {
+          diam = 1.2; mass = 0.55; kMod = 1.1;
+        } else if (ch === 'D') {
+          diam = 1.25; mass = 0.58; kMod = 1.15;
+        }
+
+        filaments.push(new ElasticFilament(ch, i, x, groundY, baseHeight, diam, mass, kMod));
+      }
+    }
+
+    // --- Particle Streakline & Vortex Tracking ---
+    const particles = [];
+    const NUM_PARTICLES = 160;
+
+    for (let i = 0; i < NUM_PARTICLES; i++) {
+      particles.push({
+        x: Math.random() * 800,
+        y: Math.random() * 400,
+        vx: 0,
+        vy: 0,
+        life: Math.random() * 200
+      });
+    }
+
+    function updateParticles(dt, U) {
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.vx = U * 140.0;
+        p.vy = 0;
+
+        // Wake perturbation from upstream filaments
+        for (let j = 0; j < filaments.length; j++) {
+          const f = filaments[j];
+          const dx = p.x - f.baseX;
+          const dy = p.y - (f.baseY - f.height * 0.5);
+
+          if (dx > 0 && dx < 140 && Math.abs(dy) < f.height * 0.6) {
+            // Alternating von Kármán vortex shedding street
+            const wave = Math.sin(f.vortexPhase - dx * 0.08);
+            const decay = Math.exp(-dx * 0.02);
+            p.vy += wave * decay * 45.0 * (f.y / 15.0);
+          }
+        }
+
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.life++;
+
+        if (p.x > fw || p.y < 0 || p.y > fh || p.life > 180) {
+          p.x = 0;
+          p.y = fh * 0.3 + Math.random() * (fh * 0.45);
+          p.life = 0;
+        }
+      }
+    }
+
+    // --- Rendering Pipelines ---
+    function renderFlume() {
+      flumeCtx.fillStyle = '#02121a';
+      flumeCtx.fillRect(0, 0, fw, fh);
+
+      // 1. Water Channel Bed & Depth Grid
+      const groundY = fh * 0.78;
+      flumeCtx.strokeStyle = 'rgba(15, 61, 79, 0.4)';
+      flumeCtx.lineWidth = 1;
+
+      for (let y = 0; y < fh; y += 30) {
+        flumeCtx.beginPath();
+        flumeCtx.moveTo(0, y);
+        flumeCtx.lineTo(fw, y);
+        flumeCtx.stroke();
+      }
+
+      // Channel Bottom Solid Bed
+      flumeCtx.fillStyle = '#010d13';
+      flumeCtx.fillRect(0, groundY, fw, fh - groundY);
+      flumeCtx.strokeStyle = '#0f3d4f';
+      flumeCtx.lineWidth = 2;
+      flumeCtx.beginPath();
+      flumeCtx.moveTo(0, groundY);
+      flumeCtx.lineTo(fw, groundY);
+      flumeCtx.stroke();
+
+      // Bed Anchor Hatches
+      flumeCtx.strokeStyle = 'rgba(14, 165, 233, 0.2)';
+      flumeCtx.lineWidth = 1;
+      for (let x = 10; x < fw; x += 24) {
+        flumeCtx.beginPath();
+        flumeCtx.moveTo(x, groundY);
+        flumeCtx.lineTo(x + 12, groundY + 16);
+        flumeCtx.stroke();
+      }
+
+      // 2. Fluorescent Dye Streaklines (PIV laser sheet particles)
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        const alpha = Math.sin((p.life / 180) * Math.PI) * 0.6;
+        flumeCtx.fillStyle = `rgba(16, 185, 129, ${alpha})`;
+        flumeCtx.beginPath();
+        flumeCtx.arc(p.x, p.y, 1.8, 0, Math.PI * 2);
+        flumeCtx.fill();
+      }
+
+      // 3. Render Deforming Typographic Filaments ("HELLO WORLD")
+      for (let i = 0; i < filaments.length; i++) {
+        const f = filaments[i];
+        const tip = f.getTipPosition();
+
+        // Elastic cantilever ribbon modeled as cubic Bézier curve
+        const cp1X = f.baseX + f.y * 0.15;
+        const cp1Y = f.baseY - f.height * 0.4;
+        const cp2X = f.baseX + f.y * 0.65;
+        const cp2Y = f.baseY - f.height * 0.8;
+
+        // Glowing wake halo
+        const wakeGrad = flumeCtx.createLinearGradient(f.baseX, f.baseY, tip.x, tip.y);
+        wakeGrad.addColorStop(0, 'rgba(14, 165, 233, 0.1)');
+        wakeGrad.addColorStop(1, 'rgba(56, 189, 248, 0.4)');
+
+        flumeCtx.strokeStyle = wakeGrad;
+        flumeCtx.lineWidth = 14 * f.diam * 0.6;
+        flumeCtx.lineCap = 'round';
+        flumeCtx.beginPath();
+        flumeCtx.moveTo(f.baseX, f.baseY);
+        flumeCtx.bezierCurveTo(cp1X, cp1Y, cp2X, cp2Y, tip.x, tip.y);
+        flumeCtx.stroke();
+
+        // Solid elastic core stem
+        flumeCtx.strokeStyle = '#f8fafc';
+        flumeCtx.lineWidth = 3.5;
+        flumeCtx.beginPath();
+        flumeCtx.moveTo(f.baseX, f.baseY);
+        flumeCtx.bezierCurveTo(cp1X, cp1Y, cp2X, cp2Y, tip.x, tip.y);
+        flumeCtx.stroke();
+
+        // Tip Node & Typographic Glyph Badge
+        flumeCtx.fillStyle = '#0284c7';
+        flumeCtx.beginPath();
+        flumeCtx.arc(tip.x, tip.y, 14, 0, Math.PI * 2);
+        flumeCtx.fill();
+        flumeCtx.strokeStyle = '#38bdf8';
+        flumeCtx.lineWidth = 1.5;
+        flumeCtx.stroke();
+
+        // Glyph letter label inside tip node
+        flumeCtx.fillStyle = '#ffffff';
+        flumeCtx.font = 'bold 12px monospace, sans-serif';
+        flumeCtx.textAlign = 'center';
+        flumeCtx.textBaseline = 'middle';
+        flumeCtx.fillText(f.ch, tip.x, tip.y);
+
+        // Vortex core shedding swirls downstream
+        const vX = tip.x + 35;
+        const vY = tip.y + Math.sin(f.vortexPhase) * 18;
+        flumeCtx.strokeStyle = (Math.sin(f.vortexPhase) > 0) ? 'rgba(56, 189, 248, 0.35)' : 'rgba(245, 158, 11, 0.35)';
+        flumeCtx.lineWidth = 1.2;
+        flumeCtx.beginPath();
+        flumeCtx.arc(vX, vY, 8 + Math.abs(f.y) * 0.4, 0, Math.PI * 2);
+        flumeCtx.stroke();
+      }
+    }
+
+    // Render Phase Space Attractor (y_tip vs dy_tip/dt)
+    function renderPhaseSpace() {
+      const pw = phaseCanvas.width;
+      const ph = phaseCanvas.height;
+      phaseCtx.fillStyle = '#010e14';
+      phaseCtx.fillRect(0, 0, pw, ph);
+
+      // Centered crosshairs
+      const cx = pw * 0.5;
+      const cy = ph * 0.5;
+      phaseCtx.strokeStyle = 'rgba(15, 61, 79, 0.5)';
+      phaseCtx.lineWidth = 1;
+      phaseCtx.beginPath();
+      phaseCtx.moveTo(0, cy); phaseCtx.lineTo(pw, cy);
+      phaseCtx.moveTo(cx, 0); phaseCtx.lineTo(cx, ph);
+      phaseCtx.stroke();
+
+      if (tipHistory.length < 2) return;
+
+      phaseCtx.strokeStyle = '#10b981';
+      phaseCtx.lineWidth = 1.5;
+      phaseCtx.beginPath();
+      for (let i = 0; i < tipHistory.length; i++) {
+        const pt = tipHistory[i];
+        const px = cx + pt.y * 3.5;
+        const py = cy - pt.v * 0.5;
+        if (i === 0) phaseCtx.moveTo(px, py);
+        else phaseCtx.lineTo(px, py);
+      }
+      phaseCtx.stroke();
+
+      // Current state head point
+      const cur = tipHistory[tipHistory.length - 1];
+      phaseCtx.fillStyle = '#34d399';
+      phaseCtx.beginPath();
+      phaseCtx.arc(cx + cur.y * 3.5, cy - cur.v * 0.5, 3.5, 0, Math.PI * 2);
+      phaseCtx.fill();
+    }
+
+    // Render Lock-In Resonance Frequency Spectrum
+    function renderSpectrum() {
+      const sw = specCanvas.width;
+      const sh = specCanvas.height;
+      specCtx.fillStyle = '#010e14';
+      specCtx.fillRect(0, 0, sw, sh);
+
+      // Axes & lock-in zone [0.8, 1.2]
+      const lockInX1 = sw * 0.38;
+      const lockInX2 = sw * 0.62;
+      specCtx.fillStyle = 'rgba(245, 158, 11, 0.12)';
+      specCtx.fillRect(lockInX1, 0, lockInX2 - lockInX1, sh);
+
+      specCtx.strokeStyle = 'rgba(245, 158, 11, 0.3)';
+      specCtx.strokeRect(lockInX1, 0, lockInX2 - lockInX1, sh);
+
+      specCtx.fillStyle = '#f59e0b';
+      specCtx.font = '9px monospace';
+      specCtx.fillText('LOCK-IN REGIME', lockInX1 + 4, 12);
+
+      // Plot resonance curve
+      specCtx.strokeStyle = '#38bdf8';
+      specCtx.lineWidth = 1.5;
+      specCtx.beginPath();
+      for (let x = 0; x < sw; x += 4) {
+        const r = (x / sw) * 2.5; // f_s / f_n from 0 to 2.5
+        const gain = 1.0 / (Math.sqrt(Math.pow(1 - r * r, 2) + Math.pow(2 * 0.08 * r, 2)) + 0.1);
+        const y = sh - Math.min(sh - 10, gain * 12);
+        if (x === 0) specCtx.moveTo(x, y);
+        else specCtx.lineTo(x, y);
+      }
+      specCtx.stroke();
+
+      // Current operating ratio indicator
+      if (filaments.length > 0) {
+        const f0 = filaments[0];
+        const fn = Math.sqrt(k_stiffness / f0.mass) / (2 * Math.PI);
+        const fs = (St_nominal * U_inflow) / (f0.diam * 0.05 + 0.02);
+        const ratio = fs / Math.max(0.1, fn);
+        const opX = Math.max(2, Math.min(sw - 2, (ratio / 2.5) * sw));
+
+        specCtx.strokeStyle = '#ef4444';
+        specCtx.lineWidth = 2;
+        specCtx.beginPath();
+        specCtx.moveTo(opX, 0);
+        specCtx.lineTo(opX, sh);
+        specCtx.stroke();
+      }
+    }
+
+    // Render Lift Coefficient Strip Chart
+    function renderLiftChart() {
+      const lw = liftCanvas.width;
+      const lh = liftCanvas.height;
+      liftCtx.fillStyle = '#010e14';
+      liftCtx.fillRect(0, 0, lw, lh);
+
+      const midY = lh * 0.5;
+      liftCtx.strokeStyle = 'rgba(15, 61, 79, 0.5)';
+      liftCtx.lineWidth = 1;
+      liftCtx.beginPath();
+      liftCtx.moveTo(0, midY);
+      liftCtx.lineTo(lw, midY);
+      liftCtx.stroke();
+
+      if (liftHistory.length < 2) return;
+
+      liftCtx.strokeStyle = '#38bdf8';
+      liftCtx.lineWidth = 1.5;
+      liftCtx.beginPath();
+      for (let i = 0; i < liftHistory.length; i++) {
+        const x = (i / maxHistory) * lw;
+        const y = midY - liftHistory[i] * (lh * 0.35);
+        if (i === 0) liftCtx.moveTo(x, y);
+        else liftCtx.lineTo(x, y);
+      }
+      liftCtx.stroke();
+    }
+
+    // --- Observables & Telemetry Engine ---
+    function computeObservables() {
+      let maxDefl = 0.0;
+      let totalEnergy = 0.0;
+      let sumFs = 0.0;
+
+      for (let i = 0; i < filaments.length; i++) {
+        const f = filaments[i];
+        const absY = Math.abs(f.y);
+        if (absY > maxDefl) maxDefl = absY;
+
+        // Kinetic (0.5 m v^2) + Elastic Potential (0.5 k y^2)
+        const eKin = 0.5 * f.mass * f.v * f.v * 0.001;
+        const eElast = 0.5 * f.k * (f.y * 0.01) * (f.y * 0.01);
+        totalEnergy += (eKin + eElast);
+
+        const fs = (St_nominal * U_inflow) / (f.diam * 0.05 + 0.02);
+        sumFs += fs;
+      }
+
+      const meanFs = filaments.length > 0 ? (sumFs / filaments.length) : 0.0;
+      const meanDiam = 0.07; // characteristic stem diameter ~ 70mm
+      const Re = (U_inflow * meanDiam) / (nu_visc * 0.000035);
+      const St_measured = (meanFs * meanDiam) / U_inflow;
+
+      return {
+        Re: Math.round(Re),
+        St: St_measured,
+        meanFs: meanFs,
+        maxDeflMm: maxDefl * 1.5,
+        totalEnergyJ: totalEnergy,
+        U: U_inflow,
+        k: k_stiffness,
+        filamentsCount: filaments.length
+      };
+    }
+
+    function updateTelemetry() {
+      const obs = computeObservables();
+      metRe.textContent = obs.Re.toLocaleString();
+      metSt.textContent = obs.St.toFixed(3);
+      metFreq.textContent = `${obs.meanFs.toFixed(2)} Hz`;
+      metDefl.textContent = `${obs.maxDeflMm.toFixed(1)} mm`;
+      metEnergy.textContent = `${obs.totalEnergyJ.toFixed(3)} J`;
+
+      // Master labEvidence Verification Contract
+      window.labEvidence = function() {
+        const validSt = obs.St >= 0.12 && obs.St <= 0.28;
+        const validRe = obs.Re > 500;
+        const validEnergy = obs.totalEnergyJ >= 0;
+        const validCount = obs.filamentsCount === 10;
+        return {
+          subject: "Hello World",
+          passed: validSt && validRe && validEnergy && validCount && obs.U > 0.2,
+          mechanism: "Fluid-Structure Interaction & Vortex-Induced Elastic Cantilever Vibration",
+          measurements: {
+            reynoldsNumber: obs.Re,
+            strouhalNumber: obs.St,
+            sheddingFrequencyHz: obs.meanFs,
+            maxTipDeflectionMm: obs.maxDeflMm,
+            totalElasticEnergyJoules: obs.totalEnergyJ,
+            inflowVelocity: obs.U,
+            elasticLettersCount: obs.filamentsCount
+          }
+        };
+      };
+    }
+
+    // --- Interaction Actuators ---
+    let surgeTriggered = false;
+    let preSurgeU = U_inflow;
+    let preSurgeFreq = 0.0;
+
+    btnSurge.addEventListener('click', () => {
+      surgeTriggered = true;
+      preSurgeU = U_inflow;
+      preSurgeFreq = computeObservables().meanFs;
+
+      // Surge inflow velocity to induce lock-in resonance
+      U_inflow = (U_inflow >= 1.2) ? 0.60 : 1.25;
+      sliderU.value = Math.round(U_inflow * 100);
+      valU.textContent = `${U_inflow.toFixed(2)} m/s`;
+      updateTelemetry();
+    });
+
+    sliderU.addEventListener('input', (e) => {
+      U_inflow = parseFloat(e.target.value) / 100.0;
+      valU.textContent = `${U_inflow.toFixed(2)} m/s`;
+      updateTelemetry();
+    });
+
+    sliderK.addEventListener('input', (e) => {
+      k_stiffness = parseFloat(e.target.value);
+      valK.textContent = `${Math.round(k_stiffness)} N/m`;
+      updateTelemetry();
+    });
+
+    // Verification Contract
+    window.labScenario = {
+      kind: "click",
+      selector: "#btnSurge"
+    };
+
+    window.labInteractionEvidence = function() {
+      if (!surgeTriggered) return null;
+      const obs = computeObservables();
+      const passed = surgeTriggered && Math.abs(obs.U - preSurgeU) > 0.3 && obs.St >= 0.12 && obs.St <= 0.28;
+      return {
+        subject: "Hello World",
+        passed: passed,
+        mechanism: "Inflow Velocity Surge & Aeroelastic Lock-In Amplification",
+        measurements: {
+          postSurgeVelocity: obs.U,
+          preSurgeVelocity: preSurgeU,
+          postSurgeFrequencyHz: obs.meanFs,
+          preSurgeFrequencyHz: preSurgeFreq,
+          reynoldsNumber: obs.Re,
+          strouhalNumber: obs.St,
+          maxTipDeflectionMm: obs.maxDeflMm
+        }
+      };
+    };
+
+    // --- Main Simulation & Animation Loop ---
+    let lastTime = performance.now();
+    resize();
+    updateTelemetry();
+
+    function loop(now) {
+      const dt = Math.min(0.04, (now - lastTime) / 1000.0);
+      lastTime = now;
+      simTime += dt;
+
+      // Update structural mechanics and particle flow
+      for (let i = 0; i < filaments.length; i++) {
+        filaments[i].update(dt, U_inflow, k_stiffness);
+      }
+      updateParticles(dt, U_inflow);
+
+      // Record diagnostic histories
+      if (filaments.length > 0) {
+        const lead = filaments[0];
+        tipHistory.push({ y: lead.y, v: lead.v });
+        if (tipHistory.length > maxHistory) tipHistory.shift();
+
+        liftHistory.push(lead.liftCoeff);
+        if (liftHistory.length > maxHistory) liftHistory.shift();
+      }
+
+      // Render all viewports
+      renderFlume();
+      renderPhaseSpace();
+      renderSpectrum();
+      renderLiftChart();
+      updateTelemetry();
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

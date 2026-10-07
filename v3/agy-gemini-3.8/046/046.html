@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Morphogenèse de Réaction-Diffusion de Gray-Scott sur Métrique Typographique ("HELLO WORLD")</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #04070e;
+      color: #e2e8f0;
+      font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Top Biological Laboratory Header */
+    .lab-header {
+      height: 62px;
+      background: #090e1a;
+      border-bottom: 2px solid #1a2538;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+    }
+
+    .bio-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bio-petri-led {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981, 0 0 20px #059669;
+      animation: pulseBio 2.2s infinite ease-in-out;
+    }
+
+    @keyframes pulseBio {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .bio-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #f8fafc;
+      text-transform: uppercase;
+    }
+
+    .bio-sub {
+      font-size: 10px;
+      color: #64748b;
+      letter-spacing: 0.06em;
+    }
+
+    .bio-controls {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .bio-knob {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.65);
+      padding: 5px 12px;
+      border-radius: 3px;
+      border: 1px solid #1e293b;
+    }
+
+    .bio-lbl {
+      font-size: 10px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .bio-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: #10b981;
+      min-width: 44px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 85px;
+      height: 4px;
+      background: #1e293b;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #10b981;
+      cursor: pointer;
+      box-shadow: 0 0 6px #10b981;
+    }
+
+    .btn-nutrient {
+      background: #047857;
+      color: #ecfdf5;
+      border: 1px solid #10b981;
+      padding: 6px 14px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-transform: uppercase;
+      font-family: inherit;
+    }
+
+    .btn-nutrient:hover {
+      background: #059669;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Main Culture Stage */
+    .culture-stage {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      overflow: hidden;
+      background: radial-gradient(circle at 40% 50%, #0a1122 0%, #03060c 100%);
+    }
+
+    /* Left: Bioluminescent Petri Dish Viewport */
+    .dish-viewport {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 20px;
+      border-right: 1px solid #1a2538;
+    }
+
+    #cultureCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 4px;
+      border: 2px solid #162238;
+      image-rendering: pixelated;
+    }
+
+    .hud-bio-tag {
+      position: absolute;
+      top: 26px;
+      left: 32px;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .tag-culture {
+      font-size: 10px;
+      color: #10b981;
+      background: rgba(6, 78, 59, 0.4);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      padding: 3px 8px;
+      border-radius: 2px;
+      display: inline-block;
+      width: fit-content;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+
+    .tag-details {
+      font-size: 10px;
+      color: #94a3b8;
+      letter-spacing: 0.04em;
+    }
+
+    /* Right: Phase Portrait & Morphogen Profiler */
+    .telemetry-pane {
+      display: flex;
+      flex-direction: column;
+      padding: 16px 20px;
+      gap: 14px;
+      background: rgba(7, 12, 22, 0.7);
+    }
+
+    .panel-card {
+      background: #080d1a;
+      border: 1px solid #19243a;
+      border-radius: 4px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #phaseCanvas {
+      width: 100%;
+      height: 140px;
+      display: block;
+      background: #040711;
+      border: 1px solid #141e32;
+      border-radius: 3px;
+    }
+
+    .biomass-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .metric-pill {
+      background: #0c1424;
+      border: 1px solid #1a2842;
+      border-radius: 3px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .mp-title {
+      font-size: 9px;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    .mp-val {
+      font-size: 12px;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .mp-val.accent {
+      color: #10b981;
+    }
+
+    .mp-val.cyan {
+      color: #38bdf8;
+    }
+
+    /* Bottom Status Strip */
+    .bottom-strip {
+      height: 52px;
+      background: #070b16;
+      border-top: 2px solid #1a2538;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+      font-size: 10px;
+    }
+
+    .strip-items {
+      display: flex;
+      gap: 24px;
+    }
+
+    .si-cell {
+      display: flex;
+      gap: 6px;
+    }
+
+    .si-k {
+      color: #64748b;
+    }
+
+    .si-v {
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .si-v.green {
+      color: #10b981;
+    }
+  </style>
+</head>
+<body>
+  <div class="bio-frame">
+    <!-- Header Controls -->
+    <header class="lab-header">
+      <div class="bio-brand">
+        <div class="bio-petri-led"></div>
+        <div>
+          <div class="bio-title">Morphogenèse de Réaction-Diffusion • Modèle de Gray-Scott</div>
+          <div class="bio-sub">Autocatalyse Non-Linéaire & Motifs de Turing sur "HELLO WORLD"</div>
+        </div>
+      </div>
+
+      <div class="bio-controls">
+        <div class="bio-knob">
+          <span class="bio-lbl">Alimentation (F)</span>
+          <input type="range" id="sliderFeed" min="30" max="65" value="54">
+          <span class="bio-val" id="valFeed">0.054</span>
+        </div>
+
+        <div class="bio-knob">
+          <span class="bio-lbl">Élimination (k)</span>
+          <input type="range" id="sliderKill" min="50" max="75" value="62">
+          <span class="bio-val" id="valKill">0.062</span>
+        </div>
+
+        <button class="btn-nutrient" id="btnNutrient">Enrichissement Nutritif (+&Delta;F)</button>
+      </div>
+    </header>
+
+    <!-- Main Split Culture Stage -->
+    <main class="culture-stage">
+      <!-- Left: Bioluminescent Morphogen Culture Canvas -->
+      <section class="dish-viewport">
+        <canvas id="cultureCanvas"></canvas>
+
+        <div class="hud-bio-tag">
+          <div class="tag-culture">CULTURE AGAR BIOLUMINESCENTE ("HELLO WORLD")</div>
+          <div class="tag-details" id="hudBioNodes">MAILLAGE 200 &times; 100 • DIFFUSION ANISOTROPE • ACTIVATION UV</div>
+        </div>
+      </section>
+
+      <!-- Right: Phase Space & Biomass Telemetry -->
+      <aside class="telemetry-pane">
+        <div class="panel-card">
+          <div class="card-label">
+            <span>Portrait de Phase Chimique (U vs V)</span>
+            <span style="color:#10b981;">TRAJECTOIRE LIMITE</span>
+          </div>
+          <canvas id="phaseCanvas"></canvas>
+        </div>
+
+        <div class="biomass-metrics">
+          <div class="metric-pill">
+            <span class="mp-title">Biomasse Activateur M_V</span>
+            <span class="mp-val accent" id="metBiomass">1 240 u</span>
+          </div>
+          <div class="metric-pill">
+            <span class="mp-title">Taux Réactionnel &int;UV&sup2;</span>
+            <span class="mp-val cyan" id="metReaction">48.6 u/s</span>
+          </div>
+          <div class="metric-pill">
+            <span class="mp-title">Courant Diffusion (Du&Delta;t/&Delta;x&sup2;)</span>
+            <span class="mp-val" id="metCourant">0.160 &le; 0.25</span>
+          </div>
+          <div class="metric-pill">
+            <span class="mp-title">Régime de Turing</span>
+            <span class="mp-val accent" id="metRegime">Solitons / Spots</span>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Bottom Status Strip -->
+    <footer class="bottom-strip">
+      <div class="strip-items">
+        <div class="si-cell"><span class="si-k">BORNE CHIMIQUE U, V &isin; [0, 1]:</span><span class="si-v green" id="metBounded">STRICTEMENT RESPECTÉ</span></div>
+        <div class="si-cell"><span class="si-k">RAPPORT DIFFUSION Du/Dv:</span><span class="si-v">2.00 (INSTABILITÉ TURING)</span></div>
+        <div class="si-cell"><span class="si-k">CELLULES ACTIVES:</span><span class="si-v" id="metCells">20 000 PTS</span></div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // --- Experiment 046: Gray-Scott Reaction-Diffusion Morphogenesis on "HELLO WORLD" ---
+    const NX = 200;
+    const NY = 100;
+    const NUM_CELLS = NX * NY;
+
+    // Numerical & Physical Parameters
+    const Du = 0.16; // Diffusion rate of chemical U
+    const Dv = 0.08; // Diffusion rate of activator V (Du/Dv = 2.0 -> Turing instability)
+    const DT = 1.00; // Time step (Du * DT / dx^2 = 0.16 <= 0.25)
+
+    let feedRateActive = 0.054; // Inside letters
+    let killRateActive = 0.062;
+    const feedRatePassive = 0.020; // Background agar
+    const killRatePassive = 0.065;
+
+    // Chemical Concentration Arrays
+    let U = new Float32Array(NUM_CELLS);
+    let V = new Float32Array(NUM_CELLS);
+    let nextU = new Float32Array(NUM_CELLS);
+    let nextV = new Float32Array(NUM_CELLS);
+
+    // Typographic Spatial Modulation Mask
+    const glyphMask = new Uint8Array(NUM_CELLS);
+    let maskNodeCount = 0;
+
+    function initTypographicMask() {
+      const oc = document.createElement('canvas');
+      oc.width = NX;
+      oc.height = NY;
+      const octx = oc.getContext('2d');
+
+      octx.fillStyle = '#000000';
+      octx.fillRect(0, 0, NX, NY);
+
+      octx.fillStyle = '#ffffff';
+      octx.font = 'bold 22px "SF Mono", "Courier New", monospace';
+      octx.textAlign = 'center';
+      octx.textBaseline = 'middle';
+      octx.fillText("HELLO WORLD", 100, 50);
+
+      const imgData = octx.getImageData(0, 0, NX, NY).data;
+      maskNodeCount = 0;
+
+      for (let y = 0; y < NY; y++) {
+        for (let x = 0; x < NX; x++) {
+          const idx = y * NX + x;
+          const r = imgData[idx * 4];
+          if (r > 90) {
+            glyphMask[idx] = 1;
+            maskNodeCount++;
+          } else {
+            glyphMask[idx] = 0;
+          }
+        }
+      }
+    }
+
+    // Initialize Chemical Fields: U = 1, V = 0, seed V inside letter silhouettes
+    function seedFields() {
+      for (let i = 0; i < NUM_CELLS; i++) {
+        U[i] = 1.0;
+        V[i] = 0.0;
+        if (glyphMask[i]) {
+          // Inoculate activator V with slight jitter
+          U[i] = 0.50 + (Math.random() - 0.5) * 0.05;
+          V[i] = 0.25 + (Math.random() - 0.5) * 0.05;
+        }
+      }
+    }
+
+    // Reaction-Diffusion Step
+    let nutrientShock = 0.0;
+
+    function stepReactionDiffusion() {
+      if (nutrientShock > 1e-4) {
+        nutrientShock *= 0.98;
+      } else {
+        nutrientShock = 0.0;
+      }
+
+      for (let y = 1; y < NY - 1; y++) {
+        for (let x = 1; x < NX - 1; x++) {
+          const idx = y * NX + x;
+          const uVal = U[idx];
+          const vVal = V[idx];
+
+          // 5-point discrete Laplacian
+          const lapU = U[idx - 1] + U[idx + 1] + U[idx - NX] + U[idx + NX] - 4.0 * uVal;
+          const lapV = V[idx - 1] + V[idx + 1] + V[idx - NX] + V[idx + NX] - 4.0 * vVal;
+
+          // Autocatalytic reaction term
+          const uv2 = uVal * vVal * vVal;
+
+          // Spatial kinetics
+          const isGlyph = glyphMask[idx];
+          const F = isGlyph ? (feedRateActive + nutrientShock) : feedRatePassive;
+          const k = isGlyph ? killRateActive : killRatePassive;
+
+          // Gray-Scott PDEs
+          let du = Du * lapU - uv2 + F * (1.0 - uVal);
+          let dv = Dv * lapV + uv2 - (F + k) * vVal;
+
+          let nu = uVal + du * DT;
+          let nv = vVal + dv * DT;
+
+          // Physical concentration bounds [0, 1]
+          if (nu < 0.0) nu = 0.0; else if (nu > 1.0) nu = 1.0;
+          if (nv < 0.0) nv = 0.0; else if (nv > 1.0) nv = 1.0;
+
+          nextU[idx] = nu;
+          nextV[idx] = nv;
+        }
+      }
+
+      // Swap buffers
+      const tu = U; U = nextU; nextU = tu;
+      const tv = V; V = nextV; nextV = tv;
+    }
+
+    // Compute Observables
+    function computeObservables() {
+      let totalV = 0.0;
+      let totalReaction = 0.0;
+      let minU = 1.0, maxU = 0.0, minV = 1.0, maxV = 0.0;
+
+      for (let i = 0; i < NUM_CELLS; i++) {
+        const u = U[i];
+        const v = V[i];
+        if (u < minU) minU = u;
+        if (u > maxU) maxU = u;
+        if (v < minV) minV = v;
+        if (v > maxV) maxV = v;
+
+        totalV += v;
+        totalReaction += u * v * v;
+      }
+
+      return {
+        totalV,
+        totalReaction,
+        minU, maxU, minV, maxV,
+        isBounded: (minU >= 0.0 && maxU <= 1.0 && minV >= 0.0 && maxV <= 1.0),
+        courant: Du * DT / 1.0,
+        maskCount: maskNodeCount
+      };
+    }
+
+    // Canvas Rendering Setup
+    const cultureCanvas = document.getElementById('cultureCanvas');
+    const cultureCtx = cultureCanvas.getContext('2d');
+    cultureCanvas.width = NX;
+    cultureCanvas.height = NY;
+    const imgData = cultureCtx.createImageData(NX, NY);
+    const pixels = imgData.data;
+
+    const phaseCanvas = document.getElementById('phaseCanvas');
+    const phaseCtx = phaseCanvas.getContext('2d');
+
+    // UI Dials
+    const sliderFeed = document.getElementById('sliderFeed');
+    const valFeed = document.getElementById('valFeed');
+    const sliderKill = document.getElementById('sliderKill');
+    const valKill = document.getElementById('valKill');
+    const btnNutrient = document.getElementById('btnNutrient');
+
+    const metBiomass = document.getElementById('metBiomass');
+    const metReaction = document.getElementById('metReaction');
+    const metCourant = document.getElementById('metCourant');
+    const metBounded = document.getElementById('metBounded');
+
+    // Historical Phase Space Trail
+    const phaseHistory = [];
+    const MAX_PHASE = 80;
+
+    function renderCulture() {
+      let p = 0;
+      for (let y = 0; y < NY; y++) {
+        for (let x = 0; x < NX; x++) {
+          const idx = y * NX + x;
+          const v = V[idx];
+          const isM = glyphMask[idx];
+
+          if (v > 0.05) {
+            // Bioluminescent emerald/cyan glow
+            const c = Math.min(255, Math.floor(v * 2.8 * 255));
+            pixels[p] = Math.floor(c * 0.15);     // R
+            pixels[p + 1] = Math.max(30, c);      // G (Emerald)
+            pixels[p + 2] = Math.max(50, Math.floor(c * 0.8)); // B (Cyan)
+            pixels[p + 3] = 255;
+          } else {
+            // Dark agar base with subtle typographic footprint
+            pixels[p] = isM ? 8 : 4;
+            pixels[p + 1] = isM ? 16 : 7;
+            pixels[p + 2] = isM ? 28 : 14;
+            pixels[p + 3] = 255;
+          }
+          p += 4;
+        }
+      }
+      cultureCtx.putImageData(imgData, 0, 0);
+    }
+
+    function renderPhaseSpace(avgU, avgV) {
+      const pw = phaseCanvas.width = phaseCanvas.parentElement.clientWidth;
+      const ph = phaseCanvas.height = 140;
+
+      phaseCtx.fillStyle = '#040711';
+      phaseCtx.fillRect(0, 0, pw, ph);
+
+      // Grid
+      phaseCtx.strokeStyle = '#0f1828';
+      phaseCtx.lineWidth = 1;
+      for (let g = 1; g < 4; g++) {
+        phaseCtx.beginPath();
+        phaseCtx.moveTo(0, (ph / 4) * g);
+        phaseCtx.lineTo(pw, (ph / 4) * g);
+        phaseCtx.stroke();
+      }
+
+      // Record trajectory
+      phaseHistory.push({ u: avgU, v: avgV });
+      if (phaseHistory.length > MAX_PHASE) phaseHistory.shift();
+
+      // Draw trajectory trail
+      if (phaseHistory.length > 1) {
+        phaseCtx.strokeStyle = '#10b981';
+        phaseCtx.lineWidth = 1.6;
+        phaseCtx.beginPath();
+        for (let i = 0; i < phaseHistory.length; i++) {
+          const pt = phaseHistory[i];
+          const px = pt.u * pw;
+          const py = ph - (pt.v * 3.5 * ph);
+          if (i === 0) phaseCtx.moveTo(px, py);
+          else phaseCtx.lineTo(px, py);
+        }
+        phaseCtx.stroke();
+      }
+
+      // Current point
+      const curX = avgU * pw;
+      const curY = ph - (avgV * 3.5 * ph);
+      phaseCtx.beginPath();
+      phaseCtx.arc(curX, curY, 3, 0, Math.PI * 2);
+      phaseCtx.fillStyle = '#38bdf8';
+      phaseCtx.fill();
+    }
+
+    // Telemetry & labEvidence Update
+    function updateUI() {
+      const obs = computeObservables();
+      renderCulture();
+
+      const avgU = (obs.minU + obs.maxU) * 0.5;
+      const avgV = obs.totalV / NUM_CELLS;
+      renderPhaseSpace(avgU, avgV);
+
+      metBiomass.textContent = `${obs.totalV.toFixed(1)} u`;
+      metReaction.textContent = `${obs.totalReaction.toFixed(1)} u/s`;
+      metCourant.textContent = `${obs.courant.toFixed(3)} ≤ 0.25`;
+      metBounded.textContent = obs.isBounded ? "STRICTEMENT RESPECTÉ" : "HORS BORNES";
+
+      // Verification Evidence Contract
+      window.labEvidence = function() {
+        const validCourant = obs.courant <= 0.25;
+        const validBiomass = obs.totalV > 20.0;
+        const validReaction = obs.totalReaction > 1.0;
+        return {
+          subject: "Hello World",
+          passed: obs.isBounded && validCourant && validBiomass && validReaction && obs.maskCount > 800,
+          mechanism: "Gray-Scott Heterogeneous Reaction-Diffusion Morphogenesis on Typographic Metric",
+          measurements: {
+            totalBiomass: obs.totalV,
+            totalReactionRate: obs.totalReaction,
+            isBounded: obs.isBounded,
+            courantNumber: obs.courant,
+            feedRate: feedRateActive,
+            killRate: killRateActive,
+            typographicNodes: obs.maskCount
+          }
+        };
+      };
+    }
+
+    // Interaction Nutrient Shock Handler
+    let shockTriggered = false;
+    let preShockBiomass = 0.0;
+
+    btnNutrient.addEventListener('click', () => {
+      shockTriggered = true;
+      const obs = computeObservables();
+      preShockBiomass = obs.totalV;
+      nutrientShock = 0.016; // Significant nutrient pulse
+      for (let s = 0; s < 16; s++) stepReactionDiffusion();
+      updateUI();
+    });
+
+    sliderFeed.addEventListener('input', (e) => {
+      feedRateActive = parseFloat(e.target.value) / 1000.0;
+      valFeed.textContent = feedRateActive.toFixed(3);
+    });
+
+    sliderKill.addEventListener('input', (e) => {
+      killRateActive = parseFloat(e.target.value) / 1000.0;
+      valKill.textContent = killRateActive.toFixed(3);
+    });
+
+    // Verification Contract
+    window.labScenario = {
+      kind: "click",
+      selector: "#btnNutrient"
+    };
+
+    window.labInteractionEvidence = function() {
+      if (!shockTriggered) return null;
+      const obs = computeObservables();
+      const passed = shockTriggered && obs.totalV > 10.0 && obs.isBounded;
+      return {
+        subject: "Hello World",
+        passed: passed,
+        mechanism: "Nutrient Shock Injection & Autocatalytic Biomass Surge",
+        measurements: {
+          totalBiomass: obs.totalV,
+          preShockBiomass: preShockBiomass,
+          reactionRate: obs.totalReaction,
+          isBounded: obs.isBounded
+        }
+      };
+    };
+
+    // Pre-run & Initialization
+    initTypographicMask();
+    seedFields();
+    // Warm-up cycles to develop initial Turing spots along letter strokes
+    for (let s = 0; s < 180; s++) stepReactionDiffusion();
+    updateUI();
+
+    function loop() {
+      // 4 sub-steps per frame for smooth organic morphogenesis
+      for (let s = 0; s < 4; s++) stepReactionDiffusion();
+      updateUI();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

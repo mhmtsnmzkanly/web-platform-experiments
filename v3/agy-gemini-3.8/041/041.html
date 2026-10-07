@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World - Lattice Boltzmann Aerodynamic Wind Tunnel</title>
+  <style>
+    :root {
+      --tunnel-bg: #030712;
+      --panel-bg: #090d16;
+      --border-line: #1e293b;
+      --cyan-stream: #38bdf8;
+      --orange-vortex: #f97316;
+      --text-main: #e2e8f0;
+      --text-muted: #64748b;
+      --accent-glow: #0284c7;
+      --font-mono: "SF Mono", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--tunnel-bg);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    /* Full-width Aerodynamic Wind Tunnel Layout */
+    .wind-tunnel-facility {
+      width: 1080px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-line);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+    }
+
+    /* Facility Header Ribbon */
+    .tunnel-ribbon-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 18px;
+      background: #0d131f;
+      border-bottom: 1px solid var(--border-line);
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    .tunnel-ribbon-header .facility-id {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+    .tunnel-ribbon-header .live-status {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 3px;
+      color: var(--cyan-stream);
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cyan-stream);
+      box-shadow: 0 0 6px var(--cyan-stream);
+    }
+
+    /* Test Chamber Viewport (Upper 65%) */
+    .test-chamber {
+      position: relative;
+      background: #020617;
+      border-bottom: 1px solid var(--border-line);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 6px;
+    }
+
+    #lbmCanvas {
+      width: 1060px;
+      height: 380px;
+      display: block;
+      background: #010409;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      image-rendering: pixelated;
+    }
+
+    /* Chamber HUD Overlays */
+    .chamber-hud {
+      position: absolute;
+      top: 14px;
+      left: 18px;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.6);
+      pointer-events: none;
+      line-height: 1.5;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+    }
+    .chamber-hud .title {
+      font-weight: 700;
+      color: var(--cyan-stream);
+      letter-spacing: 0.5px;
+    }
+
+    /* Horizontal Telemetry & Control Deck (Lower 35%) */
+    .deck-strip {
+      display: grid;
+      grid-template-columns: 280px 1fr 300px;
+      gap: 16px;
+      padding: 12px 18px 16px;
+      align-items: center;
+      background: #060911;
+    }
+
+    /* Left: Aerodynamic Polar Trace (Drag vs Lift) */
+    .polar-plot-card {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .polar-plot-card .card-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+    }
+    #polarCanvas {
+      width: 280px;
+      height: 80px;
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 3px;
+      display: block;
+    }
+
+    /* Center: Aerodynamic Measurements */
+    .metrics-matrix {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .metric-cell {
+      background: #0b111e;
+      border: 1px solid #1e293b;
+      border-radius: 3px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .metric-cell .k {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .metric-cell .v {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f1f5f9;
+      font-variant-numeric: tabular-nums;
+    }
+    .metric-cell .v.cyan { color: var(--cyan-stream); }
+    .metric-cell .v.orange { color: var(--orange-vortex); }
+
+    /* Right: Interactive Actuators */
+    .actuators-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-facility {
+      flex: 1;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #f8fafc;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 8px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .btn-facility:hover {
+      background: #334155;
+      border-color: var(--cyan-stream);
+    }
+    .btn-facility:active {
+      transform: translateY(1px);
+    }
+    .btn-facility.primary {
+      background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+      border-color: #38bdf8;
+    }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .slider-row .sl-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+    .slider-row input[type="range"] {
+      width: 100%;
+      height: 4px;
+      background: #1e293b;
+      border-radius: 2px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .slider-row input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--cyan-stream);
+      cursor: pointer;
+      box-shadow: 0 0 6px var(--cyan-stream);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wind-tunnel-facility">
+    <!-- Header Ribbon -->
+    <header class="tunnel-ribbon-header">
+      <div class="facility-id">
+        <span>AERODYNAMIC TUNNEL FACILITY • LATTICE BOLTZMANN D2Q9 BGK</span>
+      </div>
+      <div class="live-status">
+        <span class="status-badge"><span class="status-dot"></span> ÉCOULEMENT ACTIF</span>
+        <span style="color: #64748b;">MAILLAGE: 240 × 100 NOEUDS (24 000 CEL.)</span>
+      </div>
+    </header>
+
+    <!-- Test Chamber Viewport (Wide Stream View) -->
+    <section class="test-chamber">
+      <canvas id="lbmCanvas" width="240" height="100"></canvas>
+      <div class="chamber-hud">
+        <div class="title">OBSTACLE POREUX TIPOGRAPHIQUE: "HELLO WORLD"</div>
+        <div>RÉGIME: ALLÉE DE TOURBILLONS DE VON KÁRMÁN</div>
+        <div id="hudBoundaryNodes">NOEUDS FRONTIÈRE SOLIDE: 1 420 PTS</div>
+      </div>
+    </section>
+
+    <!-- Lower Horizontal Deck Strip -->
+    <section class="deck-strip">
+      <!-- Left: Aerodynamic Polar Trace -->
+      <div class="polar-plot-card">
+        <div class="card-label">
+          <span>TRAÎNÉE vs PORTANCE (F_D / F_L)</span>
+          <span id="labelPolarCoords">+0.42 / -0.05</span>
+        </div>
+        <canvas id="polarCanvas" width="280" height="80"></canvas>
+      </div>
+
+      <!-- Center: Key Hydrodynamic Metrics -->
+      <div class="metrics-matrix">
+        <div class="metric-cell">
+          <span class="k">Nombre de Reynolds</span>
+          <span class="v cyan" id="metRe">180</span>
+        </div>
+        <div class="metric-cell">
+          <span class="k">Force de Traînée F_D</span>
+          <span class="v orange" id="metDrag">14.2 N</span>
+        </div>
+        <div class="metric-cell">
+          <span class="k">Portance F_L</span>
+          <span class="v" id="metLift">+0.8 N</span>
+        </div>
+        <div class="metric-cell">
+          <span class="k">Masse Réseau ∑ρ</span>
+          <span class="v" id="metMass">24 000.0</span>
+        </div>
+      </div>
+
+      <!-- Right: Direct Actuators -->
+      <div class="actuators-card">
+        <div class="btn-row">
+          <button class="btn-facility primary" id="btnShock">Impulsion Rafale (Shock)</button>
+          <button class="btn-facility" id="btnMode">Palette Tourbillon</button>
+        </div>
+        <div class="slider-row">
+          <div class="sl-meta">
+            <span>Vitesse Inflow (u_in)</span>
+            <span id="labelUin">0.080</span>
+          </div>
+          <input type="range" id="sliderUin" min="20" max="140" value="80">
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // --- 2D Lattice Boltzmann Method (D2Q9 BGK Model) ---
+    const NX = 240;
+    const NY = 100;
+    const NUM_NODES = NX * NY;
+
+    // Discrete D2Q9 velocities
+    const CX = [0, 1, 0, -1, 0, 1, -1, -1, 1];
+    const CY = [0, 0, 1, 0, -1, 1, 1, -1, -1];
+    const WEIGHTS = [4/9, 1/9, 1/9, 1/9, 1/9, 1/36, 1/36, 1/36, 1/36];
+    const OPPOSITE = [0, 3, 4, 1, 2, 7, 8, 5, 6];
+
+    // Simulation Parameters
+    let tau = 0.56; // Relaxation time (nu = (2*tau - 1)/6 = 0.02)
+    let uInflow = 0.080; // Inflow Mach / speed
+    const OMEGA = 1.0 / tau;
+
+    // Distribution functions f_i(x, y)
+    let f = new Float32Array(NUM_NODES * 9);
+    let fTemp = new Float32Array(NUM_NODES * 9);
+
+    // Macroscopic Fields
+    const rho = new Float32Array(NUM_NODES);
+    const ux = new Float32Array(NUM_NODES);
+    const uy = new Float32Array(NUM_NODES);
+    const curl = new Float32Array(NUM_NODES);
+
+    // Solid Obstacle Mask directly rasterized from "HELLO WORLD"
+    const solidMask = new Uint8Array(NUM_NODES);
+    let solidNodeCount = 0;
+
+    // Rasterize "HELLO WORLD" into the lattice obstacle mask
+    function initTypographicObstacle() {
+      const oc = document.createElement('canvas');
+      oc.width = NX;
+      oc.height = NY;
+      const octx = oc.getContext('2d');
+
+      octx.fillStyle = '#000000';
+      octx.fillRect(0, 0, NX, NY);
+
+      octx.fillStyle = '#ffffff';
+      octx.font = 'bold 24px "SF Mono", "Courier New", monospace';
+      octx.textAlign = 'center';
+      octx.textBaseline = 'middle';
+      // Center the text across x = 45 to 195, y = 50
+      octx.fillText("HELLO WORLD", 115, 50);
+
+      const imgData = octx.getImageData(0, 0, NX, NY).data;
+      solidNodeCount = 0;
+      for (let y = 0; y < NY; y++) {
+        for (let x = 0; x < NX; x++) {
+          const idx = y * NX + x;
+          // Fluid walls on top and bottom boundary
+          if (y === 0 || y === NY - 1) {
+            solidMask[idx] = 1;
+            solidNodeCount++;
+          } else {
+            // Text obstacle pixels
+            const rVal = imgData[idx * 4];
+            if (rVal > 110) {
+              solidMask[idx] = 1;
+              solidNodeCount++;
+            } else {
+              solidMask[idx] = 0;
+            }
+          }
+        }
+      }
+    }
+
+    // Equilibrium distribution
+    function feq(i, density, vx, vy) {
+      const ciU = CX[i] * vx + CY[i] * vy;
+      const u2 = vx * vx + vy * vy;
+      return WEIGHTS[i] * density * (1.0 + 3.0 * ciU + 4.5 * ciU * ciU - 1.5 * u2);
+    }
+
+    // Initialize Lattice State
+    function initLattice() {
+      for (let y = 0; y < NY; y++) {
+        for (let x = 0; x < NX; x++) {
+          const idx = y * NX + x;
+          const isSolid = solidMask[idx];
+          const initUx = isSolid ? 0.0 : uInflow;
+          const initUy = 0.0;
+          rho[idx] = 1.0;
+          ux[idx] = initUx;
+          uy[idx] = initUy;
+
+          const baseIdx = idx * 9;
+          for (let i = 0; i < 9; i++) {
+            f[baseIdx + i] = feq(i, 1.0, initUx, initUy);
+          }
+        }
+      }
+    }
+
+    // Momentum exchange drag & lift accumulator
+    let liveDragForce = 0.0;
+    let liveLiftForce = 0.0;
+    let totalLatticeMass = 0.0;
+
+    // LBM Time Step: Collision -> Stream -> Boundary -> Macroscopic
+    function stepLBM() {
+      // 1. Collision & Streaming Step
+      let dragSum = 0.0;
+      let liftSum = 0.0;
+      let massSum = 0.0;
+
+      for (let y = 0; y < NY; y++) {
+        for (let x = 0; x < NX; x++) {
+          const idx = y * NX + x;
+          const baseIdx = idx * 9;
+
+          if (solidMask[idx]) {
+            // Solid node: Standard bounce-back handles interface streaming
+            continue;
+          }
+
+          // Compute macroscopic density and velocity
+          let nodeRho = 0.0;
+          let nodeUx = 0.0;
+          let nodeUy = 0.0;
+
+          for (let i = 0; i < 9; i++) {
+            const fi = f[baseIdx + i];
+            nodeRho += fi;
+            nodeUx += fi * CX[i];
+            nodeUy += fi * CY[i];
+          }
+
+          nodeUx /= nodeRho;
+          nodeUy /= nodeRho;
+
+          rho[idx] = nodeRho;
+          ux[idx] = nodeUx;
+          uy[idx] = nodeUy;
+          massSum += nodeRho;
+
+          // BGK Collision and Stream
+          for (let i = 0; i < 9; i++) {
+            const fi = f[baseIdx + i];
+            const eq = feq(i, nodeRho, nodeUx, nodeUy);
+            const fiPost = fi - OMEGA * (fi - eq);
+
+            const nextX = x + CX[i];
+            const nextY = y + CY[i];
+
+            if (nextX >= 0 && nextX < NX && nextY >= 0 && nextY < NY) {
+              const nextIdx = nextY * NX + nextX;
+              if (solidMask[nextIdx]) {
+                // Half-way bounce-back onto solid node
+                const opp = OPPOSITE[i];
+                fTemp[baseIdx + opp] = fiPost;
+
+                // Momentum exchange: Delta P = c_i * (2 * fiPost)
+                dragSum += CX[i] * 2.0 * fiPost;
+                liftSum += CY[i] * 2.0 * fiPost;
+              } else {
+                fTemp[nextIdx * 9 + i] = fiPost;
+              }
+            }
+          }
+        }
+      }
+
+      // 2. Boundary Conditions
+      // Inlet at x = 0: Zou-He Velocity Boundary (u = [uInflow, 0])
+      for (let y = 1; y < NY - 1; y++) {
+        const idx = y * NX;
+        const b = idx * 9;
+        const rInlet = (fTemp[b + 0] + fTemp[b + 2] + fTemp[b + 4] + 2.0 * (fTemp[b + 3] + fTemp[b + 6] + fTemp[b + 7])) / (1.0 - uInflow);
+        rho[idx] = rInlet;
+        ux[idx] = uInflow;
+        uy[idx] = 0.0;
+
+        fTemp[b + 1] = fTemp[b + 3] + (2/3) * rInlet * uInflow;
+        fTemp[b + 5] = fTemp[b + 7] - 0.5 * (fTemp[b + 2] - fTemp[b + 4]) + (1/6) * rInlet * uInflow;
+        fTemp[b + 8] = fTemp[b + 6] + 0.5 * (fTemp[b + 2] - fTemp[b + 4]) + (1/6) * rInlet * uInflow;
+      }
+
+      // Outlet at x = NX - 1: Extrapolation (Neumann)
+      for (let y = 1; y < NY - 1; y++) {
+        const idxLast = y * NX + (NX - 1);
+        const idxPrev = y * NX + (NX - 2);
+        for (let i = 0; i < 9; i++) {
+          fTemp[idxLast * 9 + i] = fTemp[idxPrev * 9 + i];
+        }
+        rho[idxLast] = rho[idxPrev];
+        ux[idxLast] = ux[idxPrev];
+        uy[idxLast] = uy[idxPrev];
+      }
+
+      // Swap buffers
+      const t = f;
+      f = fTemp;
+      fTemp = t;
+
+      liveDragForce = dragSum;
+      liveLiftForce = liftSum;
+      totalLatticeMass = massSum;
+
+      // Compute Vorticity Curl
+      for (let y = 1; y < NY - 1; y++) {
+        for (let x = 1; x < NX - 1; x++) {
+          const idx = y * NX + x;
+          if (solidMask[idx]) {
+            curl[idx] = 0.0;
+          } else {
+            const duy_dx = (uy[idx + 1] - uy[idx - 1]) * 0.5;
+            const dux_dy = (ux[idx + NX] - ux[idx - NX]) * 0.5;
+            curl[idx] = duy_dx - dux_dy;
+          }
+        }
+      }
+    }
+
+    // Historical Aerodynamic Polar Trail
+    const polarHistory = [];
+    const MAX_POLAR = 60;
+
+    // Canvas Rendering & Pixel Pipeline
+    const canvas = document.getElementById('lbmCanvas');
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.createImageData(NX, NY);
+    const pixels = imgData.data;
+
+    const polarCanvas = document.getElementById('polarCanvas');
+    const polarCtx = polarCanvas.getContext('2d');
+
+    // UI Dials & Indicators
+    const metReEl = document.getElementById('metRe');
+    const metDragEl = document.getElementById('metDrag');
+    const metLiftEl = document.getElementById('metLift');
+    const metMassEl = document.getElementById('metMass');
+    const labelPolarCoordsEl = document.getElementById('labelPolarCoords');
+    const sliderUinEl = document.getElementById('sliderUin');
+    const labelUinEl = document.getElementById('labelUin');
+    const btnShockEl = document.getElementById('btnShock');
+    const btnModeEl = document.getElementById('btnMode');
+    const hudBoundaryNodesEl = document.getElementById('hudBoundaryNodes');
+
+    let colorModeVorticity = true;
+
+    function renderLBM() {
+      // Direct Pixel Rendering of Lattice
+      let pIdx = 0;
+      for (let y = 0; y < NY; y++) {
+        for (let x = 0; x < NX; x++) {
+          const idx = y * NX + x;
+
+          if (solidMask[idx]) {
+            // Solid "HELLO WORLD" obstacle: Bright amber-white core with rim
+            pixels[pIdx] = 251;     // R
+            pixels[pIdx + 1] = 191; // G
+            pixels[pIdx + 2] = 36;  // B
+            pixels[pIdx + 3] = 255;
+          } else {
+            if (colorModeVorticity) {
+              // Vorticity Schlieren palette
+              const w = curl[idx] * 40.0; // scale
+              if (w > 0) {
+                // Counter-clockwise vorticity (Cyan)
+                const c = Math.min(255, Math.floor(w * 255));
+                pixels[pIdx] = 14;
+                pixels[pIdx + 1] = Math.max(30, c);
+                pixels[pIdx + 2] = Math.max(80, c);
+                pixels[pIdx + 3] = 255;
+              } else {
+                // Clockwise vorticity (Orange/Red)
+                const c = Math.min(255, Math.floor(-w * 255));
+                pixels[pIdx] = Math.max(50, c);
+                pixels[pIdx + 1] = Math.floor(c * 0.45);
+                pixels[pIdx + 2] = 20;
+                pixels[pIdx + 3] = 255;
+              }
+            } else {
+              // Speed magnitude palette
+              const speed = Math.hypot(ux[idx], uy[idx]) / (uInflow * 1.8);
+              const c = Math.min(255, Math.floor(speed * 255));
+              pixels[pIdx] = Math.floor(c * 0.2);
+              pixels[pIdx + 1] = Math.floor(c * 0.7);
+              pixels[pIdx + 2] = c;
+              pixels[pIdx + 3] = 255;
+            }
+          }
+          pIdx += 4;
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+
+      // Render Polar Plot
+      const pw = polarCanvas.width;
+      const ph = polarCanvas.height;
+      polarCtx.fillStyle = '#030712';
+      polarCtx.fillRect(0, 0, pw, ph);
+
+      // Polar grid axes
+      polarCtx.strokeStyle = '#1e293b';
+      polarCtx.lineWidth = 1;
+      polarCtx.beginPath();
+      polarCtx.moveTo(0, ph / 2);
+      polarCtx.lineTo(pw, ph / 2);
+      polarCtx.moveTo(pw / 2, 0);
+      polarCtx.lineTo(pw / 2, ph);
+      polarCtx.stroke();
+
+      // Polar trajectory trail
+      if (polarHistory.length > 1) {
+        polarCtx.strokeStyle = '#38bdf8';
+        polarCtx.lineWidth = 1.5;
+        polarCtx.beginPath();
+        for (let i = 0; i < polarHistory.length; i++) {
+          const pt = polarHistory[i];
+          const px = pw / 2 + pt.cd * 6.0;
+          const py = ph / 2 - pt.cl * 12.0;
+          if (i === 0) polarCtx.moveTo(px, py);
+          else polarCtx.lineTo(px, py);
+        }
+        polarCtx.stroke();
+      }
+    }
+
+    // Compute Observables
+    function computeObservables() {
+      const nu = (2.0 * tau - 1.0) / 6.0;
+      const reynolds = Math.floor((uInflow * 24.0) / nu); // Obstacle height H ~ 24 lattice units
+
+      let maxVorticity = 0.0;
+      for (let i = 0; i < NUM_NODES; i++) {
+        const absW = Math.abs(curl[i]);
+        if (absW > maxVorticity) maxVorticity = absW;
+      }
+
+      return {
+        reynolds,
+        dragForce: Math.abs(liveDragForce),
+        liftForce: liveLiftForce,
+        totalMass: totalLatticeMass,
+        maxVorticity,
+        solidNodeCount,
+        uInflow,
+        viscosity: nu
+      };
+    }
+
+    // Update Telemetry & UI
+    function updateUI() {
+      const obs = computeObservables();
+      renderLBM();
+
+      metReEl.textContent = obs.reynolds;
+      metDragEl.textContent = `${obs.dragForce.toFixed(1)} N`;
+      metLiftEl.textContent = `${obs.liftForce >= 0 ? '+' : ''}${obs.liftForce.toFixed(2)} N`;
+      metMassEl.textContent = `${obs.totalMass.toFixed(0)}`;
+      labelPolarCoordsEl.textContent = `${obs.dragForce.toFixed(2)} / ${obs.liftForce.toFixed(2)}`;
+
+      polarHistory.push({ cd: obs.dragForce, cl: obs.liftForce });
+      if (polarHistory.length > MAX_POLAR) polarHistory.shift();
+
+      // Update labEvidence Contract Function
+      window.labEvidence = function() {
+        return {
+          subject: "Hello World",
+          passed: obs.solidNodeCount > 500 && obs.dragForce > 0.1 && obs.maxVorticity > 0.005,
+          mechanism: "Lattice Boltzmann D2Q9 Vortex Street in Typographic Porous Medium",
+          measurements: {
+            reynolds: obs.reynolds,
+            dragForce: obs.dragForce,
+            liftForce: obs.liftForce,
+            maxVorticity: obs.maxVorticity,
+            solidNodeCount: obs.solidNodeCount,
+            totalMass: obs.totalMass,
+            inflowSpeed: obs.uInflow,
+            viscosity: obs.viscosity
+          }
+        };
+      };
+    }
+
+    // Animation Loop
+    function loop() {
+      // 4 LBM sub-steps per animation frame for smooth hydrodynamic transport
+      for (let s = 0; s < 4; s++) {
+        stepLBM();
+      }
+      updateUI();
+      requestAnimationFrame(loop);
+    }
+
+    // Interactive Shock Perturbation
+    function injectGustShock() {
+      uInflow += 0.040;
+      for (let y = 0; y < NY; y++) {
+        for (let x = 0; x < 70; x++) {
+          const idx = y * NX + x;
+          if (!solidMask[idx]) {
+            ux[idx] = Math.min(0.18, ux[idx] + 0.035);
+            for (let i = 0; i < 9; i++) {
+              f[idx * 9 + i] = feq(i, rho[idx], ux[idx], uy[idx]);
+            }
+          }
+        }
+      }
+      sliderUinEl.value = Math.min(140, Math.floor(uInflow * 1000));
+      labelUinEl.textContent = uInflow.toFixed(3);
+    }
+
+    // Event Handlers & Interaction Tracking
+    let shockTriggered = false;
+    let peakShockDrag = 0.0;
+
+    btnShockEl.addEventListener('click', () => {
+      shockTriggered = true;
+      injectGustShock();
+      for (let s = 0; s < 12; s++) stepLBM();
+      const obs = computeObservables();
+      peakShockDrag = obs.dragForce;
+      updateUI();
+    });
+
+    btnModeEl.addEventListener('click', () => {
+      colorModeVorticity = !colorModeVorticity;
+      btnModeEl.textContent = colorModeVorticity ? "Palette Tourbillon" : "Palette Vitesse";
+      updateUI();
+    });
+
+    sliderUinEl.addEventListener('input', (e) => {
+      uInflow = parseFloat(e.target.value) / 1000.0;
+      labelUinEl.textContent = uInflow.toFixed(3);
+    });
+
+    // Verification Contract
+    window.labScenario = {
+      kind: "click",
+      selector: "#btnShock"
+    };
+
+    window.labInteractionEvidence = function() {
+      if (!shockTriggered) return null;
+      const obs = computeObservables();
+      const passed = shockTriggered && obs.uInflow >= 0.11 && obs.maxVorticity > 0.005;
+      return {
+        subject: "Hello World",
+        passed: passed,
+        mechanism: "Gust Shock Injection and Hydrodynamic Drag Momentum Surge",
+        measurements: {
+          reynolds: obs.reynolds,
+          dragForce: obs.dragForce,
+          peakShockDrag: peakShockDrag,
+          liftForce: obs.liftForce,
+          maxVorticity: obs.maxVorticity,
+          inflowSpeed: obs.uInflow
+        }
+      };
+    };
+
+    // Synchronous Pre-run on Load (establish flow field)
+    initTypographicObstacle();
+    initLattice();
+    hudBoundaryNodesEl.textContent = `NOEUDS FRONTIÈRE SOLIDE: ${solidNodeCount} PTS`;
+
+    for (let s = 0; s < 60; s++) {
+      stepLBM();
+    }
+    updateUI();
+
+    // Start Real-Time Animation Loop
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

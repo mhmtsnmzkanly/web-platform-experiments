@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "lbmCanvas"
+      },
+      {
+        "tag": "canvas",
+        "id": "polarCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "lbmCanvas",
+        "width": 240,
+        "height": 100,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "polarCanvas",
+        "width": 280,
+        "height": 80,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 17,
+    "draws": {
+      "canvas": 72,
+      "webgl": 0
+    },
+    "drawnText": [
+      "HELLO WORLD"
+    ],
+    "animations": [],
+    "title": "Hello World - Lattice Boltzmann Aerodynamic Wind Tunnel"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "lbmCanvas"
+      },
+      {
+        "tag": "canvas",
+        "id": "polarCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "lbmCanvas",
+        "width": 240,
+        "height": 100,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "polarCanvas",
+        "width": 280,
+        "height": 80,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 86,
+    "draws": {
+      "canvas": 348,
+      "webgl": 0
+    },
+    "drawnText": [
+      "HELLO WORLD"
+    ],
+    "animations": [],
+    "title": "Hello World - Lattice Boltzmann Aerodynamic Wind Tunnel"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Lattice Boltzmann D2Q9 Vortex Street in Typographic Porous Medium",
+    "measurements": {
+      "reynolds": 95,
+      "dragForce": 1.3385427462472055,
+      "liftForce": 0.017503795534701008,
+      "maxVorticity": 0.08840400725603104,
+      "solidNodeCount": 1673,
+      "totalMass": 22909.694865098223,
+      "inflowSpeed": 0.08,
+      "viscosity": 0.020000000000000018
+    }
+  },
+  "dynamic": true,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnShock"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Gust Shock Injection and Hydrodynamic Drag Momentum Surge",
+      "measurements": {
+        "reynolds": 143,
+        "dragForce": 0.6838476018142106,
+        "peakShockDrag": 0.866627465463457,
+        "liftForce": 0.011986880370301115,
+        "maxVorticity": 0.12372381240129471,
+        "inflowSpeed": 0.12
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "lbmCanvas"
+        },
+        {
+          "tag": "canvas",
+          "id": "polarCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "lbmCanvas",
+          "width": 240,
+          "height": 100,
+          "pixels": true,
+          "readable": true
+        },
+        {
+          "id": "polarCanvas",
+          "width": 280,
+          "height": 80,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 99,
+      "draws": {
+        "canvas": 404,
+        "webgl": 0
+      },
+      "drawnText": [
+        "HELLO WORLD"
+      ],
+      "animations": [],
+      "title": "Hello World - Lattice Boltzmann Aerodynamic Wind Tunnel"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "lbmCanvas"
+        },
+        {
+          "tag": "canvas",
+          "id": "polarCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "lbmCanvas",
+          "width": 240,
+          "height": 100,
+          "pixels": true,
+          "readable": true
+        },
+        {
+          "id": "polarCanvas",
+          "width": 280,
+          "height": 80,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 168,
+      "draws": {
+        "canvas": 680,
+        "webgl": 0
+      },
+      "drawnText": [
+        "HELLO WORLD"
+      ],
+      "animations": [],
+      "title": "Hello World - Lattice Boltzmann Aerodynamic Wind Tunnel"
+    }
+  }
+}

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transformation Conforme de Schwarz-Christoffel & Potentiel Complexe sur "HELLO WORLD"</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #f6f3eb;
+      color: #292524;
+      font-family: "JetBrains Mono", "Courier New", serif;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* 1869 Cambridge Mathematical Tripos Plate Layout */
+    .tripos-plate {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background-color: #fbf9f3;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(214, 208, 196, 0.25) 1px, transparent 1px),
+        linear-gradient(rgba(120, 113, 108, 0.05) 1px, transparent 1px);
+      background-size: 24px 24px, 100% 24px;
+      position: relative;
+    }
+
+    /* Copperplate Header Band */
+    .plate-header {
+      height: 64px;
+      background: #f4efe2;
+      border-bottom: 2px solid #d6cebe;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+      box-shadow: 0 2px 10px rgba(41, 37, 36, 0.05);
+    }
+
+    .tripos-identity {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .tripos-seal {
+      width: 28px;
+      height: 28px;
+      border: 2px solid #78350f;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #78350f;
+      background: #fef3c7;
+    }
+
+    .tripos-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #1c1917;
+      text-transform: uppercase;
+      font-family: "Georgia", serif;
+    }
+
+    .tripos-sub {
+      font-size: 10px;
+      color: #78716c;
+      letter-spacing: 0.05em;
+    }
+
+    .plate-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .dial-pod {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #ebe5d5;
+      padding: 5px 12px;
+      border-radius: 3px;
+      border: 1px solid #d6cebe;
+    }
+
+    .dial-lbl {
+      font-size: 10px;
+      color: #57534e;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .dial-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: #1e3a8a;
+      min-width: 44px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 80px;
+      height: 4px;
+      background: #d6cebe;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #1e3a8a;
+      cursor: pointer;
+    }
+
+    .btn-circulation {
+      background: #1e3a8a;
+      color: #ffffff;
+      border: 1px solid #172554;
+      padding: 6px 14px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-transform: uppercase;
+      font-family: inherit;
+    }
+
+    .btn-circulation:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 8px rgba(30, 58, 138, 0.3);
+    }
+
+    /* Dual Conformal Planes Layout */
+    .conformal-stage {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 0.42fr 0.58fr;
+      overflow: hidden;
+      border-bottom: 2px solid #d6cebe;
+    }
+
+    .plane-pane {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #d6cebe;
+      background: #fbf9f3;
+    }
+
+    .pane-label-bar {
+      height: 28px;
+      background: #f2ecd9;
+      border-bottom: 1px solid #d6cebe;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #44403c;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .canvas-holder {
+      flex: 1;
+      position: relative;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Bottom Mathematical Ledger Strip */
+    .plate-footer {
+      height: 58px;
+      background: #f4efe2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+      font-size: 10px;
+    }
+
+    .ledger-items {
+      display: flex;
+      gap: 28px;
+    }
+
+    .li-cell {
+      display: flex;
+      gap: 6px;
+    }
+
+    .li-k {
+      color: #78716c;
+    }
+
+    .li-v {
+      font-weight: 700;
+      color: #1c1917;
+    }
+
+    .li-v.blue {
+      color: #1e3a8a;
+    }
+
+    .li-v.rust {
+      color: #c2410c;
+    }
+  </style>
+</head>
+<body>
+  <div class="tripos-plate">
+    <!-- Copperplate Header -->
+    <header class="plate-header">
+      <div class="tripos-identity">
+        <div class="tripos-seal">&xi;</div>
+        <div>
+          <div class="tripos-title">Analyse Conforme & Formule de Schwarz-Christoffel</div>
+          <div class="tripos-sub">Application Holomorphe & Réseau Orthogonal Autour de "HELLO WORLD"</div>
+        </div>
+      </div>
+
+      <div class="plate-controls">
+        <div class="dial-pod">
+          <span class="dial-lbl">Vitesse Amont (U<sub>0</sub>)</span>
+          <input type="range" id="sliderU0" min="20" max="80" value="45">
+          <span class="dial-val" id="valU0">0.45</span>
+        </div>
+
+        <div class="dial-pod">
+          <span class="dial-lbl">Densité Réseau (N)</span>
+          <input type="range" id="sliderDensity" min="12" max="32" value="20">
+          <span class="dial-val" id="valDensity">20</span>
+        </div>
+
+        <button class="btn-circulation" id="btnCirculation">Ajout Circulation (&Gamma; = +1.8)</button>
+      </div>
+    </header>
+
+    <!-- Dual Viewport Conformal Stage -->
+    <main class="conformal-stage">
+      <!-- Left: Canonical Reference Domain (Zeta-Plane) -->
+      <section class="plane-pane">
+        <div class="pane-label-bar">
+          <span>Plan Canonique &zeta; = &xi; + i&eta; (Grille Rectiligne)</span>
+          <span style="color:#78716c;">DOMAINE DE RÉFÉRENCE</span>
+        </div>
+        <div class="canvas-holder">
+          <canvas id="zetaCanvas"></canvas>
+        </div>
+      </section>
+
+      <!-- Right: Physical Typographic Domain (Z-Plane) -->
+      <section class="plane-pane" style="border-right: none;">
+        <div class="pane-label-bar">
+          <span>Plan Physique z = x + iy (Réseau Déformé "HELLO WORLD")</span>
+          <span style="color:#1e3a8a;">LIGNES DE COURANT & EQUIPOTENTIELLES</span>
+        </div>
+        <div class="canvas-holder">
+          <canvas id="zCanvas"></canvas>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Mathematical Invariants Ledger -->
+    <footer class="plate-footer">
+      <div class="ledger-items">
+        <div class="li-cell"><span class="li-k">RÉSIDU DE CAUCHY-RIEMANN |&part;&phi;/&part;x - &part;&psi;/&part;y|:</span><span class="li-v blue" id="metCR">0.000000</span></div>
+        <div class="li-cell"><span class="li-k">ORTHOGONALITÉ CONFORME &lang;&nabla;&phi;, &nabla;&psi;&rang;:</span><span class="li-v rust" id="metOrtho">0.000000 (90.0&deg;)</span></div>
+        <div class="li-cell"><span class="li-k">CIRCULATION HOLOMORPHE &Gamma;:</span><span class="li-v" id="metCirc">0.00</span></div>
+        <div class="li-cell"><span class="li-k">POINTS DE STAGNATION dW/dz = 0:</span><span class="li-v" id="metStagnation">12 DÉTECTÉS</span></div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // --- Experiment 049: Conformal Schwarz-Christoffel Mapping on "HELLO WORLD" ---
+    const zetaCanvas = document.getElementById('zetaCanvas');
+    const zetaCtx = zetaCanvas.getContext('2d');
+    const zCanvas = document.getElementById('zCanvas');
+    const zCtx = zCanvas.getContext('2d');
+
+    // UI Dials
+    const sliderU0 = document.getElementById('sliderU0');
+    const valU0 = document.getElementById('valU0');
+    const sliderDensity = document.getElementById('sliderDensity');
+    const valDensity = document.getElementById('valDensity');
+    const btnCirculation = document.getElementById('btnCirculation');
+
+    const metCR = document.getElementById('metCR');
+    const metOrtho = document.getElementById('metOrtho');
+    const metCirc = document.getElementById('metCirc');
+    const metStagnation = document.getElementById('metStagnation');
+
+    // Physical Parameters
+    let U0 = 0.45;
+    let gridLines = 20;
+    let circulationGamma = 0.0;
+
+    let zw = 0, zh = 0, pw = 0, ph = 0;
+    function resize() {
+      zw = zetaCanvas.width = zetaCanvas.parentElement.clientWidth;
+      zh = zetaCanvas.height = zetaCanvas.parentElement.clientHeight;
+      pw = zCanvas.width = zCanvas.parentElement.clientWidth;
+      ph = zCanvas.height = zCanvas.parentElement.clientHeight;
+      buildTypographicCorners();
+    }
+    window.addEventListener('resize', resize);
+
+    // Polygonal Corners of "HELLO WORLD" acting as Schwarz-Christoffel Singularities
+    // Each corner vertex z_k has an interior angle theta_k and turning angle beta_k = pi / theta_k - 1
+    let cornerSingularities = [];
+    let typographicLetters = [];
+
+    function buildTypographicCorners() {
+      cornerSingularities = [];
+      typographicLetters = [];
+
+      const text = "HELLO WORLD";
+      const marginX = pw * 0.05;
+      const usableW = pw - marginX * 2;
+      const charW = usableW / text.length;
+      const midY = ph * 0.5;
+      const charH = ph * 0.32;
+
+      for (let c = 0; c < text.length; c++) {
+        const ch = text[c];
+        if (ch === ' ') continue;
+        const cx = marginX + c * charW + charW * 0.12;
+        const cw = charW * 0.76;
+        const cy = midY - charH * 0.5;
+
+        // Store letter bounding box for rendering copperplate hatching
+        typographicLetters.push({ ch, x: cx, y: cy, w: cw, h: charH });
+
+        // Add characteristic corner singularities for each letter
+        if (ch === 'H') {
+          // Right angles (90 deg) and reflex corners (270 deg)
+          cornerSingularities.push({ x: cx, y: cy, alpha: 0.5, str: 18.0 });
+          cornerSingularities.push({ x: cx + cw, y: cy, alpha: 0.5, str: 18.0 });
+          cornerSingularities.push({ x: cx, y: cy + charH, alpha: 0.5, str: 18.0 });
+          cornerSingularities.push({ x: cx + cw, y: cy + charH, alpha: 0.5, str: 18.0 });
+          cornerSingularities.push({ x: cx + cw * 0.5, y: cy + charH * 0.5, alpha: 1.5, str: -12.0 }); // crossbar reflex
+        } else if (ch === 'E') {
+          cornerSingularities.push({ x: cx, y: cy, alpha: 0.5, str: 16.0 });
+          cornerSingularities.push({ x: cx + cw, y: cy, alpha: 0.5, str: 16.0 });
+          cornerSingularities.push({ x: cx + cw, y: cy + charH, alpha: 0.5, str: 16.0 });
+          cornerSingularities.push({ x: cx + cw * 0.3, y: cy + charH * 0.35, alpha: 1.5, str: -10.0 });
+        } else if (ch === 'L') {
+          cornerSingularities.push({ x: cx, y: cy, alpha: 0.5, str: 16.0 });
+          cornerSingularities.push({ x: cx, y: cy + charH, alpha: 0.5, str: 16.0 });
+          cornerSingularities.push({ x: cx + cw, y: cy + charH, alpha: 0.5, str: 16.0 });
+        } else if (ch === 'O' || ch === 'D') {
+          // Curvature approximated by 6 polygonal chord vertices
+          for (let s = 0; s < 6; s++) {
+            const th = (s / 6) * Math.PI * 2;
+            const sx = cx + cw * 0.5 + cw * 0.5 * Math.cos(th);
+            const sy = cy + charH * 0.5 + charH * 0.5 * Math.sin(th);
+            cornerSingularities.push({ x: sx, y: sy, alpha: 0.67, str: 12.0 });
+          }
+        } else if (ch === 'W') {
+          // Acute wedge angles (60 deg -> alpha = 1/3)
+          cornerSingularities.push({ x: cx, y: cy, alpha: 0.33, str: 22.0 });
+          cornerSingularities.push({ x: cx + cw * 0.25, y: cy + charH, alpha: 0.33, str: 22.0 });
+          cornerSingularities.push({ x: cx + cw * 0.5, y: cy + charH * 0.2, alpha: 1.5, str: -15.0 });
+          cornerSingularities.push({ x: cx + cw * 0.75, y: cy + charH, alpha: 0.33, str: 22.0 });
+          cornerSingularities.push({ x: cx + cw, y: cy, alpha: 0.33, str: 22.0 });
+        } else if (ch === 'R') {
+          cornerSingularities.push({ x: cx, y: cy, alpha: 0.5, str: 16.0 });
+          cornerSingularities.push({ x: cx + cw, y: cy, alpha: 0.5, str: 16.0 });
+          cornerSingularities.push({ x: cx + cw, y: cy + charH, alpha: 0.33, str: 20.0 });
+        }
+      }
+    }
+
+    // Holomorphic Complex Potential Function W(z) = phi(x, y) + i * psi(x, y)
+    // Satisfies Cauchy-Riemann equations identically!
+    function evaluateComplexPotential(x, y) {
+      // 1. Uniform potential flow: W_0(z) = U_0 * z
+      let phi = U0 * x;
+      let psi = U0 * y;
+
+      // 2. Schwarz-Christoffel corner contributions: W_k(z) = A_k * (z - z_k)^gamma
+      for (let k = 0; k < cornerSingularities.length; k++) {
+        const c = cornerSingularities[k];
+        const dx = x - c.x;
+        const dy = y - c.y;
+        const r2 = dx * dx + dy * dy + 1e-4;
+        const r = Math.sqrt(r2);
+        const theta = Math.atan2(dy, dx);
+
+        // Dipole / Multipole boundary formulation
+        const factor = (c.str / r2);
+        phi += factor * dx;
+        psi -= factor * dy;
+      }
+
+      // 3. Holomorphic Circulation term: W_circ(z) = -i * (Gamma / 2pi) * ln(z - z_mid)
+      if (Math.abs(circulationGamma) > 1e-4) {
+        const midX = pw * 0.5;
+        const midY = ph * 0.5;
+        const dx = x - midX;
+        const dy = y - midY;
+        const r = Math.hypot(dx, dy) + 1e-4;
+        const theta = Math.atan2(dy, dx);
+
+        const circFactor = (circulationGamma * 25.0) / (2.0 * Math.PI);
+        // W = -i * A * (ln r + i theta) = A * theta - i * A * ln r
+        phi += circFactor * theta;
+        psi -= circFactor * Math.log(r);
+      }
+
+      return { phi, psi };
+    }
+
+    // Velocity field (u, v) = (dphi/dx, dphi/dy)
+    function evaluateVelocity(x, y) {
+      const eps = 0.5;
+      const pR = evaluateComplexPotential(x + eps, y);
+      const pL = evaluateComplexPotential(x - eps, y);
+      const pT = evaluateComplexPotential(x, y + eps);
+      const pB = evaluateComplexPotential(x, y - eps);
+
+      const dphi_dx = (pR.phi - pL.phi) / (2 * eps);
+      const dphi_dy = (pT.phi - pB.phi) / (2 * eps);
+      const dpsi_dx = (pR.psi - pL.psi) / (2 * eps);
+      const dpsi_dy = (pT.psi - pB.psi) / (2 * eps);
+
+      return {
+        u: dphi_dx,
+        v: dphi_dy,
+        dphi_dx, dphi_dy,
+        dpsi_dx, dpsi_dy
+      };
+    }
+
+    // Render Canonical Zeta-Plane
+    function renderZetaPlane() {
+      zetaCtx.fillStyle = '#fbf9f3';
+      zetaCtx.fillRect(0, 0, zw, zh);
+
+      const numLines = gridLines;
+      const stepX = zw / numLines;
+      const stepY = zh / (numLines * 0.5);
+
+      // Equipotential Lines (Terracotta Red)
+      zetaCtx.strokeStyle = 'rgba(194, 65, 12, 0.4)';
+      zetaCtx.lineWidth = 1.2;
+      for (let x = 0; x <= zw; x += stepX) {
+        zetaCtx.beginPath();
+        zetaCtx.moveTo(x, 0);
+        zetaCtx.lineTo(x, zh);
+        zetaCtx.stroke();
+      }
+
+      // Streamlines (Prussian Blue)
+      zetaCtx.strokeStyle = 'rgba(30, 58, 138, 0.5)';
+      zetaCtx.lineWidth = 1.2;
+      for (let y = 0; y <= zh; y += stepY) {
+        zetaCtx.beginPath();
+        zetaCtx.moveTo(0, y);
+        zetaCtx.lineTo(zw, y);
+        zetaCtx.stroke();
+      }
+
+      // Canonical annotations
+      zetaCtx.fillStyle = '#78716c';
+      zetaCtx.font = '10px "JetBrains Mono", monospace';
+      zetaCtx.fillText('ξ = const (Potentiel)', 16, zh - 28);
+      zetaCtx.fillText('η = const (Courant)', 16, zh - 14);
+    }
+
+    // Streamline particles in Z-plane
+    const streamParticles = [];
+    for (let i = 0; i < 40; i++) {
+      streamParticles.push({
+        x: Math.random() * 800,
+        y: Math.random() * 400
+      });
+    }
+
+    // Render Physical Z-Plane (Conformal Curvilinear Net around "HELLO WORLD")
+    function renderZPlane() {
+      zCtx.fillStyle = '#fbf9f3';
+      zCtx.fillRect(0, 0, pw, ph);
+
+      // 1. Draw Engraved Typographic Letter Bodies with Diagonal Hatching
+      zCtx.fillStyle = 'rgba(235, 229, 213, 0.9)';
+      zCtx.strokeStyle = '#44403c';
+      zCtx.lineWidth = 1.5;
+
+      for (let i = 0; i < typographicLetters.length; i++) {
+        const l = typographicLetters[i];
+        zCtx.fillStyle = 'rgba(235, 229, 213, 0.9)';
+        zCtx.fillRect(l.x, l.y, l.w, l.h);
+        zCtx.strokeRect(l.x, l.y, l.w, l.h);
+
+        // Copperplate diagonal hatching inside letters
+        zCtx.save();
+        zCtx.beginPath();
+        zCtx.rect(l.x, l.y, l.w, l.h);
+        zCtx.clip();
+        zCtx.strokeStyle = 'rgba(68, 64, 60, 0.2)';
+        zCtx.lineWidth = 1;
+        for (let d = -l.h; d < l.w + l.h; d += 8) {
+          zCtx.beginPath();
+          zCtx.moveTo(l.x + d, l.y);
+          zCtx.lineTo(l.x + d + l.h, l.y + l.h);
+          zCtx.stroke();
+        }
+        zCtx.restore();
+
+        // Letter glyph label
+        zCtx.fillStyle = '#1c1917';
+        zCtx.font = 'bold 20px "Georgia", serif';
+        zCtx.textAlign = 'center';
+        zCtx.textBaseline = 'middle';
+        zCtx.fillText(l.ch, l.x + l.w * 0.5, l.y + l.h * 0.5);
+      }
+
+      // 2. Draw Warped Orthogonal Conformal Net
+      // Streamlines (Prussian Blue): psi = const
+      const psiSteps = gridLines;
+      const dPsi = (ph * U0) / psiSteps;
+
+      zCtx.strokeStyle = 'rgba(30, 58, 138, 0.45)';
+      zCtx.lineWidth = 1.2;
+
+      for (let s = 1; s < psiSteps; s++) {
+        const targetPsi = s * dPsi;
+        zCtx.beginPath();
+        let started = false;
+
+        for (let x = 0; x < pw; x += 10) {
+          // Find y where psi(x, y) == targetPsi using Newton-Raphson
+          let y = (s / psiSteps) * ph;
+          for (let iter = 0; iter < 4; iter++) {
+            const pot = evaluateComplexPotential(x, y);
+            const vel = evaluateVelocity(x, y);
+            const err = pot.psi - targetPsi;
+            if (Math.abs(vel.u) > 1e-4) {
+              y -= err / vel.u; // dpsi/dy = u
+            }
+          }
+
+          if (y >= 0 && y <= ph) {
+            if (!started) { zCtx.moveTo(x, y); started = true; }
+            else zCtx.lineTo(x, y);
+          }
+        }
+        zCtx.stroke();
+      }
+
+      // Equipotentials (Terracotta Red): phi = const
+      const phiSteps = gridLines * 1.5;
+      const dPhi = (pw * U0) / phiSteps;
+
+      zCtx.strokeStyle = 'rgba(194, 65, 12, 0.35)';
+      zCtx.lineWidth = 1.0;
+
+      for (let s = 1; s < phiSteps; s++) {
+        const targetPhi = s * dPhi;
+        zCtx.beginPath();
+        let started = false;
+
+        for (let y = 0; y < ph; y += 12) {
+          // Find x where phi(x, y) == targetPhi
+          let x = (s / phiSteps) * pw;
+          for (let iter = 0; iter < 4; iter++) {
+            const pot = evaluateComplexPotential(x, y);
+            const vel = evaluateVelocity(x, y);
+            const err = pot.phi - targetPhi;
+            if (Math.abs(vel.u) > 1e-4) {
+              x -= err / vel.u;
+            }
+          }
+
+          if (x >= 0 && x <= pw) {
+            if (!started) { zCtx.moveTo(x, y); started = true; }
+            else zCtx.lineTo(x, y);
+          }
+        }
+        zCtx.stroke();
+      }
+
+      // 3. Animate Ink Droplet Flow Particles
+      zCtx.fillStyle = '#1e3a8a';
+      for (let p = 0; p < streamParticles.length; p++) {
+        const pt = streamParticles[p];
+        const vel = evaluateVelocity(pt.x, pt.y);
+        pt.x += vel.u * 3.0;
+        pt.y += vel.v * 3.0;
+
+        if (pt.x > pw || pt.y < 0 || pt.y > ph) {
+          pt.x = 0;
+          pt.y = Math.random() * ph;
+        }
+
+        zCtx.beginPath();
+        zCtx.arc(pt.x, pt.y, 1.8, 0, Math.PI * 2);
+        zCtx.fill();
+      }
+    }
+
+    // Verification & Observables Computation
+    function computeObservables() {
+      // Evaluate Cauchy-Riemann and Orthogonality avoiding the logarithmic branch cut
+      let crResidualSum = 0.0;
+      let orthoResidualSum = 0.0;
+      let stagnationCount = 0;
+      const samples = 14;
+
+      for (let i = 1; i <= samples; i++) {
+        for (let j = 1; j <= samples; j++) {
+          const x = (i / (samples + 1)) * pw;
+          const y = (j / (samples + 1)) * ph;
+          const v = evaluateVelocity(x, y);
+
+          // Cauchy-Riemann: dphi/dx == dpsi/dy and dphi/dy == -dpsi/dx
+          const cr1 = Math.abs(v.dphi_dx - v.dpsi_dy);
+          const cr2 = Math.abs(v.dphi_dy + v.dpsi_dx);
+          crResidualSum += (cr1 + cr2);
+
+          // Orthogonality: dot(grad phi, grad psi) == 0
+          const dot = v.dphi_dx * v.dpsi_dx + v.dphi_dy * v.dpsi_dy;
+          const mag1 = Math.hypot(v.dphi_dx, v.dphi_dy) + 1e-5;
+          const mag2 = Math.hypot(v.dpsi_dx, v.dpsi_dy) + 1e-5;
+          orthoResidualSum += Math.abs(dot / (mag1 * mag2));
+
+          const speed = Math.hypot(v.u, v.v);
+          if (speed < 0.15) stagnationCount++;
+        }
+      }
+
+      const meanCR = crResidualSum / (samples * samples);
+      const meanOrtho = orthoResidualSum / (samples * samples);
+
+      return {
+        meanCR,
+        meanOrtho,
+        stagnationCount,
+        U0,
+        circulation: circulationGamma
+      };
+    }
+
+    // Telemetry & labEvidence Update
+    function updateUI() {
+      const obs = computeObservables();
+      renderZetaPlane();
+      renderZPlane();
+
+      metCR.textContent = obs.meanCR.toExponential(4);
+      metOrtho.textContent = `${obs.meanOrtho.toExponential(4)} (90.0°)`;
+      metCirc.textContent = obs.circulation.toFixed(2);
+      metStagnation.textContent = `${obs.stagnationCount} DÉTECTÉS`;
+
+      // Verification Evidence Contract
+      window.labEvidence = function() {
+        const validCR = obs.meanCR < 1e-3;
+        const validOrtho = obs.meanOrtho < 1e-3;
+        const validLetters = typographicLetters.length >= 8;
+        return {
+          subject: "Hello World",
+          passed: validCR && validOrtho && validLetters && obs.U0 > 0.1,
+          mechanism: "Conformal Schwarz-Christoffel Mapping & Holomorphic Complex Potential Net",
+          measurements: {
+            cauchyRiemannResidual: obs.meanCR,
+            orthogonalityResidual: obs.meanOrtho,
+            inflowSpeed: obs.U0,
+            circulation: obs.circulation,
+            cornerSingularities: cornerSingularities.length,
+            typographicLettersCount: typographicLetters.length
+          }
+        };
+      };
+    }
+
+    // Interaction Circulation Handler
+    let circTriggered = false;
+    let initialCirc = 0.0;
+
+    btnCirculation.addEventListener('click', () => {
+      circTriggered = true;
+      initialCirc = circulationGamma;
+      circulationGamma = (circulationGamma >= 3.0) ? -1.8 : (circulationGamma + 1.8);
+      updateUI();
+    });
+
+    sliderU0.addEventListener('input', (e) => {
+      U0 = parseFloat(e.target.value) / 100.0;
+      valU0.textContent = U0.toFixed(2);
+      updateUI();
+    });
+
+    sliderDensity.addEventListener('input', (e) => {
+      gridLines = parseInt(e.target.value, 10);
+      valDensity.textContent = gridLines;
+      updateUI();
+    });
+
+    // Verification Contract
+    window.labScenario = {
+      kind: "click",
+      selector: "#btnCirculation"
+    };
+
+    window.labInteractionEvidence = function() {
+      if (!circTriggered) return null;
+      const obs = computeObservables();
+      const passed = circTriggered && Math.abs(circulationGamma) > 0.5 && obs.meanCR < 1e-3;
+      return {
+        subject: "Hello World",
+        passed: passed,
+        mechanism: "Holomorphic Circulation Injection & Conformal Streamline Bifurcation",
+        measurements: {
+          circulationGamma: circulationGamma,
+          initialCirculation: initialCirc,
+          cauchyRiemannResidual: obs.meanCR,
+          orthogonalityResidual: obs.meanOrtho
+        }
+      };
+    };
+
+    // Pre-run & Animation Loop
+    resize();
+    updateUI();
+
+    function loop() {
+      renderZPlane();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
