@@ -1,0 +1,376 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "transportCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "transportCanvas",
+        "width": 720,
+        "height": 440,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 1297,
+      "webgl": 0
+    },
+    "drawnText": [
+      "H",
+      "10.2% / 10.6%",
+      "w=10780",
+      "E",
+      "9.7% / 9.7%",
+      "w=3902",
+      "L",
+      "6.4% / 6.5%",
+      "w=-9597",
+      "L",
+      "6.6% / 6.5%",
+      "w=-15324",
+      "O",
+      "11.5% / 11.5%",
+      "w=-12325",
+      "W",
+      "15.2% / 15.2%",
+      "w=24457",
+      "O",
+      "11.3% / 11.5%",
+      "w=15117",
+      "R",
+      "10.7% / 10.6%",
+      "w=2600",
+      "L",
+      "6.8% / 6.5%",
+      "w=-9716",
+      "D",
+      "11.5% / 11.5%",
+      "w=-9896"
+    ],
+    "animations": [],
+    "title": "037 — Semi-Discrete Optimal Transport & Monge-Ampère Power Diagram"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "transportCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "transportCanvas",
+        "width": 720,
+        "height": 440,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 1297,
+      "webgl": 0
+    },
+    "drawnText": [
+      "H",
+      "10.2% / 10.6%",
+      "w=10780",
+      "E",
+      "9.7% / 9.7%",
+      "w=3902",
+      "L",
+      "6.4% / 6.5%",
+      "w=-9597",
+      "L",
+      "6.6% / 6.5%",
+      "w=-15324",
+      "O",
+      "11.5% / 11.5%",
+      "w=-12325",
+      "W",
+      "15.2% / 15.2%",
+      "w=24457",
+      "O",
+      "11.3% / 11.5%",
+      "w=15117",
+      "R",
+      "10.7% / 10.6%",
+      "w=2600",
+      "L",
+      "6.8% / 6.5%",
+      "w=-9716",
+      "D",
+      "11.5% / 11.5%",
+      "w=-9896"
+    ],
+    "animations": [],
+    "title": "037 — Semi-Discrete Optimal Transport & Monge-Ampère Power Diagram"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Semi-Discrete Optimal Transport & Monge-Ampère Power Diagram",
+    "measurements": {
+      "totalArea": 316800,
+      "cellAreaSum": 316800,
+      "areaConservationRatio": 1,
+      "maxRelativeDefect": 0.05838383838383832,
+      "wasserstein2Distance": 2254431920,
+      "dualEnergy": 2299289601.414349,
+      "iterationCount": 35,
+      "cellCount": 10,
+      "targetAreas": [
+        33577.8801843318,
+        30658.064516129034,
+        20438.709677419356,
+        20438.709677419356,
+        36497.69585253456,
+        48176.958525345624,
+        36497.69585253456,
+        33577.8801843318,
+        20438.709677419356,
+        36497.69585253456
+      ],
+      "actualAreas": [
+        32384,
+        30672,
+        20304,
+        21056,
+        36448,
+        48080,
+        35712,
+        34032,
+        21632,
+        36480
+      ]
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnEquilibrate"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Damped Newton-Raphson Monge-Ampère Dual Energy Minimization",
+      "measurements": {
+        "totalArea": 316800,
+        "cellAreaSum": 316800,
+        "areaConservationRatio": 1,
+        "maxRelativeDefect": 0.04729797979797985,
+        "wasserstein2Distance": 2283647200,
+        "iterationCount": 65,
+        "cellCount": 10
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "transportCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "transportCanvas",
+          "width": 720,
+          "height": 440,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 2594,
+        "webgl": 0
+      },
+      "drawnText": [
+        "H",
+        "10.2% / 10.6%",
+        "w=10780",
+        "E",
+        "9.7% / 9.7%",
+        "w=3902",
+        "L",
+        "6.4% / 6.5%",
+        "w=-9597",
+        "L",
+        "6.6% / 6.5%",
+        "w=-15324",
+        "O",
+        "11.5% / 11.5%",
+        "w=-12325",
+        "W",
+        "15.2% / 15.2%",
+        "w=24457",
+        "O",
+        "11.3% / 11.5%",
+        "w=15117",
+        "R",
+        "10.7% / 10.6%",
+        "w=2600",
+        "L",
+        "6.8% / 6.5%",
+        "w=-9716",
+        "D",
+        "11.5% / 11.5%",
+        "w=-9896",
+        "H",
+        "10.7% / 10.6%",
+        "w=12222",
+        "E",
+        "9.7% / 9.7%",
+        "w=4359",
+        "L",
+        "6.2% / 6.5%",
+        "w=-9778",
+        "L",
+        "6.7% / 6.5%",
+        "w=-16110",
+        "O",
+        "11.5% / 11.5%",
+        "w=-13211",
+        "W",
+        "15.0% / 15.2%",
+        "w=25689",
+        "O",
+        "11.6% / 11.5%",
+        "w=15720",
+        "R",
+        "10.7% / 10.6%",
+        "w=2472",
+        "L",
+        "6.1% / 6.5%",
+        "w=-10626",
+        "D",
+        "11.8% / 11.5%",
+        "w=-10736"
+      ],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 66.61999999895917,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 66.61999999895917,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 33.207999999999906,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "037 — Semi-Discrete Optimal Transport & Monge-Ampère Power Diagram"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "transportCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "transportCanvas",
+          "width": 720,
+          "height": 440,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 2594,
+        "webgl": 0
+      },
+      "drawnText": [
+        "H",
+        "10.2% / 10.6%",
+        "w=10780",
+        "E",
+        "9.7% / 9.7%",
+        "w=3902",
+        "L",
+        "6.4% / 6.5%",
+        "w=-9597",
+        "L",
+        "6.6% / 6.5%",
+        "w=-15324",
+        "O",
+        "11.5% / 11.5%",
+        "w=-12325",
+        "W",
+        "15.2% / 15.2%",
+        "w=24457",
+        "O",
+        "11.3% / 11.5%",
+        "w=15117",
+        "R",
+        "10.7% / 10.6%",
+        "w=2600",
+        "L",
+        "6.8% / 6.5%",
+        "w=-9716",
+        "D",
+        "11.5% / 11.5%",
+        "w=-9896",
+        "H",
+        "10.7% / 10.6%",
+        "w=12222",
+        "E",
+        "9.7% / 9.7%",
+        "w=4359",
+        "L",
+        "6.2% / 6.5%",
+        "w=-9778",
+        "L",
+        "6.7% / 6.5%",
+        "w=-16110",
+        "O",
+        "11.5% / 11.5%",
+        "w=-13211",
+        "W",
+        "15.0% / 15.2%",
+        "w=25689",
+        "O",
+        "11.6% / 11.5%",
+        "w=15720",
+        "R",
+        "10.7% / 10.6%",
+        "w=2472",
+        "L",
+        "6.1% / 6.5%",
+        "w=-10626",
+        "D",
+        "11.8% / 11.5%",
+        "w=-10736"
+      ],
+      "animations": [],
+      "title": "037 — Semi-Discrete Optimal Transport & Monge-Ampère Power Diagram"
+    }
+  }
+}

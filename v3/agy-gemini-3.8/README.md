@@ -2,7 +2,7 @@
 
 [Repository index](../../README.md) · [Version prompt](../PROMPT.md)
 
-**30 base experiments** · 30 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
+**40 base experiments** · 40 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
 
 Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinished.
 
@@ -185,4 +185,64 @@ Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinishe
 [Demo](030/030.html) · [Report](030/report.md) · [Journal](030/journal.md) · [Screenshot](030/screenshot.png)
 
 ![Experiment 030](030/screenshot.png)
+
+## 031 — Experiment Report: 031 — Discrete Differential Geometry & Geodesic Heat Method on Typographic Mesh
+
+[Demo](031/031.html) · [Report](031/report.md) · [Journal](031/journal.md) · [Screenshot](031/screenshot.png)
+
+![Experiment 031](031/screenshot.png)
+
+## 032 — Experiment Report: 032 — Karplus-Strong Waveguide Acoustic Network & Modal Typographic Resonator
+
+[Demo](032/032.html) · [Report](032/report.md) · [Journal](032/journal.md) · [Screenshot](032/screenshot.png)
+
+![Experiment 032](032/screenshot.png)
+
+## 033 — Experiment Report: 033 — Cellular Potts Model & Biological Morphogenesis of Typographic Tissue
+
+[Demo](033/033.html) · [Report](033/report.md) · [Journal](033/journal.md) · [Screenshot](033/screenshot.png)
+
+![Experiment 033](033/screenshot.png)
+
+## 034 — Experiment Report: 034 — Discrete Exterior Calculus & Hodge-Helmholtz Decomposition
+
+[Demo](034/034.html) · [Report](034/report.md) · [Journal](034/journal.md) · [Screenshot](034/screenshot.png)
+
+![Experiment 034](034/screenshot.png)
+
+## 035 — Experiment Report: 035 — Discrete-Time Quantum Walk & Anderson Localization
+
+[Demo](035/035.html) · [Report](035/report.md) · [Journal](035/journal.md) · [Screenshot](035/screenshot.png)
+
+![Experiment 035](035/screenshot.png)
+
+## 036 — Experiment Report: 036 — Ising Model Spin Glass & Simulated Annealing
+
+[Demo](036/036.html) · [Report](036/report.md) · [Journal](036/journal.md) · [Screenshot](036/screenshot.png)
+
+![Experiment 036](036/screenshot.png)
+
+## 037 — Experiment Report: 037 — Semi-Discrete Optimal Transport & Monge-Ampère Power Diagram
+
+[Demo](037/037.html) · [Report](037/report.md) · [Journal](037/journal.md) · [Screenshot](037/screenshot.png)
+
+![Experiment 037](037/screenshot.png)
+
+## 038 — Experiment Report: 038 — Weakly Compressible SPH Fluid Flow over Typographic Obstacles
+
+[Demo](038/038.html) · [Report](038/report.md) · [Journal](038/journal.md) · [Screenshot](038/screenshot.png)
+
+![Experiment 038](038/screenshot.png)
+
+## 039 — Experiment Report: 039 — Polyhedral Rigid Body Contact Manifolds & SAT Sequential Impulse Dynamics
+
+[Demo](039/039.html) · [Report](039/report.md) · [Journal](039/journal.md) · [Screenshot](039/screenshot.png)
+
+![Experiment 039](039/screenshot.png)
+
+## 040 — Experiment Report: 040 — Lie Group SE(2) Differential Kinematics & Manipulator Spline Tracing
+
+[Demo](040/040.html) · [Report](040/report.md) · [Journal](040/journal.md) · [Screenshot](040/screenshot.png)
+
+![Experiment 040](040/screenshot.png)
 

@@ -1,0 +1,345 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "crtCanvas"
+      },
+      {
+        "tag": "canvas",
+        "id": "netCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "crtCanvas",
+        "width": 274,
+        "height": 274,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "netCanvas",
+        "width": 520,
+        "height": 280,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 533,
+      "webgl": 0
+    },
+    "drawnText": [
+      "WILLIAMS TUBE F-1",
+      "STORE: 120 BITS",
+      "H",
+      "E",
+      "L",
+      "L",
+      "O",
+      " ",
+      "W",
+      "O",
+      "R",
+      "L"
+    ],
+    "animations": [],
+    "title": "036 — Ising Model Spin Glass & Simulated Annealing"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "crtCanvas"
+      },
+      {
+        "tag": "canvas",
+        "id": "netCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "crtCanvas",
+        "width": 274,
+        "height": 274,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "netCanvas",
+        "width": 520,
+        "height": 280,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 533,
+      "webgl": 0
+    },
+    "drawnText": [
+      "WILLIAMS TUBE F-1",
+      "STORE: 120 BITS",
+      "H",
+      "E",
+      "L",
+      "L",
+      "O",
+      " ",
+      "W",
+      "O",
+      "R",
+      "L"
+    ],
+    "animations": [],
+    "title": "036 — Ising Model Spin Glass & Simulated Annealing"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Ising Model Spin Glass & Simulated Annealing with Typographic Frustration",
+    "measurements": {
+      "latticeEnergy": -170,
+      "unsatisfiedBonds": 19,
+      "totalBonds": 208,
+      "frustrationIndex": 0.09134615384615384,
+      "magnetization": 0.16666666666666666,
+      "edwardsAndersonOrder": 1,
+      "temperature": 0.1,
+      "spinCount": 120,
+      "clusters": 10
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnAnneal"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Simulated Annealing Convergence to Frustrated Typographic Spin Glass Ground State",
+      "measurements": {
+        "latticeEnergy": -158,
+        "unsatisfiedBonds": 25,
+        "totalBonds": 208,
+        "frustrationIndex": 0.1201923076923077,
+        "magnetization": 0.11666666666666667,
+        "edwardsAndersonOrder": 0.23912760416666667,
+        "temperature": 1.2659135273154642,
+        "spinCount": 120,
+        "clusters": 10
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "crtCanvas"
+        },
+        {
+          "tag": "canvas",
+          "id": "netCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "crtCanvas",
+          "width": 274,
+          "height": 274,
+          "pixels": true,
+          "readable": true
+        },
+        {
+          "id": "netCanvas",
+          "width": 520,
+          "height": 280,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 6929,
+        "webgl": 0
+      },
+      "drawnText": [
+        "WILLIAMS TUBE F-1",
+        "STORE: 120 BITS",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        " ",
+        "W",
+        "O",
+        "R",
+        "L",
+        "WILLIAMS TUBE F-1",
+        "STORE: 120 BITS",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        " ",
+        "W",
+        "O",
+        "R",
+        "L",
+        "WILLIAMS TUBE F-1",
+        "STORE: 120 BITS",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        " ",
+        "W",
+        "O",
+        "R",
+        "L",
+        "WILLIAMS TUBE F-1",
+        "STORE: 120 BITS",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        " ",
+        "W",
+        "O",
+        "R",
+        "L",
+        "WILLIAMS TUBE F-1",
+        "STORE: 120 BITS",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        " ",
+        "W",
+        "O",
+        "R",
+        "L",
+        "WILLIAMS TUBE F-1",
+        "STORE: 120 BITS",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        " ",
+        "W",
+        "O",
+        "R",
+        "L",
+        "WILLIAMS TUBE F-1",
+        "STORE: 120 BITS",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        " ",
+        "W",
+        "O",
+        "R",
+        "L",
+        "WILLIAMS TUBE F-1",
+        "STORE: 120 BITS",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        " ",
+        "W",
+        "O",
+        "R",
+        "L",
+        "WILLIAMS TUBE F-1",
+        "STORE: 120 BITS",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        " ",
+        "W",
+        "O",
+        "R",
+        "L",
+        "WILLIAMS TUBE F-1",
+        "STORE: 120 BITS",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        " ",
+        "W",
+        "O",
+        "R",
+        "L",
+        "WILLIAMS TUBE F-1",
+        "STORE: 120 BITS",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        " ",
+        "W",
+        "O",
+        "R",
+        "L",
+        "WILLIAMS TUBE F-1",
+        "STORE: 120 BITS",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        " ",
+        "W",
+        "O",
+        "R",
+        "L",
+        "WILLIAMS TUBE F-1",
+        "STORE: 120 BITS",
+        "H",
+        "E",
+        "L",
+        "L",
+        "O",
+        " ",
+        "W",
+        "O",
+        "R",
+        "L"
+      ],
+      "animations": [],
+      "title": "036 — Ising Model Spin Glass & Simulated Annealing"
+    },
+    "late": null
+  }
+}

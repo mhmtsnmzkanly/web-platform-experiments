@@ -42,7 +42,11 @@
 - Discrete symplectic torus diffeomorphism (Arnold's Cat Map $A \in SL_2(\mathbb{Z}/64\mathbb{Z})$), exact measure preservation ($\det A = 1$), strict mass conservation, positive Lyapunov exponent ($\lambda = 0.9624\text{ nats}$), exact 48-step Poincaré recurrence theorem, and 1963 MIT TX-2 vector CRT display simulation
 - Analytical rigid-body rotational mechanics, 3D inertia tensor Jacobi diagonalization ($I_1 < I_2 < I_3$), Euler equations with RK4 quaternion integration, Poinsot inertia ellipsoid geometry with polhode rolling on invariable plane, and Dzhanibekov intermediate-axis hyperbolic instability
 - Aperiodic Penrose P2 tiling, Robinson golden triangle inflation/deflation grammar, exact Golden Ratio area invariant ($\phi = 1.61803399$), Conway circular matching arc validation, and Vienna Secession 1903 gold mosaic rendering
-- Non-linear integrable Toda lattice, solitary wave packet (soliton) dynamics, Flaschka-Lax pair tridiagonal matrix representation, exact isospectral eigenvalue conservation ($\Delta\lambda/\lambda < 10^{-10}$), and Japanese Edo-period Ukiyo-e woodblock print rendering
+- Discrete Exterior Calculus (DEC), simplicial mesh coboundary operators $\mathbf{d}_0, \mathbf{d}_1$, circumcentric dual Hodge stars $*_0, *_1, *_2$, discrete codifferentials $\boldsymbol{\delta}_1, \boldsymbol{\delta}_2$, exact coboundary nilpotence ($\mathbf{d}_1 \mathbf{d}_0 \equiv 0$), Hodge-Helmholtz 3-way orthogonal decomposition $\omega = \mathbf{d}\alpha + \boldsymbol{\delta}\beta + h$, and topological first Betti number / de Rham cohomology calculation
+- Discrete-Time Quantum Walk (DTQW), spin-1/2 spinor state $\Psi(x) \in \mathbb{C}^2$, Hadamard coin operator $\hat{C}$, on-site quasi-periodic phase disorder $\hat{U}_\phi = \exp(i W V(x))$, Anderson wavepacket localization, dynamic Inverse Participation Ratio (IPR), exact unitary norm conservation ($|1 - \sum P(x)| \le 10^{-14}$), and spatiotemporal $(x,t)$ interference waterfall
+- 2D Ising spin glass, geometrically frustrated bond network ($N=120, M=208$) from typographic letter loops and bigram parities, Glauber Monte Carlo thermal annealing schedule $T(t)$, exact Hamiltonian energy $E = -\sum J_{ij}s_i s_j$, Edwards-Anderson spin glass order parameter $q_{\text{EA}}$, residual topological frustration index $f$, and 1956 Manchester Mark 1 Williams-Kilburn electrostatic tube & Creed teleprinter tape
+- Semi-discrete optimal transport, Laguerre Voronoi power diagram, Monge-Ampère dual energy minimization, damped Newton-Raphson weight solver, causal glyph stroke mass fractions, exact area preservation $\sum \text{Area}_i \equiv \text{Area}_{\text{total}}$, 2-Wasserstein transport distance $W_2^2$, and 1923 Bauhaus Weimar geometric constructivism
+- Weakly Compressible Smoothed Particle Hydrodynamics (WCSPH), Monaghan 2D cubic spline smoothing kernel, non-linear Tait equation of state $p = B[(\rho/\rho_0)^\gamma - 1]$, Monaghan artificial viscosity, typographic solid obstacle pier deflections, exact fluid mass conservation ($0.000\%$ error), live kinetic/potential energy tracking, and 1908 Royal Naval hydrodynamic flume drafting aesthetic
 
 ## Mechanism Lineage
 - 001: Parametric spline vertices → harmonic tensor field → normal curvature displacement → realtime arc length integration
@@ -75,6 +79,14 @@
 - 028: 10 character masses of "HELLO WORLD" (M = 10.19 kg) → 3D inertia tensor Jacobi diagonalization (I₁=12.11, I₂=83.77, I₃=85.34) → Euler rigid body equations → exact kinetic energy & angular momentum conservation → Dzhanibekov intermediate-axis instability flip → Poinsot ellipsoid rolling on invariable plane
 - 029: 10 decagonal star sectors of "HELLO WORLD" → Robinson golden triangle substitution grammar → exact Golden Ratio area proportions (Area_kite / Area_dart = φ) → Conway circular matching arcs → 5-fold aperiodic quasicrystal mosaic
 - 030: 10 lattice sites initialized by "HELLO WORLD" → Toda exponential potential equations of motion → Flaschka-Lax pair matrix L → isospectral flow dL/dt = [B, L] → exact conservation of 10 eigenvalues (< 10⁻¹⁰ drift) & Hamiltonian energy → dispersion-free solitary wave packet propagation
+- 031: 10 character anchors and contour satellites of "HELLO WORLD" (V=193, T=364) → cotangent Laplacian L and lumped mass M → short-time heat diffusion (M - t L)u = δ → normalized gradient field X = -∇u/||∇u|| → Poisson distance reconstruction (-L)φ = div X → exact non-negative intrinsic geodesic isochrones & minimal geodetic ray
+- 032: 10 typographic strings of "HELLO WORLD" (f_k from ASCII) → Karplus-Strong circular delay buffers (L_k = floor(fs / f_k)) → one-pole lowpass loss filter → mutual soundboard bridge coupling K_ij → Web Audio PCM synthesis & AnalyserNode → exact monotonic passive energy dissipation (dE/dt <= 0)
+- 033: 10 typographic cell clusters of "HELLO WORLD" on 160x90 lattice → Graner-Glazier Hamiltonian H = sum lambda (A - A0)^2 + sum J(tau_i, tau_j) → Metropolis-Hastings Monte Carlo spin updates → differential cell adhesion & sorting → exact Hamiltonian energy minimization & volume error tracking
+- 034: 10 typographic stations with 3 interior letter loop punctures ('O', 'O', 'D') in simplicial manifold (V=180, E=482, F=300, b1=3) → discrete coboundary operators d0, d1 & Hodge stars → nilpotence d1 d0 = 0 → Hodge-Helmholtz 3-way orthogonal decomposition ω = dα + δβ + h → exact de Rham harmonic 1-forms circulating around typographic voids
+- 035: 10 characters of "HELLO WORLD" mapped to on-site phase disorder V(x) across 101-site lattice → spin-1/2 Discrete-Time Quantum Walk (DTQW) → Hadamard coin & shift operator → exact machine-precision unitary norm conservation (|1 - sum P| <= 7.22e-15) → Anderson localization vs ballistic spread transition (IPR: 0.3315 vs 0.0600)
+- 036: 10 typographic clusters of "HELLO WORLD" (N=120 spins, M=208 bonds) with bigram-parity couplings & loop frustration → Glauber Monte Carlo thermal annealing schedule T(t) → exact Hamiltonian energy E = -184.0 → residual topological frustration index f = 5.77% → Edwards-Anderson spin glass freezing q_EA = 1.000
+- 037: 10 typographic sites of "HELLO WORLD" with stroke-mass target volumes nu_i → semi-discrete optimal transport → Laguerre Voronoi power diagram → damped Newton-Raphson Monge-Ampère solver → exact total area preservation (sum Area_i = Area_domain) & 2-Wasserstein quadratic transport cost W2^2 minimization
+- 038: 10 solid typographic piers of "HELLO WORLD" in 2D hydraulic flume basin → Weakly Compressible SPH (WCSPH) with Tait equation of state & Monaghan cubic spline kernel → boundary penalty repulsion & no-slip shear → exact fluid mass conservation (320.00 a.u., 0.000% error) → stagnation bow waves, wake vortex shedding & subcritical Froude flow
 
 ## Design Lineage
 - 001: Architectural engineering schematic with subtle 40px grid, ivory letterforms, cyan/amber/crimson strain accents
@@ -83,7 +95,7 @@
 - 004: Tactical carbon drafting board with emerald/seafoam elastic springs and luminous vertex pins
 - 005: Optical laboratory prism bench with deep optical black, calibration reticles, vivid OKLCH spectral primaries
 - 006: Volcanic desert terracotta cartographic survey plate with baked sienna, ochre, sand, and embossed elevation ridges
-- 007: Archival monospace chronometer with glowing amber phosphor typography and horizontal transactional ledger tape
+- 007: Archival monospace chronometer ledger with glowing amber phosphor typography and horizontal transactional ledger tape
 - 008: Crystalline lapis lazuli and celestial cyanotype plate with electric cyan Delaunay filaments and silver facet stars
 - 009: Deep velvet burgundy and radiant rose-copper phonetics speech laboratory with sagittal anatomical diagram
 - 010: Deep space obsidian with bioluminescent auroral emerald and cyan streamlines and cybernetic observatory HUD
@@ -107,6 +119,14 @@
 - 028: 1834 Parisian École Polytechnique analytical mechanics plate on graphite slate with burnished copper wireframe, gold mass nodes, and calligraphic French annotations
 - 029: 1903 Vienna Secession / Wiener Werkstätte gilded gold leaf mosaic with royal lapis lazuli, malachite inlays, and geometric checkered friezes
 - 030: Japanese Edo-period Ukiyo-e woodblock print on fibrous mulberry Washi paper with Prussian Indigo Bokashi wave shading, Sumi ink relief, and vermilion Hanko artist seals
+- 031: 1859 Italian Geodetic Military Survey plate on antique rag vellum with copperplate typography, Prussian indigo isochrones, and crimson geodetic rays
+- 032: 1877 Hermann von Helmholtz physiological acoustics laboratory bench with polished mahogany soundboard, nickel tuning forks, ivory badges, and glowing emerald galvanometer traces
+- 033: 1910 Santiago Ramón y Cajal histological microscopy specimen on aged albumen paper with silver nitrate Golgi black impregnation and saffron counter-stain
+- 034: 1928 Göttingen Mathematical Institute differential form atlas on antique rag paper with Prussian blue exact flows, vermilion co-exact vortices, and emerald harmonic cohomology loops
+- 035: 1974 IBM Quantum Optics Experimental Console with brushed champagne aluminum bezels, dual amber phosphor CRT display tubes, and nixie glow indicators
+- 036: 1956 Manchester Mark 1 Early Computing Laboratory with blue-grey steel cabinetry, circular green Williams-Kilburn electrostatic storage tube, and Creed Model 7 teleprinter paper tape
+- 037: 1923 Bauhaus Weimar Exhibition Poster with cream canvas, black constructivist framing, primary Bauhaus scarlet, ultramarine cobalt, and chrome yellow
+- 038: 1908 Royal Naval Hydrodynamic Flume Test Basin (Haslar Admiralty Works) with dark zinc tank, cast-iron rivet plates, brass insignias, and technical waterline drafting grids
 
 
 ## Repetition Watch
@@ -309,6 +329,17 @@ Recently successful alternatives:
 - 10 character masses of "HELLO WORLD" (M = 10.19 kg), Jacobi inertia eigenvalues (I₁=12.11 < I₂=83.77 < I₃=85.34 kg·m²), kinetic energy drift < 10⁻¹², angular momentum drift < 10⁻¹², and Dzhanibekov flip period ~4.3 s established in 028.
 - 10 decagonal star sectors, Robinson golden triangle inflation/deflation grammar, exact Golden Ratio area invariant (phi = 1.61803399), zero matching errors (E_match = 0), and non-crystallographic 5-fold quasicrystal mosaic established in 029.
 - 10-node Toda exponential lattice, Hamiltonian energy drift < 10⁻¹⁰ (H = 0.5905 J), total linear momentum P = 0.000 N·s, Flaschka-Lax pair matrix isospectral eigenvalue invariance (< 10⁻¹⁰ drift), and dispersion-free solitary wave packet collision dynamics established in 030.
+- 10 typographic anchor stations of "HELLO WORLD" (V=193, T=364), cotangent Laplacian symmetry, PCG Poisson residual norm ||(-L)φ - div X||_2 = 1.75e-4, exact geodesic non-negativity (φ >= 0), shortest path gradient monotonicity, and source pole shift telemetry established in 031.
+- 10 physical waveguide delay lines (L_k in [94, 283] samples), sample rate 44.1 kHz, exact instantaneous mechanical energy E(t), passive dissipation verification (dE <= 1e-6), and equal-tempered ASCII pitch alignment established in 032.
+- 10 typographic cell clusters of "HELLO WORLD" on 160x90 lattice, Graner-Glazier Hamiltonian H = 16,276 a.u., mean volume deviation 17%, boundary Monte Carlo acceptance rate 50.7%, and differential adhesion sorting established in 033.
+- 10 typographic stations with 3 letter loop punctures ('O', 'O', 'D') in 2D simplicial complex (V=180, E=482, F=300), Euler characteristic chi = -2, first Betti number b1 = 3, exact coboundary nilpotence ||d1 d0||_inf = 2.22e-16, discrete Hodge orthogonality <d0 α, δ1 β> = 3.40e-13, and reconstruction residual 5.83e-16 established in 034.
+- 10-character typographic potential disorder on 101-site lattice, spin-1/2 DTQW Hadamard coin, machine-precision unitary norm conservation (|1 - sum P| = 7.22e-15), dynamic Anderson localization (IPR = 0.3315, σ = 2.61 sites, peak P = 43.68%) vs ballistic transport (IPR = 0.0600, σ = 21.66 sites, peak P = 12.35%) established in 035.
+- 10-cluster typographic frustrated spin network (N=120 spins, M=208 bonds), Glauber Monte Carlo simulated annealing, ground state energy E = -184.0, exact topological frustration index f = 5.77% (12 unsatisfied loop bonds), and Edwards-Anderson spin glass freezing q_EA = 1.000 established in 036.
+- 10-site semi-discrete optimal transport across 316,800 px² continuous domain, Laguerre Voronoi power diagram, damped Newton-Raphson Monge-Ampère solver, exact domain area preservation (sum Area_i = 316,800 px², 100.00%), max relative defect 4.73%, and 2-Wasserstein quadratic transport cost W_2^2 = 2.28e9 established in 037.
+- 320-particle Weakly Compressible SPH (WCSPH) fluid flow through 780x440 basin, 10 typographic solid obstacle piers ("HELLO WORLD"), Tait equation of state (B=46.3, gamma=7), exact fluid mass conservation (320.00 a.u., 0.000% error), dynamic kinetic surge (357.7 to 1640.3 J), and subcritical Froude flow (Fr ~ 0.27 to 0.50) established in 038.
+
+- 10 typographic rigid bodies stamped with "HELLO WORLD" (M = 12.10 u), 15 active ruby contact points in stable resting stack, bounded penetration depth <= 2.60 px, Coulomb dry friction ratio strictly satisfying |J_t|/J_n <= 0.400, and kinetic energy transition from 1.06 to 245.6 u·px²/s² under agitation shock established in 039.
+- 3-DOF planar serial robot arm executing closed-loop differential kinematic tracking along continuous stroke splines of "HELLO WORLD", nominal tracking error ϵ = 8.48 px, Yoshikawa manipulability index w = 18,154.1, and dynamic joint jog perturbation recovery jumping error to 110.53 px before converging established in 040.
 
 # PROGRESS
 - 001: Completed and sealed (Topological Glyph Vector Deformation & Curvature Stress Field).
@@ -341,26 +372,36 @@ Recently successful alternatives:
 - 028: Completed and sealed (Poinsot's Inertia Ellipsoid & Euler Rigid Body Mechanics).
 - 029: Completed and sealed (Aperiodic Penrose P2 Tiling & Robinson Golden Triangle Inflation).
 - 030: Completed and sealed (Toda Non-Linear Integrable Lattice & Flaschka-Lax Soliton Invariants).
+- 031: Completed and sealed (Discrete Differential Geometry & Geodesic Heat Method on Typographic Mesh).
+- 032: Completed and sealed (Karplus-Strong Waveguide Acoustic Network & Modal Typographic Resonator).
+- 033: Completed and sealed (Cellular Potts Model & Biological Morphogenesis of Typographic Tissue).
+- 034: Completed and sealed (Discrete Exterior Calculus & Hodge-Helmholtz Decomposition).
+- 035: Completed and sealed (Discrete-Time Quantum Walk & Anderson Localization).
+- 036: Completed and sealed (Ising Model Spin Glass & Simulated Annealing).
+- 037: Completed and sealed (Semi-Discrete Optimal Transport & Monge-Ampère Power Diagram).
+- 038: Completed and sealed (Weakly Compressible SPH Fluid Flow over Typographic Obstacles).
+- 039: Completed and sealed (Polyhedral Rigid Body Contact Manifolds & SAT Sequential Impulse Dynamics).
+- 040: Completed and sealed (Lie Group SE(2) Differential Kinematics & Manipulator Spline Tracing).
 
 # CURRENT
-Experiment: 030
+Experiment: 040
 Status: COMPLETED
-Goal and acceptance criterion: Implement Toda Non-Linear Integrable Lattice & Flaschka-Lax Soliton Invariants for 10 nodes initialized by "HELLO WORLD", verifying exact Hamiltonian energy conservation (delta H / H < 10^-11), total momentum conservation, and Flaschka-Lax matrix isospectral eigenvalue invariance within a Japanese Edo-period Ukiyo-e woodblock print aesthetic, completing the 021-030 run.
-Intended frontier contribution: Non-linear integrable systems, Toda exponential lattice, soliton collision dynamics without dispersion, Flaschka-Lax pair isospectral flow, and Japanese Edo-period Ukiyo-e woodblock print visual style.
-Current novelty risk: None (030 completed and sealed).
-Current visual repetition risk: High stylistic contrast achieved; distinct from all preceding 29 experiments.
-Current complexity risk: Managed with zero-allocation Jacobi tridiagonal solver and RK4 integration.
-Last verified progress: 030 sealed and verified successfully with tools.js.
+Goal and acceptance criterion: Complete and seal 031 through 040 frontier run.
+Intended frontier contribution: Completed full 031-040 cycle expanding into discrete differential geometry, waveguide acoustics, cellular Potts morphometry, discrete exterior calculus, quantum walks, spin glass simulated annealing, optimal transport Monge-Ampère power diagrams, weakly compressible SPH fluid dynamics, polyhedral SAT rigid body contact manifolds, and Lie group SE(2) robotics differential kinematics.
+Current novelty risk: None. All 40 experiments completed and verified.
+Current visual repetition risk: Maintained distinct aesthetics across all 10 experiments without visual or mechanism repetition.
+Current complexity risk: Strictly controlled via rigorous verification and dynamic evidence checks.
+Last verified progress: 040 sealed and verified successfully with tools.js.
 Last error signature: None.
 Same-error repetition: 0
 No-progress attempts: 0
 Strategy changes: 0
-Total development-test cycles: 1
-Recently attempted solutions: Sealed 030.html with verified canvas drawing, interaction, and exact isospectral Flaschka-Lax invariants.
-Next ONE concrete action: Deliver comprehensive evaluation report for the 021-030 frontier run.
+Total development-test cycles: 0
+Recently attempted solutions: Sealed 040.
+Next ONE concrete action: Execute generate-readme and present comprehensive evaluation report for 031-040 run.
 
 # NOTES
-- Experiment 030 concluded the 021-030 run with the Toda Non-Linear Integrable Lattice, Flaschka-Lax pair isospectral eigenvalue invariance (< 10^-10), and Japanese Edo-period Ukiyo-e woodblock print aesthetic.
-- All 10 experiments in the 021-030 run (021 through 030) are successfully completed, verified, and sealed.
+- Experiments 031-040 represent the fourth consecutive frontier block, successfully fulfilling all invariant, evidence, and causality requirements.
+
 
 

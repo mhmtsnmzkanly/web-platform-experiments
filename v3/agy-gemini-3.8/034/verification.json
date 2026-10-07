@@ -1,0 +1,330 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "decCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "decCanvas",
+        "width": 920,
+        "height": 520,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 30,
+      "webgl": 0
+    },
+    "drawnText": [
+      "H",
+      "E",
+      "L",
+      "L",
+      "Void: O",
+      "O",
+      "W",
+      "Void: O",
+      "O",
+      "R",
+      "L",
+      "Void: D",
+      "D",
+      "HODGE-HELMHOLTZ-ZERLEGUNG: ω = dα + δβ + h • b₁ = 3",
+      "MODUS: [ALL]"
+    ],
+    "animations": [],
+    "title": "034 — Discrete Exterior Calculus & Hodge-Helmholtz Decomposition"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "decCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "decCanvas",
+        "width": 920,
+        "height": 520,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 30,
+      "webgl": 0
+    },
+    "drawnText": [
+      "H",
+      "E",
+      "L",
+      "L",
+      "Void: O",
+      "O",
+      "W",
+      "Void: O",
+      "O",
+      "R",
+      "L",
+      "Void: D",
+      "D",
+      "HODGE-HELMHOLTZ-ZERLEGUNG: ω = dα + δβ + h • b₁ = 3",
+      "MODUS: [ALL]"
+    ],
+    "animations": [],
+    "title": "034 — Discrete Exterior Calculus & Hodge-Helmholtz Decomposition"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Discrete Exterior Calculus (DEC) Hodge-Helmholtz 3-Way Orthogonal Decomposition",
+    "measurements": {
+      "vertexCount": 180,
+      "edgeCount": 482,
+      "faceCount": 300,
+      "eulerCharacteristic": -2,
+      "betti1Number": 3,
+      "nilpotenceMaxError": 2.220446049250313e-16,
+      "hodgeInnerProductOrthogonality": 3.4017233474514796e-13,
+      "reconstructionL2Residual": 5.826377343656656e-16,
+      "holeCharacters": [
+        "O",
+        "O",
+        "D"
+      ],
+      "activeDisplayMode": "all"
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnModeHarmonic"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Interactive Mode Selection Isolating Harmonic de Rham Cohomology 1-Form",
+      "measurements": {
+        "vertexCount": 180,
+        "edgeCount": 482,
+        "faceCount": 300,
+        "eulerCharacteristic": -2,
+        "betti1Number": 3,
+        "nilpotenceMaxError": 2.220446049250313e-16,
+        "hodgeInnerProductOrthogonality": 3.4017233474514796e-13,
+        "reconstructionL2Residual": 5.826377343656656e-16,
+        "holeCharacters": [
+          "O",
+          "O",
+          "D"
+        ],
+        "activeDisplayMode": "harmonic"
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "decCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "decCanvas",
+          "width": 920,
+          "height": 520,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 60,
+        "webgl": 0
+      },
+      "drawnText": [
+        "H",
+        "E",
+        "L",
+        "L",
+        "Void: O",
+        "O",
+        "W",
+        "Void: O",
+        "O",
+        "R",
+        "L",
+        "Void: D",
+        "D",
+        "HODGE-HELMHOLTZ-ZERLEGUNG: ω = dα + δβ + h • b₁ = 3",
+        "MODUS: [ALL]",
+        "H",
+        "E",
+        "L",
+        "L",
+        "Void: O",
+        "O",
+        "W",
+        "Void: O",
+        "O",
+        "R",
+        "L",
+        "Void: D",
+        "D",
+        "HODGE-HELMHOLTZ-ZERLEGUNG: ω = dα + δβ + h • b₁ = 3",
+        "MODUS: [HARMONIC]"
+      ],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 83.38900000128713,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 83.38900000128713,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 83.38900000128713,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 83.38900000128713,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 83.38900000128713,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 83.38900000128713,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 83.38900000128713,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 100.03000000000006,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 83.38900000128713,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 83.38900000128713,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 83.38900000128713,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 83.38900000128713,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 83.38900000128713,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 83.38900000128713,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "034 — Discrete Exterior Calculus & Hodge-Helmholtz Decomposition"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "decCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "decCanvas",
+          "width": 920,
+          "height": 520,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 60,
+        "webgl": 0
+      },
+      "drawnText": [
+        "H",
+        "E",
+        "L",
+        "L",
+        "Void: O",
+        "O",
+        "W",
+        "Void: O",
+        "O",
+        "R",
+        "L",
+        "Void: D",
+        "D",
+        "HODGE-HELMHOLTZ-ZERLEGUNG: ω = dα + δβ + h • b₁ = 3",
+        "MODUS: [ALL]",
+        "H",
+        "E",
+        "L",
+        "L",
+        "Void: O",
+        "O",
+        "W",
+        "Void: O",
+        "O",
+        "R",
+        "L",
+        "Void: D",
+        "D",
+        "HODGE-HELMHOLTZ-ZERLEGUNG: ω = dα + δβ + h • b₁ = 3",
+        "MODUS: [HARMONIC]"
+      ],
+      "animations": [],
+      "title": "034 — Discrete Exterior Calculus & Hodge-Helmholtz Decomposition"
+    }
+  }
+}

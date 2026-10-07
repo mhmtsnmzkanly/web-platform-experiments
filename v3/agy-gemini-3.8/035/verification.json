@@ -1,0 +1,281 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "upperCrtCanvas"
+      },
+      {
+        "tag": "canvas",
+        "id": "lowerCrtCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "upperCrtCanvas",
+        "width": 800,
+        "height": 260,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "lowerCrtCanvas",
+        "width": 800,
+        "height": 150,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 468,
+      "webgl": 0
+    },
+    "drawnText": [
+      "V̂_HW(x) POTENTIAL LANDSCAPE [W = 1.00]",
+      "PEAK P(x) = 43.68%",
+      "WAVEPACKET SPREAD σ = 2.61 SITES",
+      "IPR = 0.3315",
+      "NORM = 1.0000000000",
+      "t = NOW (LATEST EVOLUTION SLICE)",
+      "t = -64 STEPS (TEMPORAL RECURRENCE)"
+    ],
+    "animations": [],
+    "title": "035 — Discrete-Time Quantum Walk & Anderson Localization"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "upperCrtCanvas"
+      },
+      {
+        "tag": "canvas",
+        "id": "lowerCrtCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "upperCrtCanvas",
+        "width": 800,
+        "height": 260,
+        "pixels": true,
+        "readable": true
+      },
+      {
+        "id": "lowerCrtCanvas",
+        "width": 800,
+        "height": 150,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 468,
+      "webgl": 0
+    },
+    "drawnText": [
+      "V̂_HW(x) POTENTIAL LANDSCAPE [W = 1.00]",
+      "PEAK P(x) = 43.68%",
+      "WAVEPACKET SPREAD σ = 2.61 SITES",
+      "IPR = 0.3315",
+      "NORM = 1.0000000000",
+      "t = NOW (LATEST EVOLUTION SLICE)",
+      "t = -64 STEPS (TEMPORAL RECURRENCE)"
+    ],
+    "animations": [],
+    "title": "035 — Discrete-Time Quantum Walk & Anderson Localization"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Discrete-Time Quantum Walk (DTQW) with Typographic Anderson Disorder",
+    "measurements": {
+      "totalProbabilityNorm": 0.9999999999999928,
+      "normDeviation": 7.216449660063518e-15,
+      "inverseParticipationRatio": 0.33154845685454587,
+      "wavepacketSpread": 2.6073088321402844,
+      "disorderStrength": 1,
+      "latticeSize": 101,
+      "stepCount": 40,
+      "regime": "localized",
+      "peakProbability": 0.43679527753140757
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnToggleRegime"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Dynamic Regime Transition between Anderson Localization and Ballistic Spread",
+      "measurements": {
+        "totalProbabilityNorm": 0.9999999999999929,
+        "normDeviation": 7.105427357601002e-15,
+        "inverseParticipationRatio": 0.05996991308645817,
+        "wavepacketSpread": 21.658607538802162,
+        "disorderStrength": 0,
+        "latticeSize": 101,
+        "stepCount": 40,
+        "regime": "ballistic",
+        "peakProbability": 0.12350345182312504
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "upperCrtCanvas"
+        },
+        {
+          "tag": "canvas",
+          "id": "lowerCrtCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "upperCrtCanvas",
+          "width": 800,
+          "height": 260,
+          "pixels": true,
+          "readable": true
+        },
+        {
+          "id": "lowerCrtCanvas",
+          "width": 800,
+          "height": 150,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 1249,
+        "webgl": 0
+      },
+      "drawnText": [
+        "V̂_HW(x) POTENTIAL LANDSCAPE [W = 1.00]",
+        "PEAK P(x) = 43.68%",
+        "WAVEPACKET SPREAD σ = 2.61 SITES",
+        "IPR = 0.3315",
+        "NORM = 1.0000000000",
+        "t = NOW (LATEST EVOLUTION SLICE)",
+        "t = -64 STEPS (TEMPORAL RECURRENCE)",
+        "V̂_HW(x) POTENTIAL LANDSCAPE [W = 0.00]",
+        "PEAK P(x) = 12.35%",
+        "WAVEPACKET SPREAD σ = 21.66 SITES",
+        "IPR = 0.0600",
+        "NORM = 1.0000000000",
+        "t = NOW (LATEST EVOLUTION SLICE)",
+        "t = -64 STEPS (TEMPORAL RECURRENCE)"
+      ],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 33.23399999999999,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 33.23399999999999,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 33.23399999999999,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 33.23399999999999,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 33.23399999999999,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 33.23399999999999,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 33.23399999999999,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "035 — Discrete-Time Quantum Walk & Anderson Localization"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "upperCrtCanvas"
+        },
+        {
+          "tag": "canvas",
+          "id": "lowerCrtCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "upperCrtCanvas",
+          "width": 800,
+          "height": 260,
+          "pixels": true,
+          "readable": true
+        },
+        {
+          "id": "lowerCrtCanvas",
+          "width": 800,
+          "height": 150,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 1249,
+        "webgl": 0
+      },
+      "drawnText": [
+        "V̂_HW(x) POTENTIAL LANDSCAPE [W = 1.00]",
+        "PEAK P(x) = 43.68%",
+        "WAVEPACKET SPREAD σ = 2.61 SITES",
+        "IPR = 0.3315",
+        "NORM = 1.0000000000",
+        "t = NOW (LATEST EVOLUTION SLICE)",
+        "t = -64 STEPS (TEMPORAL RECURRENCE)",
+        "V̂_HW(x) POTENTIAL LANDSCAPE [W = 0.00]",
+        "PEAK P(x) = 12.35%",
+        "WAVEPACKET SPREAD σ = 21.66 SITES",
+        "IPR = 0.0600",
+        "NORM = 1.0000000000",
+        "t = NOW (LATEST EVOLUTION SLICE)",
+        "t = -64 STEPS (TEMPORAL RECURRENCE)"
+      ],
+      "animations": [],
+      "title": "035 — Discrete-Time Quantum Walk & Anderson Localization"
+    }
+  }
+}

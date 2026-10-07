@@ -1,0 +1,304 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "geodeticCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "geodeticCanvas",
+        "width": 920,
+        "height": 520,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 893,
+      "webgl": 0
+    },
+    "drawnText": [
+      "H",
+      "0px",
+      "E",
+      "87px",
+      "L",
+      "167px",
+      "L",
+      "246px",
+      "O",
+      "330px",
+      "W",
+      "410px",
+      "O",
+      "476px",
+      "R",
+      "547px",
+      "L",
+      "544px",
+      "D",
+      "541px",
+      "SEZIONE TOPOGRAFICA: TRACCIATO GEODETICO MINIMO",
+      "POTENZIALE FONTE: [H] (70, 260)"
+    ],
+    "animations": [],
+    "title": "031 — Discrete Differential Geometry & Geodesic Heat Method on Typographic Mesh"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "geodeticCanvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "geodeticCanvas",
+        "width": 920,
+        "height": 520,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 0,
+    "draws": {
+      "canvas": 893,
+      "webgl": 0
+    },
+    "drawnText": [
+      "H",
+      "0px",
+      "E",
+      "87px",
+      "L",
+      "167px",
+      "L",
+      "246px",
+      "O",
+      "330px",
+      "W",
+      "410px",
+      "O",
+      "476px",
+      "R",
+      "547px",
+      "L",
+      "544px",
+      "D",
+      "541px",
+      "SEZIONE TOPOGRAFICA: TRACCIATO GEODETICO MINIMO",
+      "POTENZIALE FONTE: [H] (70, 260)"
+    ],
+    "animations": [],
+    "title": "031 — Discrete Differential Geometry & Geodesic Heat Method on Typographic Mesh"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Discrete Differential Geometry (DDG) Geodesic Heat Method via Cotangent Laplacian Diffusion and Poisson Solver",
+    "measurements": {
+      "vertexCount": 193,
+      "triangleCount": 364,
+      "sourceLetter": "H",
+      "sourceLetterIdx": 0,
+      "poissonResidualNorm": 0.003041449592387976,
+      "geodesicDistanceHD_px": 541.2060216699406,
+      "isochroneCount": 18,
+      "pathStepCount": 15,
+      "isMonotonic": true,
+      "distancesNonNegative": true
+    }
+  },
+  "dynamic": false,
+  "interaction": {
+    "scenario": {
+      "kind": "click",
+      "selector": "#btnNextSource"
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Interactive Geodesic Source Mutation and Live Field Re-computation",
+      "measurements": {
+        "vertexCount": 193,
+        "triangleCount": 364,
+        "sourceLetter": "E",
+        "sourceLetterIdx": 1,
+        "poissonResidualNorm": 0.003451636116182512,
+        "geodesicDistanceHD_px": 550.7184234551934,
+        "isochroneCount": 18,
+        "pathStepCount": 14,
+        "isMonotonic": true,
+        "distancesNonNegative": true
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "geodeticCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "geodeticCanvas",
+          "width": 920,
+          "height": 520,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 1813,
+        "webgl": 0
+      },
+      "drawnText": [
+        "H",
+        "0px",
+        "E",
+        "87px",
+        "L",
+        "167px",
+        "L",
+        "246px",
+        "O",
+        "330px",
+        "W",
+        "410px",
+        "O",
+        "476px",
+        "R",
+        "547px",
+        "L",
+        "544px",
+        "D",
+        "541px",
+        "SEZIONE TOPOGRAFICA: TRACCIATO GEODETICO MINIMO",
+        "POTENZIALE FONTE: [H] (70, 260)",
+        "H",
+        "96px",
+        "E",
+        "0px",
+        "L",
+        "84px",
+        "L",
+        "166px",
+        "O",
+        "258px",
+        "W",
+        "344px",
+        "O",
+        "423px",
+        "R",
+        "490px",
+        "L",
+        "552px",
+        "D",
+        "551px",
+        "SEZIONE TOPOGRAFICA: TRACCIATO GEODETICO MINIMO",
+        "POTENZIALE FONTE: [E] (157, 295)"
+      ],
+      "animations": [
+        {
+          "playState": "running",
+          "currentTime": 49.98000000334579,
+          "timeline": "DocumentTimeline"
+        },
+        {
+          "playState": "running",
+          "currentTime": 49.98000000334579,
+          "timeline": "DocumentTimeline"
+        }
+      ],
+      "title": "031 — Discrete Differential Geometry & Geodesic Heat Method on Typographic Mesh"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "geodeticCanvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "geodeticCanvas",
+          "width": 920,
+          "height": 520,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 0,
+      "draws": {
+        "canvas": 1813,
+        "webgl": 0
+      },
+      "drawnText": [
+        "H",
+        "0px",
+        "E",
+        "87px",
+        "L",
+        "167px",
+        "L",
+        "246px",
+        "O",
+        "330px",
+        "W",
+        "410px",
+        "O",
+        "476px",
+        "R",
+        "547px",
+        "L",
+        "544px",
+        "D",
+        "541px",
+        "SEZIONE TOPOGRAFICA: TRACCIATO GEODETICO MINIMO",
+        "POTENZIALE FONTE: [H] (70, 260)",
+        "H",
+        "96px",
+        "E",
+        "0px",
+        "L",
+        "84px",
+        "L",
+        "166px",
+        "O",
+        "258px",
+        "W",
+        "344px",
+        "O",
+        "423px",
+        "R",
+        "490px",
+        "L",
+        "552px",
+        "D",
+        "551px",
+        "SEZIONE TOPOGRAFICA: TRACCIATO GEODETICO MINIMO",
+        "POTENZIALE FONTE: [E] (157, 295)"
+      ],
+      "animations": [],
+      "title": "031 — Discrete Differential Geometry & Geodesic Heat Method on Typographic Mesh"
+    }
+  }
+}
