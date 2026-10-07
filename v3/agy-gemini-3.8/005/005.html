@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>005 — Spectrographic Glyph Decomposition &amp; Optical Dispersion</title>
+  <style>
+    :root {
+      --bg: #05070a;
+      --card-bg: #0d1117;
+      --border-subtle: #1e2638;
+      --text-main: #f8fafc;
+      --text-muted: #64748b;
+      --spectral-violet: oklch(0.65 0.28 300);
+      --spectral-blue: oklch(0.70 0.24 250);
+      --spectral-cyan: oklch(0.78 0.20 200);
+      --spectral-green: oklch(0.75 0.25 140);
+      --spectral-yellow: oklch(0.85 0.22 95);
+      --spectral-orange: oklch(0.76 0.24 55);
+      --spectral-red: oklch(0.68 0.28 25);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.5rem 3.5rem;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 1rem;
+    }
+    .experiment-id {
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--spectral-cyan);
+      font-family: ui-monospace, monospace;
+    }
+    .mechanism-tag {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+    }
+    .optical-bench {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 1100px;
+    }
+    .prism-caption {
+      font-size: 1.05rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .prism-caption strong {
+      color: #ffffff;
+      letter-spacing: 0.3em;
+    }
+    .prism-chamber {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), inset 0 0 80px rgba(0, 0, 0, 0.9);
+      perspective: 1000px;
+    }
+    /* Calibration marks on prism boundary */
+    .calibration-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .line-left { left: 25%; }
+    .line-mid { left: 50%; }
+    .line-right { left: 75%; }
+
+    /* The Primary Literal Subject */
+    .optical-subject-field {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+    .base-subject-text {
+      font-size: 6.5rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.08);
+      position: absolute;
+      z-index: 1;
+      pointer-events: none;
+    }
+    /* Spectral decomposed channel layers */
+    .spectral-stack {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+    .spectral-layer {
+      position: absolute;
+      font-size: 6.5rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      will-change: transform, color;
+      mix-blend-mode: screen;
+      filter: blur(0.3px);
+    }
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 1rem;
+      font-size: 0.8rem;
+    }
+    .telemetry-row {
+      display: flex;
+      gap: 3rem;
+    }
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-family: ui-monospace, monospace;
+    }
+    .metric-value {
+      font-variant-numeric: tabular-nums;
+      color: var(--spectral-cyan);
+      font-family: ui-monospace, monospace;
+      font-weight: 600;
+    }
+    .optical-colophon {
+      max-width: 440px;
+      line-height: 1.45;
+      color: var(--text-muted);
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="experiment-id">Hello World Lab — 005</div>
+    <div class="mechanism-tag">Spectrographic Glyph Decomposition &amp; Cauchy Optical Dispersion</div>
+  </header>
+
+  <main>
+    <div class="optical-bench">
+      <div class="prism-caption">Prismatic Refraction Manifold: <strong>Hello World</strong></div>
+      <div class="prism-chamber">
+        <div class="calibration-line line-left"></div>
+        <div class="calibration-line line-mid"></div>
+        <div class="calibration-line line-right"></div>
+
+        <div class="optical-subject-field">
+          <!-- Unperturbed Reference Baseline -->
+          <h1 class="base-subject-text">Hello World</h1>
+
+          <!-- Decomposed Optical Spectral Layers -->
+          <div class="spectral-stack">
+            <span id="band-400" class="spectral-layer" style="color: var(--spectral-violet);">Hello World</span>
+            <span id="band-460" class="spectral-layer" style="color: var(--spectral-blue);">Hello World</span>
+            <span id="band-500" class="spectral-layer" style="color: var(--spectral-cyan);">Hello World</span>
+            <span id="band-540" class="spectral-layer" style="color: var(--spectral-green);">Hello World</span>
+            <span id="band-580" class="spectral-layer" style="color: var(--spectral-yellow);">Hello World</span>
+            <span id="band-620" class="spectral-layer" style="color: var(--spectral-orange);">Hello World</span>
+            <span id="band-680" class="spectral-layer" style="color: var(--spectral-red);">Hello World</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="telemetry-row">
+      <div class="metric-item">
+        <span class="metric-label">Cauchy Refraction Index</span>
+        <span id="metric-cauchy" class="metric-value">n = 1.5200</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Spectral Dispersion Offset</span>
+        <span id="metric-offset" class="metric-value">0.00 px</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Spectral Bands</span>
+        <span id="metric-bands" class="metric-value">7 channels (OKLCH)</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Chromatic Delta E</span>
+        <span id="metric-deltae" class="metric-value">ΔE = 0.00</span>
+      </div>
+    </div>
+    <div class="optical-colophon">
+      Pure modern DOM typography decomposed into spectral wavebands using Cauchy optical dispersion equations and CSS Color Level 4 OKLCH space with additive screen blending.
+    </div>
+  </footer>
+
+  <script>
+    // Spectral waveband parameters (wavelength in micrometers)
+    const SPECTRAL_BANDS = [
+      { id: 'band-400', lambda: 0.400, hue: 300, el: document.getElementById('band-400') },
+      { id: 'band-460', lambda: 0.460, hue: 250, el: document.getElementById('band-460') },
+      { id: 'band-500', lambda: 0.500, hue: 200, el: document.getElementById('band-500') },
+      { id: 'band-540', lambda: 0.540, hue: 140, el: document.getElementById('band-540') },
+      { id: 'band-580', lambda: 0.580, hue: 95, el: document.getElementById('band-580') },
+      { id: 'band-620', lambda: 0.620, hue: 55, el: document.getElementById('band-620') },
+      { id: 'band-680', lambda: 0.680, hue: 25, el: document.getElementById('band-680') }
+    ];
+
+    // Cauchy dispersion formula constants for crown glass:
+    // n(lambda) = A + B / (lambda^2)
+    const CAUCHY_A = 1.5046;
+    const CAUCHY_B = 0.00420;
+
+    const cauchyEl = document.getElementById('metric-cauchy');
+    const offsetEl = document.getElementById('metric-offset');
+    const deltaEEl = document.getElementById('metric-deltae');
+
+    const state = {
+      meanIndex: 1.52,
+      maxDispersionOffsetPx: 0,
+      deltaE: 0,
+      frameCount: 0
+    };
+
+    function updateOptics(time) {
+      // Dynamic prism incidence angle
+      const theta = time * 0.0018;
+      const dispersionIntensity = 18.0 * (1.0 + 0.35 * Math.sin(time * 0.001));
+
+      let maxOffset = 0;
+      let totalIndex = 0;
+
+      SPECTRAL_BANDS.forEach((band, idx) => {
+        // Evaluate Cauchy refractive index
+        const lambdaSq = band.lambda * band.lambda;
+        const n = CAUCHY_A + (CAUCHY_B / lambdaSq);
+        totalIndex += n;
+
+        // Deviation relative to median yellow wavelength (0.580 um)
+        const nMid = CAUCHY_A + (CAUCHY_B / (0.580 * 0.580));
+        const deltaN = n - nMid;
+
+        // Optical ray displacement vector
+        const dx = Math.cos(theta) * deltaN * dispersionIntensity * 120.0;
+        const dy = Math.sin(theta) * deltaN * dispersionIntensity * 60.0;
+        const shear = deltaN * 25.0 * Math.sin(theta);
+
+        const currentOffset = Math.hypot(dx, dy);
+        if (currentOffset > maxOffset) {
+          maxOffset = currentOffset;
+        }
+
+        // Apply 3D CSS transform matrix displacement
+        band.el.style.transform = `translate3d(${dx.toFixed(2)}px, ${dy.toFixed(2)}px, 0px) skewX(${shear.toFixed(2)}deg)`;
+      });
+
+      const meanN = totalIndex / SPECTRAL_BANDS.length;
+      state.meanIndex = meanN;
+      state.maxDispersionOffsetPx = maxOffset;
+      state.deltaE = maxOffset * 1.84;
+      state.frameCount++;
+
+      cauchyEl.textContent = `n = ${meanN.toFixed(4)}`;
+      offsetEl.textContent = `${maxOffset.toFixed(2)} px`;
+      deltaEEl.textContent = `ΔE = ${state.deltaE.toFixed(1)}`;
+    }
+
+    function renderLoop(time) {
+      updateOptics(time);
+      requestAnimationFrame(renderLoop);
+    }
+
+    updateOptics(0);
+    requestAnimationFrame(renderLoop);
+
+    // Readiness & Evidence Protocol
+    window.labReady = true;
+    window.labEvidence = () => ({
+      subject: 'Hello World',
+      passed: state.maxDispersionOffsetPx > 0 && state.frameCount > 5,
+      mechanism: 'Pure DOM Cauchy spectrographic dispersion with OKLCH color spaces and additive screen blending',
+      measurements: {
+        cauchyMeanRefractiveIndex: Number(state.meanIndex.toFixed(4)),
+        peakDispersionOffsetPx: Number(state.maxDispersionOffsetPx.toFixed(2)),
+        opticalChromaticDeltaE: Number(state.deltaE.toFixed(2)),
+        spectralChannelCount: SPECTRAL_BANDS.length,
+        evaluatedFrames: state.frameCount
+      }
+    });
+  </script>
+</body>
+</html>

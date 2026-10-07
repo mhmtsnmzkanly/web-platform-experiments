@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "div",
+        "text": "Hello World Lab — 010"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "sim-canvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "sim-canvas",
+        "width": 1080,
+        "height": 480,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 17,
+    "draws": {
+      "canvas": 20758,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "010 — Cybernetic Fluid-Kinetic Symbiosis & Spatial Resonator"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "div",
+        "text": "Hello World Lab — 010"
+      },
+      {
+        "tag": "h1",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "sim-canvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "sim-canvas",
+        "width": 1080,
+        "height": 480,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 86,
+    "draws": {
+      "canvas": 103627,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "010 — Cybernetic Fluid-Kinetic Symbiosis & Spatial Resonator"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Worker-driven Navier-Stokes fluid kinetic particle field coupled to 10-channel spatial audio synthesizer and SVG glyph topology",
+    "measurements": {
+      "workerTransferLatencyMs": 0.3,
+      "activeParticles": 1200,
+      "systemKineticEnergyKiloJoule": 0.34,
+      "glyphCouplingForceNewton": 54.8,
+      "audioSpatialVoices": 10,
+      "reynoldsVorticityIndex": 809,
+      "simulationFrames": 100
+    }
+  },
+  "dynamic": true,
+  "interaction": {
+    "scenario": {
+      "kind": "drag",
+      "selector": "#stage-wrapper",
+      "deltaX": 260
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "CDP trusted pointer drag stirs fluid particle field, inducing kinetic shear and spatial audio frequency modulation",
+      "measurements": {
+        "peakDragKineticEnergy": 63735.18,
+        "peakDragCouplingForce": 83.91,
+        "postDragReynolds": 14915
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "div",
+          "text": "Hello World Lab — 010"
+        },
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "sim-canvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "sim-canvas",
+          "width": 1080,
+          "height": 480,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 117,
+      "draws": {
+        "canvas": 145646,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "010 — Cybernetic Fluid-Kinetic Symbiosis & Spatial Resonator"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "div",
+          "text": "Hello World Lab — 010"
+        },
+        {
+          "tag": "h1",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [
+        {
+          "tag": "canvas",
+          "id": "sim-canvas"
+        }
+      ],
+      "canvasEvidence": [
+        {
+          "id": "sim-canvas",
+          "width": 1080,
+          "height": 480,
+          "pixels": true,
+          "readable": true
+        }
+      ],
+      "frames": 190,
+      "draws": {
+        "canvas": 236871,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "010 — Cybernetic Fluid-Kinetic Symbiosis & Spatial Resonator"
+    }
+  }
+}

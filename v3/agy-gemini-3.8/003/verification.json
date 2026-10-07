@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "div",
+        "text": "Hello World Lab — 003"
+      },
+      {
+        "tag": "strong",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "rd-canvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "rd-canvas",
+        "width": 340,
+        "height": 126,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 19,
+    "draws": {
+      "canvas": 22,
+      "webgl": 0
+    },
+    "drawnText": [
+      "HELLO WORLD"
+    ],
+    "animations": [],
+    "title": "003 — Asynchronous Reaction-Diffusion Lattice"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "div",
+        "text": "Hello World Lab — 003"
+      },
+      {
+        "tag": "strong",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "canvas",
+        "id": "rd-canvas"
+      }
+    ],
+    "canvasEvidence": [
+      {
+        "id": "rd-canvas",
+        "width": 340,
+        "height": 126,
+        "pixels": true,
+        "readable": true
+      }
+    ],
+    "frames": 62,
+    "draws": {
+      "canvas": 66,
+      "webgl": 0
+    },
+    "drawnText": [
+      "HELLO WORLD"
+    ],
+    "animations": [],
+    "title": "003 — Asynchronous Reaction-Diffusion Lattice"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Dedicated Web Worker reaction-diffusion solver with zero-copy transferable ArrayBuffers",
+    "measurements": {
+      "workerTransferRoundtripMs": 4.1,
+      "shannonMorphogenEntropyNats": 0.08243,
+      "typographicConvergencePercentage": 100,
+      "simulationLatticeCells": 42840,
+      "completedTransferFrames": 69
+    }
+  },
+  "dynamic": true,
+  "interaction": null
+}

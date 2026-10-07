@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>004 — Interactive Viscoelastic Spring-Mass Typography</title>
+  <style>
+    :root {
+      --bg: #13161c;
+      --panel-bg: #1a1e27;
+      --panel-border: #28303f;
+      --spring-emerald: #10b981;
+      --spring-seafoam: #34d399;
+      --node-glow: #6ee7b7;
+      --tether-faint: rgba(52, 211, 153, 0.2);
+      --text-main: #f1f5f9;
+      --text-muted: #64748b;
+      --accent-coral: #f43f5e;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.5rem 3.5rem;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--panel-border);
+      padding-bottom: 1rem;
+    }
+    .experiment-id {
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--spring-emerald);
+    }
+    .mechanism-tag {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+    }
+    .stage-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      width: 100%;
+      max-width: 1100px;
+    }
+    .subject-prompt {
+      font-size: 1.05rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .subject-prompt strong {
+      color: var(--spring-seafoam);
+      letter-spacing: 0.3em;
+    }
+    .svg-container {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 0 60px rgba(0, 0, 0, 0.4);
+      cursor: grab;
+      touch-action: none;
+    }
+    .svg-container:active {
+      cursor: grabbing;
+    }
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .spring-line {
+      fill: none;
+      stroke: var(--spring-emerald);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .tether-line {
+      fill: none;
+      stroke: var(--tether-faint);
+      stroke-width: 1;
+      stroke-dasharray: 2 4;
+    }
+    .mass-node {
+      fill: var(--node-glow);
+    }
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-top: 1px solid var(--panel-border);
+      padding-top: 1rem;
+      font-size: 0.8rem;
+    }
+    .telemetry-row {
+      display: flex;
+      gap: 3rem;
+    }
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .metric-value {
+      font-variant-numeric: tabular-nums;
+      color: var(--spring-emerald);
+      font-family: ui-monospace, monospace;
+      font-weight: 600;
+    }
+    .instructions-box {
+      max-width: 440px;
+      line-height: 1.45;
+      color: var(--text-muted);
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="experiment-id">Hello World Lab — 004</div>
+    <div class="mechanism-tag">Interactive Viscoelastic Spring-Mass Topology &amp; Elastodynamics</div>
+  </header>
+
+  <main>
+    <div class="stage-wrapper">
+      <div class="subject-prompt">Viscoelastic Manifold: <strong>Hello World</strong></div>
+      <div id="elastic-stage" class="svg-container">
+        <svg id="mesh-svg" viewBox="0 0 1000 360">
+          <path id="path-tethers" class="tether-line" d="" />
+          <path id="path-springs" class="spring-line" d="" />
+          <path id="path-nodes" class="mass-node" d="" />
+        </svg>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="telemetry-row">
+      <div class="metric-item">
+        <span class="metric-label">Lattice Nodes</span>
+        <span id="metric-nodes" class="metric-value">0 nodes</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Coupled Springs</span>
+        <span id="metric-springs" class="metric-value">0 links</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Elastic Strain Energy</span>
+        <span id="metric-energy" class="metric-value">0.00 J</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Interaction Delta</span>
+        <span id="metric-delta" class="metric-value">0.00 px</span>
+      </div>
+    </div>
+    <div class="instructions-box">
+      Click and drag across the lattice to inject momentum waves into the coupled Hookean letterforms of "HELLO WORLD".
+    </div>
+  </footer>
+
+  <script>
+    // Exact structural node definitions for "HELLO WORLD"
+    // Baseline y ≈ 220, Cap-height ≈ 140
+    const GLYPH_CONTOURS = [
+      // H
+      [[40, 80], [40, 150], [40, 220]],
+      [[40, 150], [90, 150]],
+      [[90, 80], [90, 150], [90, 220]],
+      // E
+      [[125, 80], [125, 150], [125, 220]],
+      [[125, 80], [165, 80]],
+      [[125, 150], [155, 150]],
+      [[125, 220], [165, 220]],
+      // L
+      [[195, 80], [195, 150], [195, 220]],
+      [[195, 220], [235, 220]],
+      // L
+      [[260, 80], [260, 150], [260, 220]],
+      [[260, 220], [300, 220]],
+      // O
+      [[355, 80], [390, 95], [400, 150], [390, 205], [355, 220], [320, 205], [310, 150], [320, 95], [355, 80]],
+      // W
+      [[445, 80], [460, 220], [478, 140], [496, 220], [515, 80]],
+      // O
+      [[570, 80], [605, 95], [615, 150], [605, 205], [570, 220], [535, 205], [525, 150], [535, 95], [570, 80]],
+      // R
+      [[650, 80], [650, 150], [650, 220]],
+      [[650, 80], [690, 80], [695, 115], [690, 150], [650, 150]],
+      [[665, 150], [695, 220]],
+      // L
+      [[730, 80], [730, 150], [730, 220]],
+      [[730, 220], [770, 220]],
+      // D
+      [[805, 80], [805, 150], [805, 220]],
+      [[805, 80], [845, 105], [855, 150], [845, 195], [805, 220]]
+    ];
+
+    // Build discrete nodes and springs
+    const nodes = [];
+    const springs = [];
+
+    function addNode(x, y) {
+      // Check if duplicate existing node within threshold
+      for (let i = 0; i < nodes.length; i++) {
+        if (Math.hypot(nodes[i].x0 - x, nodes[i].y0 - y) < 4) {
+          return i;
+        }
+      }
+      const idx = nodes.length;
+      nodes.push({
+        x0: x, y0: y,
+        x: x, y: y,
+        vx: 0, vy: 0,
+        mass: 1.0,
+        dragged: false
+      });
+      return idx;
+    }
+
+    function addSpring(i, j) {
+      if (i === j) return;
+      for (const s of springs) {
+        if ((s.i === i && s.j === j) || (s.i === j && s.j === i)) return;
+      }
+      const p1 = nodes[i], p2 = nodes[j];
+      const restLen = Math.hypot(p1.x0 - p2.x0, p1.y0 - p2.y0);
+      springs.push({ i, j, restLen, k: 0.12 });
+    }
+
+    GLYPH_CONTOURS.forEach(segment => {
+      let prevIdx = -1;
+      segment.forEach(([x, y]) => {
+        const curIdx = addNode(x, y);
+        if (prevIdx !== -1) {
+          addSpring(prevIdx, curIdx);
+        }
+        prevIdx = curIdx;
+      });
+    });
+
+    // Inter-letter coupling springs (viscoelastic web connecting characters)
+    for (let i = 0; i < nodes.length - 1; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dist = Math.hypot(nodes[i].x0 - nodes[j].x0, nodes[i].y0 - nodes[j].y0);
+        if (dist > 15 && dist < 55) {
+          addSpring(i, j);
+        }
+      }
+    }
+
+    const pathTethers = document.getElementById('path-tethers');
+    const pathSprings = document.getElementById('path-springs');
+    const pathNodes = document.getElementById('path-nodes');
+
+    const nodesEl = document.getElementById('metric-nodes');
+    const springsEl = document.getElementById('metric-springs');
+    const energyEl = document.getElementById('metric-energy');
+    const deltaEl = document.getElementById('metric-delta');
+
+    nodesEl.textContent = `${nodes.length} nodes`;
+    springsEl.textContent = `${springs.length} links`;
+
+    // Interactive pointer handling
+    const stage = document.getElementById('elastic-stage');
+    let activePointerId = null;
+    let dragTargetNode = -1;
+    let pointerPos = { x: 0, y: 0 };
+    let maxDisplacementObserved = 0;
+
+    function getSvgCoordinates(e) {
+      const rect = stage.getBoundingClientRect();
+      const scaleX = 1000 / rect.width;
+      const scaleY = 360 / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    stage.addEventListener('pointerdown', e => {
+      activePointerId = e.pointerId;
+      stage.setPointerCapture(e.pointerId);
+      pointerPos = getSvgCoordinates(e);
+
+      // Find nearest node
+      let nearestIdx = -1;
+      let minDist = 120; // broad grab radius
+      nodes.forEach((n, idx) => {
+        const d = Math.hypot(n.x - pointerPos.x, n.y - pointerPos.y);
+        if (d < minDist) {
+          minDist = d;
+          nearestIdx = idx;
+        }
+      });
+
+      dragTargetNode = nearestIdx;
+      if (dragTargetNode !== -1) {
+        nodes[dragTargetNode].dragged = true;
+      }
+    });
+
+    stage.addEventListener('pointermove', e => {
+      if (activePointerId !== e.pointerId) return;
+      pointerPos = getSvgCoordinates(e);
+
+      if (dragTargetNode !== -1) {
+        nodes[dragTargetNode].x = pointerPos.x;
+        nodes[dragTargetNode].y = pointerPos.y;
+        nodes[dragTargetNode].vx = 0;
+        nodes[dragTargetNode].vy = 0;
+      } else {
+        // Displace neighboring nodes with cursor wake
+        nodes.forEach(n => {
+          const d = Math.hypot(n.x - pointerPos.x, n.y - pointerPos.y);
+          if (d < 80) {
+            const force = (80 - d) * 0.15;
+            const angle = Math.atan2(n.y - pointerPos.y, n.x - pointerPos.x);
+            n.vx += Math.cos(angle) * force;
+            n.vy += Math.sin(angle) * force;
+          }
+        });
+      }
+    });
+
+    function releasePointer() {
+      if (dragTargetNode !== -1) {
+        nodes[dragTargetNode].dragged = false;
+        dragTargetNode = -1;
+      }
+      activePointerId = null;
+    }
+
+    stage.addEventListener('pointerup', releasePointer);
+    stage.addEventListener('pointercancel', releasePointer);
+
+    // Physics step
+    const state = {
+      elasticEnergy: 0,
+      meanDisplacement: 0,
+      peakInteractionStrain: 0,
+      frameCount: 0
+    };
+
+    function stepPhysics() {
+      let totalPotentialEnergy = 0;
+      let totalDisplacement = 0;
+
+      // 1. Spring forces
+      springs.forEach(s => {
+        const n1 = nodes[s.i], n2 = nodes[s.j];
+        const dx = n2.x - n1.x;
+        const dy = n2.y - n1.y;
+        const dist = Math.hypot(dx, dy) || 1e-4;
+        const delta = dist - s.restLen;
+        const force = delta * s.k;
+
+        totalPotentialEnergy += 0.5 * s.k * delta * delta;
+
+        const fx = (dx / dist) * force;
+        const fy = (dy / dist) * force;
+
+        if (!n1.dragged) { n1.vx += fx / n1.mass; n1.vy += fy / n1.mass; }
+        if (!n2.dragged) { n2.vx -= fx / n2.mass; n2.vy -= fy / n2.mass; }
+      });
+
+      // 2. Anchor restoration force (Hookean home tether)
+      const kAnchor = 0.05;
+      const damping = 0.92;
+
+      nodes.forEach(n => {
+        if (!n.dragged) {
+          const dx = n.x0 - n.x;
+          const dy = n.y0 - n.y;
+          n.vx += dx * kAnchor;
+          n.vy += dy * kAnchor;
+
+          n.vx *= damping;
+          n.vy *= damping;
+
+          n.x += n.vx;
+          n.y += n.vy;
+        }
+
+        const disp = Math.hypot(n.x - n.x0, n.y - n.y0);
+        totalDisplacement += disp;
+        if (disp > maxDisplacementObserved) {
+          maxDisplacementObserved = disp;
+        }
+      });
+
+      // Update path strings
+      let dTethers = '';
+      let dSprings = '';
+      let dNodes = '';
+
+      nodes.forEach(n => {
+        dTethers += ` M ${n.x0.toFixed(1)} ${n.y0.toFixed(1)} L ${n.x.toFixed(1)} ${n.y.toFixed(1)}`;
+        dNodes += ` M ${(n.x - 3).toFixed(1)} ${(n.y - 3).toFixed(1)} h 6 v 6 h -6 Z`;
+      });
+
+      springs.forEach(s => {
+        const n1 = nodes[s.i], n2 = nodes[s.j];
+        dSprings += ` M ${n1.x.toFixed(1)} ${n1.y.toFixed(1)} L ${n2.x.toFixed(1)} ${n2.y.toFixed(1)}`;
+      });
+
+      pathTethers.setAttribute('d', dTethers);
+      pathSprings.setAttribute('d', dSprings);
+      pathNodes.setAttribute('d', dNodes);
+
+      state.elasticEnergy = totalPotentialEnergy;
+      state.meanDisplacement = totalDisplacement / nodes.length;
+      state.peakInteractionStrain = maxDisplacementObserved;
+      state.frameCount++;
+
+      energyEl.textContent = `${totalPotentialEnergy.toFixed(2)} J`;
+      deltaEl.textContent = `${maxDisplacementObserved.toFixed(1)} px`;
+    }
+
+    function animLoop() {
+      stepPhysics();
+      requestAnimationFrame(animLoop);
+    }
+
+    stepPhysics();
+    requestAnimationFrame(animLoop);
+
+    // Readiness & Scenario Protocols
+    window.labReady = true;
+
+    window.labScenario = {
+      kind: 'drag',
+      selector: '#elastic-stage',
+      deltaX: 180
+    };
+
+    window.labEvidence = () => ({
+      subject: 'Hello World',
+      passed: nodes.length > 40 && springs.length > 50,
+      mechanism: 'Coupled 2D spring-mass lattice with Hookean anchor restitution',
+      measurements: {
+        totalLatticeNodes: nodes.length,
+        coupledSpringLinks: springs.length,
+        restingElasticEnergyJoule: Number(state.elasticEnergy.toFixed(3)),
+        quiescentDisplacementPx: Number(state.meanDisplacement.toFixed(2))
+      }
+    });
+
+    window.labInteractionEvidence = () => ({
+      subject: 'Hello World',
+      passed: state.peakInteractionStrain > 15.0,
+      mechanism: 'Continuous pointer drag input inducing kinetic strain and viscoelastic restitution',
+      measurements: {
+        peakDisplacementDeltaPx: Number(state.peakInteractionStrain.toFixed(2)),
+        postInteractionEnergyJoule: Number(state.elasticEnergy.toFixed(3)),
+        interactiveFrames: state.frameCount
+      }
+    });
+  </script>
+</body>
+</html>

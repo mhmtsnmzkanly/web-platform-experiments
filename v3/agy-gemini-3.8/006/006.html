@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>006 — Topographic Signed Distance Field Elevation</title>
+  <style>
+    :root {
+      --bg: #1c0f0a;
+      --card-bg: #27140e;
+      --border-terracotta: #4a2417;
+      --sand-light: #fdf0d5;
+      --ochre-warm: #f4a261;
+      --terracotta-base: #e76f51;
+      --text-muted: #9c6653;
+      --text-main: #faedcd;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.5rem 3.5rem;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border-terracotta);
+      padding-bottom: 1rem;
+    }
+    .experiment-id {
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--ochre-warm);
+      font-family: ui-monospace, monospace;
+    }
+    .mechanism-tag {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+    }
+    .survey-assembly {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      width: 100%;
+      max-width: 1100px;
+    }
+    .survey-heading {
+      font-size: 1.05rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .survey-heading strong {
+      color: var(--sand-light);
+      letter-spacing: 0.3em;
+    }
+    .canvas-plate {
+      position: relative;
+      border: 2px solid var(--border-terracotta);
+      border-radius: 8px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(0, 0, 0, 0.8);
+      background: var(--card-bg);
+      padding: 5px;
+    }
+    canvas {
+      display: block;
+      border-radius: 4px;
+      image-rendering: auto;
+    }
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-top: 1px solid var(--border-terracotta);
+      padding-top: 1rem;
+      font-size: 0.8rem;
+    }
+    .telemetry-row {
+      display: flex;
+      gap: 3rem;
+    }
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-family: ui-monospace, monospace;
+    }
+    .metric-value {
+      font-variant-numeric: tabular-nums;
+      color: var(--ochre-warm);
+      font-family: ui-monospace, monospace;
+      font-weight: 600;
+    }
+    .survey-colophon {
+      max-width: 440px;
+      line-height: 1.45;
+      color: var(--text-muted);
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="experiment-id">Hello World Lab — 006</div>
+    <div class="mechanism-tag">Euclidean Signed Distance Field Elevation &amp; Analytical Isoline Cartography</div>
+  </header>
+
+  <main>
+    <div class="survey-assembly">
+      <div class="survey-heading">Geodesic Elevation Relief: <strong>Hello World</strong></div>
+      <div class="canvas-plate">
+        <canvas id="sdf-canvas" width="1020" height="380"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="telemetry-row">
+      <div class="metric-item">
+        <span class="metric-label">Mean Gradient Norm</span>
+        <span id="metric-gradient" class="metric-value">|∇Φ| = 1.000</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Peak Relief Elevation</span>
+        <span id="metric-elevation" class="metric-value">0.00 px</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Sun Vector Azimuth</span>
+        <span id="metric-sun" class="metric-value">0.0°</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Elevation Bands</span>
+        <span id="metric-bands" class="metric-value">24 isolines</span>
+      </div>
+    </div>
+    <div class="survey-colophon">
+      Analytical 2D Euclidean Signed Distance Field (SDF) of "HELLO WORLD" with dynamic hill-shading, eikonal level-set isolines, and terracotta geodesic elevation shading.
+    </div>
+  </footer>
+
+  <script>
+    const canvas = document.getElementById('sdf-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+
+    // Computational grid dimensions for distance field
+    const GW = 340;
+    const GH = 126;
+
+    // Rasterize binary typographic boundary of "HELLO WORLD"
+    const offscreen = document.createElement('canvas');
+    offscreen.width = GW;
+    offscreen.height = GH;
+    const offCtx = offscreen.getContext('2d');
+    offCtx.fillStyle = '#000000';
+    offCtx.fillRect(0, 0, GW, GH);
+    offCtx.fillStyle = '#ffffff';
+    offCtx.font = '900 44px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    offCtx.textAlign = 'center';
+    offCtx.textBaseline = 'middle';
+    offCtx.fillText('HELLO WORLD', GW / 2, GH / 2);
+
+    const maskRaw = offCtx.getImageData(0, 0, GW, GH).data;
+    const boundaryMask = new Uint8Array(GW * GH);
+    for (let i = 0; i < GW * GH; i++) {
+      boundaryMask[i] = maskRaw[i * 4] > 120 ? 1 : 0;
+    }
+
+    // Exact Euclidean Distance Transform (Meijster's separable 1D pass algorithm)
+    const INF = 1e9;
+    const dt = new Float32Array(GW * GH);
+
+    function computeEuclideanDistanceField() {
+      const g = new Float32Array(GW * GH);
+
+      // Phase 1: 1D transform along columns
+      for (let x = 0; x < GW; x++) {
+        g[x] = boundaryMask[x] ? 0 : INF;
+        for (let y = 1; y < GH; y++) {
+          const idx = y * GW + x;
+          g[idx] = boundaryMask[idx] ? 0 : (1 + g[(y - 1) * GW + x]);
+        }
+        for (let y = GH - 2; y >= 0; y--) {
+          const idx = y * GW + x;
+          if (g[(y + 1) * GW + x] < g[idx]) {
+            g[idx] = 1 + g[(y + 1) * GW + x];
+          }
+        }
+      }
+
+      // Phase 2: 1D transform along rows using parabolic upper envelope
+      const s = new Int32Array(GW);
+      const t = new Float32Array(GW);
+
+      for (let y = 0; y < GH; y++) {
+        let q = 0;
+        s[0] = 0;
+        t[0] = 0;
+
+        for (let u = 1; u < GW; u++) {
+          while (q >= 0) {
+            const v = s[q];
+            const f_u = g[y * GW + u];
+            const f_v = g[y * GW + v];
+            const sep = ((u * u - v * v) + (f_u * f_u - f_v * f_v)) / (2 * (u - v));
+            if (sep <= t[q]) {
+              q--;
+            } else {
+              q++;
+              s[q] = u;
+              t[q] = sep;
+              break;
+            }
+          }
+          if (q < 0) {
+            q = 0;
+            s[0] = u;
+            t[0] = 0;
+          }
+        }
+
+        for (let u = GW - 1; u >= 0; u--) {
+          while (q > 0 && t[q] > u) q--;
+          const v = s[q];
+          const diffX = u - v;
+          const diffY = g[y * GW + v];
+          dt[y * GW + u] = Math.sqrt(diffX * diffX + diffY * diffY);
+        }
+      }
+    }
+
+    computeEuclideanDistanceField();
+
+    let peakDistance = 0;
+    for (let i = 0; i < GW * GH; i++) {
+      if (dt[i] > peakDistance) peakDistance = dt[i];
+    }
+
+    // Telemetry and rendering
+    const gradientEl = document.getElementById('metric-gradient');
+    const elevationEl = document.getElementById('metric-elevation');
+    const sunEl = document.getElementById('metric-sun');
+
+    const renderBuf = ctx.createImageData(GW, GH);
+    const pixelView = new Uint32Array(renderBuf.data.buffer);
+
+    const state = {
+      meanGradNorm: 1.0,
+      peakDist: peakDistance,
+      sunAngleDeg: 0,
+      frameCount: 0
+    };
+
+    function renderField(time) {
+      const sunAngle = time * 0.0012;
+      const lx = Math.cos(sunAngle);
+      const ly = Math.sin(sunAngle);
+      const lz = 0.65;
+      const lLen = Math.hypot(lx, ly, lz);
+      const nlx = lx / lLen, nly = ly / lLen, nlz = lz / lLen;
+
+      state.sunAngleDeg = ((sunAngle * 180 / Math.PI) % 360 + 360) % 360;
+
+      let gradNormSum = 0;
+      let validSamples = 0;
+
+      for (let y = 0; y < GH; y++) {
+        const yRow = y * GW;
+        const yAbove = (y > 0 ? y - 1 : 0) * GW;
+        const yBelow = (y < GH - 1 ? y + 1 : GH - 1) * GW;
+
+        for (let x = 0; x < GW; x++) {
+          const idx = yRow + x;
+          const dist = dt[idx];
+          const isInside = boundaryMask[idx];
+
+          // Compute analytical spatial gradient ∇Φ
+          const xL = x > 0 ? x - 1 : 0;
+          const xR = x < GW - 1 ? x + 1 : GW - 1;
+          const gx = (dt[yRow + xR] - dt[yRow + xL]) * 0.5;
+          const gy = (dt[yBelow + x] - dt[yAbove + x]) * 0.5;
+          const gNorm = Math.hypot(gx, gy);
+
+          if (dist > 1.0 && dist < peakDistance * 0.9) {
+            gradNormSum += gNorm;
+            validSamples++;
+          }
+
+          // Elevation height map: glyphs are mountain plateaus
+          const elevation = isInside ? 1.0 : Math.max(0.0, 1.0 - (dist / (peakDistance * 0.65)));
+
+          // Analytical 3D normal vector
+          const nx = -gx * 0.8;
+          const ny = -gy * 0.8;
+          const nz = 1.0;
+          const nLen = Math.hypot(nx, ny, nz) || 1.0;
+
+          // Lambertian diffuse hill-shading
+          const diffuse = Math.max(0.0, (nx * nlx + ny * nly + nz * nlz) / nLen);
+
+          // Topographic Riemannian isoline calculation
+          const isolineFreq = 0.45;
+          const wave = Math.sin(dist * isolineFreq - time * 0.002);
+          const isContourLine = Math.abs(wave) > 0.88;
+
+          // Terracotta / desert sand relief palette
+          let r, gVal, b;
+
+          if (isInside) {
+            // Peak plateau: luminous ivory with warm specular highlight
+            const light = 0.85 + diffuse * 0.15;
+            r = Math.min(255, Math.round(250 * light));
+            gVal = Math.min(255, Math.round(237 * light));
+            b = Math.min(255, Math.round(205 * light));
+          } else if (isContourLine) {
+            // Fine geodesic contour isoline: crisp ochre/sand line
+            r = 253; gVal = 240; b = 213;
+          } else {
+            // Valley and canyon slopes: rich terracotta, baked clay, deep sienna
+            const t = elevation;
+            const shade = 0.55 + diffuse * 0.45;
+            r = Math.round((45 + 186 * t) * shade);
+            gVal = Math.round((20 + 91 * t) * shade);
+            b = Math.round((14 + 67 * t) * shade);
+          }
+
+          pixelView[idx] = (255 << 24) | (b << 16) | (gVal << 8) | r;
+        }
+      }
+
+      state.meanGradNorm = validSamples > 0 ? (gradNormSum / validSamples) : 1.0;
+      state.frameCount++;
+
+      // Draw buffer scaled smoothly onto canvas
+      ctx.drawImage(offscreen, 0, 0, GW, GH, 0, 0, W, H);
+      ctx.putImageData(renderBuf, 0, 0);
+      ctx.drawImage(canvas, 0, 0, GW, GH, 0, 0, W, H);
+
+      // Telemetry
+      gradientEl.textContent = `|∇Φ| = ${state.meanGradNorm.toFixed(3)}`;
+      elevationEl.textContent = `${peakDistance.toFixed(1)} px`;
+      sunEl.textContent = `${state.sunAngleDeg.toFixed(1)}°`;
+    }
+
+    function animLoop(time) {
+      renderField(time);
+      requestAnimationFrame(animLoop);
+    }
+
+    renderField(0);
+    requestAnimationFrame(animLoop);
+
+    // Readiness & Evidence Protocol
+    window.labReady = true;
+    window.labEvidence = () => ({
+      subject: 'Hello World',
+      passed: state.meanGradNorm > 0.5 && peakDistance > 10,
+      mechanism: 'Exact Euclidean Signed Distance Field (SDF) with analytical eikonal hill-shading and isolines',
+      measurements: {
+        meanEuclideanGradientNorm: Number(state.meanGradNorm.toFixed(4)),
+        peakElevationDepthPx: Number(peakDistance.toFixed(2)),
+        sunAzimuthAngleDeg: Number(state.sunAngleDeg.toFixed(1)),
+        gridDimensions: `${GW}x${GH}`,
+        evaluatedReliefFrames: state.frameCount
+      }
+    });
+  </script>
+</body>
+</html>

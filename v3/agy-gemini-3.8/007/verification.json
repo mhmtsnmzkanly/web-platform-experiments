@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "div",
+        "text": "Hello World Lab — 007"
+      },
+      {
+        "tag": "strong",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "007 — Chrono-Linguistic Statechart & IndexedDB Journal"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "div",
+        "text": "Hello World Lab — 007"
+      },
+      {
+        "tag": "strong",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 0,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "007 — Chrono-Linguistic Statechart & IndexedDB Journal"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "IndexedDB asynchronous event-sourcing journal with verifiable time-travel readback",
+    "measurements": {
+      "indexedDbCommittedTransactions": 8,
+      "transactionWriteLatencyMs": 0.7,
+      "cumulativeStateHashHex": "0x97DBE3AC",
+      "timeTravelReplayMatchPercentage": 100,
+      "databaseName": "HelloWorldChronoLab_007"
+    }
+  },
+  "dynamic": false,
+  "interaction": null
+}

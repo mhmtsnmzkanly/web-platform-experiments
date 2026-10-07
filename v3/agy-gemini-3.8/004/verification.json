@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "div",
+        "text": "Hello World Lab — 004"
+      },
+      {
+        "tag": "strong",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": "mesh-svg"
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 16,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "004 — Interactive Viscoelastic Spring-Mass Typography"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "div",
+        "text": "Hello World Lab — 004"
+      },
+      {
+        "tag": "strong",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": "mesh-svg"
+      }
+    ],
+    "canvasEvidence": [],
+    "frames": 64,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "004 — Interactive Viscoelastic Spring-Mass Typography"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Coupled 2D spring-mass lattice with Hookean anchor restitution",
+    "measurements": {
+      "totalLatticeNodes": 59,
+      "coupledSpringLinks": 81,
+      "restingElasticEnergyJoule": 0,
+      "quiescentDisplacementPx": 0
+    }
+  },
+  "dynamic": true,
+  "interaction": {
+    "scenario": {
+      "kind": "drag",
+      "selector": "#elastic-stage",
+      "deltaX": 180
+    },
+    "evidence": {
+      "subject": "Hello World",
+      "passed": true,
+      "mechanism": "Continuous pointer drag input inducing kinetic strain and viscoelastic restitution",
+      "measurements": {
+        "peakDisplacementDeltaPx": 141.85,
+        "postInteractionEnergyJoule": 528.993,
+        "interactiveFrames": 86
+      }
+    },
+    "reloaded": null,
+    "after": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "div",
+          "text": "Hello World Lab — 004"
+        },
+        {
+          "tag": "strong",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [
+        {
+          "tag": "svg",
+          "id": "mesh-svg"
+        }
+      ],
+      "canvasEvidence": [],
+      "frames": 87,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "004 — Interactive Viscoelastic Spring-Mass Typography"
+    },
+    "late": {
+      "issues": [],
+      "visibleSubjects": [
+        {
+          "tag": "div",
+          "text": "Hello World Lab — 004"
+        },
+        {
+          "tag": "strong",
+          "text": "Hello World"
+        }
+      ],
+      "graphics": [
+        {
+          "tag": "svg",
+          "id": "mesh-svg"
+        }
+      ],
+      "canvasEvidence": [],
+      "frames": 135,
+      "draws": {
+        "canvas": 0,
+        "webgl": 0
+      },
+      "drawnText": [],
+      "animations": [],
+      "title": "004 — Interactive Viscoelastic Spring-Mass Typography"
+    }
+  }
+}

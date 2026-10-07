@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "div",
+        "text": "Hello World Lab — 005"
+      },
+      {
+        "tag": "strong",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 14,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "005 — Spectrographic Glyph Decomposition & Optical Dispersion"
+  },
+  "second": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "div",
+        "text": "Hello World Lab — 005"
+      },
+      {
+        "tag": "strong",
+        "text": "Hello World"
+      }
+    ],
+    "graphics": [],
+    "canvasEvidence": [],
+    "frames": 66,
+    "draws": {
+      "canvas": 0,
+      "webgl": 0
+    },
+    "drawnText": [],
+    "animations": [],
+    "title": "005 — Spectrographic Glyph Decomposition & Optical Dispersion"
+  },
+  "technology": {
+    "subject": "Hello World",
+    "passed": true,
+    "mechanism": "Pure DOM Cauchy spectrographic dispersion with OKLCH color spaces and additive screen blending",
+    "measurements": {
+      "cauchyMeanRefractiveIndex": 1.5203,
+      "peakDispersionOffsetPx": 34.27,
+      "opticalChromaticDeltaE": 63.05,
+      "spectralChannelCount": 7,
+      "evaluatedFrames": 75
+    }
+  },
+  "dynamic": true,
+  "interaction": null
+}

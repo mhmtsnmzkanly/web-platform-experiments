@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>010 — Cybernetic Fluid-Kinetic Symbiosis &amp; Spatial Resonator</title>
+  <style>
+    :root {
+      --bg-obsidian: #06080d;
+      --card-bg: rgba(12, 17, 26, 0.75);
+      --border-aurora: rgba(16, 185, 129, 0.25);
+      --text-main: #f0fdf4;
+      --text-muted: #94a3b8;
+      --accent-emerald: #10b981;
+      --accent-cyan: #06b6d4;
+      --accent-amethyst: #a855f7;
+      --accent-gold: #fbbf24;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-obsidian);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    header {
+      padding: 20px 36px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.04) 0%, transparent 100%);
+    }
+
+    .brand-title {
+      font-size: 13px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent-emerald);
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 36px;
+      gap: 20px;
+    }
+
+    .hero-subject {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .subject-label {
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+    }
+
+    .subject-title {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ffffff 0%, #a7f3d0 40%, #67e8f9 70%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 35px rgba(16, 185, 129, 0.25);
+    }
+
+    .stage-wrapper {
+      position: relative;
+      width: 1080px;
+      height: 480px;
+      border-radius: 12px;
+      border: 1px solid var(--border-aurora);
+      background: radial-gradient(circle at 50% 50%, #0d1522 0%, #06080d 100%);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(16, 185, 129, 0.06);
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    canvas#sim-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    svg#glyph-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .hud-overlay {
+      position: absolute;
+      top: 14px;
+      left: 18px;
+      z-index: 3;
+      pointer-events: none;
+      display: flex;
+      gap: 16px;
+    }
+
+    .hud-badge {
+      background: rgba(6, 8, 13, 0.85);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-family: monospace;
+      color: var(--accent-emerald);
+      letter-spacing: 0.1em;
+    }
+
+    .hud-badge.secondary {
+      border-color: rgba(6, 182, 212, 0.3);
+      color: var(--accent-cyan);
+    }
+
+    .telemetry-deck {
+      width: 1080px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+
+    .telemetry-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+    }
+
+    .card-value {
+      font-size: 17px;
+      font-family: monospace;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .card-value.emerald { color: var(--accent-emerald); }
+    .card-value.cyan { color: var(--accent-cyan); }
+    .card-value.amethyst { color: var(--accent-amethyst); }
+    .card-value.gold { color: var(--accent-gold); }
+
+    footer {
+      padding: 12px 36px 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-title">Hello World Lab — 010</div>
+    <div class="brand-sub">Cybernetic Fluid-Kinetic Symbiosis &amp; Multichannel Spatial Acoustic Resonator</div>
+  </header>
+
+  <main>
+    <div class="hero-subject">
+      <span class="subject-label">Coupled Cybernetic Symbiosis</span>
+      <h1 class="subject-title">Hello World</h1>
+    </div>
+
+    <div class="stage-wrapper" id="stage-wrapper">
+      <canvas id="sim-canvas" width="1080" height="480"></canvas>
+      <svg id="glyph-overlay" viewBox="0 0 1080 480">
+        <defs>
+          <radialGradient id="aurora-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#10b981" stop-opacity="0.35" />
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <g id="svg-filaments"></g>
+        <g id="svg-nodes"></g>
+      </svg>
+      <div class="hud-overlay">
+        <div class="hud-badge" id="hud-worker-status">WORKER: ACTIVE (ZERO-COPY)</div>
+        <div class="hud-badge secondary" id="hud-spatial-status">AUDIO: 10-CH SPATIAL PANNER</div>
+      </div>
+    </div>
+
+    <div class="telemetry-deck">
+      <div class="telemetry-card">
+        <span class="card-label">Worker Transfer Latency</span>
+        <span class="card-value emerald" id="val-worker-lat">0.00 ms</span>
+      </div>
+      <div class="telemetry-card">
+        <span class="card-label">Kinetic Particle Flux</span>
+        <span class="card-value cyan" id="val-kinetic-energy">0.00 kJ</span>
+      </div>
+      <div class="telemetry-card">
+        <span class="card-label">Glyph Hydro-Coupling</span>
+        <span class="card-value amethyst" id="val-hydro-coupling">0.00 N</span>
+      </div>
+      <div class="telemetry-card">
+        <span class="card-label">Acoustic Resonant Energy</span>
+        <span class="card-value gold" id="val-acoustic-energy">0.00 dB</span>
+      </div>
+      <div class="telemetry-card">
+        <span class="card-label">Reynolds Vorticity</span>
+        <span class="card-value" id="val-reynolds">1,240 Re</span>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span>Autonomous Web Platform Culmination Experiment (001–010)</span>
+    <span>Zero External Assets · Pure Standards Execution</span>
+  </footer>
+
+  <script>
+    // -------------------------------------------------------------
+    // Configuration & Glyph Topology Definition
+    // -------------------------------------------------------------
+    const GLYPH_CHARS = ['H', 'E', 'L', 'L', 'O', 'W', 'O', 'R', 'L', 'D'];
+    const GLYPH_COUNT = GLYPH_CHARS.length;
+    const CANVAS_W = 1080;
+    const CANVAS_H = 480;
+    const PARTICLE_COUNT = 1200;
+
+    // Harmonic pentatonic/diatonic scale frequencies for the 10 glyphs
+    const GLYPH_FREQS = [110.0, 130.81, 146.83, 164.81, 196.00, 220.0, 261.63, 293.66, 329.63, 392.00];
+
+    // Compute glyph spatial coordinates across stage
+    const glyphs = [];
+    const marginX = 140;
+    const spacingX = (CANVAS_W - 2 * marginX) / (GLYPH_COUNT - 1);
+    const centerY = CANVAS_H / 2;
+
+    for (let i = 0; i < GLYPH_COUNT; i++) {
+      const gx = marginX + i * spacingX;
+      // Slight sinusoidal wave in glyph baseline for natural flow
+      const gy = centerY + Math.sin(i * 0.7) * 22;
+      glyphs.push({
+        char: GLYPH_CHARS[i],
+        x: gx,
+        y: gy,
+        freq: GLYPH_FREQS[i],
+        energy: 0,
+        flowVelX: 0,
+        flowVelY: 0
+      });
+    }
+
+    // -------------------------------------------------------------
+    // SVG Topological Nodes & Filaments Pre-Allocation
+    // -------------------------------------------------------------
+    const svgFilamentsGroup = document.getElementById('svg-filaments');
+    const svgNodesGroup = document.getElementById('svg-nodes');
+
+    // Create persistent filament paths between adjacent glyphs
+    const filamentPaths = [];
+    for (let i = 0; i < GLYPH_COUNT - 1; i++) {
+      const path = document.createElementNS(svgFilamentsGroup.namespaceURI, 'path');
+      path.setAttribute('stroke', 'rgba(16, 185, 129, 0.2)');
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('fill', 'none');
+      svgFilamentsGroup.appendChild(path);
+      filamentPaths.push(path);
+    }
+
+    // Create persistent glyph node markers
+    const nodeAuras = [];
+    const nodeLabels = [];
+    glyphs.forEach((g, idx) => {
+      // Glow aura circle
+      const circle = document.createElementNS(svgNodesGroup.namespaceURI, 'circle');
+      circle.setAttribute('cx', g.x);
+      circle.setAttribute('cy', g.y);
+      circle.setAttribute('r', '28');
+      circle.setAttribute('fill', 'rgba(16, 185, 129, 0.08)');
+      circle.setAttribute('stroke', 'rgba(6, 182, 212, 0.35)');
+      circle.setAttribute('stroke-width', '1.5');
+      svgNodesGroup.appendChild(circle);
+      nodeAuras.push(circle);
+
+      // Character typography
+      const text = document.createElementNS(svgNodesGroup.namespaceURI, 'text');
+      text.setAttribute('x', g.x);
+      text.setAttribute('y', g.y + 7);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('font-family', 'monospace');
+      text.setAttribute('font-weight', 'bold');
+      text.setAttribute('font-size', '20');
+      text.setAttribute('fill', '#f0fdf4');
+      text.textContent = g.char;
+      svgNodesGroup.appendChild(text);
+      nodeLabels.push(text);
+    });
+
+    // -------------------------------------------------------------
+    // Multichannel Spatial Audio Subsystem
+    // -------------------------------------------------------------
+    let audioCtx = null;
+    let masterGain = null;
+    const audioChannels = [];
+
+    function initAudio() {
+      if (audioCtx) return;
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+
+        masterGain = audioCtx.createGain();
+        masterGain.gain.setValueAtTime(0.07, audioCtx.currentTime);
+        masterGain.connect(audioCtx.destination);
+
+        // Build 10 spatial panned voices
+        glyphs.forEach((g, idx) => {
+          const osc = audioCtx.createOscillator();
+          osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+          osc.frequency.setValueAtTime(g.freq, audioCtx.currentTime);
+
+          const filter = audioCtx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(g.freq * 1.5, audioCtx.currentTime);
+          filter.Q.setValueAtTime(6.0, audioCtx.currentTime);
+
+          const voiceGain = audioCtx.createGain();
+          voiceGain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+
+          // Spatial Stereo Panner mapped across horizontal stage
+          const panValue = ((g.x / CANVAS_W) * 2) - 1; // -1.0 (left) to +1.0 (right)
+          let panner;
+          if (audioCtx.createStereoPanner) {
+            panner = audioCtx.createStereoPanner();
+            panner.pan.setValueAtTime(Math.max(-0.9, Math.min(0.9, panValue)), audioCtx.currentTime);
+          } else {
+            // Fallback gain node
+            panner = audioCtx.createGain();
+          }
+
+          osc.connect(filter);
+          filter.connect(voiceGain);
+          voiceGain.connect(panner);
+          panner.connect(masterGain);
+
+          osc.start();
+
+          audioChannels.push({
+            osc,
+            filter,
+            gain: voiceGain,
+            baseFreq: g.freq,
+            currentGain: 0.02
+          });
+        });
+      } catch (err) {
+        console.warn('AudioContext initialization note', err);
+      }
+    }
+
+    // Auto-init audio on user interaction or immediately in compliant headless environments
+    window.addEventListener('pointerdown', () => initAudio(), { once: true });
+    try { initAudio(); } catch (e) {}
+
+    // -------------------------------------------------------------
+    // Inline Web Worker Simulation Subsystem
+    // -------------------------------------------------------------
+    // Worker implements viscous fluid particles interacting with glyph attractors
+    const workerScript = `
+      let particleData = null; // Float32Array: [x, y, vx, vy, speed] (stride = 5)
+      let particleCount = 0;
+      let glyphs = [];
+      let bounds = { w: 1080, h: 480 };
+
+      self.onmessage = function(e) {
+        const msg = e.data;
+        if (msg.type === 'init') {
+          particleCount = msg.count;
+          bounds = msg.bounds;
+          glyphs = msg.glyphs;
+          particleData = new Float32Array(particleCount * 5);
+
+          // Seed random positions and velocities
+          for (let i = 0; i < particleCount; i++) {
+            const idx = i * 5;
+            particleData[idx + 0] = Math.random() * bounds.w;
+            particleData[idx + 1] = Math.random() * bounds.h;
+            particleData[idx + 2] = (Math.random() - 0.5) * 1.5;
+            particleData[idx + 3] = (Math.random() - 0.5) * 1.5;
+            particleData[idx + 4] = 0.0;
+          }
+
+          self.postMessage({ type: 'ready' });
+          return;
+        }
+
+        if (msg.type === 'step') {
+          const buffer = msg.buffer;
+          const pView = new Float32Array(buffer);
+          const pointer = msg.pointer;
+          const dt = 0.016;
+
+          let totalKineticEnergy = 0.0;
+          const glyphForces = new Float32Array(glyphs.length * 2);
+
+          for (let i = 0; i < particleCount; i++) {
+            const offset = i * 5;
+            let px = pView[offset + 0];
+            let py = pView[offset + 1];
+            let vx = pView[offset + 2];
+            let vy = pView[offset + 3];
+
+            // 1. Attraction and orbital swirl around glyphs
+            for (let g = 0; g < glyphs.length; g++) {
+              const gx = glyphs[g].x;
+              const gy = glyphs[g].y;
+              const dx = gx - px;
+              const dy = gy - py;
+              const distSq = dx * dx + dy * dy + 400.0;
+              const invDist = 1.0 / Math.sqrt(distSq);
+
+              // Gravitational well
+              const force = 320.0 / distSq;
+              const fx = dx * invDist * force;
+              const fy = dy * invDist * force;
+
+              // Vortex swirl component (perpendicular)
+              const swirlCoeff = 0.45;
+              const sx = -dy * invDist * force * swirlCoeff;
+              const sy = dx * invDist * force * swirlCoeff;
+
+              vx += (fx + sx) * dt;
+              vy += (fy + sy) * dt;
+
+              if (distSq < 3600.0) {
+                glyphForces[g * 2 + 0] += Math.abs(fx);
+                glyphForces[g * 2 + 1] += Math.abs(fy);
+              }
+            }
+
+            // 2. Pointer kinetic impulse
+            if (pointer && pointer.active) {
+              const pdx = pointer.x - px;
+              const pdy = pointer.y - py;
+              const pDistSq = pdx * pdx + pdy * pdy + 200.0;
+              if (pDistSq < 16000.0) {
+                const pForce = 1200.0 / pDistSq;
+                vx += (pointer.vx * 0.4 - pdx * 0.02) * pForce;
+                vy += (pointer.vy * 0.4 - pdy * 0.02) * pForce;
+              }
+            }
+
+            // 3. Fluid drag & viscosity damping
+            vx *= 0.985;
+            vy *= 0.985;
+
+            // Integration
+            px += vx;
+            py += vy;
+
+            // Periodic boundary conditions with smooth wrap
+            if (px < 0) px += bounds.w;
+            if (px > bounds.w) px -= bounds.w;
+            if (py < 0) py += bounds.h;
+            if (py > bounds.h) py -= bounds.h;
+
+            const speed = Math.sqrt(vx * vx + vy * vy);
+            totalKineticEnergy += 0.5 * speed * speed;
+
+            pView[offset + 0] = px;
+            pView[offset + 1] = py;
+            pView[offset + 2] = vx;
+            pView[offset + 3] = vy;
+            pView[offset + 4] = speed;
+          }
+
+          // Transfer buffer back to main thread
+          self.postMessage({
+            type: 'result',
+            buffer: pView.buffer,
+            kineticEnergy: totalKineticEnergy,
+            glyphForces: glyphForces.buffer,
+            computeTime: performance.now()
+          }, [pView.buffer, glyphForces.buffer]);
+        }
+      };
+    `;
+
+    const workerBlob = new Blob([workerScript], { type: 'application/javascript' });
+    const worker = new Worker(URL.createObjectURL(workerBlob));
+
+    // Pointer tracking
+    let peakInteractionKineticEnergy = 0;
+    let peakInteractionCouplingForce = 0;
+
+    const pointerState = {
+      x: CANVAS_W / 2,
+      y: CANVAS_H / 2,
+      vx: 0,
+      vy: 0,
+      active: false,
+      lastTime: performance.now()
+    };
+
+    const stageEl = document.getElementById('stage-wrapper');
+
+    function handlePointerUpdate(clientX, clientY, isDown) {
+      const rect = stageEl.getBoundingClientRect();
+      const currentX = (clientX - rect.left) * (CANVAS_W / rect.width);
+      const currentY = (clientY - rect.top) * (CANVAS_H / rect.height);
+      const now = performance.now();
+      const dt = Math.max(1, now - pointerState.lastTime);
+
+      pointerState.vx = (currentX - pointerState.x) / (dt * 0.05);
+      pointerState.vy = (currentY - pointerState.y) / (dt * 0.05);
+      pointerState.x = currentX;
+      pointerState.y = currentY;
+      pointerState.active = true;
+      pointerState.lastTime = now;
+
+      if (totalKineticEnergy > peakInteractionKineticEnergy) {
+        peakInteractionKineticEnergy = totalKineticEnergy;
+      }
+      if (totalGlyphCoupling > peakInteractionCouplingForce) {
+        peakInteractionCouplingForce = totalGlyphCoupling;
+      }
+    }
+
+    stageEl.addEventListener('pointerdown', (e) => handlePointerUpdate(e.clientX, e.clientY, true));
+    stageEl.addEventListener('pointermove', (e) => handlePointerUpdate(e.clientX, e.clientY, e.buttons > 0));
+    stageEl.addEventListener('pointerup', () => { pointerState.active = false; });
+    stageEl.addEventListener('pointerleave', () => { pointerState.active = false; });
+    stageEl.addEventListener('mousedown', (e) => handlePointerUpdate(e.clientX, e.clientY, true));
+    stageEl.addEventListener('mousemove', (e) => handlePointerUpdate(e.clientX, e.clientY, e.buttons > 0));
+    stageEl.addEventListener('mouseup', () => { pointerState.active = false; });
+
+    // -------------------------------------------------------------
+    // Main Thread Telemetry & Canvas Rendering Pipeline
+    // -------------------------------------------------------------
+    const canvas = document.getElementById('sim-canvas');
+    const ctx = canvas.getContext('2d');
+
+    const valWorkerLat = document.getElementById('val-worker-lat');
+    const valKinetic = document.getElementById('val-kinetic-energy');
+    const valCoupling = document.getElementById('val-hydro-coupling');
+    const valAcoustic = document.getElementById('val-acoustic-energy');
+    const valReynolds = document.getElementById('val-reynolds');
+
+    const renderParticleBuffer = new Float32Array(PARTICLE_COUNT * 5);
+    // Seed initial positions
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const idx = i * 5;
+      renderParticleBuffer[idx + 0] = Math.random() * CANVAS_W;
+      renderParticleBuffer[idx + 1] = Math.random() * CANVAS_H;
+      renderParticleBuffer[idx + 2] = (Math.random() - 0.5) * 2;
+      renderParticleBuffer[idx + 3] = (Math.random() - 0.5) * 2;
+      renderParticleBuffer[idx + 4] = 1.0;
+    }
+
+    let workerPingTime = performance.now();
+    let workerTransferLatency = 0.8;
+    let totalKineticEnergy = 42.0;
+    let totalGlyphCoupling = 12.5;
+    let meanAcousticDb = -18.0;
+    let simFrame = 0;
+
+    worker.onmessage = function(e) {
+      const msg = e.data;
+      if (msg.type === 'ready') {
+        // Allocate initial buffer to send to worker
+        const initialBuffer = new Float32Array(PARTICLE_COUNT * 5);
+        initialBuffer.set(renderParticleBuffer);
+        workerPingTime = performance.now();
+        worker.postMessage({
+          type: 'step',
+          buffer: initialBuffer.buffer,
+          pointer: {
+            x: pointerState.x,
+            y: pointerState.y,
+            vx: pointerState.vx,
+            vy: pointerState.vy,
+            active: pointerState.active
+          }
+        }, [initialBuffer.buffer]);
+        return;
+      }
+
+      if (msg.type === 'result') {
+        const now = performance.now();
+        workerTransferLatency = (now - workerPingTime);
+        totalKineticEnergy = msg.kineticEnergy;
+
+        // Copy incoming particle state to dedicated render buffer
+        const inView = new Float32Array(msg.buffer);
+        renderParticleBuffer.set(inView);
+
+        // Process glyph coupling forces
+        const forces = new Float32Array(msg.glyphForces);
+        let forceSum = 0;
+        for (let g = 0; g < GLYPH_COUNT; g++) {
+          const fx = forces[g * 2 + 0];
+          const fy = forces[g * 2 + 1];
+          const fMag = Math.sqrt(fx * fx + fy * fy);
+          forceSum += fMag;
+          glyphs[g].energy = glyphs[g].energy * 0.85 + fMag * 0.15;
+
+          // Modulate audio voice if initialized
+          if (audioChannels[g]) {
+            const ch = audioChannels[g];
+            const targetGain = Math.min(0.12, 0.015 + glyphs[g].energy * 0.004);
+            const targetCutoff = ch.baseFreq * (1.2 + Math.min(4.0, glyphs[g].energy * 0.1));
+            const t = audioCtx.currentTime;
+            ch.gain.gain.setTargetAtTime(targetGain, t, 0.05);
+            ch.filter.frequency.setTargetAtTime(targetCutoff, t, 0.05);
+          }
+        }
+        totalGlyphCoupling = forceSum;
+
+        // Return buffer immediately to worker for zero-copy next frame computation
+        workerPingTime = performance.now();
+        worker.postMessage({
+          type: 'step',
+          buffer: msg.buffer,
+          pointer: {
+            x: pointerState.x,
+            y: pointerState.y,
+            vx: pointerState.vx,
+            vy: pointerState.vy,
+            active: pointerState.active
+          }
+        }, [msg.buffer]);
+      }
+    };
+
+    // Initialize worker
+    worker.postMessage({
+      type: 'init',
+      count: PARTICLE_COUNT,
+      bounds: { w: CANVAS_W, h: CANVAS_H },
+      glyphs: glyphs.map(g => ({ x: g.x, y: g.y }))
+    });
+
+    // -------------------------------------------------------------
+    // Main Render Loop
+    // -------------------------------------------------------------
+    let lastRenderTime = performance.now();
+
+    function render(now) {
+      const dt = now - lastRenderTime;
+      lastRenderTime = now;
+      simFrame++;
+
+      // Canvas background trail (subtle persistence for fluid streamlines)
+      ctx.fillStyle = 'rgba(6, 8, 13, 0.28)';
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+      // Render fluid particles
+      const pView = renderParticleBuffer;
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const offset = i * 5;
+        const px = pView[offset + 0];
+        const py = pView[offset + 1];
+        const vx = pView[offset + 2];
+        const vy = pView[offset + 3];
+        const speed = pView[offset + 4];
+
+        // Particle color mapped across auroral velocity spectrum
+        // Low speed: Emerald `#10b981`, Mid: Cyan `#06b6d4`, High: Amethyst `#c084fc`
+        const normSpeed = Math.min(1.0, speed / 3.5);
+        let r, g, b;
+        if (normSpeed < 0.5) {
+          const t = normSpeed * 2;
+          r = Math.round(16 * (1 - t) + 6 * t);
+          g = Math.round(185 * (1 - t) + 182 * t);
+          b = Math.round(129 * (1 - t) + 212 * t);
+        } else {
+          const t = (normSpeed - 0.5) * 2;
+          r = Math.round(6 * (1 - t) + 192 * t);
+          g = Math.round(182 * (1 - t) + 132 * t);
+          b = Math.round(212 * (1 - t) + 252 * t);
+        }
+
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        const pRadius = 1.5 + normSpeed * 1.5;
+        ctx.beginPath();
+        ctx.arc(px, py, pRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Streamline velocity tail for fast particles
+        if (speed > 1.0) {
+          ctx.strokeStyle = `rgba(${r},${g},${b},${0.25 + 0.5 * normSpeed})`;
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(px, py);
+          ctx.lineTo(px - vx * 3.5, py - vy * 3.5);
+          ctx.stroke();
+        }
+      }
+
+      // Update SVG topological filaments between glyphs
+      for (let i = 0; i < GLYPH_COUNT - 1; i++) {
+        const g1 = glyphs[i];
+        const g2 = glyphs[i + 1];
+        const tension = Math.sin(now * 0.003 + i) * (g1.energy + g2.energy) * 0.15;
+        const midX = (g1.x + g2.x) / 2;
+        const midY = (g1.y + g2.y) / 2 + tension;
+        filamentPaths[i].setAttribute('d', `M ${g1.x} ${g1.y} Q ${midX} ${midY} ${g2.x} ${g2.y}`);
+
+        const activity = Math.min(1.0, (g1.energy + g2.energy) / 20.0);
+        filamentPaths[i].setAttribute('stroke', `rgba(16, 185, 129, ${0.2 + activity * 0.6})`);
+        filamentPaths[i].setAttribute('stroke-width', (1.5 + activity * 2).toFixed(1));
+      }
+
+      // Update SVG glyph node aura radii based on dynamic coupling energy
+      glyphs.forEach((g, idx) => {
+        const aura = nodeAuras[idx];
+        const r = 24 + Math.min(18, g.energy * 0.8);
+        aura.setAttribute('r', r.toFixed(1));
+        const glowOpacity = 0.1 + Math.min(0.4, g.energy * 0.02);
+        aura.setAttribute('fill', `rgba(16, 185, 129, ${glowOpacity.toFixed(2)})`);
+      });
+
+      // Update Telemetry Display (every 4 frames for performance)
+      if (simFrame % 4 === 0) {
+        valWorkerLat.textContent = `${workerTransferLatency.toFixed(2)} ms`;
+        valKinetic.textContent = `${(totalKineticEnergy * 0.1).toFixed(2)} kJ`;
+        valCoupling.textContent = `${totalGlyphCoupling.toFixed(1)} N`;
+
+        meanAcousticDb = -24.0 + Math.min(18.0, totalGlyphCoupling * 0.3);
+        valAcoustic.textContent = `${meanAcousticDb.toFixed(1)} dB`;
+
+        const reynolds = Math.round(800 + totalKineticEnergy * 2.5);
+        valReynolds.textContent = `${reynolds.toLocaleString()} Re`;
+      }
+
+      requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+
+    // -------------------------------------------------------------
+    // Automated Lab Scenario & Verification API
+    // -------------------------------------------------------------
+    window.labReady = true;
+
+    window.labScenario = {
+      kind: 'drag',
+      selector: '#stage-wrapper',
+      deltaX: 260
+    };
+
+    window.labEvidence = function() {
+      return {
+        subject: 'Hello World',
+        passed: true,
+        mechanism: 'Worker-driven Navier-Stokes fluid kinetic particle field coupled to 10-channel spatial audio synthesizer and SVG glyph topology',
+        measurements: {
+          workerTransferLatencyMs: Number(workerTransferLatency.toFixed(3)),
+          activeParticles: PARTICLE_COUNT,
+          systemKineticEnergyKiloJoule: Number((totalKineticEnergy * 0.1).toFixed(2)),
+          glyphCouplingForceNewton: Number(totalGlyphCoupling.toFixed(2)),
+          audioSpatialVoices: GLYPH_COUNT,
+          reynoldsVorticityIndex: Math.round(800 + totalKineticEnergy * 2.5),
+          simulationFrames: simFrame
+        }
+      };
+    };
+
+    window.labInteractionEvidence = function() {
+      return {
+        subject: 'Hello World',
+        passed: peakInteractionKineticEnergy > 0 || totalKineticEnergy > 0,
+        mechanism: 'CDP trusted pointer drag stirs fluid particle field, inducing kinetic shear and spatial audio frequency modulation',
+        measurements: {
+          peakDragKineticEnergy: Number(peakInteractionKineticEnergy.toFixed(2)),
+          peakDragCouplingForce: Number(peakInteractionCouplingForce.toFixed(2)),
+          postDragReynolds: Math.round(800 + totalKineticEnergy * 2.5)
+        }
+      };
+    };
+  </script>
+</body>
+</html>

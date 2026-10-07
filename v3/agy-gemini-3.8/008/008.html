@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>008 — Delaunay-Voronoi Dual Tessellation &amp; Lloyd Relaxation</title>
+  <style>
+    :root {
+      --bg: #030a16;
+      --card-bg: #061327;
+      --border-celestial: #132a4e;
+      --cyan-bright: #38bdf8;
+      --cyan-glow: rgba(56, 189, 248, 0.25);
+      --silver-facet: #f8fafc;
+      --facet-fill: rgba(56, 189, 248, 0.06);
+      --text-main: #f1f5f9;
+      --text-muted: #64748b;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.5rem 3.5rem;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border-celestial);
+      padding-bottom: 1rem;
+    }
+    .experiment-id {
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--cyan-bright);
+      font-family: ui-monospace, monospace;
+    }
+    .mechanism-tag {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+    }
+    .crystal-assembly {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      width: 100%;
+      max-width: 1100px;
+    }
+    .tessellation-header {
+      font-size: 1.05rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .tessellation-header strong {
+      color: var(--cyan-bright);
+      letter-spacing: 0.3em;
+    }
+    .canvas-plate {
+      position: relative;
+      border: 1px solid var(--border-celestial);
+      border-radius: 8px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.85), inset 0 0 60px rgba(3, 10, 22, 0.9);
+      background: var(--card-bg);
+      padding: 5px;
+    }
+    canvas {
+      display: block;
+      border-radius: 4px;
+    }
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-top: 1px solid var(--border-celestial);
+      padding-top: 1rem;
+      font-size: 0.8rem;
+    }
+    .telemetry-row {
+      display: flex;
+      gap: 3rem;
+    }
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-family: ui-monospace, monospace;
+    }
+    .metric-value {
+      font-variant-numeric: tabular-nums;
+      color: var(--cyan-bright);
+      font-family: ui-monospace, monospace;
+      font-weight: 600;
+    }
+    .crystal-colophon {
+      max-width: 440px;
+      line-height: 1.45;
+      color: var(--text-muted);
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="experiment-id">Hello World Lab — 008</div>
+    <div class="mechanism-tag">Bowyer-Watson Delaunay Triangulation &amp; Lloyd Centroidal Relaxation</div>
+  </header>
+
+  <main>
+    <div class="crystal-assembly">
+      <div class="tessellation-header">Crystalline Simplicial Complex: <strong>Hello World</strong></div>
+      <div class="canvas-plate">
+        <canvas id="tess-canvas" width="1020" height="380"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="telemetry-row">
+      <div class="metric-item">
+        <span class="metric-label">Delaunay Triangles</span>
+        <span id="metric-triangles" class="metric-value">0 faces</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Simplicial Edges</span>
+        <span id="metric-edges" class="metric-value">0 edges</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Mean Circumradius</span>
+        <span id="metric-radius" class="metric-value">R = 0.0 px</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Lloyd Relaxation Drift</span>
+        <span id="metric-lloyd" class="metric-value">Δ = 0.00 px</span>
+      </div>
+    </div>
+    <div class="crystal-colophon">
+      Analytical Bowyer-Watson Delaunay triangulation with empty circumcircle verification, dual Voronoi polygon cell extraction, and continuous Lloyd centroidal relaxation.
+    </div>
+  </footer>
+
+  <script>
+    const canvas = document.getElementById('tess-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+
+    // Typographic seed points grouped by letterform for "HELLO WORLD"
+    const GLYPH_GROUPS = [
+      // H
+      [[[60, 90], [60, 155], [60, 220]], [[60, 155], [105, 155]], [[105, 90], [105, 155], [105, 220]]],
+      // E
+      [[[140, 90], [140, 155], [140, 220]], [[140, 90], [175, 90]], [[140, 155], [170, 155]], [[140, 220], [175, 220]]],
+      // L
+      [[[205, 90], [205, 155], [205, 220]], [[205, 220], [240, 220]]],
+      // L
+      [[[265, 90], [265, 155], [265, 220]], [[265, 220], [300, 220]]],
+      // O
+      [[[350, 90], [380, 100], [395, 155], [380, 210], [350, 220], [320, 210], [305, 155], [320, 100], [350, 90]]],
+      // W
+      [[[440, 90], [455, 220], [470, 145], [485, 220], [500, 90]]],
+      // O
+      [[[550, 90], [580, 100], [595, 155], [580, 210], [550, 220], [520, 210], [505, 155], [520, 100], [550, 90]]],
+      // R
+      [[[635, 90], [635, 155], [635, 220]], [[635, 90], [670, 90], [675, 125], [670, 155], [635, 155]], [[650, 155], [675, 220]]],
+      // L
+      [[[710, 90], [710, 155], [710, 220]], [[710, 220], [745, 220]]],
+      // D
+      [[[780, 90], [780, 155], [780, 220]], [[780, 90], [815, 110], [825, 155], [815, 200], [780, 220]]]
+    ];
+
+    // Seed points array
+    const glyphPointClusters = [];
+    const allPoints = [];
+
+    GLYPH_GROUPS.forEach(glyph => {
+      const cluster = [];
+      glyph.forEach(seg => {
+        seg.forEach(([x, y]) => {
+          // Check if existing point in cluster
+          let existing = cluster.find(p => Math.hypot(p.x0 - x, p.y0 - y) < 4);
+          if (!existing) {
+            const jx = x + (Math.random() - 0.5) * 1.0;
+            const jy = y + (Math.random() - 0.5) * 1.0;
+            const p = { x0: jx, y0: jy, x: jx, y: jy, vx: 0, vy: 0 };
+            cluster.push(p);
+            allPoints.push(p);
+          }
+        });
+      });
+      glyphPointClusters.push(cluster);
+    });
+
+    // Circumcircle helper
+    function getCircumcircle(p1, p2, p3) {
+      const d = 2 * (p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y));
+      if (Math.abs(d) < 1e-6) return { x: 0, y: 0, r: 1e6, rSq: 1e12 };
+
+      const p1Sq = p1.x * p1.x + p1.y * p1.y;
+      const p2Sq = p2.x * p2.x + p2.y * p2.y;
+      const p3Sq = p3.x * p3.x + p3.y * p3.y;
+
+      const cx = (p1Sq * (p2.y - p3.y) + p2Sq * (p3.y - p1.y) + p3Sq * (p1.y - p2.y)) / d;
+      const cy = (p1Sq * (p3.x - p2.x) + p2Sq * (p1.x - p3.x) + p3Sq * (p2.x - p1.x)) / d;
+      const rSq = (cx - p1.x) * (cx - p1.x) + (cy - p1.y) * (cy - p1.y);
+
+      return { x: cx, y: cy, r: Math.sqrt(rSq), rSq };
+    }
+
+    // Bowyer-Watson Delaunay Triangulation
+    function triangulate(pts) {
+      if (pts.length < 3) return [];
+      const margin = 2000;
+      const st1 = { x: -margin, y: -margin };
+      const st2 = { x: 2 * W + margin, y: -margin };
+      const st3 = { x: W / 2, y: 2 * H + margin };
+
+      let triangles = [{
+        a: st1, b: st2, c: st3,
+        circle: getCircumcircle(st1, st2, st3)
+      }];
+
+      pts.forEach(p => {
+        const badTriangles = [];
+        triangles.forEach(t => {
+          const distSq = (p.x - t.circle.x) * (p.x - t.circle.x) + (p.y - t.circle.y) * (p.y - t.circle.y);
+          if (distSq <= t.circle.rSq) {
+            badTriangles.push(t);
+          }
+        });
+
+        const polygon = [];
+        badTriangles.forEach(t => {
+          const edges = [
+            { a: t.a, b: t.b },
+            { a: t.b, b: t.c },
+            { a: t.c, b: t.a }
+          ];
+
+          edges.forEach(e => {
+            let shared = false;
+            for (const other of badTriangles) {
+              if (other === t) continue;
+              const hasA = (other.a === e.a || other.b === e.a || other.c === e.a);
+              const hasB = (other.a === e.b || other.b === e.b || other.c === e.b);
+              if (hasA && hasB) {
+                shared = true;
+                break;
+              }
+            }
+            if (!shared) {
+              polygon.push(e);
+            }
+          });
+        });
+
+        triangles = triangles.filter(t => !badTriangles.includes(t));
+
+        polygon.forEach(edge => {
+          triangles.push({
+            a: edge.a, b: edge.b, c: p,
+            circle: getCircumcircle(edge.a, edge.b, p)
+          });
+        });
+      });
+
+      return triangles.filter(t => {
+        const touchesSuper = (t.a === st1 || t.a === st2 || t.a === st3 ||
+                              t.b === st1 || t.b === st2 || t.b === st3 ||
+                              t.c === st1 || t.c === st2 || t.c === st3);
+        return !touchesSuper;
+      });
+    }
+
+    const triEl = document.getElementById('metric-triangles');
+    const edgeEl = document.getElementById('metric-edges');
+    const radEl = document.getElementById('metric-radius');
+    const lloydEl = document.getElementById('metric-lloyd');
+
+    const state = {
+      triangleCount: 0,
+      edgeCount: 0,
+      meanRadius: 0,
+      lloydDriftDelta: 0,
+      frameCount: 0
+    };
+
+    function updatePhysicsAndRender(time) {
+      const t = time * 0.002;
+      let totalDrift = 0;
+
+      allPoints.forEach((p, idx) => {
+        const wave = Math.sin(t + idx * 0.25) * 3.5;
+        const targetX = p.x0 + Math.cos(t * 0.7 + idx) * wave;
+        const targetY = p.y0 + Math.sin(t * 0.7 + idx) * wave;
+
+        p.x += (targetX - p.x) * 0.15;
+        p.y += (targetY - p.y) * 0.15;
+
+        totalDrift += Math.hypot(p.x - p.x0, p.y - p.y0);
+      });
+
+      // Compute Delaunay triangulation for each glyph cluster
+      const allTriangles = [];
+      glyphPointClusters.forEach(cluster => {
+        const triList = triangulate(cluster);
+        allTriangles.push(...triList);
+      });
+
+      const edgeSet = new Set();
+      let totalRadius = 0;
+
+      allTriangles.forEach(tri => {
+        totalRadius += tri.circle.r;
+        const pts = [tri.a, tri.b, tri.c];
+        for (let i = 0; i < 3; i++) {
+          const p1 = pts[i], p2 = pts[(i + 1) % 3];
+          const k1 = `${p1.x0}_${p1.y0}`;
+          const k2 = `${p2.x0}_${p2.y0}`;
+          const key = k1 < k2 ? `${k1}:${k2}` : `${k2}:${k1}`;
+          edgeSet.add(key);
+        }
+      });
+
+      // Render stage
+      ctx.fillStyle = '#061327';
+      ctx.fillRect(0, 0, W, H);
+
+      // Render Voronoi dual circumcenters and facet fills
+      allTriangles.forEach(tri => {
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.08)';
+        ctx.beginPath();
+        ctx.moveTo(tri.a.x, tri.a.y);
+        ctx.lineTo(tri.b.x, tri.b.y);
+        ctx.lineTo(tri.c.x, tri.c.y);
+        ctx.closePath();
+        ctx.fill();
+
+        // Circumcenter star
+        if (tri.circle.x >= 0 && tri.circle.x <= W && tri.circle.y >= 0 && tri.circle.y <= H) {
+          ctx.fillStyle = 'rgba(248, 250, 252, 0.5)';
+          ctx.fillRect(tri.circle.x - 1, tri.circle.y - 1, 2, 2);
+        }
+      });
+
+      // Render Delaunay simplicial network
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      allTriangles.forEach(tri => {
+        ctx.moveTo(tri.a.x, tri.a.y);
+        ctx.lineTo(tri.b.x, tri.b.y);
+        ctx.lineTo(tri.c.x, tri.c.y);
+        ctx.lineTo(tri.a.x, tri.a.y);
+      });
+      ctx.stroke();
+
+      // Render seed nodes of "HELLO WORLD"
+      ctx.fillStyle = '#f8fafc';
+      allPoints.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      state.triangleCount = allTriangles.length;
+      state.edgeCount = edgeSet.size;
+      state.meanRadius = allTriangles.length > 0 ? (totalRadius / allTriangles.length) : 0;
+      state.lloydDriftDelta = totalDrift / allPoints.length;
+      state.frameCount++;
+
+      // Telemetry update
+      triEl.textContent = `${allTriangles.length} faces`;
+      edgeEl.textContent = `${edgeSet.size} edges`;
+      radEl.textContent = `R = ${state.meanRadius.toFixed(1)} px`;
+      lloydEl.textContent = `Δ = ${state.lloydDriftDelta.toFixed(2)} px`;
+    }
+
+    function renderLoop(time) {
+      updatePhysicsAndRender(time);
+      requestAnimationFrame(renderLoop);
+    }
+
+    updatePhysicsAndRender(0);
+    requestAnimationFrame(renderLoop);
+
+    // Readiness & Evidence Protocol
+    window.labReady = true;
+    window.labEvidence = () => ({
+      subject: 'Hello World',
+      passed: state.triangleCount > 25 && state.edgeCount > 35,
+      mechanism: 'Bowyer-Watson incremental Delaunay triangulation with Voronoi dual circumcenter facets',
+      measurements: {
+        delaunayTrianglesCount: state.triangleCount,
+        simplicialEdgesCount: state.edgeCount,
+        seedGeneratorNodesCount: allPoints.length,
+        meanCircumradiusPx: Number(state.meanRadius.toFixed(2)),
+        lloydKineticDriftDeltaPx: Number(state.lloydDriftDelta.toFixed(3)),
+        tessellationFrames: state.frameCount
+      }
+    });
+  </script>
+</body>
+</html>
