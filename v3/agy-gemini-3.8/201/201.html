@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AETHEL-OS // Hello World Colony Operating System</title>
+<style>
+/* ==========================================================================
+   AETHEL-OS // HELLO WORLD EXPEDITIONARY COLONY OS (V4.18 / 1984-2180)
+   Design System: Cassette Futurism x Industrial Brutalism x Space Engineering
+   Hard Constraint: 100% Pure HTML + CSS. Zero JavaScript. Zero CRT Effects.
+   ========================================================================== */
+
+:root {
+  /* Palette: Charcoal, Oxidized Olive, Bone/Cream, Rust Orange, Warning Amber */
+  --c-chassis-dark: #121518;
+  --c-chassis-mid: #1a1e23;
+  --c-chassis-light: #242930;
+  --c-border-hard: #363e48;
+  --c-border-bevel: #485360;
+  --c-border-dark: #0a0c0e;
+
+  --c-olive-dark: #22291e;
+  --c-olive-mid: #323b2c;
+  --c-olive-light: #4c5a43;
+  --c-olive-bright: #687b5c;
+
+  --c-bone: #ded8cb;
+  --c-bone-dim: #b5ad9e;
+  --c-bone-dark: #7a7366;
+
+  --c-rust: #c44f22;
+  --c-rust-dark: #7a3114;
+  --c-amber: #d49522;
+  --c-amber-dark: #825b12;
+  --c-amber-bright: #f5b338;
+  --c-danger: #c43228;
+  --c-ok: #528c46;
+
+  /* Typography */
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Source Code Pro", Menlo, Consolas, "Courier New", monospace;
+  --font-industrial: "Arial Black", "Trebuchet MS", "Impact", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Spacing & Layout */
+  --pad-base: 12px;
+  --pad-dense: 8px;
+  --radius-none: 0px;
+  --radius-subtle: 2px;
+
+  /* Live UI Overrides via CSS Variables */
+  --active-accent: var(--c-amber);
+  --active-accent-bg: rgba(212, 149, 34, 0.12);
+  --panel-bg: var(--c-chassis-mid);
+  --text-primary: var(--c-bone);
+  --text-muted: var(--c-bone-dim);
+}
+
+/* Base Reset & Box Sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--c-chassis-dark);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Accessibility: Hidden Controls */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus Visibility Standards */
+:focus-visible {
+  outline: 2px solid var(--c-amber);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   SYSTEM CONFIGURATION MODES (Pure CSS Cascading Custom Properties)
+   ========================================================================== */
+
+/* 1. High Contrast Mode */
+body:has(#cfg-contrast:checked) {
+  --c-chassis-dark: #000000;
+  --c-chassis-mid: #0d0d0d;
+  --c-chassis-light: #1a1a1a;
+  --c-border-hard: #ffffff;
+  --c-border-bevel: #ffffff;
+  --c-bone: #ffffff;
+  --c-bone-dim: #cccccc;
+  --c-amber: #ffff00;
+  --c-rust: #ff3300;
+}
+
+/* 2. Compact Data Density */
+body:has(#cfg-density:checked) {
+  --pad-base: 6px;
+  font-size: 11.5px;
+}
+body:has(#cfg-density:checked) .mod-panel {
+  padding: 8px;
+}
+body:has(#cfg-density:checked) .sys-btn {
+  padding: 4px 8px;
+}
+
+/* 3. Amber Industrial Monochrome Mode */
+body:has(#cfg-amber:checked) {
+  --active-accent: #f5a623;
+  --c-olive-bright: #d49522;
+  --c-bone: #f7ce8a;
+  --c-bone-dim: #b89154;
+  --text-primary: #f7ce8a;
+}
+
+/* ==========================================================================
+   SKIPPABLE HARDWARE BOOT SEQUENCE (Pure CSS Keyframe Animation)
+   ========================================================================== */
+.boot-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: #0b0d0f;
+  color: var(--c-bone);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 32px;
+  animation: bootSequenceDismiss 0.5s ease-out 4.2s forwards;
+}
+
+/* Skip Trigger: Immediate Dismissal */
+#boot-skip-trigger:checked ~ .boot-overlay {
+  display: none !important;
+}
+
+@keyframes bootSequenceDismiss {
+  0% { opacity: 1; pointer-events: all; }
+  99% { opacity: 0; pointer-events: none; }
+  100% { opacity: 0; pointer-events: none; display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-overlay {
+    display: none !important;
+  }
+}
+
+.boot-header {
+  border-bottom: 2px solid var(--c-border-hard);
+  padding-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.boot-title {
+  font-family: var(--font-industrial);
+  font-size: 20px;
+  letter-spacing: 0.05em;
+  color: var(--c-amber);
+}
+
+.boot-sub {
+  font-size: 12px;
+  color: var(--c-bone-dim);
+  margin-top: 4px;
+}
+
+.boot-skip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--c-chassis-light);
+  color: var(--c-amber);
+  border: 2px solid var(--c-border-bevel);
+  padding: 8px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.1), 2px 2px 0 #000;
+}
+.boot-skip-btn:hover {
+  background: var(--c-amber);
+  color: #000;
+  border-color: var(--c-amber);
+}
+
+.boot-log-container {
+  flex: 1;
+  margin: 24px 0;
+  padding: 16px;
+  background: #060708;
+  border: 1px solid var(--c-border-hard);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.8;
+  overflow: hidden;
+  position: relative;
+}
+
+.boot-log-line {
+  opacity: 0;
+  animation: bootLineAppear 0.1s forwards;
+}
+.boot-log-line:nth-child(1) { animation-delay: 0.2s; }
+.boot-log-line:nth-child(2) { animation-delay: 0.6s; }
+.boot-log-line:nth-child(3) { animation-delay: 1.1s; }
+.boot-log-line:nth-child(4) { animation-delay: 1.6s; }
+.boot-log-line:nth-child(5) { animation-delay: 2.2s; }
+.boot-log-line:nth-child(6) { animation-delay: 2.7s; }
+.boot-log-line:nth-child(7) { animation-delay: 3.2s; }
+.boot-log-line:nth-child(8) { animation-delay: 3.7s; }
+
+@keyframes bootLineAppear {
+  to { opacity: 1; }
+}
+
+.boot-progress-bar {
+  width: 100%;
+  height: 12px;
+  background: #1a1e23;
+  border: 1px solid var(--c-border-hard);
+  position: relative;
+  overflow: hidden;
+}
+.boot-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: var(--c-amber);
+  animation: bootFill 3.8s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+}
+@keyframes bootFill {
+  0% { width: 0%; }
+  30% { width: 35%; }
+  60% { width: 72%; }
+  100% { width: 100%; }
+}
+
+/* ==========================================================================
+   PRIMARY INDUSTRIAL CHASSIS LAYOUT
+   ========================================================================== */
+.os-chassis {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  min-height: 100vh;
+  background: var(--c-chassis-dark);
+}
+
+/* Master Header Plate */
+.master-header {
+  background: var(--c-chassis-mid);
+  border-bottom: 3px solid var(--c-border-dark);
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.system-identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-badge {
+  background: var(--c-olive-mid);
+  color: var(--c-bone);
+  border: 1px solid var(--c-olive-bright);
+  padding: 4px 8px;
+  font-family: var(--font-industrial);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.station-title h1 {
+  font-family: var(--font-industrial);
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: var(--c-bone);
+  text-transform: uppercase;
+  margin: 0;
+}
+.station-title .subtitle {
+  font-size: 11px;
+  color: var(--c-amber);
+  letter-spacing: 0.04em;
+  margin-top: 1px;
+}
+
+.system-telemetry-strip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.telemetry-chip {
+  background: #0d0f12;
+  border: 1px solid var(--c-border-hard);
+  padding: 4px 8px;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+}
+.telemetry-chip .chip-label {
+  color: var(--c-bone-dark);
+  font-size: 9px;
+  text-transform: uppercase;
+}
+.telemetry-chip .chip-val {
+  color: var(--c-bone);
+  font-weight: bold;
+}
+.telemetry-chip .chip-val.status-ok { color: var(--c-ok); }
+.telemetry-chip .chip-val.status-warn { color: var(--c-amber); }
+
+/* Quick Config Bar */
+.config-ribbon {
+  background: #14171a;
+  border-bottom: 1px solid var(--c-border-hard);
+  padding: 6px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  flex-wrap: wrap;
+}
+
+.config-toggles {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cfg-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--c-bone-dim);
+  cursor: pointer;
+  user-select: none;
+}
+.cfg-label input[type="checkbox"] {
+  accent-color: var(--c-amber);
+}
+
+.sim-notice {
+  color: var(--c-bone-dark);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   MAIN WORKSPACE & MODULE NAVIGATION (Pure CSS Radio State Machine)
+   ========================================================================== */
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: calc(100vh - 120px);
+}
+
+/* Left Navigation Bay */
+.module-nav-bay {
+  background: #16191e;
+  border-right: 2px solid var(--c-border-dark);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav-section-title {
+  font-size: 10px;
+  color: var(--c-bone-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 6px 4px 2px 4px;
+  border-bottom: 1px solid var(--c-border-hard);
+  margin-bottom: 4px;
+}
+
+.nav-tab-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--c-chassis-mid);
+  color: var(--c-bone-dim);
+  border: 1px solid var(--c-border-hard);
+  border-left: 4px solid var(--c-border-bevel);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: background 0.1s, color 0.1s, border-left-color 0.1s;
+}
+
+.nav-tab-label:hover {
+  background: #252b33;
+  color: var(--c-bone);
+  border-left-color: var(--c-amber);
+}
+
+.nav-tab-idx {
+  font-size: 10px;
+  color: var(--c-bone-dark);
+  margin-right: 8px;
+}
+
+.nav-tab-badge {
+  font-size: 9px;
+  padding: 1px 4px;
+  background: #0d0f12;
+  border: 1px solid var(--c-border-hard);
+  color: var(--c-bone-dark);
+}
+
+/* CSS State: Active Tab Highlighting */
+body:has(#tab-terminal:checked) label[for="tab-terminal"],
+body:has(#tab-sysmon:checked) label[for="tab-sysmon"],
+body:has(#tab-archive:checked) label[for="tab-archive"],
+body:has(#tab-comms:checked) label[for="tab-comms"],
+body:has(#tab-nav:checked) label[for="tab-nav"],
+body:has(#tab-power:checked) label[for="tab-power"],
+body:has(#tab-config:checked) label[for="tab-config"],
+body:has(#tab-diag:checked) label[for="tab-diag"] {
+  background: #252b33;
+  color: var(--c-bone);
+  border-left-color: var(--c-amber);
+  border-color: var(--c-border-bevel);
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.08);
+}
+
+body:has(#tab-terminal:checked) label[for="tab-terminal"] .nav-tab-badge,
+body:has(#tab-sysmon:checked) label[for="tab-sysmon"] .nav-tab-badge,
+body:has(#tab-archive:checked) label[for="tab-archive"] .nav-tab-badge,
+body:has(#tab-comms:checked) label[for="tab-comms"] .nav-tab-badge,
+body:has(#tab-nav:checked) label[for="tab-nav"] .nav-tab-badge,
+body:has(#tab-power:checked) label[for="tab-power"] .nav-tab-badge,
+body:has(#tab-config:checked) label[for="tab-config"] .nav-tab-badge,
+body:has(#tab-diag:checked) label[for="tab-diag"] .nav-tab-badge {
+  background: var(--c-amber);
+  color: #000;
+  font-weight: bold;
+}
+
+/* Active Module Visibility Controller */
+.module-view {
+  display: none;
+  padding: 18px;
+  background: var(--c-chassis-dark);
+  overflow-y: auto;
+}
+
+body:has(#tab-terminal:checked) #view-terminal,
+body:has(#tab-sysmon:checked) #view-sysmon,
+body:has(#tab-archive:checked) #view-archive,
+body:has(#tab-comms:checked) #view-comms,
+body:has(#tab-nav:checked) #view-nav,
+body:has(#tab-power:checked) #view-power,
+body:has(#tab-config:checked) #view-config,
+body:has(#tab-diag:checked) #view-diag {
+  display: block;
+}
+
+/* Common Module Container Styles */
+.mod-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--c-border-hard);
+  box-shadow: 2px 2px 0 #07080a;
+  padding: var(--pad-base);
+  margin-bottom: 18px;
+}
+
+.mod-header {
+  border-bottom: 2px solid var(--c-border-hard);
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mod-title {
+  font-family: var(--font-industrial);
+  font-size: 15px;
+  letter-spacing: 0.05em;
+  color: var(--c-bone);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mod-meta {
+  font-size: 11px;
+  color: var(--c-bone-dark);
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   MODULE 1: COMMAND TERMINAL
+   ========================================================================== */
+.terminal-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+}
+
+.command-deck {
+  background: #111417;
+  border: 1px solid var(--c-border-hard);
+  padding: 12px;
+}
+
+.deck-title {
+  font-size: 11px;
+  color: var(--c-amber);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--c-border-hard);
+}
+
+.cmd-btn-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cmd-btn-label {
+  display: block;
+  padding: 8px 10px;
+  background: #1c2026;
+  border: 1px solid var(--c-border-hard);
+  color: var(--c-bone);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.cmd-btn-label:hover {
+  background: #2a313a;
+  border-color: var(--c-amber);
+}
+
+/* Command Selection Highlighting & Log Display */
+body:has(#cmd-ping:checked) label[for="cmd-ping"],
+body:has(#cmd-scan:checked) label[for="cmd-scan"],
+body:has(#cmd-life:checked) label[for="cmd-life"],
+body:has(#cmd-navsolve:checked) label[for="cmd-navsolve"],
+body:has(#cmd-audit:checked) label[for="cmd-audit"] {
+  background: var(--c-amber);
+  color: #000;
+  font-weight: bold;
+}
+
+.terminal-log-screen {
+  background: #080a0c;
+  border: 1px solid var(--c-border-hard);
+  padding: 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  min-height: 320px;
+}
+
+.cmd-response-block {
+  display: none;
+}
+
+body:has(#cmd-ping:checked) #resp-ping,
+body:has(#cmd-scan:checked) #resp-scan,
+body:has(#cmd-life:checked) #resp-life,
+body:has(#cmd-navsolve:checked) #resp-navsolve,
+body:has(#cmd-audit:checked) #resp-audit {
+  display: block;
+}
+
+.log-entry {
+  margin-bottom: 10px;
+}
+.log-ts { color: var(--c-bone-dark); }
+.log-cmd { color: var(--c-amber); font-weight: bold; }
+.log-ok { color: var(--c-ok); }
+.log-warn { color: var(--c-rust); }
+.log-data { color: var(--c-bone); }
+
+/* ==========================================================================
+   MODULE 2: SYSTEM MONITOR (Meters & Subsystems)
+   ========================================================================== */
+.sysmon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.meter-card {
+  background: #111417;
+  border: 1px solid var(--c-border-hard);
+  padding: 14px;
+}
+
+.meter-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.meter-val-large {
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--c-bone);
+  margin-bottom: 10px;
+}
+.meter-val-large span {
+  font-size: 12px;
+  color: var(--c-bone-dark);
+}
+
+.analog-meter-bar {
+  display: flex;
+  gap: 3px;
+  height: 14px;
+  background: #090a0d;
+  padding: 2px;
+  border: 1px solid var(--c-border-hard);
+  margin-bottom: 8px;
+}
+
+.meter-cell {
+  flex: 1;
+  background: #1c2128;
+}
+.meter-cell.active-green { background: var(--c-ok); }
+.meter-cell.active-amber { background: var(--c-amber); }
+.meter-cell.active-rust { background: var(--c-rust); }
+
+.meter-meta-list {
+  font-size: 11px;
+  color: var(--c-bone-dim);
+  border-top: 1px dashed var(--c-border-hard);
+  padding-top: 8px;
+}
+.meter-meta-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+/* ==========================================================================
+   MODULE 3: DATA ARCHIVE (Native <details> Dossiers)
+   ========================================================================== */
+.archive-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.archive-dossier {
+  background: #111417;
+  border: 1px solid var(--c-border-hard);
+}
+
+.archive-summary {
+  padding: 12px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #181d22;
+  user-select: none;
+}
+.archive-summary:hover {
+  background: #232a32;
+  color: var(--c-amber);
+}
+
+.archive-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border: 1px solid var(--c-border-hard);
+  color: var(--c-bone-dim);
+}
+
+.archive-content {
+  padding: 16px;
+  border-top: 1px solid var(--c-border-hard);
+  font-size: 12px;
+  line-height: 1.6;
+  background: #0a0c0e;
+  color: var(--c-bone);
+}
+
+.archive-spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 11px;
+}
+.archive-spec-table th,
+.archive-spec-table td {
+  border: 1px solid var(--c-border-hard);
+  padding: 6px 10px;
+  text-align: left;
+}
+.archive-spec-table th {
+  background: #161a1f;
+  color: var(--c-amber);
+}
+
+/* ==========================================================================
+   MODULE 4: COMMUNICATIONS (Laser Transceiver & Channels)
+   ========================================================================== */
+.comms-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 16px;
+}
+
+.comms-channels {
+  background: #111417;
+  border: 1px solid var(--c-border-hard);
+  padding: 12px;
+}
+
+.comms-chan-label {
+  display: block;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: #1a1e24;
+  border: 1px solid var(--c-border-hard);
+  cursor: pointer;
+  font-size: 11.5px;
+}
+.comms-chan-label:hover {
+  border-color: var(--c-amber);
+}
+
+body:has(#chan-relay:checked) label[for="chan-relay"],
+body:has(#chan-earth:checked) label[for="chan-earth"],
+body:has(#chan-surface:checked) label[for="chan-surface"] {
+  background: #2a313b;
+  border-color: var(--c-amber);
+  border-left: 4px solid var(--c-amber);
+}
+
+.comms-readout {
+  background: #090b0d;
+  border: 1px solid var(--c-border-hard);
+  padding: 16px;
+  min-height: 300px;
+}
+
+.chan-detail-pane {
+  display: none;
+}
+
+body:has(#chan-relay:checked) #pane-relay,
+body:has(#chan-earth:checked) #pane-earth,
+body:has(#chan-surface:checked) #pane-surface {
+  display: block;
+}
+
+/* ==========================================================================
+   MODULE 5: NAVIGATION (Orbital Trajectory & Waypoints)
+   ========================================================================== */
+.nav-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 16px;
+}
+
+.orbital-plot-bay {
+  background: #080a0d;
+  border: 1px solid var(--c-border-hard);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.orbital-svg {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+}
+
+.nav-metrics-bay {
+  background: #111417;
+  border: 1px solid var(--c-border-hard);
+  padding: 14px;
+}
+
+/* ==========================================================================
+   MODULE 6: POWER MANAGEMENT (Load Shedding via CSS :has)
+   ========================================================================== */
+.power-presets-deck {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.power-preset-label {
+  display: block;
+  padding: 14px;
+  background: #14181d;
+  border: 2px solid var(--c-border-hard);
+  cursor: pointer;
+  text-align: center;
+  text-transform: uppercase;
+}
+.power-preset-label:hover {
+  border-color: var(--c-bone);
+}
+
+.preset-code { font-size: 14px; font-weight: bold; color: var(--c-bone); }
+.preset-desc { font-size: 10px; color: var(--c-bone-dark); margin-top: 4px; }
+
+/* Active Preset Highlighting */
+body:has(#pwr-bal:checked) label[for="pwr-bal"] {
+  border-color: var(--c-ok);
+  background: #172418;
+}
+body:has(#pwr-emerg:checked) label[for="pwr-emerg"] {
+  border-color: var(--c-rust);
+  background: #2b1610;
+}
+body:has(#pwr-over:checked) label[for="pwr-over"] {
+  border-color: var(--c-amber);
+  background: #292010;
+}
+
+/* Dynamic Power Telemetry State Badges via :has */
+.pwr-state-alert {
+  padding: 12px;
+  border: 1px solid var(--c-border-hard);
+  margin-bottom: 16px;
+  font-size: 12px;
+}
+
+.alert-bal, .alert-emerg, .alert-over { display: none; }
+
+body:has(#pwr-bal:checked) .alert-bal {
+  display: block;
+  background: rgba(82, 140, 70, 0.15);
+  border-color: var(--c-ok);
+  color: var(--c-bone);
+}
+body:has(#pwr-emerg:checked) .alert-emerg {
+  display: block;
+  background: rgba(196, 79, 34, 0.2);
+  border-color: var(--c-rust);
+  color: #ff9977;
+}
+body:has(#pwr-over:checked) .alert-over {
+  display: block;
+  background: rgba(212, 149, 34, 0.2);
+  border-color: var(--c-amber);
+  color: #ffdd88;
+}
+
+/* Load Shedding Matrix */
+.bus-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+.bus-table th, .bus-table td {
+  padding: 8px 10px;
+  border: 1px solid var(--c-border-hard);
+  text-align: left;
+}
+.bus-table th { background: #181d24; color: var(--c-bone); }
+
+/* In Emergency Mode: Nav & Comms Show SHED State */
+body:has(#pwr-emerg:checked) .bus-row-aux {
+  background: rgba(196, 79, 34, 0.15);
+}
+body:has(#pwr-emerg:checked) .bus-row-aux .bus-status-txt {
+  color: var(--c-rust);
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   MODULE 7: SYSTEM CONFIGURATION (Local UI Control Options)
+   ========================================================================== */
+.config-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.config-item-box {
+  background: #111417;
+  border: 1px solid var(--c-border-hard);
+  padding: 16px;
+}
+.config-item-box h3 {
+  font-size: 13px;
+  color: var(--c-amber);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   MODULE 8: HARDWARE DIAGNOSTICS (Interactive Checksum Tally)
+   ========================================================================== */
+.diag-checklist {
+  counter-reset: diag-pass-count;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.diag-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #13171b;
+  border: 1px solid var(--c-border-hard);
+}
+
+.diag-item label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--c-bone);
+}
+
+.diag-chk {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--c-ok);
+  cursor: pointer;
+}
+
+.diag-status-pill {
+  font-size: 10px;
+  padding: 3px 8px;
+  border: 1px solid var(--c-border-hard);
+  background: #0a0c0e;
+  color: var(--c-bone-dark);
+}
+
+.diag-item:has(.diag-chk:checked) {
+  border-color: var(--c-olive-bright);
+  background: #182218;
+}
+.diag-item:has(.diag-chk:checked) .diag-status-pill {
+  background: var(--c-ok);
+  color: #000;
+  font-weight: bold;
+  border-color: var(--c-ok);
+}
+
+/* Counter increment */
+.diag-chk:checked {
+  counter-increment: diag-pass-count;
+}
+
+.diag-summary-card {
+  background: #0e1114;
+  border: 2px solid var(--c-border-hard);
+  padding: 16px;
+  text-align: center;
+}
+
+.diag-tally-txt::after {
+  content: counter(diag-pass-count) " / 6 SUBSYSTEMS VERIFIED";
+  font-weight: bold;
+  color: var(--c-amber);
+}
+
+/* All 6 Checked Success Notification */
+.all-diag-pass-banner {
+  display: none;
+  margin-top: 12px;
+  padding: 10px;
+  background: var(--c-ok);
+  color: #000;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+body:has(#diag-1:checked):has(#diag-2:checked):has(#diag-3:checked):has(#diag-4:checked):has(#diag-5:checked):has(#diag-6:checked) .all-diag-pass-banner {
+  display: block;
+}
+
+/* ==========================================================================
+   SYSTEM FOOTER STATUS LINE
+   ========================================================================== */
+.master-footer {
+  background: #111417;
+  border-top: 2px solid var(--c-border-dark);
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--c-bone-dark);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.footer-meta {
+  display: flex;
+  gap: 16px;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (360px Mobile to 1920px Ultrawide)
+   ========================================================================== */
+@media (max-width: 860px) {
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+  .module-nav-bay {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 2px solid var(--c-border-dark);
+    padding: 8px;
+  }
+  .nav-section-title {
+    display: none;
+  }
+  .nav-tab-label {
+    white-space: nowrap;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+  .terminal-layout,
+  .comms-layout,
+  .nav-layout {
+    grid-template-columns: 1fr;
+  }
+  .power-presets-deck {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .master-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .system-telemetry-strip {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .meter-card {
+    padding: 10px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Hidden Radio Buttons: Navigation Controller -->
+<input type="radio" name="os-tab" id="tab-terminal" class="sr-only" checked>
+<input type="radio" name="os-tab" id="tab-sysmon" class="sr-only">
+<input type="radio" name="os-tab" id="tab-archive" class="sr-only">
+<input type="radio" name="os-tab" id="tab-comms" class="sr-only">
+<input type="radio" name="os-tab" id="tab-nav" class="sr-only">
+<input type="radio" name="os-tab" id="tab-power" class="sr-only">
+<input type="radio" name="os-tab" id="tab-config" class="sr-only">
+<input type="radio" name="os-tab" id="tab-diag" class="sr-only">
+
+<!-- Hidden Radio Buttons: Command Terminal Options -->
+<input type="radio" name="term-cmd" id="cmd-ping" class="sr-only" checked>
+<input type="radio" name="term-cmd" id="cmd-scan" class="sr-only">
+<input type="radio" name="term-cmd" id="cmd-life" class="sr-only">
+<input type="radio" name="term-cmd" id="cmd-navsolve" class="sr-only">
+<input type="radio" name="term-cmd" id="cmd-audit" class="sr-only">
+
+<!-- Hidden Radio Buttons: Communications Channel Selector -->
+<input type="radio" name="comm-chan" id="chan-relay" class="sr-only" checked>
+<input type="radio" name="comm-chan" id="chan-earth" class="sr-only">
+<input type="radio" name="comm-chan" id="chan-surface" class="sr-only">
+
+<!-- Hidden Radio Buttons: Power Mode Presets -->
+<input type="radio" name="pwr-preset" id="pwr-bal" class="sr-only" checked>
+<input type="radio" name="pwr-preset" id="pwr-emerg" class="sr-only">
+<input type="radio" name="pwr-preset" id="pwr-over" class="sr-only">
+
+<!-- Boot Dismissal Trigger Checkbox -->
+<input type="checkbox" id="boot-skip-trigger" class="sr-only">
+
+<!-- ==========================================================================
+     HARDWARE BOOT SEQUENCE OVERLAY (CSS Animated & Immediately Skippable)
+     ========================================================================== -->
+<div class="boot-overlay" role="dialog" aria-label="Hardware Boot Sequence">
+  <div class="boot-header">
+    <div>
+      <div class="boot-title">AETHEL-OS // HARDWARE BOOTLOADER V4.18</div>
+      <div class="boot-sub">COLONY OUTPOST EPSILON — ARCHITECTURE SPECIFICATION 1984 / REVISION 2180</div>
+    </div>
+    <label for="boot-skip-trigger" class="boot-skip-btn" tabindex="0" role="button">
+      [ SKIP BOOT // ESC ]
+    </label>
+  </div>
+
+  <div class="boot-log-container">
+    <div class="boot-log-line">[00.012] ROM CHECKSUM 0x9AF4 ............................. VERIFIED OK</div>
+    <div class="boot-log-line">[00.340] MAGNETIC BUBBLE MEMORY BANK 1-8 ................ 256 KW ALLOCATED</div>
+    <div class="boot-log-line">[01.120] HELLO WORLD COLONY MAIN BUS ARBITRATION ........ GRANTED TO NODE 04</div>
+    <div class="boot-log-line">[01.780] FISSION TURBOGENERATOR CORE MONITORS ............ SYNC AT 400 HZ</div>
+    <div class="boot-log-line">[02.410] OXYGEN RECIRCULATION MATRIX A/B ................. NOMINAL 101.3 KPA</div>
+    <div class="boot-log-line">[02.890] X-BAND DEEP SPACE OPTICAL LASER ARRAY .......... CARRIER LOCKED</div>
+    <div class="boot-log-line">[03.350] CRYOGENIC ISOLATION VALVES ...................... STATIC PASS</div>
+    <div class="boot-log-line">[03.920] LAUNCHING AETHEL-OS SHELL WORKSPACE ............. READY</div>
+  </div>
+
+  <div>
+    <div class="boot-progress-bar">
+      <div class="boot-progress-fill"></div>
+    </div>
+    <div style="display: flex; justify-content: space-between; font-size: 11px; margin-top: 6px; color: var(--c-bone-dim);">
+      <span>BUS INITIALIZATION</span>
+      <span>READY // AUTO-DISMISSING</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     PRIMARY OS CHASSIS
+     ========================================================================== -->
+<div class="os-chassis">
+
+  <!-- Master Top Header Plate -->
+  <header class="master-header">
+    <div class="system-identity">
+      <div class="brand-badge">AETHEL-84</div>
+      <div class="station-title">
+        <h1>Hello World : Colony Operating System</h1>
+        <div class="subtitle">OUTPOST EPSILON // SECTOR 04 // ACHERON PRIME ORBIT</div>
+      </div>
+    </div>
+
+    <div class="system-telemetry-strip">
+      <div class="telemetry-chip">
+        <span class="chip-label">SYSTEM CLOCK</span>
+        <span class="chip-val">2180.244 // 08:42:19 UTC</span>
+      </div>
+      <div class="telemetry-chip">
+        <span class="chip-label">REACTOR CORE</span>
+        <span class="chip-val status-ok">NOMINAL // 1420 kW</span>
+      </div>
+      <div class="telemetry-chip">
+        <span class="chip-label">LIFE SUPPORT</span>
+        <span class="chip-val status-ok">94.8% // CABIN 101.3 kPa</span>
+      </div>
+      <div class="telemetry-chip">
+        <span class="chip-label">LASER COMMS</span>
+        <span class="chip-val status-warn">STANDBY // DELAY 4.2H</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Quick Configuration & Disclaimer Ribbon -->
+  <aside class="config-ribbon" aria-label="Quick Settings">
+    <div class="config-toggles">
+      <span style="color: var(--c-amber); font-weight: bold; text-transform: uppercase;">Interface Config:</span>
+      <label class="cfg-label">
+        <input type="checkbox" id="cfg-contrast">
+        <span>High-Contrast Mode</span>
+      </label>
+      <label class="cfg-label">
+        <input type="checkbox" id="cfg-density">
+        <span>Compact Density</span>
+      </label>
+      <label class="cfg-label">
+        <input type="checkbox" id="cfg-amber">
+        <span>Amber Monochrome</span>
+      </label>
+    </div>
+    <div class="sim-notice">
+      [ SIMULATED COLONY SYSTEM // ZERO JAVASCRIPT RUNTIME ]
+    </div>
+  </aside>
+
+  <!-- Main Grid: Left Nav Bay + Active Module Workspace -->
+  <div class="workspace-grid">
+
+    <!-- Left Navigation Modular Bay -->
+    <nav class="module-nav-bay" aria-label="OS Modules">
+      <div class="nav-section-title">Primary Bays</div>
+
+      <label for="tab-terminal" class="nav-tab-label" tabindex="0" role="button">
+        <span><span class="nav-tab-idx">01</span>Terminal</span>
+        <span class="nav-tab-badge">CMD</span>
+      </label>
+
+      <label for="tab-sysmon" class="nav-tab-label" tabindex="0" role="button">
+        <span><span class="nav-tab-idx">02</span>System Monitor</span>
+        <span class="nav-tab-badge">MET</span>
+      </label>
+
+      <label for="tab-archive" class="nav-tab-label" tabindex="0" role="button">
+        <span><span class="nav-tab-idx">03</span>Data Archive</span>
+        <span class="nav-tab-badge">DOC</span>
+      </label>
+
+      <label for="tab-comms" class="nav-tab-label" tabindex="0" role="button">
+        <span><span class="nav-tab-idx">04</span>Communications</span>
+        <span class="nav-tab-badge">RF</span>
+      </label>
+
+      <div class="nav-section-title" style="margin-top: 8px;">Colony Control</div>
+
+      <label for="tab-nav" class="nav-tab-label" tabindex="0" role="button">
+        <span><span class="nav-tab-idx">05</span>Navigation</span>
+        <span class="nav-tab-badge">ORB</span>
+      </label>
+
+      <label for="tab-power" class="nav-tab-label" tabindex="0" role="button">
+        <span><span class="nav-tab-idx">06</span>Power Grid</span>
+        <span class="nav-tab-badge">BUS</span>
+      </label>
+
+      <label for="tab-config" class="nav-tab-label" tabindex="0" role="button">
+        <span><span class="nav-tab-idx">07</span>Configuration</span>
+        <span class="nav-tab-badge">CFG</span>
+      </label>
+
+      <label for="tab-diag" class="nav-tab-label" tabindex="0" role="button">
+        <span><span class="nav-tab-idx">08</span>Diagnostics</span>
+        <span class="nav-tab-badge">TST</span>
+      </label>
+    </nav>
+
+    <!-- Center Workspace Stage -->
+    <main class="workspace-stage">
+
+      <!-- ====================================================================
+           MODULE 1: COMMAND TERMINAL
+           ==================================================================== -->
+      <section id="view-terminal" class="module-view" aria-label="Command Terminal">
+        <div class="mod-panel">
+          <div class="mod-header">
+            <h2 class="mod-title">
+              <span>[BAY-01]</span> Command Terminal Interface
+            </h2>
+            <div class="mod-meta">TTY CHANNEL // TTY-0 // READY</div>
+          </div>
+
+          <div class="terminal-layout">
+            <div class="command-deck">
+              <div class="deck-title">Select Command Routine:</div>
+              <div class="cmd-btn-list">
+                <label for="cmd-ping" class="cmd-btn-label">SYS.PING // BUS TEST</label>
+                <label for="cmd-scan" class="cmd-btn-label">VOL.SCAN // METEOROID DETECT</label>
+                <label for="cmd-life" class="cmd-btn-label">ATMOS.QUERY // CABIN GAUGES</label>
+                <label for="cmd-navsolve" class="cmd-btn-label">NAV.SOLVE // ORBITAL VECTORS</label>
+                <label for="cmd-audit" class="cmd-btn-label">SECURITY.AUDIT // ACCESS LOG</label>
+              </div>
+            </div>
+
+            <div class="terminal-log-screen">
+              <!-- Response Block 1 -->
+              <div id="resp-ping" class="cmd-response-block">
+                <div class="log-entry">
+                  <span class="log-ts">[2180.244 // 08:42:10]</span> <span class="log-cmd">EXEC SYS.PING --ALL-NODES</span>
+                </div>
+                <div class="log-entry log-data">
+                  &gt; Polling internal instrumentation bus 0x400...<br>
+                  &gt; NODE 01 (Life Support): ACK 0.12 ms (NOMINAL)<br>
+                  &gt; NODE 02 (Centrifuge Hub): ACK 0.24 ms (BALANCED)<br>
+                  &gt; NODE 03 (Fission Generator): ACK 0.18 ms (STATUS OK)<br>
+                  &gt; NODE 04 (Optical Transceiver): ACK 0.31 ms (CARRIER HOLD)<br>
+                  &gt; HELLO WORLD Colony Backbone: 0 packet drops observed.<br>
+                  <span class="log-ok">&gt;&gt; STATUS 200: SYSTEM BUS COHERENT AND OPERATIONAL.</span>
+                </div>
+              </div>
+
+              <!-- Response Block 2 -->
+              <div id="resp-scan" class="cmd-response-block">
+                <div class="log-entry">
+                  <span class="log-ts">[2180.244 // 08:42:12]</span> <span class="log-cmd">EXEC VOL.SCAN --SECTOR ACHERON-4</span>
+                </div>
+                <div class="log-entry log-data">
+                  &gt; RADAR ARRAY 360-DEG PULSE EMITTED (12.4 GHz).<br>
+                  &gt; Ranging radius: 50,000 km.<br>
+                  &gt; Micro-debris density: 0.04 particles / km³.<br>
+                  &gt; Proximity contact: FREIGHT CARRIER "VANGUARD-7" (Range: 12,450 km, Vector: -0.22 km/s).<br>
+                  &gt; Hull shielding alert: GREEN (Deflector grid active at 100% capacity).<br>
+                  <span class="log-ok">&gt;&gt; STATUS 200: ZERO HAZARDS ON STATION APPROACH VECTORS.</span>
+                </div>
+              </div>
+
+              <!-- Response Block 3 -->
+              <div id="resp-life" class="cmd-response-block">
+                <div class="log-entry">
+                  <span class="log-ts">[2180.244 // 08:42:15]</span> <span class="log-cmd">EXEC ATMOS.QUERY --TELEMETRY</span>
+                </div>
+                <div class="log-entry log-data">
+                  &gt; Nitrogen / Oxygen Mix: 78.08% N2 / 20.95% O2 / 0.04% CO2.<br>
+                  &gt; Barometric Base: 101.325 kPa (Equivalent Sea-Level Earth standard).<br>
+                  &gt; Moisture Condensate Recycler: 99.4% recovery rate.<br>
+                  &gt; Carbon Dioxide Scrubber Bed A: 12% saturation (Nominal).<br>
+                  &gt; Habitability Certification: APPROVED FOR FULL COMPLEMENT (48 PERSONS).<br>
+                  <span class="log-ok">&gt;&gt; STATUS 200: LIFE SUPPORT MARGINS EXCEED STANDARD PARAMETERS.</span>
+                </div>
+              </div>
+
+              <!-- Response Block 4 -->
+              <div id="resp-navsolve" class="cmd-response-block">
+                <div class="log-entry">
+                  <span class="log-ts">[2180.244 // 08:42:17]</span> <span class="log-cmd">EXEC NAV.SOLVE --KEPLER-ORBIT</span>
+                </div>
+                <div class="log-entry log-data">
+                  &gt; Body: Acheron Prime (Gas Giant Mass: 1.898e27 kg).<br>
+                  &gt; Semi-Major Axis: a = 42,164.0 km.<br>
+                  &gt; Orbital Period: T = 23h 56m 04s (Stationary resonance corridor).<br>
+                  &gt; Station Eccentricity: e = 0.0021.<br>
+                  &gt; Station Velocity: v = 3.074 km/s.<br>
+                  <span class="log-ok">&gt;&gt; STATUS 200: EPHEMERIS PROPAGATION VERIFIED WITHOUT DRIFT.</span>
+                </div>
+              </div>
+
+              <!-- Response Block 5 -->
+              <div id="resp-audit" class="cmd-response-block">
+                <div class="log-entry">
+                  <span class="log-ts">[2180.244 // 08:42:19]</span> <span class="log-cmd">EXEC SECURITY.AUDIT --LOCAL-BAY</span>
+                </div>
+                <div class="log-entry log-data">
+                  &gt; Access terminal physical key: INSERTED IN SLOT B.<br>
+                  &gt; Authorization level: COMMAND EXPEDITION (RANK 4).<br>
+                  &gt; Previous session: 2180.243 // 22:15:00 by CHIEF ENGR. KOVALEV.<br>
+                  &gt; Tamper sensors: ALL INTEGRITY WIRES INTACT.<br>
+                  &gt; External network connections: NONE (AIR-GAPPED INDUSTRIAL HARDWARE).<br>
+                  <span class="log-ok">&gt;&gt; STATUS 200: LOCAL PHYSICAL SECURITY LEVEL CONFIRMED.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           MODULE 2: SYSTEM MONITOR
+           ==================================================================== -->
+      <section id="view-sysmon" class="module-view" aria-label="System Monitor">
+        <div class="mod-panel">
+          <div class="mod-header">
+            <h2 class="mod-title">
+              <span>[BAY-02]</span> Colony Subsystems Telemetry
+            </h2>
+            <div class="mod-meta">CONTINUOUS PASSIVE OBSERVATION // REFRESHED</div>
+          </div>
+
+          <div class="sysmon-grid">
+            <!-- Meter 1 -->
+            <div class="meter-card">
+              <div class="meter-header">
+                <span>O2 Scrubbing Reserve</span>
+                <span style="color: var(--c-ok);">94.8%</span>
+              </div>
+              <div class="meter-val-large">94.8 <span>EFFICIENCY</span></div>
+              <div class="analog-meter-bar">
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell"></div>
+              </div>
+              <div class="meter-meta-list">
+                <div class="meter-meta-row"><span>Bed A Saturation</span><span>12.4%</span></div>
+                <div class="meter-meta-row"><span>Bed B Saturation</span><span>04.1%</span></div>
+                <div class="meter-meta-row"><span>Recirculation Fan</span><span>1,440 RPM</span></div>
+              </div>
+            </div>
+
+            <!-- Meter 2 -->
+            <div class="meter-card">
+              <div class="meter-header">
+                <span>Centrifuge Grav</span>
+                <span style="color: var(--c-bone);">0.88 G</span>
+              </div>
+              <div class="meter-val-large">0.88 <span>EARTH G</span></div>
+              <div class="analog-meter-bar">
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell"></div>
+                <div class="meter-cell"></div>
+                <div class="meter-cell"></div>
+              </div>
+              <div class="meter-meta-list">
+                <div class="meter-meta-row"><span>Ring Radius</span><span>45.0 m</span></div>
+                <div class="meter-meta-row"><span>Rotational Rate</span><span>4.18 RPM</span></div>
+                <div class="meter-meta-row"><span>Bearing Strain</span><span>NOMINAL</span></div>
+              </div>
+            </div>
+
+            <!-- Meter 3 -->
+            <div class="meter-card">
+              <div class="meter-header">
+                <span>Coolant Loop Alpha</span>
+                <span style="color: var(--c-amber);">288 K</span>
+              </div>
+              <div class="meter-val-large">288.4 <span>KELVIN</span></div>
+              <div class="analog-meter-bar">
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-amber"></div>
+                <div class="meter-cell active-amber"></div>
+                <div class="meter-cell"></div>
+                <div class="meter-cell"></div>
+                <div class="meter-cell"></div>
+                <div class="meter-cell"></div>
+              </div>
+              <div class="meter-meta-list">
+                <div class="meter-meta-row"><span>Working Fluid</span><span>Li-Pb Eutectic</span></div>
+                <div class="meter-meta-row"><span>Pump Pressure</span><span>4.20 MPa</span></div>
+                <div class="meter-meta-row"><span>Radiator Vent</span><span>OPEN (100%)</span></div>
+              </div>
+            </div>
+
+            <!-- Meter 4 -->
+            <div class="meter-card">
+              <div class="meter-header">
+                <span>Hull Radiation Dosage</span>
+                <span style="color: var(--c-ok);">0.12 mSv</span>
+              </div>
+              <div class="meter-val-large">0.12 <span>mSv / HOUR</span></div>
+              <div class="analog-meter-bar">
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell active-green"></div>
+                <div class="meter-cell"></div>
+                <div class="meter-cell"></div>
+                <div class="meter-cell"></div>
+                <div class="meter-cell"></div>
+                <div class="meter-cell"></div>
+                <div class="meter-cell"></div>
+                <div class="meter-cell"></div>
+                <div class="meter-cell"></div>
+              </div>
+              <div class="meter-meta-list">
+                <div class="meter-meta-row"><span>Polyethylene Shield</span><span>98.6% SAFE</span></div>
+                <div class="meter-meta-row"><span>Solar Flare Sensor</span><span>QUIESCENT</span></div>
+                <div class="meter-meta-row"><span>Storm Shelter</span><span>ON STANDBY</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           MODULE 3: DATA ARCHIVE
+           ==================================================================== -->
+      <section id="view-archive" class="module-view" aria-label="Data Archive">
+        <div class="mod-panel">
+          <div class="mod-header">
+            <h2 class="mod-title">
+              <span>[BAY-03]</span> Fictional Historical Archive Dossiers
+            </h2>
+            <div class="mod-meta">OPTICAL BUBBLE STORAGE // DECLASSIFIED RECORDS</div>
+          </div>
+
+          <div class="archive-list">
+            <!-- Dossier 1 -->
+            <details class="archive-dossier" open>
+              <summary class="archive-summary">
+                <span>[DOSSIER-01] HELLO WORLD COLONY EXPEDITION CHARTER (1984 / 2142)</span>
+                <span class="archive-badge">HISTORICAL</span>
+              </summary>
+              <div class="archive-content">
+                <p>
+                  Ratified under the Outer Rim Exploration Treaty of 1984, the Hello World Expeditionary Program established Station Epsilon in orbit around gas giant Acheron Prime as a self-sustaining industrial node for deep-core volatile extraction and long-baseline radio astronomy.
+                </p>
+                <table class="archive-spec-table">
+                  <thead>
+                    <tr><th>Parameter</th><th>Charter Specification</th><th>Current Status (2180)</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Initial Population</td><td>24 Industrial Specialists</td><td>48 Crew &amp; Scientists</td></tr>
+                    <tr><td>Core Compute Hardware</td><td>Aethelgard 16-bit Bit-Slice</td><td>Operational without reboot</td></tr>
+                    <tr><td>Primary Objective</td><td>Acheron Volatile Mining</td><td>94,000 Metric Tons exported</td></tr>
+                    <tr><td>Colony Motto</td><td>"HELLO WORLD ACROSS THE RIM"</td><td>Inscribed on Hull Plate 01</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </details>
+
+            <!-- Dossier 2 -->
+            <details class="archive-dossier">
+              <summary class="archive-summary">
+                <span>[DOSSIER-02] GAS GIANT ACHERON PRIME ATMOSPHERIC ASSAY</span>
+                <span class="archive-badge">PLANETARY</span>
+              </summary>
+              <div class="archive-content">
+                <p>
+                  Spectroscopic survey executed by Probe 08-C. Upper atmosphere contains rich reservoirs of Helium-3 and deuterium along with complex hydrocarbon aerosols. Atmospheric skimming sweeps conducted monthly by automated ram-scoop vessels.
+                </p>
+                <ul style="margin-left: 20px; margin-top: 8px;">
+                  <li>Helium-3 Abundance: 142 ppm in upper stratosphere.</li>
+                  <li>Equatorial Jet Stream Velocity: 420 m/s westward.</li>
+                  <li>Radiation Belt Intensity: Maximum flux concentrated at 2.4 planetary radii.</li>
+                </ul>
+              </div>
+            </details>
+
+            <!-- Dossier 3 -->
+            <details class="archive-dossier">
+              <summary class="archive-summary">
+                <span>[DOSSIER-03] INCIDENT REPORT 2178-B: DRILL RIG PRESSURE SURGE</span>
+                <span class="archive-badge">SAFETY LOG</span>
+              </summary>
+              <div class="archive-content">
+                <p>
+                  On Date 2178.114, subterranean mining rig Alpha suffered a hydraulic line over-pressurization during core sampling on moonlet Phlegethon. Automated safety interlocks isolated the manifold in 14 milliseconds, preventing structural breech.
+                </p>
+                <p style="margin-top: 6px; color: var(--c-amber);">
+                  Resolution: Replaced mechanical rupture discs with heavy forged steel bypass loops. Zero casualties.
+                </p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           MODULE 4: COMMUNICATIONS
+           ==================================================================== -->
+      <section id="view-comms" class="module-view" aria-label="Communications">
+        <div class="mod-panel">
+          <div class="mod-header">
+            <h2 class="mod-title">
+              <span>[BAY-04]</span> Optical Laser Transceiver Array
+            </h2>
+            <div class="mod-meta">8.4 GHz LASER // DUAL-BAND RELAY</div>
+          </div>
+
+          <div class="comms-layout">
+            <div class="comms-channels">
+              <div class="deck-title">Active Transceiver Links:</div>
+              <label for="chan-relay" class="comms-chan-label">
+                <strong>CH-01: RELAY BUOY 9</strong><br>
+                <span style="font-size: 10px; color: var(--c-bone-dim);">Lagrange L4 // Latency 1.2s</span>
+              </label>
+              <label for="chan-earth" class="comms-chan-label">
+                <strong>CH-02: SOL BASELINE</strong><br>
+                <span style="font-size: 10px; color: var(--c-bone-dim);">Earth Mission Control // Delay 4.2h</span>
+              </label>
+              <label for="chan-surface" class="comms-chan-label">
+                <strong>CH-03: SURFACE DRILL 4</strong><br>
+                <span style="font-size: 10px; color: var(--c-bone-dim);">Moonlet Phlegethon // Sub-surface</span>
+              </label>
+            </div>
+
+            <div class="comms-readout">
+              <!-- Channel 1 Details -->
+              <div id="pane-relay" class="chan-detail-pane">
+                <div style="font-size: 14px; font-weight: bold; color: var(--c-amber); margin-bottom: 8px;">
+                  COMM CHANNEL 01 // ORBITAL RELAY BUOY 9 (L4)
+                </div>
+                <p style="margin-bottom: 8px;">
+                  Status: LOCKED &bull; Carrier Frequency: 8.412 GHz &bull; Signal-to-Noise: 42.4 dB (EXCELLENT)
+                </p>
+                <div style="background: #000; padding: 12px; border: 1px solid var(--c-border-hard); font-size: 11px; line-height: 1.6;">
+                  [2180.244 // 08:30:00] BUOY 9: Automated telemetry packet received.<br>
+                  [2180.244 // 08:35:12] HELLO WORLD HABITAT: Outbound status beacon broadcast verified.<br>
+                  [2180.244 // 08:40:00] BUOY 9: Solar flare warning index: LEVEL GREEN.<br>
+                  <span style="color: var(--c-ok);">&gt;&gt; LINK UNINTERRUPTED. PACKET LOSS: 0.000%</span>
+                </div>
+              </div>
+
+              <!-- Channel 2 Details -->
+              <div id="pane-earth" class="chan-detail-pane">
+                <div style="font-size: 14px; font-weight: bold; color: var(--c-amber); margin-bottom: 8px;">
+                  COMM CHANNEL 02 // SOL MISSION CONTROL (EARTH)
+                </div>
+                <p style="margin-bottom: 8px;">
+                  Status: HIGH-POWER X-BAND &bull; One-Way Propagation Delay: 4 Hours 12 Minutes
+                </p>
+                <div style="background: #000; padding: 12px; border: 1px solid var(--c-border-hard); font-size: 11px; line-height: 1.6;">
+                  [RECEIVED 04:18 UTC] SOL-DIR: Annual resupply manifest approved. Transport ship "Hyperion-4" en route.<br>
+                  [BUFFER QUEUE] Outbound monthly scientific report packaged (14.2 MB compressed telemetry).<br>
+                  <span style="color: var(--c-bone-dark);">&gt;&gt; TRANSMISSION QUEUED FOR PERIAPSIS WINDOW.</span>
+                </div>
+              </div>
+
+              <!-- Channel 3 Details -->
+              <div id="pane-surface" class="chan-detail-pane">
+                <div style="font-size: 14px; font-weight: bold; color: var(--c-amber); margin-bottom: 8px;">
+                  COMM CHANNEL 03 // PHLEGETHON SURFACE DRILL RIG 4
+                </div>
+                <p style="margin-bottom: 8px;">
+                  Status: VLF GROUND-PENETRATING LINK &bull; Range: 4,820 km
+                </p>
+                <div style="background: #000; padding: 12px; border: 1px solid var(--c-border-hard); font-size: 11px; line-height: 1.6;">
+                  [2180.244 // 08:12:44] RIG-4: Deep core extraction at borehole 7 reaching 1,200m depth.<br>
+                  [2180.244 // 08:24:19] RIG-4: Core sample contains crystalline water-ice and trace silicates.<br>
+                  <span style="color: var(--c-ok);">&gt;&gt; TEAM 4 REPORTING ALL PERSONNEL HEALTHY.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           MODULE 5: NAVIGATION
+           ==================================================================== -->
+      <section id="view-nav" class="module-view" aria-label="Navigation">
+        <div class="mod-panel">
+          <div class="mod-header">
+            <h2 class="mod-title">
+              <span>[BAY-05]</span> Orbital Navigation &amp; Trajectory
+            </h2>
+            <div class="mod-meta">KEPLER VECTOR CALCULATOR // ACHERON PRIME SYSTEM</div>
+          </div>
+
+          <div class="nav-layout">
+            <div class="orbital-plot-bay">
+              <!-- Inline SVG Orbital Map: Pure Vector Diagram -->
+              <svg class="orbital-svg" viewBox="0 0 400 300" aria-label="Orbital Path Diagram" role="img">
+                <rect width="400" height="300" fill="#06080a" />
+                <!-- Coordinate Grid -->
+                <line x1="50" y1="0" x2="50" y2="300" stroke="#141a22" stroke-width="1" />
+                <line x1="150" y1="0" x2="150" y2="300" stroke="#141a22" stroke-width="1" />
+                <line x1="250" y1="0" x2="250" y2="300" stroke="#141a22" stroke-width="1" />
+                <line x1="350" y1="0" x2="350" y2="300" stroke="#141a22" stroke-width="1" />
+                <line x1="0" y1="75" x2="400" y2="75" stroke="#141a22" stroke-width="1" />
+                <line x1="0" y1="150" x2="400" y2="150" stroke="#141a22" stroke-width="1" />
+                <line x1="0" y1="225" x2="400" y2="225" stroke="#141a22" stroke-width="1" />
+
+                <!-- Central Body: Gas Giant Acheron Prime -->
+                <circle cx="200" cy="150" r="42" fill="#2c3327" stroke="#4c5a43" stroke-width="2" />
+                <circle cx="200" cy="150" r="30" fill="#1e241b" />
+                <text x="200" y="154" fill="#ded8cb" font-family="monospace" font-size="9" text-anchor="middle" font-weight="bold">ACHERON</text>
+
+                <!-- Station Epsilon Orbit Track -->
+                <ellipse cx="200" cy="150" rx="140" ry="85" fill="none" stroke="#d49522" stroke-width="1.5" stroke-dasharray="4,4" />
+
+                <!-- Station Epsilon Position -->
+                <circle cx="315" cy="195" r="6" fill="#c44f22" stroke="#ded8cb" stroke-width="1.5" />
+                <text x="325" y="210" fill="#ded8cb" font-family="monospace" font-size="10" font-weight="bold">HELLO WORLD [EPSILON]</text>
+
+                <!-- Relay Buoy L4 Position -->
+                <circle cx="100" cy="85" r="4" fill="#528c46" />
+                <text x="100" y="75" fill="#528c46" font-family="monospace" font-size="9" text-anchor="middle">BUOY 9 (L4)</text>
+
+                <!-- Reticle Crosshairs -->
+                <path d="M 190 150 L 210 150 M 200 140 L 200 160" stroke="#4c5a43" stroke-width="1" />
+              </svg>
+            </div>
+
+            <div class="nav-metrics-bay">
+              <div class="deck-title">Orbital Telemetry Parameters:</div>
+              <div class="meter-meta-list" style="border: none; padding: 0;">
+                <div class="meter-meta-row"><span>Semi-Major Axis (a)</span><span>42,164 km</span></div>
+                <div class="meter-meta-row"><span>Eccentricity (e)</span><span>0.0021</span></div>
+                <div class="meter-meta-row"><span>Orbital Period</span><span>23h 56m 04s</span></div>
+                <div class="meter-meta-row"><span>Velocity (Orbital)</span><span>3.074 km/s</span></div>
+                <div class="meter-meta-row"><span>True Anomaly (&nu;)</span><span>138.4&deg;</span></div>
+                <div class="meter-meta-row"><span>Station Attitude</span><span>SUN-LOCKED</span></div>
+                <div class="meter-meta-row" style="margin-top: 10px; color: var(--c-ok);">
+                  <span>Orbital Stationkeeping</span><span>AUTO (ACTIVE)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           MODULE 6: POWER MANAGEMENT
+           ==================================================================== -->
+      <section id="view-power" class="module-view" aria-label="Power Grid">
+        <div class="mod-panel">
+          <div class="mod-header">
+            <h2 class="mod-title">
+              <span>[BAY-06]</span> Fission &amp; Solar Power Allocation
+            </h2>
+            <div class="mod-meta">BUS LOAD CONTROLLER // DYNAMIC INTERLOCKS</div>
+          </div>
+
+          <!-- Preset Switcher -->
+          <div class="power-presets-deck">
+            <label for="pwr-bal" class="power-preset-label">
+              <div class="preset-code">PRESET ALPHA</div>
+              <div class="preset-desc">Balanced Baseline (1,420 kW)</div>
+            </label>
+            <label for="pwr-emerg" class="power-preset-label">
+              <div class="preset-code">PRESET BRAVO</div>
+              <div class="preset-desc">Emergency Life-Only (680 kW)</div>
+            </label>
+            <label for="pwr-over" class="power-preset-label">
+              <div class="preset-code">PRESET CHARLIE</div>
+              <div class="preset-desc">Industrial Extraction (2,100 kW)</div>
+            </label>
+          </div>
+
+          <!-- Dynamic Alerts via CSS :has -->
+          <div class="pwr-state-alert alert-bal">
+            <strong>MODE ALPHA ACTIVE:</strong> Standard colony power balance. All 8 bays fully energized at 100% capacity. Zero load-shedding.
+          </div>
+          <div class="pwr-state-alert alert-emerg">
+            <strong>MODE BRAVO ACTIVE:</strong> EMERGENCY SHEDDING ENGAGED. Reactor core throttled. Non-essential bays (Navigation radar &amp; Deep Comms) set to LOW-POWER SLEEP.
+          </div>
+          <div class="pwr-state-alert alert-over">
+            <strong>MODE CHARLIE ACTIVE:</strong> HIGH OVERDRIVE EXTRACTION. Secondary turbine engaged. Increased thermal dissipation through radiator arrays.
+          </div>
+
+          <!-- Bus Table with Contextual Shedding Rows -->
+          <table class="bus-table">
+            <thead>
+              <tr><th>Subsystem Bus</th><th>Base Rating</th><th>Current Status</th><th>Priority Level</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Life Support &amp; O2 Scrubbers</td>
+                <td>340 kW</td>
+                <td style="color: var(--c-ok);">ENERGIZED (100%)</td>
+                <td>CRITICAL (01)</td>
+              </tr>
+              <tr>
+                <td>Centrifuge Grav Hub Motor</td>
+                <td>280 kW</td>
+                <td style="color: var(--c-ok);">ENERGIZED (100%)</td>
+                <td>HIGH (02)</td>
+              </tr>
+              <tr class="bus-row-aux">
+                <td>Deep-Space Transceiver Array</td>
+                <td>180 kW</td>
+                <td class="bus-status-txt">ACTIVE / FULL</td>
+                <td>MEDIUM (03)</td>
+              </tr>
+              <tr class="bus-row-aux">
+                <td>Radar &amp; Orbital Collision Array</td>
+                <td>120 kW</td>
+                <td class="bus-status-txt">ACTIVE / FULL</td>
+                <td>MEDIUM (04)</td>
+              </tr>
+              <tr>
+                <td>Internal Lighting &amp; Controls</td>
+                <td>60 kW</td>
+                <td style="color: var(--c-ok);">ENERGIZED (100%)</td>
+                <td>BASE (05)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           MODULE 7: SYSTEM CONFIGURATION
+           ==================================================================== -->
+      <section id="view-config" class="module-view" aria-label="Configuration">
+        <div class="mod-panel">
+          <div class="mod-header">
+            <h2 class="mod-title">
+              <span>[BAY-07]</span> Local Terminal Configuration
+            </h2>
+            <div class="mod-meta">CSS PSEUDO-CLASS RECONFIGURATIONS</div>
+          </div>
+
+          <div class="config-card-grid">
+            <div class="config-item-box">
+              <h3>High Contrast Display</h3>
+              <p style="color: var(--c-bone-dim); margin-bottom: 12px;">
+                Forces absolute black chassis with stark white and pure yellow borders, maximizing legibility in high ambient light or through helmet visors.
+              </p>
+              <label class="cfg-label" style="font-weight: bold; color: var(--c-amber);">
+                <span>Active via Ribbon Checkbox (Top Left)</span>
+              </label>
+            </div>
+
+            <div class="config-item-box">
+              <h3>High Density Data Grid</h3>
+              <p style="color: var(--c-bone-dim); margin-bottom: 12px;">
+                Compresses padding to 6px and reduces typography to 11.5px, enabling high-density instrument telemetry on compact viewports.
+              </p>
+              <label class="cfg-label" style="font-weight: bold; color: var(--c-amber);">
+                <span>Active via Ribbon Checkbox (Top Left)</span>
+              </label>
+            </div>
+
+            <div class="config-item-box">
+              <h3>Monochrome Amber Mode</h3>
+              <p style="color: var(--c-bone-dim); margin-bottom: 12px;">
+                Recalibrates the interface to a single monochromatic warm amber hue, honoring 1984 aerospace gas-plasma standards.
+              </p>
+              <label class="cfg-label" style="font-weight: bold; color: var(--c-amber);">
+                <span>Active via Ribbon Checkbox (Top Left)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           MODULE 8: HARDWARE DIAGNOSTICS
+           ==================================================================== -->
+      <section id="view-diag" class="module-view" aria-label="Diagnostics">
+        <div class="mod-panel">
+          <div class="mod-header">
+            <h2 class="mod-title">
+              <span>[BAY-08]</span> Guided Hardware Diagnostics
+            </h2>
+            <div class="mod-meta">INTERLOCK INTEGRITY CHECKLIST // LIVE COUNTER</div>
+          </div>
+
+          <div class="diag-checklist">
+            <div class="diag-item">
+              <label for="diag-1">
+                <input type="checkbox" id="diag-1" class="diag-chk" checked>
+                <span>DIAG-01: FISSION COOLANT PRIMARY LOOP PRESSURE</span>
+              </label>
+              <span class="diag-status-pill">PASSED</span>
+            </div>
+
+            <div class="diag-item">
+              <label for="diag-2">
+                <input type="checkbox" id="diag-2" class="diag-chk" checked>
+                <span>DIAG-02: RCS NITROGEN ATTITUDE THRUSTER MANIFOLDS</span>
+              </label>
+              <span class="diag-status-pill">PASSED</span>
+            </div>
+
+            <div class="diag-item">
+              <label for="diag-3">
+                <input type="checkbox" id="diag-3" class="diag-chk" checked>
+                <span>DIAG-03: AIRLOCK DOUBLE SEAL ELASTOMERIC COMPRESSION</span>
+              </label>
+              <span class="diag-status-pill">PASSED</span>
+            </div>
+
+            <div class="diag-item">
+              <label for="diag-4">
+                <input type="checkbox" id="diag-4" class="diag-chk">
+                <span>DIAG-04: SOLAR FLARE SENSOR SENSITIVITY CALIBRATION</span>
+              </label>
+              <span class="diag-status-pill">PENDING</span>
+            </div>
+
+            <div class="diag-item">
+              <label for="diag-5">
+                <input type="checkbox" id="diag-5" class="diag-chk">
+                <span>DIAG-05: CENTRIFUGE GYROSCOPIC PRECESSION STABILITY</span>
+              </label>
+              <span class="diag-status-pill">PENDING</span>
+            </div>
+
+            <div class="diag-item">
+              <label for="diag-6">
+                <input type="checkbox" id="diag-6" class="diag-chk">
+                <span>DIAG-06: OPTICAL LASER RELAY TRANSMITTER SWR MATCHING</span>
+              </label>
+              <span class="diag-status-pill">PENDING</span>
+            </div>
+          </div>
+
+          <div class="diag-summary-card">
+            <div class="diag-tally-txt">SYSTEM HARDWARE VERIFICATION: </div>
+            <div class="all-diag-pass-banner">
+              &star; ALL 6 SUBSYSTEMS VERIFIED // READY FOR FULL INDUSTRIAL MISSION &star;
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Master System Footer Status Line -->
+  <footer class="master-footer">
+    <div>
+      AETHEL-OS V4.18 // ARCHITECTURE 1984 // DEPLOYED 2180 // HELLO WORLD EXPEDITION OUTPOST EPSILON
+    </div>
+    <div class="footer-meta">
+      <span>CHASSIS TEMP: 294 K</span>
+      <span>MEMORY: 256 KW STATIC</span>
+      <span style="color: var(--c-ok);">HARDWARE LOCKED &bull; ZERO JS</span>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>

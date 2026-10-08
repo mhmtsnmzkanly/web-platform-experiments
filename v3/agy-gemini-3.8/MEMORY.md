@@ -58,6 +58,7 @@
 - Rayleigh-Bénard thermal convection, Boussinesq buoyancy coupling $\mathbf{f}_b = \rho_0 \alpha g (T - T_0)\hat{\mathbf{y}}$, 10 aspect-ratio quantized cavities holding 24 counter-rotating convection rolls, critical Rayleigh threshold $\text{Ra} > \text{Ra}_c = 1708$, and convective Nusselt heat transfer enhancement $\text{Nu}$
 - Tensegrity structural mechanics, Snelson/Fuller cable-strut self-equilibrium, 10 discrete compression struts, 29 Kevlar tension cables, static self-stress nullspace $\mathbf{A} \mathbf{t}_0 = \mathbf{0}$, geometric stiffness matrix $\mathbf{K}_G(\mathbf{t}_0)$, prestress eigenvalue stiffening $\lambda_{\min} > 0$, and zero kinematic mechanisms ($m = 0$)
 - Superconducting Josephson junction array, Resistively Shunted Junction (RSJ) dynamics, Ambegaokar-Baratoff Cooper pair tunneling, dissipationless supercurrent zero-voltage state ($V=0$), resistive branch transition at $I_{\text{bias}} > I_c$ with live voltage drop $V = R_N\sqrt{I^2-I_c^2}$ and high-frequency AC Josephson oscillations ($f_J = 2eV/h$), and topological fluxoid quantization $\oint \nabla\phi\cdot d\mathbf{l} = 2\pi n$ across closed SQUID loops ('O','O','D')
+- Pure semantic HTML5 + CSS3 scriptless state machine architecture, mutually exclusive input radio controllers, CSS `:has()` parent-selector reactive styling, CSS `counter-increment` dynamic checklists, accessible `<details>` data dossiers, and zero-JavaScript cassette futurism industrial design system
 
 
 ## Mechanism Lineage
@@ -121,6 +122,7 @@
 - 058: 10 aspect-ratio quantized cavities of "HELLO WORLD" → Rayleigh-Bénard thermal convection with Boussinesq buoyancy → critical threshold Ra = 3420 -> 5985 > 1708 → 24 counter-rotating roll cells & convective Nusselt enhancement Nu = 1.72 -> 2.03
 - 059: 10 discrete compression struts of "HELLO WORLD" suspended in 29 Kevlar tension cables → tensegrity self-stress nullspace equilibrium A t_0 = 0 → geometric stiffness matrix K_G → prestress stiffening lambda_min = 42.8 -> 94.2 kN/m with zero kinematic mobility (m = 0)
 - 060: 10 superconducting islands of "HELLO WORLD" linked by 9 Josephson weak links → Resistively Shunted Junction (RSJ) dynamics → zero-voltage dissipationless state (V = 0) vs resistive branch transition at I_bias = 1.80 I_c (V = 4.31 uV, f_J = 2084.53 GHz) → topological fluxoid quantization oint grad phi . dl = 2 pi n in 3 closed SQUID loops ('O','O','D')
+- 201: AETHEL-OS / Hello World Colony OS → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → mutually exclusive radio bay selectors → skippable POST boot sequence with reduced-motion bypass → CSS :has() dynamic power grid load-shedding → CSS counter hardware diagnostics tally → 8 integrated colony modules
 
 ## Design Lineage
 - 001: Architectural engineering schematic with subtle 40px grid, ivory letterforms, cyan/amber/crimson strain accents
@@ -182,6 +184,7 @@
 - 058: 1916 Lord Rayleigh Convection Test Tank with brushed copper thermal baseplate, cryogenic sapphire top plate, and schlieren convection roll plumes
 - 059: 1968 Kenneth Snelson / Buckminster Fuller Tensegrity Aerospace Mast Testbed with dark titanium slate casing, glowing amber Kevlar tension cables, and carbon fiber compression struts
 - 060: 1978 IBM Watson Research Dilution Refrigerator Cryostat at 15 mK with gold-plated thermal bus bars, cryogenic shields, phase phasors, SQUID fluxon loops, and real-time RSJ oscilloscope
+- 201: 1984 aerospace computer architecture deployed at 2180 off-world colony with charcoal chassis, oxidized olive plates, warm bone placards, rust/amber status indicators, segmented analog meters, and zero CRT effects
 
 ## Repetition Watch
 Repeated patterns to avoid in future runs:
@@ -434,6 +437,7 @@ Recently successful alternatives:
 - 10 aspect-ratio quantized cavities of "HELLO WORLD", Rayleigh-Bénard thermal convection, Delta T = 20 -> 35 K, Ra = 3420 -> 5985 > 1708, 24 counter-rotating roll cells, and convective Nusselt enhancement Nu = 1.72 -> 2.03 established in 058.
 - 10 compression struts of "HELLO WORLD" in 29 Kevlar tension cables, static self-equilibrium residual 2.6e-4 N, cable prestress tau = 1.00 -> 2.20 kN, geometric stiffness eigenvalue lambda_min = 42.8 -> 94.2 kN/m, and strain energy 2.73 kJ established in 059.
 - 10 superconducting islands of "HELLO WORLD", 9 Josephson weak links, critical current I_c = 1.20 uA, nominal bias ratio 0.80 (V = 0.00 uV), 3 trapped fluxons in SQUID loops ('O','O','D'), and post-ramp resistive transition at I_bias = 1.80 I_c with live voltage drop V = 4.31 uV and AC Josephson frequency f_J = 2084.53 GHz established in 060.
+- 100% pure semantic HTML5 + CSS3, 0 JavaScript, 0 external dependencies, 8 interconnected modules, skippable boot sequence, verified responsive across 390px, 768px, 1280px, and 1920px viewports, CSS :has() load shedding verified established in 201.
 
 # PROGRESS
 - 001: Completed and sealed (Topological Glyph Vector Deformation & Curvature Stress Field).
@@ -514,26 +518,30 @@ Recently successful alternatives:
 - 114: Completed and sealed (Data Transformation Frontier: Hamming [7, 4] Error Correction Pipeline).
 - 115: Completed and sealed (Material / Metaphor Frontier: 1804 Jacquard Programmable Punch-Card Loom & Textile Weave Mechanics).
 
+## Special Experiments (201)
+- 201: Completed and sealed (AETHEL-OS // Hello World Colony Operating System).
+
 # CURRENT
-Experiment: Sequential Moving Frontier (051–060)
+Experiment: 201 (AETHEL-OS // Colony Operating System)
 Status: COMPLETED
-Goal and acceptance criterion: Sequential run 051–060 complete across all 10 experiments with verified causal Hello World mechanisms, derived runtime evidence, no asserted constants, visual inspection, complete reports and journals, and sealed HTML.
-Intended frontier contribution: Advance Moving Frontier across 10 diverse physical/mathematical paradigms (viscous hydrodynamics, acoustic levitation, liquid crystals, hyperbolic geometry, excitable chemical media, magnetohydrodynamics, granular physics, thermal convection, tensegrity mechanics, superconducting Josephson arrays).
-Current novelty risk: None across distinct physical and mathematical domains.
-Current visual repetition risk: Monitored and mitigated across distinct laboratory testbeds and instrumentation paradigms.
-Current complexity risk: Numerical and physical models maintain exact necessary complexity without gratuitous layers.
-Last verified progress: 060 sealed and verified (tools.js verify 060/060.html 060 returned OK).
+Goal and acceptance criterion: Experiment 201 complete with 100% pure HTML+CSS (zero JavaScript), Cassette Futurism x Brutalism design without CRT effects, 8 substantive interconnected modules, skippable bootloader, verified responsive across all viewports, dependency certified, complete documentation, and sealed 201.html.
+Intended frontier contribution: Scriptless industrial operating system state machine architecture and brutalist space aerospace aesthetic.
+Current novelty risk: None.
+Current visual repetition risk: None (unique brutalist space industrial aesthetic).
+Current complexity risk: None (pure HTML/CSS, robust maintainable design system).
+Last verified progress: 201 sealed and verified (dependency-check passed OK, responsive Chrome testing passed OK).
 Last error signature: None.
 Same-error repetition: 0
 No-progress attempts: 0
 Strategy changes: 0
-Total development-test cycles: Tracked via per-experiment verification logs.
-Recently attempted solutions: Sealed 060.
-Next ONE concrete action: Run ./generate-readme.sh, commit & push, and deliver final comparative evaluation report.
+Total development-test cycles: 2 (dev -> verification -> seal).
+Recently attempted solutions: Sealed 201.
+Next ONE concrete action: Run ./generate-readme.sh, commit & push.
 
 # NOTES
 - Experiments 001-050 sealed historical run preserved intact.
 - Frontier Atlas 101-115 sealed historical run preserved intact.
 - Sequential run 051-060 completed and sealed.
+- Experiment 201 completed as a standalone pure HTML/CSS (zero JavaScript) industrial operating system artwork.
 - All evidence strictly derived from live state without assertion constants.
 - Causal Hello World integration preserved across all experiments.

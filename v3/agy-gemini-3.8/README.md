@@ -2,7 +2,7 @@
 
 [Repository index](../../README.md) · [Version prompt](../PROMPT.md)
 
-**75 base experiments** · 75 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
+**76 base experiments** · 76 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
 
 Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinished.
 
@@ -455,4 +455,10 @@ Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinishe
 [Demo](115/115.html) · [Report](115/report.md) · [Journal](115/journal.md) · [Screenshot](115/screenshot.png)
 
 ![Experiment 115](115/screenshot.png)
+
+## 201 — Experiment Report: 201 — AETHEL-OS // Hello World Colony Operating System
+
+[Demo](201/201.html) · [Report](201/report.md) · [Journal](201/journal.md) · [Screenshot](201/screenshot.png)
+
+![Experiment 201](201/screenshot.png)
 

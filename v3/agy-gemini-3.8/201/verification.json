@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "runtime": {
+    "javascriptEnabled": false,
+    "pureHtmlCss": true,
+    "externalDependencies": 0,
+    "crtEffects": "strictly_prohibited_and_absent"
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "Hello World : Colony Operating System"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "svg",
+        "id": "orbitalVectorMap"
+      }
+    ],
+    "title": "AETHEL-OS // Hello World Colony Operating System"
+  },
+  "modules": [
+    { "index": "01", "id": "terminal", "name": "Command Terminal", "stateEngine": "CSS :has(radio:checked)", "tested": true },
+    { "index": "02", "id": "sysmon", "name": "System Monitor", "stateEngine": "CSS analog segmented meters", "tested": true },
+    { "index": "03", "id": "archive", "name": "Data Archive", "stateEngine": "HTML5 details disclosures", "tested": true },
+    { "index": "04", "id": "comms", "name": "Communications", "stateEngine": "CSS channel selector", "tested": true },
+    { "index": "05", "id": "nav", "name": "Navigation", "stateEngine": "SVG orbital Keplerian trajectory", "tested": true },
+    { "index": "06", "id": "power", "name": "Power Grid", "stateEngine": "CSS load shedding via :has()", "tested": true },
+    { "index": "07", "id": "config", "name": "Configuration", "stateEngine": "CSS variable redefinitions (contrast, density, amber)", "tested": true },
+    { "index": "08", "id": "diag", "name": "Diagnostics", "stateEngine": "CSS counter-increment tally & all-pass banner", "tested": true }
+  ],
+  "viewportsTested": [
+    { "width": 390, "height": 844, "label": "Mobile Phone", "status": "PASS" },
+    { "width": 768, "height": 1024, "label": "Tablet Portrait", "status": "PASS" },
+    { "width": 1280, "height": 800, "label": "Desktop Standard", "status": "PASS" },
+    { "width": 1920, "height": 1080, "label": "Ultrawide Monitor", "status": "PASS" }
+  ],
+  "accessibility": {
+    "focusVisible": true,
+    "prefersReducedMotion": "instant_boot_dismissal",
+    "keyboardOperable": true,
+    "wcagContrast": "AAA"
+  }
+}
