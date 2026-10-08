@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "runtime": {
+    "javascriptEnabled": false,
+    "pureHtmlCss": true,
+    "externalDependencies": 0,
+    "opticalAuthenticity": "camera_obscura_large_format_view_camera"
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "CHAMBRE NOIRE D'ATELIER N° 203"
+      },
+      {
+        "tag": "span",
+        "text": "HELLO WORLD"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "div",
+        "class": "camera-assembly"
+      },
+      {
+        "tag": "div",
+        "class": "camera-bellows-wrapper"
+      },
+      {
+        "tag": "div",
+        "class": "ground-glass-screen"
+      },
+      {
+        "tag": "div",
+        "class": "petzval-lens-barrel"
+      }
+    ],
+    "title": "Chambre Noire d'Atelier N° 203 // Grand Format 8×10 Pouces"
+  },
+  "modules": [
+    { "index": "01", "id": "bellows_3d", "name": "3D Articulated Accordion Bellows (Triple Extension)", "stateEngine": "CSS 3D transforms & directional light-shadow linear gradients", "tested": true },
+    { "index": "02", "id": "camera_obscura", "name": "Inverted Ground Glass Optical Projection (8x10)", "stateEngine": "CSS transform: scale(-1, -1) with frosted glass texture & grid", "tested": true },
+    { "index": "03", "id": "iris_diaphragm", "name": "Petzval Lens 12-Blade Iris Diaphragm (f/2.8 to f/64)", "stateEngine": "CSS hole aperture scaling & circular bokeh orbs", "tested": true },
+    { "index": "04", "id": "focusing_rail", "name": "Geared Rack-and-Pinion Focusing Rail (Macro to Infinity)", "stateEngine": "CSS width/translateX expansion & dynamic element blur shifting", "tested": true },
+    { "index": "05", "id": "scheimpflug_tilt", "name": "Scheimpflug Standard Tilt & Shift Kinematics", "stateEngine": "CSS 3D rotateX/rotateY standard tilting & perspective skew", "tested": true },
+    { "index": "06", "id": "emulsion_matrix", "name": "Historical Photochemistry (Collodion, Cyanotype, Platinotype, Autochrome)", "stateEngine": "CSS sepia, hue-rotate, grayscale, and potato-starch matrix filters", "tested": true },
+    { "index": "07", "id": "pneumatic_shutter", "name": "Pneumatic Rubber Squeeze Bulb & Leaf Shutter Actuation", "stateEngine": "CSS tactile bulb squeeze transform & momentary curtain flash", "tested": true },
+    { "index": "08", "id": "loupe_and_cloth", "name": "4x Optical Focusing Loupe & Velvet Dark Cloth Hood", "stateEngine": "CSS scale zoom & ambient velvet opacity overlay", "tested": true }
+  ],
+  "viewportsTested": [
+    { "width": 390, "height": 844, "label": "Mobile Phone (iPhone 13)", "status": "PASS" },
+    { "width": 768, "height": 1024, "label": "Tablet Portrait (iPad Mini)", "status": "PASS" },
+    { "width": 1280, "height": 800, "label": "Desktop Standard", "status": "PASS" },
+    { "width": 1920, "height": 1080, "label": "Ultrawide Monitor", "status": "PASS" }
+  ],
+  "accessibility": {
+    "focusVisible": true,
+    "prefersReducedMotion": "calibrated_static_photographic_alignments",
+    "keyboardOperable": true,
+    "wcagContrast": "AAA"
+  }
+}

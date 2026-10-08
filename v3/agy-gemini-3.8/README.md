@@ -2,7 +2,7 @@
 
 [Repository index](../../README.md) · [Version prompt](../PROMPT.md)
 
-**77 base experiments** · 77 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
+**78 base experiments** · 78 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
 
 Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinished.
 
@@ -467,4 +467,10 @@ Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinishe
 [Demo](202/202.html) · [Report](202/report.md) · [Journal](202/journal.md) · [Screenshot](202/screenshot.png)
 
 ![Experiment 202](202/screenshot.png)
+
+## 203 — Experiment Report: 203 — CHAMBRE NOIRE D'ATELIER N° 203 // Grand Format 8×10 Pouces
+
+[Demo](203/203.html) · [Report](203/report.md) · [Journal](203/journal.md) · [Screenshot](203/screenshot.png)
+
+![Experiment 203](203/screenshot.png)
 

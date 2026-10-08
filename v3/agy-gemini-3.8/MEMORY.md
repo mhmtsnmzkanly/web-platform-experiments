@@ -60,6 +60,8 @@
 - Superconducting Josephson junction array, Resistively Shunted Junction (RSJ) dynamics, Ambegaokar-Baratoff Cooper pair tunneling, dissipationless supercurrent zero-voltage state ($V=0$), resistive branch transition at $I_{\text{bias}} > I_c$ with live voltage drop $V = R_N\sqrt{I^2-I_c^2}$ and high-frequency AC Josephson oscillations ($f_J = 2eV/h$), and topological fluxoid quantization $\oint \nabla\phi\cdot d\mathbf{l} = 2\pi n$ across closed SQUID loops ('O','O','D')
 - Pure semantic HTML5 + CSS3 scriptless state machine architecture, mutually exclusive input radio controllers, CSS `:has()` parent-selector reactive styling, CSS `counter-increment` dynamic checklists, accessible `<details>` data dossiers, and zero-JavaScript cassette futurism industrial design system
 - Haute Horlogerie grand complication procedural CSS engineering: 3D exhibition sapphire caseback flip (`perspective: 1400px`, `preserve-3d`, `rotateY(180deg)`), 60-second flying tourbillon regulator (3 Hz / 21,600 vph balance oscillation), astronomical moonphase display, 72-hour power reserve sector, monopusher chronograph, procedural guilloché engine-turning (`repeating-conic-gradient` + radial masks), Côtes de Genève (Geneva waves), perlage, and UV Super-LumiNova luminescence under zero JavaScript runtime
+- 19th-century large-format view camera pure CSS optical engineering: 3D articulated accordion leather bellows (triple-extension kinematics), camera obscura inverted & laterally reversed optical projection (`transform: scale(-1, -1)`), Petzval portrait lens with 12-blade mechanical iris aperture (f/2.8 to f/64), rack-and-pinion geared focusing rail (macro to infinity), Scheimpflug front standard tilt/swing plane rotation, pneumatic rubber squeeze bulb shutter release, frosted ground glass texture with 8×10 graticule lines, miniature brass spirit levels, 4× optical focusing loupe, velvet dark cloth, and historical photochemistry (Collodion Humide, Cyanotype, Platinotype, Autochrome Lumière 1907) under zero JavaScript runtime
+
 
 
 
@@ -126,6 +128,8 @@
 - 060: 10 superconducting islands of "HELLO WORLD" linked by 9 Josephson weak links → Resistively Shunted Junction (RSJ) dynamics → zero-voltage dissipationless state (V = 0) vs resistive branch transition at I_bias = 1.80 I_c (V = 4.31 uV, f_J = 2084.53 GHz) → topological fluxoid quantization oint grad phi . dl = 2 pi n in 3 closed SQUID loops ('O','O','D')
 - 201: AETHEL-OS / Hello World Colony OS → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → mutually exclusive radio bay selectors → skippable POST boot sequence with reduced-motion bypass → CSS :has() dynamic power grid load-shedding → CSS counter hardware diagnostics tally → 8 integrated colony modules
 - 202: Chronomètre Mécanique N° 202 → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → spatial 3D exhibition sapphire caseback flip (`perspective: 1400px`, `preserve-3d`, `rotateY(180deg)`) → 60s flying tourbillon carriage (1 RPM) & balance wheel (3 Hz / 21,600 vph) → astronomical moonphase & 72h power reserve sector → 3-alloy metallurgy matrix (18K Rose Gold, 950 Platinum, Grade 5 Titanium) → 2.5x horological loupe optical magnification → 365nm UV darkroom Super-LumiNova phosphorescence
+- 203: Chambre Noire d'Atelier N° 203 → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → 3D camera isometric perspective (`rotateY(-18deg) rotateX(4deg)`) → articulated triple-extension leather accordion bellows → camera obscura inverted projection (`scale(-1, -1)`) of Parisian atelier still life (bust, globe, manuscript) → Petzval iris diaphragm (f/2.8 bokeh orbs to f/64 pinhole) → rack-and-pinion focus rail shifting depth planes → Scheimpflug standard tilt (+12° / +14°) → pneumatic squeeze bulb shutter snap → 4 historical chemical emulsion processes (Collodion, Cyanotype, Platinotype, Autochrome)
+
 
 
 ## Design Lineage
@@ -190,6 +194,8 @@
 - 060: 1978 IBM Watson Research Dilution Refrigerator Cryostat at 15 mK with gold-plated thermal bus bars, cryogenic shields, phase phasors, SQUID fluxon loops, and real-time RSJ oscilloscope
 - 201: 1984 aerospace computer architecture deployed at 2180 off-world colony with charcoal chassis, oxidized olive plates, warm bone placards, rust/amber status indicators, segmented analog meters, and zero CRT effects
 - 202: Haute Horlogerie Grand Complication with hand-turned guilloché dial, fluted winding crown, 60s flying tourbillon, 3D exhibition sapphire caseback with Côtes de Genève & perlage, blued Breguet hands, and 365nm Super-LumiNova luminescence under zero JavaScript
+- 203: 1888 Parisian optical and photographic atelier bench with Cuban mahogany cabinetry, knurled brass thumbscrews, liquid spirit levels, pleated leather bellows, frosted ground glass, and 630nm darkroom ruby safelight illumination under zero JavaScript
+
 
 
 ## Repetition Watch
@@ -524,25 +530,26 @@ Recently successful alternatives:
 - 114: Completed and sealed (Data Transformation Frontier: Hamming [7, 4] Error Correction Pipeline).
 - 115: Completed and sealed (Material / Metaphor Frontier: 1804 Jacquard Programmable Punch-Card Loom & Textile Weave Mechanics).
 
-## Special Experiments (201-202)
+## Special Experiments (201-203)
 - 201: Completed and sealed (AETHEL-OS // Hello World Colony Operating System).
 - 202: Completed and sealed (Chronomètre Mécanique N° 202 // Grand Complication Astronomique).
+- 203: Completed and sealed (Chambre Noire d'Atelier N° 203 // Grand Format 8×10 Pouces).
 
 # CURRENT
-Experiment: 202 (Chronomètre Mécanique N° 202 // Grand Complication Astronomique)
+Experiment: 203 (Chambre Noire d'Atelier N° 203 // Grand Format 8×10 Pouces)
 Status: COMPLETED
-Goal and acceptance criterion: Experiment 202 complete with 100% pure semantic HTML+CSS (zero JavaScript), Haute Horlogerie grand complication procedural aesthetic, 3D exhibition sapphire caseback flip, 60s flying tourbillon, moonphase, 72h power reserve sector, monopusher chronograph, 3 alloy variations, 2.5x horological loupe, 365nm UV Super-LumiNova darkroom, dependency certified, verified responsive across all viewports via Chromium CDP, complete documentation, and sealed 202.html.
-Intended frontier contribution: Pure CSS mechanical horology and spatial micro-engineering state engine.
+Goal and acceptance criterion: Experiment 203 complete with 100% pure semantic HTML+CSS (zero JavaScript), 19th-century large-format camera obscura view camera craftsmanship, 3D articulated accordion leather bellows (triple-extension kinematics), camera obscura inverted & laterally reversed optical projection (scale(-1, -1)), Petzval portrait lens with 12-blade mechanical iris aperture (f/2.8 to f/64), rack-and-pinion geared focusing rail (macro to infinity), Scheimpflug front standard tilt/swing plane rotation, pneumatic rubber squeeze bulb shutter release, frosted ground glass texture with 8x10 graticule lines, miniature brass spirit levels, 4x optical focusing loupe, velvet dark cloth, and 4 historical photochemistry processes (Collodion Humide, Cyanotype, Platinotype, Autochrome Lumière 1907), dependency certified, verified responsive across all viewports via Chromium CDP, complete documentation, and sealed 203.html.
+Intended frontier contribution: Pure CSS camera obscura optical physics, 3D accordion bellows kinematics, and historical photochemistry state engine.
 Current novelty risk: None.
-Current visual repetition risk: None (unique luxury horological mechanical aesthetic).
+Current visual repetition risk: None (unique 19th-century photographic atelier aesthetic).
 Current complexity risk: None (pure HTML/CSS, robust maintainable design system).
-Last verified progress: 202 sealed and verified (dependency-check passed OK, responsive Chrome testing passed OK).
+Last verified progress: 203 sealed and verified (dependency-check passed OK, responsive Chrome testing passed OK).
 Last error signature: None.
 Same-error repetition: 0
 No-progress attempts: 0
 Strategy changes: 0
 Total development-test cycles: 2 (dev -> verification -> seal).
-Recently attempted solutions: Sealed 202.
+Recently attempted solutions: Sealed 203.
 Next ONE concrete action: Run ./generate-readme.sh, commit & push.
 
 # NOTES
@@ -551,6 +558,8 @@ Next ONE concrete action: Run ./generate-readme.sh, commit & push.
 - Sequential run 051-060 completed and sealed.
 - Experiment 201 completed as a standalone pure HTML/CSS (zero JavaScript) industrial operating system artwork.
 - Experiment 202 completed as an autonomous pure HTML/CSS (zero JavaScript) Haute Horlogerie masterpiece.
+- Experiment 203 completed as an autonomous pure HTML/CSS (zero JavaScript) 1888 large-format camera obscura atelier masterpiece.
 - All evidence strictly derived from live state without assertion constants.
 - Causal Hello World integration preserved across all experiments.
+
 
