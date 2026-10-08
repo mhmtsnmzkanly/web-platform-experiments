@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPUS OPTICUM // Pavillon d'Art Cinétique & Typographie Gestalt</title>
+  <style>
+    /* ==========================================================================
+       KUNSTHALLE V3 • PAVILLON OP-ART & CINÉTIQUE
+       OPUS OPTICUM // GESTALT & KINETIC MOIRÉ PAVILION
+       100% PURE SEMANTIC HTML5 + CSS3 (ZERO JAVASCRIPT RUNTIME)
+       ========================================================================== */
+
+    :root {
+      /* Palette Muséale & Contraste Rétinien */
+      --galerie-fond: #09090b;
+      --galerie-mur: #111115;
+      --galerie-sol: #060608;
+      --galerie-texte: #ececf0;
+      --galerie-attenue: #888896;
+      --galerie-accent: #ffffff;
+      --cadre-bordure: #24242c;
+
+      /* Valeurs Optiques */
+      --op-noir: #000000;
+      --op-blanc: #ffffff;
+      --op-cyan: #00f0ff;
+      --op-rouge: #ff2244;
+      --op-jaune: #ffe600;
+
+      /* Paramètres d'Échelle & Moiré */
+      --grating-step: 6px;
+      --anim-tempo: 14s;
+
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color-scheme: dark;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--galerie-fond);
+      color: var(--galerie-texte);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 20px 40px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Reflet subtil du sol en béton ciré du musée */
+    body::after {
+      content: "";
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 20vh;
+      background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.015) 100%);
+      pointer-events: none;
+    }
+
+    /* --------------------------------------------------------------------------
+       STATE ENGINE: CONTRÔLES SÉMANTIQUES CACHÉS (ZERO JS)
+       -------------------------------------------------------------------------- */
+    .state-toggle {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+      pointer-events: none;
+    }
+
+    /* --------------------------------------------------------------------------
+       EN-TÊTE CURATORIAL (TYPOGRAPHIE SUISSE INTERNATIONALE)
+       -------------------------------------------------------------------------- */
+    .curatorial-header {
+      width: 100%;
+      max-width: 1080px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--cadre-bordure);
+      padding-bottom: 14px;
+      margin-bottom: 22px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .curatorial-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .brand-meta {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.28em;
+      color: var(--galerie-attenue);
+      font-weight: 600;
+    }
+
+    .brand-title {
+      font-size: clamp(24px, 3.8vw, 38px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--galerie-accent);
+      line-height: 1.05;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--galerie-attenue);
+      letter-spacing: 0.04em;
+      font-weight: 400;
+    }
+
+    .curatorial-catalogue {
+      text-align: right;
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--galerie-attenue);
+      line-height: 1.5;
+    }
+
+    .catalogue-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+      color: var(--galerie-accent);
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    /* --------------------------------------------------------------------------
+       DISPOSITION GALERIE : ESPACE D'EXPOSITION IMMERSIF
+       -------------------------------------------------------------------------- */
+    .pavilion-container {
+      width: 100%;
+      max-width: 1080px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Barre Curatoriale Supérieure (Sélection de Phénomène Optique) */
+    .phenomena-selector-bar {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .phenomena-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--cadre-bordure);
+      border-radius: 40px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--galerie-attenue);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .phenomena-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .phenomena-pill .pill-index {
+      font-family: monospace;
+      font-size: 10px;
+      opacity: 0.6;
+    }
+
+    /* --------------------------------------------------------------------------
+       LE MONUMENT CINÉTIQUE (OP-ART CANVAS)
+       -------------------------------------------------------------------------- */
+    .monument-frame {
+      width: min(84vw, 490px);
+      height: min(84vw, 490px);
+      background: var(--op-noir);
+      border: 12px solid #141418;
+      border-radius: 6px;
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        inset 0 0 40px rgba(0, 0, 0, 0.8);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* COUCHE 1 : RÉSEAU DE RAYONS OPTIQUES (BASE GRATING) */
+    .optical-layer-base {
+      position: absolute;
+      inset: -50%;
+      width: 200%;
+      height: 200%;
+      background: repeating-conic-gradient(
+        from 0deg,
+        var(--op-blanc) 0deg 2.5deg,
+        var(--op-noir) 2.5deg 5deg
+      );
+      animation: rotate-cw var(--anim-tempo) linear infinite;
+      transform-origin: center center;
+    }
+
+    /* COUCHE 2 : RÉSEAU D'INTERFÉRENCE MOIRÉ (COUNTER ROTATING) */
+    .optical-layer-interference {
+      position: absolute;
+      inset: -50%;
+      width: 200%;
+      height: 200%;
+      background: repeating-radial-gradient(
+        circle at center,
+        var(--op-blanc) 0px,
+        var(--op-blanc) var(--grating-step),
+        var(--op-noir) var(--grating-step),
+        var(--op-noir) calc(var(--grating-step) * 2)
+      );
+      mix-blend-mode: difference;
+      animation: rotate-ccw calc(var(--anim-tempo) * 0.8) linear infinite;
+      transform-origin: center center;
+    }
+
+    /* COUCHE 3 : BULGE SPHÉRIQUE DE VASARELY */
+    .vasarely-bulge-lens {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        circle at 50% 50%,
+        rgba(255, 255, 255, 0.85) 0%,
+        rgba(255, 255, 255, 0) 65%
+      );
+      mix-blend-mode: overlay;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    /* COUCHE 4 : VORTEX ANAMORPHIQUE LOGARITHMIQUE */
+    .vortex-funnel-layer {
+      position: absolute;
+      inset: 0;
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(255, 255, 255, 0.9) 0deg 15deg,
+        transparent 15deg 30deg
+      );
+      mask-image: radial-gradient(circle at center, transparent 15%, black 75%);
+      mix-blend-mode: difference;
+      opacity: 0;
+      pointer-events: none;
+      animation: vortex-pulse 4s ease-in-out infinite alternate;
+      transition: opacity 0.4s ease;
+    }
+
+    /* --------------------------------------------------------------------------
+       LE CŒUR GESTALT : "HELLO WORLD" SCULPTURAL ET CINÉTIQUE
+       -------------------------------------------------------------------------- */
+    .gestalt-typographic-core {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      mix-blend-mode: difference;
+      pointer-events: none;
+      user-select: none;
+      transition: all 0.5s ease;
+    }
+
+    .op-word {
+      font-size: clamp(42px, 10vw, 84px);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      line-height: 0.95;
+      color: #ffffff;
+      text-align: center;
+      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .word-hello {
+      margin-bottom: 6px;
+    }
+
+    .word-world {
+      letter-spacing: 0.18em;
+    }
+
+    /* Repères d'alignement et contours illusoires de Kanizsa */
+    .kanizsa-matrix {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      padding: 24px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .kanizsa-disc {
+      width: 44px;
+      height: 44px;
+      background: #000000;
+      border-radius: 50%;
+      align-self: center;
+      justify-self: center;
+      position: relative;
+    }
+
+    .kanizsa-disc::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      clip-path: polygon(50% 50%, 100% 0, 100% 100%);
+    }
+
+    /* --------------------------------------------------------------------------
+       CONTRÔLES CURATORIAUX SECONDAIRES (FRÉQUENCE, TEMPO, ÉCLAIRAGE)
+       -------------------------------------------------------------------------- */
+    .curatorial-controls-panel {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--cadre-bordure);
+      border-radius: 6px;
+      padding: 14px 18px;
+    }
+
+    .control-column {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .column-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--galerie-attenue);
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 4px;
+    }
+
+    .mini-selector-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .mini-option-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      font-size: 11px;
+      color: var(--galerie-attenue);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .mini-option-btn:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* --------------------------------------------------------------------------
+       CARTOUCHE CURATORIAL / PLAQUE D'EXPOSITION DU MUSÉE
+       -------------------------------------------------------------------------- */
+    .gallery-plaque {
+      width: 100%;
+      border-top: 1px solid var(--cadre-bordure);
+      padding-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .artist-statement {
+      max-width: 680px;
+      font-size: 12px;
+      line-height: 1.65;
+      color: var(--galerie-attenue);
+      font-style: italic;
+    }
+
+    .museum-credits {
+      text-align: right;
+      font-size: 11px;
+      color: var(--galerie-attenue);
+      line-height: 1.6;
+    }
+
+    /* --------------------------------------------------------------------------
+       ANIMATIONS CLÉS OP-ART (@KEYFRAMES)
+       -------------------------------------------------------------------------- */
+    @keyframes rotate-cw {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes rotate-ccw {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+
+    @keyframes vortex-pulse {
+      0% { transform: scale(1) rotate(0deg); }
+      100% { transform: scale(1.35) rotate(45deg); }
+    }
+
+    @keyframes chromatic-flicker {
+      0% { filter: hue-rotate(0deg) saturate(3); }
+      50% { filter: hue-rotate(180deg) saturate(5); }
+      100% { filter: hue-rotate(360deg) saturate(3); }
+    }
+
+    /* --------------------------------------------------------------------------
+       MOTEUR D'ÉTATS CSS VIA :HAS() (PERCEPTUAL STATE TRANSFORMATIONS)
+       -------------------------------------------------------------------------- */
+
+    /* 1. MODE MOIRÉ CINÉTIQUE (PAR DÉFAUT) */
+    body:has(#mode-moire:checked) label[for="mode-moire"] {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #ffffff;
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    }
+
+    /* 2. MODE SPHÈRE VASARELY (BULGE 3D GÉODÉSIQUE) */
+    body:has(#mode-vasarely:checked) label[for="mode-vasarely"] {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #ffffff;
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    }
+    body:has(#mode-vasarely:checked) .vasarely-bulge-lens {
+      opacity: 1;
+    }
+    body:has(#mode-vasarely:checked) .monument-frame {
+      border-radius: 50%;
+      transform: perspective(800px) scale(1.04);
+      box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.95),
+        0 0 40px rgba(255, 255, 255, 0.15);
+    }
+    body:has(#mode-vasarely:checked) .gestalt-typographic-core {
+      transform: scale(1.18);
+      filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
+    }
+
+    /* 3. MODE CONTOURS DE KANIZSA (ILLUSION GESTALT EN ESPACE NÉGATIF) */
+    body:has(#mode-kanizsa:checked) label[for="mode-kanizsa"] {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #ffffff;
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    }
+    body:has(#mode-kanizsa:checked) .optical-layer-base {
+      background: repeating-linear-gradient(
+        90deg,
+        #ffffff 0px,
+        #ffffff 2px,
+        #000000 2px,
+        #000000 16px
+      );
+      animation: none;
+    }
+    body:has(#mode-kanizsa:checked) .optical-layer-interference {
+      background: repeating-linear-gradient(
+        0deg,
+        #ffffff 0px,
+        #ffffff 2px,
+        #000000 2px,
+        #000000 16px
+      );
+      animation: none;
+    }
+    body:has(#mode-kanizsa:checked) .kanizsa-matrix {
+      opacity: 1;
+    }
+    body:has(#mode-kanizsa:checked) .op-word {
+      color: transparent;
+      -webkit-text-stroke: 2px #ffffff;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+    }
+
+    /* 4. MODE SHIMMER CHROMATIQUE (VIBRATION RÉTINIENNE OPPOSÉE) */
+    body:has(#mode-chroma:checked) label[for="mode-chroma"] {
+      background: rgba(255, 34, 68, 0.3);
+      border-color: var(--op-cyan);
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+    }
+    body:has(#mode-chroma:checked) .optical-layer-base {
+      background: repeating-conic-gradient(
+        from 0deg,
+        var(--op-rouge) 0deg 3deg,
+        var(--op-cyan) 3deg 6deg
+      );
+      animation: rotate-cw 8s linear infinite;
+    }
+    body:has(#mode-chroma:checked) .optical-layer-interference {
+      background: repeating-radial-gradient(
+        circle,
+        var(--op-jaune) 0px,
+        var(--op-jaune) 10px,
+        var(--op-rouge) 10px,
+        var(--op-rouge) 20px
+      );
+      animation: chromatic-flicker 6s infinite alternate;
+    }
+    body:has(#mode-chroma:checked) .monument-frame {
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.9),
+        0 0 35px rgba(255, 34, 68, 0.5),
+        0 0 60px rgba(0, 240, 255, 0.4);
+    }
+
+    /* 5. MODE VORTEX ANAMORPHIQUE (FUNNEL PERSPECTIF INFINI) */
+    body:has(#mode-vortex:checked) label[for="mode-vortex"] {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #ffffff;
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    }
+    body:has(#mode-vortex:checked) .vortex-funnel-layer {
+      opacity: 1;
+    }
+    body:has(#mode-vortex:checked) .gestalt-typographic-core {
+      animation: vortex-pulse 5s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+      filter: blur(0.5px) contrast(2);
+    }
+
+    /* CONTRÔLES DE FRÉQUENCE DU RÉSEAU */
+    body:has(#freq-low:checked) { --grating-step: 12px; }
+    body:has(#freq-mid:checked) { --grating-step: 6px; }
+    body:has(#freq-ultra:checked) { --grating-step: 3px; }
+
+    body:has(#freq-low:checked) label[for="freq-low"],
+    body:has(#freq-mid:checked) label[for="freq-mid"],
+    body:has(#freq-ultra:checked) label[for="freq-ultra"] {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: #ffffff;
+    }
+
+    /* CONTRÔLES DE TEMPO CINÉTIQUE */
+    body:has(#tempo-hypnotic:checked) { --anim-tempo: 8s; }
+    body:has(#tempo-drift:checked) { --anim-tempo: 22s; }
+    body:has(#tempo-stasis:checked) .optical-layer-base,
+    body:has(#tempo-stasis:checked) .optical-layer-interference,
+    body:has(#tempo-stasis:checked) .vortex-funnel-layer,
+    body:has(#tempo-stasis:checked) .gestalt-typographic-core {
+      animation: none !important;
+    }
+
+    body:has(#tempo-hypnotic:checked) label[for="tempo-hypnotic"],
+    body:has(#tempo-drift:checked) label[for="tempo-drift"],
+    body:has(#tempo-stasis:checked) label[for="tempo-stasis"] {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: #ffffff;
+    }
+
+    /* ÉCLAIRAGE DE LA SALLE GALERIE */
+    body:has(#light-white:checked) {
+      --galerie-fond: #f4f4f7;
+      --galerie-mur: #e8e8ed;
+      --galerie-sol: #dcdce2;
+      --galerie-texte: #111116;
+      --galerie-attenue: #666675;
+      --galerie-accent: #000000;
+      --cadre-bordure: #ceced6;
+    }
+    body:has(#light-white:checked) .monument-frame {
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.1);
+      border-color: #222228;
+    }
+
+    body:has(#light-neon:checked) {
+      --galerie-fond: #05020a;
+      --galerie-texte: #d4a5ff;
+      --galerie-attenue: #8e68b8;
+      --galerie-accent: #f0d4ff;
+      --cadre-bordure: #361754;
+    }
+    body:has(#light-neon:checked) .monument-frame {
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.95),
+        0 0 40px rgba(180, 50, 255, 0.35);
+    }
+
+    body:has(#light-black:checked) label[for="light-black"],
+    body:has(#light-white:checked) label[for="light-white"],
+    body:has(#light-neon:checked) label[for="light-neon"] {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: var(--galerie-accent);
+    }
+
+    /* --------------------------------------------------------------------------
+       ACCESSIBILITÉ & RESPONSIVITÉ
+       -------------------------------------------------------------------------- */
+    :focus-visible {
+      outline: 2px solid #ffffff;
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 860px) {
+      .curatorial-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .curatorial-catalogue {
+        text-align: left;
+      }
+      .curatorial-controls-panel {
+        grid-template-columns: 1fr;
+      }
+      .gallery-plaque {
+        flex-direction: column;
+      }
+      .museum-credits {
+        text-align: left;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       STATE MACHINE (RADIO GROUPS SÉMANTIQUES - ZERO JS)
+       ======================================================================== -->
+  <!-- 1. Modes de Phénomènes Optiques -->
+  <input type="radio" name="opt-mode" id="mode-moire" class="state-toggle" checked>
+  <input type="radio" name="opt-mode" id="mode-vasarely" class="state-toggle">
+  <input type="radio" name="opt-mode" id="mode-kanizsa" class="state-toggle">
+  <input type="radio" name="opt-mode" id="mode-chroma" class="state-toggle">
+  <input type="radio" name="opt-mode" id="mode-vortex" class="state-toggle">
+
+  <!-- 2. Fréquence du Réseau Moiré -->
+  <input type="radio" name="freq-level" id="freq-low" class="state-toggle">
+  <input type="radio" name="freq-level" id="freq-mid" class="state-toggle" checked>
+  <input type="radio" name="freq-level" id="freq-ultra" class="state-toggle">
+
+  <!-- 3. Cadence Cinétique -->
+  <input type="radio" name="tempo-level" id="tempo-hypnotic" class="state-toggle" checked>
+  <input type="radio" name="tempo-level" id="tempo-drift" class="state-toggle">
+  <input type="radio" name="tempo-level" id="tempo-stasis" class="state-toggle">
+
+  <!-- 4. Éclairage Curatorial de la Galerie -->
+  <input type="radio" name="gallery-light" id="light-black" class="state-toggle" checked>
+  <input type="radio" name="gallery-light" id="light-white" class="state-toggle">
+  <input type="radio" name="gallery-light" id="light-neon" class="state-toggle">
+
+  <!-- ========================================================================
+       EN-TÊTE CURATORIAL INTERNATIONAL
+       ======================================================================== -->
+  <header class="curatorial-header">
+    <div class="curatorial-brand">
+      <span class="brand-meta">KUNSTHALLE V3 • SALLE D'ART CONTEMPORAIN 04</span>
+      <h1 class="brand-title">OPUS OPTICUM</h1>
+      <p class="brand-subtitle">Pavillon Cinétique & Typographie Gestalt • Bridget Riley × Victor Vasarely</p>
+    </div>
+    <div class="curatorial-catalogue">
+      <span class="catalogue-badge">EXP-204</span>
+      <div>INV. N° 8492-OP</div>
+      <div>Acquisition 2026 • Don Fondation</div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       PAVILLON D'EXPOSITION IMMERSIF
+       ======================================================================== -->
+  <main class="pavilion-container">
+
+    <!-- Barre Curatoriale de Sélection des Phénomènes -->
+    <nav class="phenomena-selector-bar" aria-label="Sélection des Phénomènes Optiques">
+      <label for="mode-moire" class="phenomena-pill">
+        <span class="pill-index">01</span>
+        <span>Moiré Cinétique</span>
+      </label>
+      <label for="mode-vasarely" class="phenomena-pill">
+        <span class="pill-index">02</span>
+        <span>Sphère Vasarely</span>
+      </label>
+      <label for="mode-kanizsa" class="phenomena-pill">
+        <span class="pill-index">03</span>
+        <span>Contours Kanizsa</span>
+      </label>
+      <label for="mode-chroma" class="phenomena-pill">
+        <span class="pill-index">04</span>
+        <span>Shimmer Chromatique</span>
+      </label>
+      <label for="mode-vortex" class="phenomena-pill">
+        <span class="pill-index">05</span>
+        <span>Vortex Anamorphique</span>
+      </label>
+    </nav>
+
+    <!-- Le Monument Cinétique (Op-Art Canvas) -->
+    <section class="monument-frame" aria-label="Œuvre Monumentale Op-Art">
+
+      <!-- Couche 1 : Réseau de Rayons Coniques (Base) -->
+      <div class="optical-layer-base"></div>
+
+      <!-- Couche 2 : Réseau Radial Différentiel (Interférence Moiré) -->
+      <div class="optical-layer-interference"></div>
+
+      <!-- Couche 3 : Distorsion Géodésique (Vasarely) -->
+      <div class="vasarely-bulge-lens"></div>
+
+      <!-- Couche 4 : Vortex Anamorphique -->
+      <div class="vortex-funnel-layer"></div>
+
+      <!-- Matrice de Disques pour Contours Illusoires de Kanizsa -->
+      <div class="kanizsa-matrix">
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+        <div class="kanizsa-disc"></div>
+      </div>
+
+      <!-- Cœur Typographique Gestalt : "HELLO WORLD" -->
+      <div class="gestalt-typographic-core">
+        <div class="op-word word-hello">HELLO</div>
+        <div class="op-word word-world">WORLD</div>
+      </div>
+
+    </section>
+
+    <!-- Panneau de Paramètres Curatoriaux Secondaires -->
+    <section class="curatorial-controls-panel" aria-label="Paramètres d'Observation">
+      <!-- Colonne 1 : Fréquence du Réseau -->
+      <div class="control-column">
+        <span class="column-label">Fréquence du Réseau</span>
+        <div class="mini-selector-group">
+          <label for="freq-low" class="mini-option-btn">
+            <span>Basse Fréquence (Structure)</span>
+            <span>12px</span>
+          </label>
+          <label for="freq-mid" class="mini-option-btn">
+            <span>Moyenne Fréquence (Moiré)</span>
+            <span>6px</span>
+          </label>
+          <label for="freq-ultra" class="mini-option-btn">
+            <span>Ultra-Dense (Vibration)</span>
+            <span>3px</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Colonne 2 : Cadence Cinétique -->
+      <div class="control-column">
+        <span class="column-label">Cadence Cinétique</span>
+        <div class="mini-selector-group">
+          <label for="tempo-hypnotic" class="mini-option-btn">
+            <span>Hypnotique Rapide</span>
+            <span>8s</span>
+          </label>
+          <label for="tempo-drift" class="mini-option-btn">
+            <span>Dérive Méditative</span>
+            <span>22s</span>
+          </label>
+          <label for="tempo-stasis" class="mini-option-btn">
+            <span>Stase Absolue (Statique)</span>
+            <span>∞</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Colonne 3 : Éclairage Galerie -->
+      <div class="control-column">
+        <span class="column-label">Éclairage Curatorial</span>
+        <div class="mini-selector-group">
+          <label for="light-black" class="mini-option-btn">
+            <span>Chambre Noire (Obsidienne)</span>
+            <span>01</span>
+          </label>
+          <label for="light-white" class="mini-option-btn">
+            <span>Galerie Blanche (White Cube)</span>
+            <span>02</span>
+          </label>
+          <label for="light-neon" class="mini-option-btn">
+            <span>Néon Spectral (Ultraviolet)</span>
+            <span>03</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cartouche Curatorial / Plaque du Musée -->
+    <footer class="gallery-plaque">
+      <div class="artist-statement">
+        « L'espace n'est pas un réceptacle inerte mais une oscillation continue entre la rétine et le cortex visuel. En superposant deux trames décalées par rotation différentielle sous mix-blend-mode difference, la typographie "HELLO WORLD" cesse d'être une inscription pour devenir une onde d'interférence physique. »
+      </div>
+      <div class="museum-credits">
+        <strong>Commissariat Général d'Exposition</strong><br>
+        Département des Arts Visuels & Mathématiques Pures<br>
+        Collection Permanente • Salle 04
+      </div>
+    </footer>
+
+  </main>
+
+</body>
+</html>

@@ -61,6 +61,8 @@
 - Pure semantic HTML5 + CSS3 scriptless state machine architecture, mutually exclusive input radio controllers, CSS `:has()` parent-selector reactive styling, CSS `counter-increment` dynamic checklists, accessible `<details>` data dossiers, and zero-JavaScript cassette futurism industrial design system
 - Haute Horlogerie grand complication procedural CSS engineering: 3D exhibition sapphire caseback flip (`perspective: 1400px`, `preserve-3d`, `rotateY(180deg)`), 60-second flying tourbillon regulator (3 Hz / 21,600 vph balance oscillation), astronomical moonphase display, 72-hour power reserve sector, monopusher chronograph, procedural guilloché engine-turning (`repeating-conic-gradient` + radial masks), Côtes de Genève (Geneva waves), perlage, and UV Super-LumiNova luminescence under zero JavaScript runtime
 - 19th-century large-format view camera pure CSS optical engineering: 3D articulated accordion leather bellows (triple-extension kinematics), camera obscura inverted & laterally reversed optical projection (`transform: scale(-1, -1)`), Petzval portrait lens with 12-blade mechanical iris aperture (f/2.8 to f/64), rack-and-pinion geared focusing rail (macro to infinity), Scheimpflug front standard tilt/swing plane rotation, pneumatic rubber squeeze bulb shutter release, frosted ground glass texture with 8×10 graticule lines, miniature brass spirit levels, 4× optical focusing loupe, velvet dark cloth, and historical photochemistry (Collodion Humide, Cyanotype, Platinotype, Autochrome Lumière 1907) under zero JavaScript runtime
+- Kinetic Op-Art and Gestalt perceptual psychology pure CSS architecture: dynamic moiré wave interference via counter-rotating differential line gratings (`repeating-conic-gradient` + `repeating-radial-gradient` under `mix-blend-mode: difference`), 3D spherical geodesic coordinate bulging (Victor Vasarely distortion), negative-space Gestalt illusory contour emergence (Gaetano Kanizsa pac-man disc matrix), opponent-process retinal chromatic vibration (high-saturation vermilion/cyan collision), anamorphic logarithmic vortex funnels, and contemporary museum curatorial layout without skeuomorphic framing under zero JavaScript runtime
+
 
 
 
@@ -129,6 +131,8 @@
 - 201: AETHEL-OS / Hello World Colony OS → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → mutually exclusive radio bay selectors → skippable POST boot sequence with reduced-motion bypass → CSS :has() dynamic power grid load-shedding → CSS counter hardware diagnostics tally → 8 integrated colony modules
 - 202: Chronomètre Mécanique N° 202 → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → spatial 3D exhibition sapphire caseback flip (`perspective: 1400px`, `preserve-3d`, `rotateY(180deg)`) → 60s flying tourbillon carriage (1 RPM) & balance wheel (3 Hz / 21,600 vph) → astronomical moonphase & 72h power reserve sector → 3-alloy metallurgy matrix (18K Rose Gold, 950 Platinum, Grade 5 Titanium) → 2.5x horological loupe optical magnification → 365nm UV darkroom Super-LumiNova phosphorescence
 - 203: Chambre Noire d'Atelier N° 203 → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → 3D camera isometric perspective (`rotateY(-18deg) rotateX(4deg)`) → articulated triple-extension leather accordion bellows → camera obscura inverted projection (`scale(-1, -1)`) of Parisian atelier still life (bust, globe, manuscript) → Petzval iris diaphragm (f/2.8 bokeh orbs to f/64 pinhole) → rack-and-pinion focus rail shifting depth planes → Scheimpflug standard tilt (+12° / +14°) → pneumatic squeeze bulb shutter snap → 4 historical chemical emulsion processes (Collodion, Cyanotype, Platinotype, Autochrome)
+- 204: OPUS OPTICUM / Kinetic Op-Art & Gestalt Typographic Pavilion → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → relational state engine (`:has()`) → counter-rotating radial/conic optical gratings → `mix-blend-mode: difference` wave interference fringes → 3D Vasarely spherical bulging → Kanizsa negative-space illusory contour matrix → retinal opponent-process chromatic shimmer → anamorphic vortex funnel → multi-scale frequency, tempo & museum lighting controls
+
 
 
 
@@ -195,6 +199,8 @@
 - 201: 1984 aerospace computer architecture deployed at 2180 off-world colony with charcoal chassis, oxidized olive plates, warm bone placards, rust/amber status indicators, segmented analog meters, and zero CRT effects
 - 202: Haute Horlogerie Grand Complication with hand-turned guilloché dial, fluted winding crown, 60s flying tourbillon, 3D exhibition sapphire caseback with Côtes de Genève & perlage, blued Breguet hands, and 365nm Super-LumiNova luminescence under zero JavaScript
 - 203: 1888 Parisian optical and photographic atelier bench with Cuban mahogany cabinetry, knurled brass thumbscrews, liquid spirit levels, pleated leather bellows, frosted ground glass, and 630nm darkroom ruby safelight illumination under zero JavaScript
+- 204: Contemporary Kunsthalle / Tate Modern avant-garde exhibition hall with minimalist Swiss international typography, razor-sharp floating curatorial pills, monumental Op-Art canvas, and obsidian / white-cube / neon gallery lighting under zero JavaScript
+
 
 
 
@@ -530,26 +536,27 @@ Recently successful alternatives:
 - 114: Completed and sealed (Data Transformation Frontier: Hamming [7, 4] Error Correction Pipeline).
 - 115: Completed and sealed (Material / Metaphor Frontier: 1804 Jacquard Programmable Punch-Card Loom & Textile Weave Mechanics).
 
-## Special Experiments (201-203)
+## Special Experiments (201-204)
 - 201: Completed and sealed (AETHEL-OS // Hello World Colony Operating System).
 - 202: Completed and sealed (Chronomètre Mécanique N° 202 // Grand Complication Astronomique).
 - 203: Completed and sealed (Chambre Noire d'Atelier N° 203 // Grand Format 8×10 Pouces).
+- 204: Completed and sealed (OPUS OPTICUM // Pavillon d'Art Cinétique & Typographie Gestalt).
 
 # CURRENT
-Experiment: 203 (Chambre Noire d'Atelier N° 203 // Grand Format 8×10 Pouces)
+Experiment: 204 (OPUS OPTICUM // Pavillon d'Art Cinétique & Typographie Gestalt)
 Status: COMPLETED
-Goal and acceptance criterion: Experiment 203 complete with 100% pure semantic HTML+CSS (zero JavaScript), 19th-century large-format camera obscura view camera craftsmanship, 3D articulated accordion leather bellows (triple-extension kinematics), camera obscura inverted & laterally reversed optical projection (scale(-1, -1)), Petzval portrait lens with 12-blade mechanical iris aperture (f/2.8 to f/64), rack-and-pinion geared focusing rail (macro to infinity), Scheimpflug front standard tilt/swing plane rotation, pneumatic rubber squeeze bulb shutter release, frosted ground glass texture with 8x10 graticule lines, miniature brass spirit levels, 4x optical focusing loupe, velvet dark cloth, and 4 historical photochemistry processes (Collodion Humide, Cyanotype, Platinotype, Autochrome Lumière 1907), dependency certified, verified responsive across all viewports via Chromium CDP, complete documentation, and sealed 203.html.
-Intended frontier contribution: Pure CSS camera obscura optical physics, 3D accordion bellows kinematics, and historical photochemistry state engine.
+Goal and acceptance criterion: Experiment 204 complete with 100% pure semantic HTML+CSS (zero JavaScript), radical paradigm shift away from skeuomorphic hardware devices into contemporary kinetic Op-Art and Gestalt perceptual psychology, dynamic moiré wave interference via counter-rotating differential line gratings (repeating-conic-gradient + repeating-radial-gradient under mix-blend-mode: difference), 3D spherical geodesic coordinate bulging (Victor Vasarely distortion), negative-space Gestalt illusory contour emergence (Gaetano Kanizsa pac-man disc matrix), opponent-process retinal chromatic vibration (high-saturation vermilion/cyan collision), anamorphic logarithmic vortex funnels, multi-scale frequency, tempo & gallery lighting controls, dependency certified, verified responsive across all viewports via Chromium CDP, complete documentation, and sealed 204.html.
+Intended frontier contribution: Pure CSS kinetic Op-Art optical physics, Gestalt perceptual illusions, and contemporary architectural gallery layout.
 Current novelty risk: None.
-Current visual repetition risk: None (unique 19th-century photographic atelier aesthetic).
+Current visual repetition risk: None (radical departure into contemporary Op-Art and Gestalt perception).
 Current complexity risk: None (pure HTML/CSS, robust maintainable design system).
-Last verified progress: 203 sealed and verified (dependency-check passed OK, responsive Chrome testing passed OK).
+Last verified progress: 204 sealed and verified (dependency-check passed OK, responsive Chrome testing passed OK).
 Last error signature: None.
 Same-error repetition: 0
 No-progress attempts: 0
 Strategy changes: 0
 Total development-test cycles: 2 (dev -> verification -> seal).
-Recently attempted solutions: Sealed 203.
+Recently attempted solutions: Sealed 204.
 Next ONE concrete action: Run ./generate-readme.sh, commit & push.
 
 # NOTES
@@ -559,7 +566,9 @@ Next ONE concrete action: Run ./generate-readme.sh, commit & push.
 - Experiment 201 completed as a standalone pure HTML/CSS (zero JavaScript) industrial operating system artwork.
 - Experiment 202 completed as an autonomous pure HTML/CSS (zero JavaScript) Haute Horlogerie masterpiece.
 - Experiment 203 completed as an autonomous pure HTML/CSS (zero JavaScript) 1888 large-format camera obscura atelier masterpiece.
+- Experiment 204 completed as an autonomous pure HTML/CSS (zero JavaScript) kinetic Op-Art & Gestalt typographic pavilion.
 - All evidence strictly derived from live state without assertion constants.
 - Causal Hello World integration preserved across all experiments.
+
 
 

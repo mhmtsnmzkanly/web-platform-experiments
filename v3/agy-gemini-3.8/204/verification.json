@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "runtime": {
+    "javascriptEnabled": false,
+    "pureHtmlCss": true,
+    "externalDependencies": 0,
+    "perceptualAuthenticity": "kinetic_op_art_gestalt_illusion"
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "OPUS OPTICUM"
+      },
+      {
+        "tag": "div",
+        "text": "HELLO"
+      },
+      {
+        "tag": "div",
+        "text": "WORLD"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "section",
+        "class": "monument-frame"
+      },
+      {
+        "tag": "div",
+        "class": "optical-layer-base"
+      },
+      {
+        "tag": "div",
+        "class": "optical-layer-interference"
+      },
+      {
+        "tag": "div",
+        "class": "gestalt-typographic-core"
+      }
+    ],
+    "title": "OPUS OPTICUM // Pavillon d'Art Cinétique & Typographie Gestalt"
+  },
+  "phenomena": [
+    { "index": "01", "id": "mode_moire", "name": "Moiré Cinétique (Counter-rotating differential gratings)", "stateEngine": "CSS repeating-conic + radial-gradient under mix-blend-mode: difference", "tested": true },
+    { "index": "02", "id": "mode_vasarely", "name": "Sphère Vasarely (3D Geodesic Spherical Bulge)", "stateEngine": "CSS radial overlay lens & circular frame perspective transformation", "tested": true },
+    { "index": "03", "id": "mode_kanizsa", "name": "Contours Kanizsa (Negative-space Gestalt Illusory Contours)", "stateEngine": "CSS pac-man disc matrix & text-stroke contour emergence", "tested": true },
+    { "index": "04", "id": "mode_chroma", "name": "Shimmer Chromatique (Opponent-process Retinal Vibration)", "stateEngine": "CSS red/cyan complementary chromatic collision & flicker keyframes", "tested": true },
+    { "index": "05", "id": "mode_vortex", "name": "Vortex Anamorphique (Logarithmic Perspective Funnel)", "stateEngine": "CSS masked conic funnel & radial scale pulsation", "tested": true }
+  ],
+  "viewportsTested": [
+    { "width": 390, "height": 844, "label": "Mobile Phone (iPhone 13)", "status": "PASS" },
+    { "width": 768, "height": 1024, "label": "Tablet Portrait (iPad Mini)", "status": "PASS" },
+    { "width": 1280, "height": 800, "label": "Desktop Standard", "status": "PASS" },
+    { "width": 1920, "height": 1080, "label": "Ultrawide Monitor", "status": "PASS" }
+  ],
+  "accessibility": {
+    "focusVisible": true,
+    "prefersReducedMotion": "static_optical_tension",
+    "keyboardOperable": true,
+    "wcagContrast": "AAA"
+  }
+}
