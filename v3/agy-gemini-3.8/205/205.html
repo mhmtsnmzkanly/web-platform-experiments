@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TYPO-METRIC // Accessible Modular Typographic Workstation</title>
+  <style>
+    /* ==========================================================================
+       TYPO-METRIC // ACCESSIBLE MODULAR TYPOGRAPHIC WORKSTATION
+       100% PURE SEMANTIC HTML5 + CSS3 (ZERO RUNTIME JAVASCRIPT)
+       DESIGN SYSTEM TYPOGRAPHY ENGINE & SPECIFICATION FOLIO
+       ========================================================================== */
+
+    :root {
+      /* Base Metrics & Modular Scale Variables */
+      --font-base: 16px;
+      --scale-ratio: 1.250; /* Major Third Default */
+      --line-height-base: 1.5;
+      --line-height-heading: 1.15;
+      --measure-max: 68ch;
+
+      /* Mathematical Modular Scale Calculation */
+      --text-xs: calc(var(--font-base) / var(--scale-ratio) / var(--scale-ratio));
+      --text-sm: calc(var(--font-base) / var(--scale-ratio));
+      --text-base: var(--font-base);
+      --text-md: calc(var(--text-base) * var(--scale-ratio));
+      --text-lg: calc(var(--text-md) * var(--scale-ratio));
+      --text-xl: calc(var(--text-lg) * var(--scale-ratio));
+      --text-2xl: calc(var(--text-xl) * var(--scale-ratio));
+      --text-3xl: calc(var(--text-2xl) * var(--scale-ratio));
+      --text-4xl: calc(var(--text-3xl) * var(--scale-ratio));
+
+      /* Active Typeface Stack (Default: System Sans) */
+      --font-family-active: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-family-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
+
+      /* Color Tokens (Slate Dark Default) */
+      --bg-canvas: #0b0f19;
+      --bg-surface: #111827;
+      --bg-surface-elevated: #1f2937;
+      --bg-input: #151d2c;
+      --border-subtle: #243042;
+      --border-strong: #374151;
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --accent-primary: #3b82f6;
+      --accent-primary-hover: #60a5fa;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --badge-bg: rgba(59, 130, 246, 0.12);
+      --badge-text: #93c5fd;
+
+      /* Baseline Grid Metric */
+      --baseline-unit: 8px;
+
+      color-scheme: dark;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      font-family: var(--font-family-active);
+      font-size: var(--text-base);
+      line-height: var(--line-height-base);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      position: relative;
+    }
+
+    /* --------------------------------------------------------------------------
+       STATE ENGINE: HIDDEN RADIO GROUPS & CHECKBOXES (ZERO JS)
+       -------------------------------------------------------------------------- */
+    .state-toggle {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+      pointer-events: none;
+    }
+
+    /* --------------------------------------------------------------------------
+       TOP BRAND BAR & PRODUCT HEADER
+       -------------------------------------------------------------------------- */
+    .product-header {
+      width: 100%;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      font-family: var(--font-family-mono);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      width: 22px;
+      height: 22px;
+      background: var(--accent-primary);
+      color: #ffffff;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 900;
+      font-family: var(--font-family-mono);
+    }
+
+    .version-tag {
+      font-size: 11px;
+      font-family: var(--font-family-mono);
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .system-status {
+      font-size: 11px;
+      color: #10b981;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-help-details {
+      position: relative;
+    }
+
+    .header-help-details summary {
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      background: var(--bg-surface-elevated);
+      transition: all 0.2s ease;
+    }
+
+    .header-help-details summary:hover {
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+
+    .help-popover {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 320px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+      z-index: 100;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .help-popover h4 {
+      margin-bottom: 8px;
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+
+    .help-popover ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      color: var(--text-secondary);
+    }
+
+    .help-popover kbd {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+      padding: 1px 4px;
+      font-family: var(--font-family-mono);
+      font-size: 10px;
+      color: var(--text-primary);
+    }
+
+    .print-folio-btn {
+      font-size: 12px;
+      font-weight: 500;
+      color: #ffffff;
+      background: var(--accent-primary);
+      border: 1px solid var(--accent-primary-hover);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background-color 0.2s ease;
+      text-decoration: none;
+    }
+
+    .print-folio-btn:hover {
+      background: var(--accent-primary-hover);
+    }
+
+    /* --------------------------------------------------------------------------
+       CONFIGURATION TOOLBAR (MODULAR SCALE, BASE, FONT & THEME)
+       -------------------------------------------------------------------------- */
+    .config-toolbar {
+      width: 100%;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 40;
+    }
+
+    .toolbar-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .control-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-family: var(--font-family-mono);
+    }
+
+    .pill-group {
+      display: inline-flex;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .pill-btn {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .checkbox-pill {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .checkbox-pill:hover {
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+
+    .checkbox-pill .check-indicator {
+      width: 12px;
+      height: 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: 3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: transparent;
+      transition: all 0.15s ease;
+    }
+
+    /* --------------------------------------------------------------------------
+       WORKSPACE TABS NAVIGATION
+       -------------------------------------------------------------------------- */
+    .workspace-tabs-bar {
+      width: 100%;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0 24px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .tab-nav-btn {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 12px 16px;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-nav-btn:hover {
+      color: var(--text-secondary);
+    }
+
+    .tab-nav-btn .tab-num {
+      font-family: var(--font-family-mono);
+      font-size: 11px;
+      opacity: 0.6;
+    }
+
+    /* --------------------------------------------------------------------------
+       MAIN CANVAS CONTAINER
+       -------------------------------------------------------------------------- */
+    .main-canvas-wrapper {
+      width: 100%;
+      max-width: 1280px;
+      padding: 32px 24px 64px;
+      flex: 1;
+      position: relative;
+    }
+
+    /* Baseline Grid Overlay */
+    .baseline-grid-layer {
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(59, 130, 246, 0.12) 0px,
+        rgba(59, 130, 246, 0.12) 1px,
+        transparent 1px,
+        transparent var(--baseline-unit)
+      );
+      pointer-events: none;
+      display: none;
+      z-index: 10;
+    }
+
+    /* --------------------------------------------------------------------------
+       TAB 1: MODULAR SCALE LADDER SPECIMEN
+       -------------------------------------------------------------------------- */
+    .tab-view {
+      display: none;
+      animation: fadeIn 0.25s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ladder-container {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .ladder-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 24px;
+      position: relative;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .ladder-card:hover {
+      border-color: var(--border-strong);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .ladder-meta-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed var(--border-subtle);
+      font-family: var(--font-family-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .token-chip-badge {
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      border: 1px solid rgba(59, 130, 246, 0.25);
+    }
+
+    .ladder-metrics {
+      display: flex;
+      gap: 16px;
+    }
+
+    .metric-item span {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    /* Editable Text Specimen */
+    .specimen-text {
+      outline: none;
+      border-radius: 4px;
+      padding: 4px 6px;
+      margin: -4px -6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .specimen-text:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .specimen-text:focus {
+      background: rgba(59, 130, 246, 0.08);
+      box-shadow: 0 0 0 2px var(--accent-primary);
+    }
+
+    /* Specimen Typography Classes */
+    .type-4xl { font-size: var(--text-4xl); line-height: 1.05; font-weight: 800; letter-spacing: -0.03em; }
+    .type-3xl { font-size: var(--text-3xl); line-height: 1.1; font-weight: 700; letter-spacing: -0.025em; }
+    .type-2xl { font-size: var(--text-2xl); line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; }
+    .type-xl  { font-size: var(--text-xl); line-height: 1.2; font-weight: 600; letter-spacing: -0.015em; }
+    .type-lg  { font-size: var(--text-lg); line-height: 1.25; font-weight: 600; letter-spacing: -0.01em; }
+    .type-md  { font-size: var(--text-md); line-height: 1.35; font-weight: 500; }
+    .type-base{ font-size: var(--text-base); line-height: var(--line-height-base); font-weight: 400; }
+    .type-sm  { font-size: var(--text-sm); line-height: 1.5; font-weight: 400; color: var(--text-secondary); }
+    .type-xs  { font-size: var(--text-xs); line-height: 1.45; font-weight: 400; color: var(--text-muted); font-family: var(--font-family-mono); }
+
+    /* Measure Guide Bar */
+    .measure-guide-ruler {
+      display: none;
+      width: 100%;
+      max-width: var(--measure-max);
+      height: 3px;
+      background: repeating-linear-gradient(90deg, var(--accent-primary) 0px, var(--accent-primary) 8px, transparent 8px, transparent 16px);
+      margin-top: 8px;
+      position: relative;
+    }
+
+    .measure-guide-ruler::after {
+      content: "68ch optimal reading measure";
+      position: absolute;
+      top: 6px;
+      right: 0;
+      font-size: 10px;
+      font-family: var(--font-family-mono);
+      color: var(--accent-primary);
+    }
+
+    /* --------------------------------------------------------------------------
+       TAB 2: IN-SITU EDITORIAL ARTICLE SPECIMEN
+       -------------------------------------------------------------------------- */
+    .article-specimen-layout {
+      max-width: 820px;
+      margin: 0 auto;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 48px;
+    }
+
+    .article-kicker {
+      font-family: var(--font-family-mono);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      margin-bottom: 12px;
+    }
+
+    .article-title {
+      font-size: var(--text-3xl);
+      line-height: var(--line-height-heading);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 16px;
+    }
+
+    .article-byline {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 20px;
+      margin-bottom: 28px;
+      font-family: var(--font-family-mono);
+    }
+
+    .article-lead {
+      font-size: var(--text-lg);
+      line-height: 1.45;
+      color: var(--text-primary);
+      font-weight: 400;
+      margin-bottom: 24px;
+    }
+
+    .article-body-p {
+      font-size: var(--text-base);
+      line-height: var(--line-height-base);
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      max-width: var(--measure-max);
+    }
+
+    .article-body-p strong {
+      color: var(--text-primary);
+    }
+
+    .article-subhead {
+      font-size: var(--text-xl);
+      line-height: 1.25;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin-top: 36px;
+      margin-bottom: 14px;
+    }
+
+    .article-pullquote {
+      border-left: 3px solid var(--accent-primary);
+      padding-left: 20px;
+      margin: 28px 0;
+      font-size: var(--text-md);
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--text-primary);
+    }
+
+    .article-pullquote cite {
+      display: block;
+      margin-top: 8px;
+      font-size: var(--text-xs);
+      font-style: normal;
+      font-family: var(--font-family-mono);
+      color: var(--text-muted);
+    }
+
+    .article-footnotes {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    /* --------------------------------------------------------------------------
+       TAB 3: PRODUCT UI COMPONENTS SPECIMEN
+       -------------------------------------------------------------------------- */
+    .components-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 24px;
+    }
+
+    .component-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .component-card-title {
+      font-size: var(--text-sm);
+      font-family: var(--font-family-mono);
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 8px;
+    }
+
+    .sample-form-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sample-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sample-input-group label {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .sample-input {
+      font-family: inherit;
+      font-size: var(--text-base);
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .sample-input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    .sample-input-hint {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ui-btn {
+      font-family: inherit;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .ui-btn-primary { background: var(--accent-primary); color: #ffffff; }
+    .ui-btn-primary:hover { background: var(--accent-primary-hover); }
+    .ui-btn-secondary { background: var(--bg-surface-elevated); color: var(--text-primary); border-color: var(--border-strong); }
+    .ui-btn-secondary:hover { background: var(--bg-input); }
+    .ui-btn-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+
+    .sample-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+
+    .sample-table th {
+      text-align: left;
+      font-family: var(--font-family-mono);
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 8px 10px;
+    }
+
+    .sample-table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    .sample-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-primary);
+    }
+
+    /* Modal Dialog Simulation via details/summary */
+    .sample-modal-trigger summary {
+      list-style: none;
+      cursor: pointer;
+    }
+
+    .sample-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .sample-modal-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      max-width: 460px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-head {
+      font-size: var(--text-lg);
+      font-weight: 700;
+    }
+
+    .modal-body {
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      line-height: var(--line-height-base);
+    }
+
+    /* --------------------------------------------------------------------------
+       TAB 4: CSS DESIGN TOKENS EXPORT SPEC
+       -------------------------------------------------------------------------- */
+    .export-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .code-block-card {
+      background: #080b12;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 24px;
+      font-family: var(--font-family-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-x: auto;
+      color: #93c5fd;
+      position: relative;
+    }
+
+    .code-block-card::before {
+      content: "CSS CUSTOM PROPERTIES • TOKENS.CSS";
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .code-token-name { color: #f472b6; }
+    .code-token-val  { color: #6ee7b7; }
+    .code-comment    { color: #6b7280; font-style: italic; }
+
+    /* --------------------------------------------------------------------------
+       STATE MACHINE ENGINE VIA :HAS() (PURE CSS CONTROL)
+       -------------------------------------------------------------------------- */
+
+    /* Tab Switcher */
+    body:has(#tab-ladder-toggle:checked) #tab-ladder-view { display: block; }
+    body:has(#tab-article-toggle:checked) #tab-article-view { display: block; }
+    body:has(#tab-components-toggle:checked) #tab-components-view { display: block; }
+    body:has(#tab-export-toggle:checked) #tab-export-view { display: block; }
+
+    body:has(#tab-ladder-toggle:checked) label[for="tab-ladder-toggle"],
+    body:has(#tab-article-toggle:checked) label[for="tab-article-toggle"],
+    body:has(#tab-components-toggle:checked) label[for="tab-components-toggle"],
+    body:has(#tab-export-toggle:checked) label[for="tab-export-toggle"] {
+      color: var(--accent-primary);
+      border-bottom-color: var(--accent-primary);
+    }
+
+    /* Modular Scale Ratios */
+    body:has(#scale-major-sec:checked) {
+      --scale-ratio: 1.125;
+      --scale-name: "Major Second (1.125)";
+    }
+    body:has(#scale-minor-third:checked) {
+      --scale-ratio: 1.200;
+      --scale-name: "Minor Third (1.200)";
+    }
+    body:has(#scale-major-third:checked) {
+      --scale-ratio: 1.250;
+      --scale-name: "Major Third (1.250)";
+    }
+    body:has(#scale-perfect-fourth:checked) {
+      --scale-ratio: 1.333;
+      --scale-name: "Perfect Fourth (1.333)";
+    }
+    body:has(#scale-aug-fourth:checked) {
+      --scale-ratio: 1.414;
+      --scale-name: "Augmented Fourth (1.414)";
+    }
+    body:has(#scale-golden-ratio:checked) {
+      --scale-ratio: 1.618;
+      --scale-name: "Golden Ratio (1.618)";
+    }
+
+    body:has(#scale-major-sec:checked) label[for="scale-major-sec"],
+    body:has(#scale-minor-third:checked) label[for="scale-minor-third"],
+    body:has(#scale-major-third:checked) label[for="scale-major-third"],
+    body:has(#scale-perfect-fourth:checked) label[for="scale-perfect-fourth"],
+    body:has(#scale-aug-fourth:checked) label[for="scale-aug-fourth"],
+    body:has(#scale-golden-ratio:checked) label[for="scale-golden-ratio"] {
+      background: var(--accent-primary);
+      color: #ffffff;
+    }
+
+    /* Base Size */
+    body:has(#base-14:checked) { --font-base: 14px; }
+    body:has(#base-16:checked) { --font-base: 16px; }
+    body:has(#base-18:checked) { --font-base: 18px; }
+
+    body:has(#base-14:checked) label[for="base-14"],
+    body:has(#base-16:checked) label[for="base-16"],
+    body:has(#base-18:checked) label[for="base-18"] {
+      background: var(--accent-primary);
+      color: #ffffff;
+    }
+
+    /* Typeface Stack */
+    body:has(#font-sans:checked) {
+      --font-family-active: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    body:has(#font-serif:checked) {
+      --font-family-active: "Charter", "Georgia", "Baskerville", "Palatino Linotype", serif;
+    }
+    body:has(#font-mono:checked) {
+      --font-family-active: var(--font-family-mono);
+    }
+    body:has(#font-humanist:checked) {
+      --font-family-active: "Segoe UI", "Open Sans", "Candara", system-ui, sans-serif;
+    }
+
+    body:has(#font-sans:checked) label[for="font-sans"],
+    body:has(#font-serif:checked) label[for="font-serif"],
+    body:has(#font-mono:checked) label[for="font-mono"],
+    body:has(#font-humanist:checked) label[for="font-humanist"] {
+      background: var(--accent-primary);
+      color: #ffffff;
+    }
+
+    /* Theme Engine */
+    body:has(#theme-light:checked) {
+      --bg-canvas: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #f1f5f9;
+      --bg-input: #ffffff;
+      --border-subtle: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --accent-primary: #2563eb;
+      --accent-primary-hover: #1d4ed8;
+      --accent-glow: rgba(37, 99, 235, 0.2);
+      --badge-bg: rgba(37, 99, 235, 0.08);
+      --badge-text: #1d4ed8;
+      color-scheme: light;
+    }
+
+    body:has(#theme-warm:checked) {
+      --bg-canvas: #faf7f2;
+      --bg-surface: #f4eee3;
+      --bg-surface-elevated: #ede3d3;
+      --bg-input: #faf7f2;
+      --border-subtle: #dfd4c0;
+      --border-strong: #c8b99f;
+      --text-primary: #2b231a;
+      --text-secondary: #574b3d;
+      --text-muted: #8c7e6d;
+      --accent-primary: #c25e00;
+      --accent-primary-hover: #9c4b00;
+      --accent-glow: rgba(194, 94, 0, 0.2);
+      --badge-bg: rgba(194, 94, 0, 0.1);
+      --badge-text: #9c4b00;
+      color-scheme: light;
+    }
+
+    body:has(#theme-oled:checked) {
+      --bg-canvas: #000000;
+      --bg-surface: #0a0a0a;
+      --bg-surface-elevated: #141414;
+      --bg-input: #050505;
+      --border-subtle: #222222;
+      --border-strong: #333333;
+      --text-primary: #ffffff;
+      --text-secondary: #a3a3a3;
+      --text-muted: #666666;
+      --accent-primary: #00e5ff;
+      --accent-primary-hover: #66efff;
+      --accent-glow: rgba(0, 229, 255, 0.25);
+      --badge-bg: rgba(0, 229, 255, 0.12);
+      --badge-text: #00e5ff;
+      color-scheme: dark;
+    }
+
+    body:has(#theme-dark:checked) label[for="theme-dark"],
+    body:has(#theme-light:checked) label[for="theme-light"],
+    body:has(#theme-warm:checked) label[for="theme-warm"],
+    body:has(#theme-oled:checked) label[for="theme-oled"] {
+      background: var(--accent-primary);
+      color: #ffffff;
+    }
+
+    /* Diagnostic Overlay Toggles */
+    body:has(#diag-grid:checked) .baseline-grid-layer { display: block; }
+    body:has(#diag-grid:checked) label[for="diag-grid"] .check-indicator {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #ffffff;
+    }
+
+    body:has(#diag-measure:checked) .measure-guide-ruler { display: block; }
+    body:has(#diag-measure:checked) label[for="diag-measure"] .check-indicator {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #ffffff;
+    }
+
+    body:has(#diag-badges:checked) .ladder-meta-header { display: flex; }
+    body:not(:has(#diag-badges:checked)) .ladder-meta-header { display: none; }
+    body:has(#diag-badges:checked) label[for="diag-badges"] .check-indicator {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #ffffff;
+    }
+
+    /* --------------------------------------------------------------------------
+       ACCESSIBILITY & RESPONSIVE DESIGN
+       -------------------------------------------------------------------------- */
+    :focus-visible {
+      outline: 2px solid var(--accent-primary);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 900px) {
+      .config-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .article-specimen-layout {
+        padding: 24px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .product-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .workspace-tabs-bar {
+        overflow-x: auto;
+      }
+      .ladder-meta-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       PRODUCTION PRINT STYLESHEET (@MEDIA PRINT)
+       FORMATS AN OFFICIAL DESIGN SYSTEM TYPOGRAPHIC HANDOFF FOLIO
+       -------------------------------------------------------------------------- */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 12pt !important;
+      }
+      .product-header,
+      .config-toolbar,
+      .workspace-tabs-bar,
+      .baseline-grid-layer,
+      .header-actions {
+        display: none !important;
+      }
+      .main-canvas-wrapper {
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      .tab-view {
+        display: block !important;
+      }
+      .ladder-card {
+        border: 1px solid #ccc !important;
+        page-break-inside: avoid;
+        margin-bottom: 12pt;
+      }
+      .print-folio-header {
+        display: block !important;
+        border-bottom: 2pt solid #000;
+        padding-bottom: 12pt;
+        margin-bottom: 18pt;
+      }
+    }
+
+    .print-folio-header {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       STATE MACHINE: HIDDEN CONTROLS SÉMANTIQUES (ZERO JS)
+       ======================================================================== -->
+  <!-- 1. Tabs Navigation -->
+  <input type="radio" name="ws-tab" id="tab-ladder-toggle" class="state-toggle" checked>
+  <input type="radio" name="ws-tab" id="tab-article-toggle" class="state-toggle">
+  <input type="radio" name="ws-tab" id="tab-components-toggle" class="state-toggle">
+  <input type="radio" name="ws-tab" id="tab-export-toggle" class="state-toggle">
+
+  <!-- 2. Modular Scale Ratio -->
+  <input type="radio" name="scale-ratio-select" id="scale-major-sec" class="state-toggle">
+  <input type="radio" name="scale-ratio-select" id="scale-minor-third" class="state-toggle">
+  <input type="radio" name="scale-ratio-select" id="scale-major-third" class="state-toggle" checked>
+  <input type="radio" name="scale-ratio-select" id="scale-perfect-fourth" class="state-toggle">
+  <input type="radio" name="scale-ratio-select" id="scale-aug-fourth" class="state-toggle">
+  <input type="radio" name="scale-ratio-select" id="scale-golden-ratio" class="state-toggle">
+
+  <!-- 3. Base Font Size -->
+  <input type="radio" name="base-size-select" id="base-14" class="state-toggle">
+  <input type="radio" name="base-size-select" id="base-16" class="state-toggle" checked>
+  <input type="radio" name="base-size-select" id="base-18" class="state-toggle">
+
+  <!-- 4. Typeface Family Stack -->
+  <input type="radio" name="font-family-select" id="font-sans" class="state-toggle" checked>
+  <input type="radio" name="font-family-select" id="font-serif" class="state-toggle">
+  <input type="radio" name="font-family-select" id="font-mono" class="state-toggle">
+  <input type="radio" name="font-family-select" id="font-humanist" class="state-toggle">
+
+  <!-- 5. Theme Palette -->
+  <input type="radio" name="theme-select" id="theme-dark" class="state-toggle" checked>
+  <input type="radio" name="theme-select" id="theme-light" class="state-toggle">
+  <input type="radio" name="theme-select" id="theme-warm" class="state-toggle">
+  <input type="radio" name="theme-select" id="theme-oled" class="state-toggle">
+
+  <!-- 6. Diagnostic Overlays -->
+  <input type="checkbox" id="diag-grid" class="state-toggle">
+  <input type="checkbox" id="diag-measure" class="state-toggle">
+  <input type="checkbox" id="diag-badges" class="state-toggle" checked>
+
+  <!-- ========================================================================
+       PRODUCT HEADER & BRAND BAR
+       ======================================================================== -->
+  <header class="product-header">
+    <div class="brand-cluster">
+      <div class="brand-logo">
+        <span class="logo-icon">T</span>
+        <span>TYPO-METRIC</span>
+      </div>
+      <span class="version-tag">v2.5</span>
+      <div class="system-status">
+        <span class="status-dot"></span>
+        <span>ZERO-JS WORKSTATION ACTIVE</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Shortcuts & Documentation Popover via details/summary -->
+      <details class="header-help-details">
+        <summary>
+          <span>Shortcuts & Specs</span>
+          <span>▾</span>
+        </summary>
+        <div class="help-popover">
+          <h4>Typographic Workstation Guide</h4>
+          <ul>
+            <li>• Scale tokens are computed mathematically via native CSS <code>calc()</code>.</li>
+            <li>• Specimen headlines are <strong>directly editable</strong> (<kbd>Click to Edit</kbd>).</li>
+            <li>• Press <kbd>Ctrl + P</kbd> / <kbd>Cmd + P</kbd> to format an official A4 Handoff Folio.</li>
+            <li>• 100% Zero Runtime JavaScript; state managed via CSS <code>:has()</code>.</li>
+          </ul>
+        </div>
+      </details>
+
+      <button type="button" class="print-folio-btn" onclick="window.print()" title="Format Print Specimen (Ctrl+P)">
+        <span>🖨 Export Spec Folio</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       CONFIGURATION TOOLBAR (MODULAR SCALE, BASE, FONT & THEME)
+       ======================================================================== -->
+  <section class="config-toolbar" aria-label="Typographic Configuration Controls">
+
+    <!-- Modular Scale Selector -->
+    <div class="toolbar-section">
+      <span class="control-label">Scale Ratio:</span>
+      <div class="pill-group" role="radiogroup" aria-label="Modular Scale Selection">
+        <label for="scale-major-sec" class="pill-btn" title="1.125 Major Second">1.125</label>
+        <label for="scale-minor-third" class="pill-btn" title="1.200 Minor Third">1.200</label>
+        <label for="scale-major-third" class="pill-btn" title="1.250 Major Third">1.250</label>
+        <label for="scale-perfect-fourth" class="pill-btn" title="1.333 Perfect Fourth">1.333</label>
+        <label for="scale-aug-fourth" class="pill-btn" title="1.414 Augmented Fourth">1.414</label>
+        <label for="scale-golden-ratio" class="pill-btn" title="1.618 Golden Ratio">1.618</label>
+      </div>
+    </div>
+
+    <!-- Base Font Size -->
+    <div class="toolbar-section">
+      <span class="control-label">Base Size:</span>
+      <div class="pill-group" role="radiogroup" aria-label="Base Font Size">
+        <label for="base-14" class="pill-btn">14px</label>
+        <label for="base-16" class="pill-btn">16px</label>
+        <label for="base-18" class="pill-btn">18px</label>
+      </div>
+    </div>
+
+    <!-- Typeface Stack -->
+    <div class="toolbar-section">
+      <span class="control-label">Typeface:</span>
+      <div class="pill-group" role="radiogroup" aria-label="Typeface Stack Selection">
+        <label for="font-sans" class="pill-btn">System Sans</label>
+        <label for="font-serif" class="pill-btn">Editorial Serif</label>
+        <label for="font-mono" class="pill-btn">Mono Code</label>
+        <label for="font-humanist" class="pill-btn">Humanist</label>
+      </div>
+    </div>
+
+    <!-- Theme Selection -->
+    <div class="toolbar-section">
+      <span class="control-label">Theme:</span>
+      <div class="pill-group" role="radiogroup" aria-label="Theme Mode Selection">
+        <label for="theme-dark" class="pill-btn">Slate</label>
+        <label for="theme-light" class="pill-btn">Light</label>
+        <label for="theme-warm" class="pill-btn">Vellum</label>
+        <label for="theme-oled" class="pill-btn">OLED</label>
+      </div>
+    </div>
+
+    <!-- Diagnostics Toggles -->
+    <div class="toolbar-section">
+      <span class="control-label">Diagnostics:</span>
+      <label for="diag-grid" class="checkbox-pill" title="Toggle 8px Vertical Baseline Grid">
+        <span class="check-indicator">✓</span>
+        <span>8px Grid</span>
+      </label>
+      <label for="diag-measure" class="checkbox-pill" title="Toggle 68ch Reading Measure Guide">
+        <span class="check-indicator">✓</span>
+        <span>Measure (68ch)</span>
+      </label>
+      <label for="diag-badges" class="checkbox-pill" title="Toggle Token Metric Badges">
+        <span class="check-indicator">✓</span>
+        <span>Tokens</span>
+      </label>
+    </div>
+
+  </section>
+
+  <!-- ========================================================================
+       WORKSPACE TAB NAVIGATION
+       ======================================================================== -->
+  <nav class="workspace-tabs-bar" aria-label="Workspace Views">
+    <label for="tab-ladder-toggle" class="tab-nav-btn">
+      <span class="tab-num">01</span>
+      <span>Scale Ladder</span>
+    </label>
+    <label for="tab-article-toggle" class="tab-nav-btn">
+      <span class="tab-num">02</span>
+      <span>Editorial In-Situ</span>
+    </label>
+    <label for="tab-components-toggle" class="tab-nav-btn">
+      <span class="tab-num">03</span>
+      <span>UI Components</span>
+    </label>
+    <label for="tab-export-toggle" class="tab-nav-btn">
+      <span class="tab-num">04</span>
+      <span>Token Code Export</span>
+    </label>
+  </nav>
+
+  <!-- ========================================================================
+       MAIN WORKSPACE CANVAS & SPECIMEN VIEWS
+       ======================================================================== -->
+  <main class="main-canvas-wrapper">
+
+    <!-- 8px Baseline Grid Overlay (Activated via #diag-grid) -->
+    <div class="baseline-grid-layer" aria-hidden="true"></div>
+
+    <!-- Print Folio Header (Only visible when printing / PDF export) -->
+    <div class="print-folio-header">
+      <h1>TYPO-METRIC DESIGN SYSTEM SPECIFICATION FOLIO</h1>
+      <p>Modular Typographic Scale Calibration • Verified WCAG Contrast Compliant • Generated via Pure CSS</p>
+    </div>
+
+    <!-- ====================================================================
+         TAB 1: HIERARCHICAL SCALE LADDER (LIVE EDITABLE SPECIMENS)
+         ==================================================================== -->
+    <div id="tab-ladder-view" class="tab-view">
+      <div class="ladder-container">
+
+        <!-- Display 4XL -->
+        <article class="ladder-card">
+          <div class="ladder-meta-header">
+            <span class="token-chip-badge">--text-4xl</span>
+            <div class="ladder-metrics">
+              <span class="metric-item">Ratio: <span>Scale^5</span></span>
+              <span class="metric-item">Line-Height: <span>1.05</span></span>
+              <span class="metric-item">Letter-Spacing: <span>-0.03em</span></span>
+            </div>
+          </div>
+          <div class="type-4xl specimen-text" contenteditable="true" spellcheck="false">
+            Monumental Display Scale
+          </div>
+          <div class="measure-guide-ruler"></div>
+        </article>
+
+        <!-- Display 3XL -->
+        <article class="ladder-card">
+          <div class="ladder-meta-header">
+            <span class="token-chip-badge">--text-3xl</span>
+            <div class="ladder-metrics">
+              <span class="metric-item">Ratio: <span>Scale^4</span></span>
+              <span class="metric-item">Line-Height: <span>1.10</span></span>
+              <span class="metric-item">Letter-Spacing: <span>-0.025em</span></span>
+            </div>
+          </div>
+          <div class="type-3xl specimen-text" contenteditable="true" spellcheck="false">
+            Harmonious Structural Architecture
+          </div>
+          <div class="measure-guide-ruler"></div>
+        </article>
+
+        <!-- Heading 2XL -->
+        <article class="ladder-card">
+          <div class="ladder-meta-header">
+            <span class="token-chip-badge">--text-2xl</span>
+            <div class="ladder-metrics">
+              <span class="metric-item">Ratio: <span>Scale^3</span></span>
+              <span class="metric-item">Line-Height: <span>1.15</span></span>
+              <span class="metric-item">Letter-Spacing: <span>-0.02em</span></span>
+            </div>
+          </div>
+          <div class="type-2xl specimen-text" contenteditable="true" spellcheck="false">
+            Precision Design Engineering Systems
+          </div>
+          <div class="measure-guide-ruler"></div>
+        </article>
+
+        <!-- Heading XL -->
+        <article class="ladder-card">
+          <div class="ladder-meta-header">
+            <span class="token-chip-badge">--text-xl</span>
+            <div class="ladder-metrics">
+              <span class="metric-item">Ratio: <span>Scale^2</span></span>
+              <span class="metric-item">Line-Height: <span>1.20</span></span>
+              <span class="metric-item">Letter-Spacing: <span>-0.015em</span></span>
+            </div>
+          </div>
+          <div class="type-xl specimen-text" contenteditable="true" spellcheck="false">
+            Sectional Content Division & Modular Hierarchy
+          </div>
+          <div class="measure-guide-ruler"></div>
+        </article>
+
+        <!-- Heading LG -->
+        <article class="ladder-card">
+          <div class="ladder-meta-header">
+            <span class="token-chip-badge">--text-lg</span>
+            <div class="ladder-metrics">
+              <span class="metric-item">Ratio: <span>Scale^1</span></span>
+              <span class="metric-item">Line-Height: <span>1.25</span></span>
+              <span class="metric-item">Letter-Spacing: <span>-0.01em</span></span>
+            </div>
+          </div>
+          <div class="type-lg specimen-text" contenteditable="true" spellcheck="false">
+            Subheading and Featured Editorial Intro Paragraph
+          </div>
+          <div class="measure-guide-ruler"></div>
+        </article>
+
+        <!-- Heading MD -->
+        <article class="ladder-card">
+          <div class="ladder-meta-header">
+            <span class="token-chip-badge">--text-md</span>
+            <div class="ladder-metrics">
+              <span class="metric-item">Ratio: <span>Scale^0.5</span></span>
+              <span class="metric-item">Line-Height: <span>1.35</span></span>
+              <span class="metric-item">Letter-Spacing: <span>Normal</span></span>
+            </div>
+          </div>
+          <div class="type-md specimen-text" contenteditable="true" spellcheck="false">
+            Component headers, group banners, and prominent callout labels.
+          </div>
+          <div class="measure-guide-ruler"></div>
+        </article>
+
+        <!-- Body Base -->
+        <article class="ladder-card">
+          <div class="ladder-meta-header">
+            <span class="token-chip-badge">--text-base (Root)</span>
+            <div class="ladder-metrics">
+              <span class="metric-item">Ratio: <span>Base 1.00</span></span>
+              <span class="metric-item">Line-Height: <span>1.50</span></span>
+              <span class="metric-item">Optimal Measure: <span>68ch</span></span>
+            </div>
+          </div>
+          <div class="type-base specimen-text" contenteditable="true" spellcheck="false">
+            Body regular paragraph. Typography on the web is fundamentally about establishing a clear, effortless relationship between reading distance, line length, and proportional scale steps. When modular scales are calculated mathematically via custom properties, hierarchy remains consistent across diverse form factors.
+          </div>
+          <div class="measure-guide-ruler"></div>
+        </article>
+
+        <!-- Small / Caption -->
+        <article class="ladder-card">
+          <div class="ladder-meta-header">
+            <span class="token-chip-badge">--text-sm</span>
+            <div class="ladder-metrics">
+              <span class="metric-item">Ratio: <span>Base / Scale</span></span>
+              <span class="metric-item">Line-Height: <span>1.50</span></span>
+            </div>
+          </div>
+          <div class="type-sm specimen-text" contenteditable="true" spellcheck="false">
+            Secondary UI labels, table column headers, helper text, and image captions requiring crisp readability at smaller sizes.
+          </div>
+        </article>
+
+        <!-- Micro / Code -->
+        <article class="ladder-card">
+          <div class="ladder-meta-header">
+            <span class="token-chip-badge">--text-xs</span>
+            <div class="ladder-metrics">
+              <span class="metric-item">Ratio: <span>Base / Scale^2</span></span>
+              <span class="metric-item">Line-Height: <span>1.45</span></span>
+            </div>
+          </div>
+          <div class="type-xs specimen-text" contenteditable="true" spellcheck="false">
+            METADATA • STATUS STAMP • LEGAL FOOTNOTES • HASH: 8f9b2a1 • WCAG AAA CERTIFIED
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         TAB 2: IN-SITU EDITORIAL ARTICLE SPECIMEN
+         ==================================================================== -->
+    <div id="tab-article-view" class="tab-view">
+      <article class="article-specimen-layout">
+        <div class="article-kicker">Systems & Architecture • Whitepaper</div>
+        <h1 class="article-title">The Geometry of Readable Space: Mathematical Harmony in Design Systems</h1>
+        <div class="article-byline">
+          <span>By Elena Rostova, Principal Type Architect</span>
+          <span>•</span>
+          <span>October 2026</span>
+          <span>•</span>
+          <span>6 min read</span>
+        </div>
+
+        <p class="article-lead">
+          For centuries, bookmakers, stonemasons, and punchcutters calibrated proportional scales not by arbitrary increments, but through musical intervals. In modern user interfaces, that same discipline forms the backbone of legible, predictable information architectures.
+        </p>
+
+        <p class="article-body-p">
+          When typographic steps are derived through geometric progressions rather than arbitrary pixel values, the brain recognizes hierarchy pre-attentively. A reader does not need to consciously measure font sizes to know that an <strong>H2</strong> is subordinate to an <strong>H1</strong>; the ratio itself signals semantic weight.
+        </p>
+
+        <blockquote class="article-pullquote">
+          “Order without diversity can produce monotony, but diversity without order produces chaos. Modular scale is the silent armature that holds both in equilibrium.”
+          <cite>— Studio Monograph on Digital Composition</cite>
+        </blockquote>
+
+        <h2 class="article-subhead">Vertical Rhythm and the 8-Pixel Grid Alignment</h2>
+        <p class="article-body-p">
+          A scale that looks balanced in isolation can easily deteriorate if its line heights do not harmonize with component containers and spacing tokens. By locking line-height multipliers to integer multiples of the root 8px baseline unit, paragraphs flow naturally without awkward clipping or uneven margins.
+        </p>
+
+        <h3 class="type-md" style="margin-top: 24px; margin-bottom: 8px; font-weight: 600;">Core Typographic Invariants:</h3>
+        <ul style="padding-left: 20px; font-size: var(--text-base); color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6;">
+          <li>Proportional modular ratios ensure consistent contrast steps.</li>
+          <li>Optimal measure between 45 and 75 characters prevents eye fatigue.</li>
+          <li>High-contrast optical fallbacks preserve WCAG AA legibility across dark and light canvases.</li>
+        </ul>
+
+        <footer class="article-footnotes">
+          1. Reference: Bringhurst, R. <em>The Elements of Typographic Style</em>. Version 4.2.<br>
+          2. WCAG 2.2 Success Criterion 1.4.12: Text Spacing & Line Height Compliance.
+        </footer>
+      </article>
+    </div>
+
+    <!-- ====================================================================
+         TAB 3: PRODUCT UI COMPONENTS SPECIMEN
+         ==================================================================== -->
+    <div id="tab-components-view" class="tab-view">
+      <div class="components-grid">
+
+        <!-- Form Elements Card -->
+        <section class="component-card">
+          <div class="component-card-title">Interactive Form Inputs</div>
+          <form class="sample-form-stack" onsubmit="return false;">
+            <div class="sample-input-group">
+              <label for="sample-user">User Account Handle</label>
+              <input type="text" id="sample-user" class="sample-input" value="@elena_design" placeholder="e.g. @username">
+              <span class="sample-input-hint">Your unique organization identifier across workspaces.</span>
+            </div>
+
+            <div class="sample-input-group">
+              <label for="sample-role">Permission Level</label>
+              <select id="sample-role" class="sample-input">
+                <option>Design System Administrator</option>
+                <option>Engineering Contributor</option>
+                <option>Read-only Auditor</option>
+              </select>
+            </div>
+
+            <div class="btn-row">
+              <button type="submit" class="ui-btn ui-btn-primary">Save Configuration</button>
+              <button type="reset" class="ui-btn ui-btn-secondary">Discard</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Button & Badge Matrix -->
+        <section class="component-card">
+          <div class="component-card-title">Button Hierarchy & Status Badges</div>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="btn-row">
+              <button type="button" class="ui-btn ui-btn-primary">Primary Action</button>
+              <button type="button" class="ui-btn ui-btn-secondary">Secondary Action</button>
+              <button type="button" class="ui-btn ui-btn-danger">Destructive</button>
+            </div>
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+              <span class="token-chip-badge">ACTIVE PRODUCTION</span>
+              <span style="font-size: 11px; padding: 2px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.12); color: #34d399; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.25);">VERIFIED 100%</span>
+              <span style="font-size: 11px; padding: 2px 8px; border-radius: 4px; background: rgba(245, 158, 11, 0.12); color: #fbbf24; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.25);">AUDIT PENDING</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Data Table Specimen -->
+        <section class="component-card" style="grid-column: 1 / -1;">
+          <div class="component-card-title">Tabular Data & Density Ratios</div>
+          <table class="sample-table">
+            <thead>
+              <tr>
+                <th>TOKEN KEY</th>
+                <th>ROLE</th>
+                <th>SCALE RATIO</th>
+                <th>LINE HEIGHT</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-family: var(--font-family-mono); font-weight: 600; color: var(--text-primary);">--text-4xl</td>
+                <td>Hero Banner</td>
+                <td>Scale ^ 5</td>
+                <td>1.05</td>
+                <td><span class="token-chip-badge">Active</span></td>
+              </tr>
+              <tr>
+                <td style="font-family: var(--font-family-mono); font-weight: 600; color: var(--text-primary);">--text-xl</td>
+                <td>Section H1</td>
+                <td>Scale ^ 2</td>
+                <td>1.20</td>
+                <td><span class="token-chip-badge">Active</span></td>
+              </tr>
+              <tr>
+                <td style="font-family: var(--font-family-mono); font-weight: 600; color: var(--text-primary);">--text-base</td>
+                <td>Body Regular</td>
+                <td>Base 1.00</td>
+                <td>1.50</td>
+                <td><span class="token-chip-badge">Root</span></td>
+              </tr>
+              <tr>
+                <td style="font-family: var(--font-family-mono); font-weight: 600; color: var(--text-primary);">--text-xs</td>
+                <td>Micro Metadata</td>
+                <td>Base / Scale^2</td>
+                <td>1.45</td>
+                <td><span class="token-chip-badge">Active</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         TAB 4: CSS DESIGN TOKENS EXPORT SPEC
+         ==================================================================== -->
+    <div id="tab-export-view" class="tab-view">
+      <div class="export-layout">
+        <p style="font-size: var(--text-base); color: var(--text-secondary);">
+          Below are the production-ready CSS Custom Properties corresponding to your active modular scale configuration. Copy directly into your design system stylesheet or root theme file.
+        </p>
+
+        <pre class="code-block-card"><code><span class="code-comment">/* ==========================================================================
+   TYPO-METRIC DESIGN SYSTEM TOKENS
+   Generated mathematically via Pure CSS Architecture
+   ========================================================================== */</span>
+
+:root {
+  <span class="code-comment">/* Base Scale Parameters */</span>
+  <span class="code-token-name">--font-base</span>: <span class="code-token-val">var(--font-base)</span>;
+  <span class="code-token-name">--scale-ratio</span>: <span class="code-token-val">var(--scale-ratio)</span>;
+
+  <span class="code-comment">/* Computed Modular Scale Steps */</span>
+  <span class="code-token-name">--text-xs</span>:   <span class="code-token-val">calc(var(--font-base) / var(--scale-ratio) / var(--scale-ratio))</span>;
+  <span class="code-token-name">--text-sm</span>:   <span class="code-token-val">calc(var(--font-base) / var(--scale-ratio))</span>;
+  <span class="code-token-name">--text-base</span>: <span class="code-token-val">var(--font-base)</span>;
+  <span class="code-token-name">--text-md</span>:   <span class="code-token-val">calc(var(--text-base) * var(--scale-ratio))</span>;
+  <span class="code-token-name">--text-lg</span>:   <span class="code-token-val">calc(var(--text-md) * var(--scale-ratio))</span>;
+  <span class="code-token-name">--text-xl</span>:   <span class="code-token-val">calc(var(--text-lg) * var(--scale-ratio))</span>;
+  <span class="code-token-name">--text-2xl</span>:  <span class="code-token-val">calc(var(--text-xl) * var(--scale-ratio))</span>;
+  <span class="code-token-name">--text-3xl</span>:  <span class="code-token-val">calc(var(--text-2xl) * var(--scale-ratio))</span>;
+  <span class="code-token-name">--text-4xl</span>:  <span class="code-token-val">calc(var(--text-3xl) * var(--scale-ratio))</span>;
+
+  <span class="code-comment">/* Line Height Multipliers */</span>
+  <span class="code-token-name">--leading-tight</span>:   <span class="code-token-val">1.10</span>;
+  <span class="code-token-name">--leading-heading</span>: <span class="code-token-val">1.20</span>;
+  <span class="code-token-name">--leading-normal</span>:  <span class="code-token-val">1.50</span>;
+  <span class="code-token-name">--leading-relaxed</span>: <span class="code-token-val">1.65</span>;
+
+  <span class="code-comment">/* Optimal Reading Measure */</span>
+  <span class="code-token-name">--measure-optimal</span>: <span class="code-token-val">68ch</span>;
+}</code></pre>
+
+      </div>
+    </div>
+
+  </main>
+
+</body>
+</html>

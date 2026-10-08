@@ -132,6 +132,7 @@
 - 202: Chronomètre Mécanique N° 202 → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → spatial 3D exhibition sapphire caseback flip (`perspective: 1400px`, `preserve-3d`, `rotateY(180deg)`) → 60s flying tourbillon carriage (1 RPM) & balance wheel (3 Hz / 21,600 vph) → astronomical moonphase & 72h power reserve sector → 3-alloy metallurgy matrix (18K Rose Gold, 950 Platinum, Grade 5 Titanium) → 2.5x horological loupe optical magnification → 365nm UV darkroom Super-LumiNova phosphorescence
 - 203: Chambre Noire d'Atelier N° 203 → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → 3D camera isometric perspective (`rotateY(-18deg) rotateX(4deg)`) → articulated triple-extension leather accordion bellows → camera obscura inverted projection (`scale(-1, -1)`) of Parisian atelier still life (bust, globe, manuscript) → Petzval iris diaphragm (f/2.8 bokeh orbs to f/64 pinhole) → rack-and-pinion focus rail shifting depth planes → Scheimpflug standard tilt (+12° / +14°) → pneumatic squeeze bulb shutter snap → 4 historical chemical emulsion processes (Collodion, Cyanotype, Platinotype, Autochrome)
 - 204: OPUS OPTICUM / Kinetic Op-Art & Gestalt Typographic Pavilion → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → relational state engine (`:has()`) → counter-rotating radial/conic optical gratings → `mix-blend-mode: difference` wave interference fringes → 3D Vasarely spherical bulging → Kanizsa negative-space illusory contour matrix → retinal opponent-process chromatic shimmer → anamorphic vortex funnel → multi-scale frequency, tempo & museum lighting controls
+- 205: TYPO-METRIC / Modular Typographic Workstation & Token Generator → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → pure CSS `calc()` geometric progression modular scale engine (6 ratios: 1.125 to 1.618) → cascading line height & letter spacing tokens → relational state engine (`:has()`) → 4 interactive workspaces (contenteditable Scale Ladder, Editorial In-Situ, UI Components, Token Export) → 4 workstation themes (Slate, Light, Vellum, OLED) → 8px baseline grid & 68ch measure diagnostics → `@media print` Spec Folio PDF export
 
 
 
@@ -200,6 +201,7 @@
 - 202: Haute Horlogerie Grand Complication with hand-turned guilloché dial, fluted winding crown, 60s flying tourbillon, 3D exhibition sapphire caseback with Côtes de Genève & perlage, blued Breguet hands, and 365nm Super-LumiNova luminescence under zero JavaScript
 - 203: 1888 Parisian optical and photographic atelier bench with Cuban mahogany cabinetry, knurled brass thumbscrews, liquid spirit levels, pleated leather bellows, frosted ground glass, and 630nm darkroom ruby safelight illumination under zero JavaScript
 - 204: Contemporary Kunsthalle / Tate Modern avant-garde exhibition hall with minimalist Swiss international typography, razor-sharp floating curatorial pills, monumental Op-Art canvas, and obsidian / white-cube / neon gallery lighting under zero JavaScript
+- 205: Production-grade developer and designer typographic utility workstation with Slate Dark, Studio Light, Warm Vellum, and OLED contrast themes, Swiss rationalist precision controls, reactive 8px baseline grid, and high-fidelity design system token export under zero JavaScript
 
 
 
@@ -456,6 +458,10 @@ Recently successful alternatives:
 - 10 compression struts of "HELLO WORLD" in 29 Kevlar tension cables, static self-equilibrium residual 2.6e-4 N, cable prestress tau = 1.00 -> 2.20 kN, geometric stiffness eigenvalue lambda_min = 42.8 -> 94.2 kN/m, and strain energy 2.73 kJ established in 059.
 - 10 superconducting islands of "HELLO WORLD", 9 Josephson weak links, critical current I_c = 1.20 uA, nominal bias ratio 0.80 (V = 0.00 uV), 3 trapped fluxons in SQUID loops ('O','O','D'), and post-ramp resistive transition at I_bias = 1.80 I_c with live voltage drop V = 4.31 uV and AC Josephson frequency f_J = 2084.53 GHz established in 060.
 - 100% pure semantic HTML5 + CSS3, 0 JavaScript, 0 external dependencies, 8 interconnected modules, skippable boot sequence, verified responsive across 390px, 768px, 1280px, and 1920px viewports, CSS :has() load shedding verified established in 201.
+- 100% pure semantic HTML5 + CSS3, 0 JavaScript, 0 external dependencies, 3D exhibition sapphire caseback flip (180deg), 60s flying tourbillon, 3Hz balance wheel, moonphase & power reserve, verified responsive across viewports established in 202.
+- 100% pure semantic HTML5 + CSS3, 0 JavaScript, 0 external dependencies, 3D camera isometric perspective, triple-extension bellows, inverted ground glass projection, Petzval iris diaphragm f/2.8-f/64, rack-and-pinion focus rail, Scheimpflug tilt, verified responsive across viewports established in 203.
+- 100% pure semantic HTML5 + CSS3, 0 JavaScript, 0 external dependencies, counter-rotating differential gratings, moiré wave interference, 3D Vasarely spherical bulging, Kanizsa illusory contours, retinal chromatic vibration, verified responsive across viewports established in 204.
+- 100% pure semantic HTML5 + CSS3, 0 JavaScript, 0 external dependencies, pure CSS calc() modular scale engine (6 geometric ratios), live contenteditable ladder specimens, UI component stress tests, syntax-highlighted token export, @media print design system handoff folio, verified responsive across viewports established in 205.
 
 # PROGRESS
 - 001: Completed and sealed (Topological Glyph Vector Deformation & Curvature Stress Field).
@@ -536,27 +542,28 @@ Recently successful alternatives:
 - 114: Completed and sealed (Data Transformation Frontier: Hamming [7, 4] Error Correction Pipeline).
 - 115: Completed and sealed (Material / Metaphor Frontier: 1804 Jacquard Programmable Punch-Card Loom & Textile Weave Mechanics).
 
-## Special Experiments (201-204)
+## Special Experiments (201-205)
 - 201: Completed and sealed (AETHEL-OS // Hello World Colony Operating System).
 - 202: Completed and sealed (Chronomètre Mécanique N° 202 // Grand Complication Astronomique).
 - 203: Completed and sealed (Chambre Noire d'Atelier N° 203 // Grand Format 8×10 Pouces).
 - 204: Completed and sealed (OPUS OPTICUM // Pavillon d'Art Cinétique & Typographie Gestalt).
+- 205: Completed and sealed (TYPO-METRIC // Accessible Modular Typographic Workstation & Token Generator).
 
 # CURRENT
-Experiment: 204 (OPUS OPTICUM // Pavillon d'Art Cinétique & Typographie Gestalt)
+Experiment: 205 (TYPO-METRIC // Accessible Modular Typographic Workstation & Token Generator)
 Status: COMPLETED
-Goal and acceptance criterion: Experiment 204 complete with 100% pure semantic HTML+CSS (zero JavaScript), radical paradigm shift away from skeuomorphic hardware devices into contemporary kinetic Op-Art and Gestalt perceptual psychology, dynamic moiré wave interference via counter-rotating differential line gratings (repeating-conic-gradient + repeating-radial-gradient under mix-blend-mode: difference), 3D spherical geodesic coordinate bulging (Victor Vasarely distortion), negative-space Gestalt illusory contour emergence (Gaetano Kanizsa pac-man disc matrix), opponent-process retinal chromatic vibration (high-saturation vermilion/cyan collision), anamorphic logarithmic vortex funnels, multi-scale frequency, tempo & gallery lighting controls, dependency certified, verified responsive across all viewports via Chromium CDP, complete documentation, and sealed 204.html.
-Intended frontier contribution: Pure CSS kinetic Op-Art optical physics, Gestalt perceptual illusions, and contemporary architectural gallery layout.
+Goal and acceptance criterion: Experiment 205 complete with 100% pure semantic HTML+CSS (zero JavaScript), credible real-world utility product for design engineers and font leads, pure CSS calc() modular scale engine (6 geometric ratios), live editable specimens via contenteditable, editorial and UI component testing suites, syntax-highlighted token export, @media print design system handoff folio, dependency certified, verified across viewports via Chromium CDP, and sealed 205.html.
+Intended frontier contribution: Zero-JavaScript real-world utility product interface, mathematical CSS custom properties scaling engine, and accessible production tooling.
 Current novelty risk: None.
-Current visual repetition risk: None (radical departure into contemporary Op-Art and Gestalt perception).
+Current visual repetition risk: None (transition from fine art / Op-Art to crisp, high-density utility tool).
 Current complexity risk: None (pure HTML/CSS, robust maintainable design system).
-Last verified progress: 204 sealed and verified (dependency-check passed OK, responsive Chrome testing passed OK).
+Last verified progress: 205 sealed and verified (dependency-check passed OK, responsive Chrome testing passed OK).
 Last error signature: None.
 Same-error repetition: 0
 No-progress attempts: 0
 Strategy changes: 0
 Total development-test cycles: 2 (dev -> verification -> seal).
-Recently attempted solutions: Sealed 204.
+Recently attempted solutions: Sealed 205.
 Next ONE concrete action: Run ./generate-readme.sh, commit & push.
 
 # NOTES
@@ -567,6 +574,7 @@ Next ONE concrete action: Run ./generate-readme.sh, commit & push.
 - Experiment 202 completed as an autonomous pure HTML/CSS (zero JavaScript) Haute Horlogerie masterpiece.
 - Experiment 203 completed as an autonomous pure HTML/CSS (zero JavaScript) 1888 large-format camera obscura atelier masterpiece.
 - Experiment 204 completed as an autonomous pure HTML/CSS (zero JavaScript) kinetic Op-Art & Gestalt typographic pavilion.
+- Experiment 205 completed as an autonomous pure HTML/CSS (zero JavaScript) modular typographic workstation utility product.
 - All evidence strictly derived from live state without assertion constants.
 - Causal Hello World integration preserved across all experiments.
 

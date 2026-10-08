@@ -2,7 +2,7 @@
 
 [Repository index](../../README.md) · [Version prompt](../PROMPT.md)
 
-**79 base experiments** · 79 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
+**80 base experiments** · 80 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
 
 Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinished.
 
@@ -479,4 +479,10 @@ Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinishe
 [Demo](204/204.html) · [Report](204/report.md) · [Journal](204/journal.md) · [Screenshot](204/screenshot.png)
 
 ![Experiment 204](204/screenshot.png)
+
+## 205 — Experiment Report: 205 — TYPO-METRIC // Accessible Modular Typographic Workstation & Token Generator
+
+[Demo](205/205.html) · [Report](205/report.md) · [Journal](205/journal.md) · [Screenshot](205/screenshot.png)
+
+![Experiment 205](205/screenshot.png)
 
