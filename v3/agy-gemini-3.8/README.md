@@ -2,7 +2,7 @@
 
 [Repository index](../../README.md) · [Version prompt](../PROMPT.md)
 
-**76 base experiments** · 76 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
+**77 base experiments** · 77 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
 
 Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinished.
 
@@ -461,4 +461,10 @@ Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinishe
 [Demo](201/201.html) · [Report](201/report.md) · [Journal](201/journal.md) · [Screenshot](201/screenshot.png)
 
 ![Experiment 201](201/screenshot.png)
+
+## 202 — Experiment Report: 202 — CHRONOMÈTRE MÉCANIQUE N° 202 // Grand Complication Astronomique
+
+[Demo](202/202.html) · [Report](202/report.md) · [Journal](202/journal.md) · [Screenshot](202/screenshot.png)
+
+![Experiment 202](202/screenshot.png)
 

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "runtime": {
+    "javascriptEnabled": false,
+    "pureHtmlCss": true,
+    "externalDependencies": 0,
+    "horologicalAuthenticity": "haute_horlogerie_pure_css_mechanics"
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "CHRONOMÈTRE MÉCANIQUE N° 202"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "div",
+        "class": "dial-guilloche"
+      },
+      {
+        "tag": "div",
+        "class": "tourbillon-aperture"
+      },
+      {
+        "tag": "div",
+        "class": "watch-case-back"
+      }
+    ],
+    "title": "Chronomètre Mécanique N° 202 // Grand Complication Astronomique"
+  },
+  "complications": [
+    { "index": "01", "id": "tourbillon", "name": "60-Second Flying Tourbillon (3 Hz / 21,600 vph)", "stateEngine": "CSS keyframe continuous carriage & balance oscillation", "tested": true },
+    { "index": "02", "id": "caseback_3d", "name": "3D Exhibition Sapphire Caseback Flip", "stateEngine": "CSS perspective 1400px & preserve-3d rotateY(180deg)", "tested": true },
+    { "index": "03", "id": "alloys", "name": "Precious Metal Alloy Matrix (Rose Gold, Platinum, Titanium)", "stateEngine": "CSS :has(input#alloy-*:checked) variable overrides", "tested": true },
+    { "index": "04", "id": "moonphase", "name": "Astronomical Moonphase Indicator", "stateEngine": "CSS radial gradient & shadow mask phase simulation", "tested": true },
+    { "index": "05", "id": "power_reserve", "name": "72-Hour Power Reserve Sector", "stateEngine": "CSS angled sector scale and blued indicator needle", "tested": true },
+    { "index": "06", "id": "chronograph", "name": "Monopusher Column-Wheel Chronograph", "stateEngine": "CSS animation-play-state start/stop/flyback controls", "tested": true },
+    { "index": "07", "id": "loupe", "name": "2.5x Horological Inspection Loupe", "stateEngine": "CSS scale transform with circular brass bezel & lens reflection", "tested": true },
+    { "index": "08", "id": "uv_mode", "name": "UV Darkroom Luminescence (Super-LumiNova)", "stateEngine": "CSS darkroom filter & phosphorescent emerald glow keyframes", "tested": true }
+  ],
+  "viewportsTested": [
+    { "width": 390, "height": 844, "label": "Mobile Phone (iPhone 13)", "status": "PASS" },
+    { "width": 768, "height": 1024, "label": "Tablet Portrait (iPad Mini)", "status": "PASS" },
+    { "width": 1280, "height": 800, "label": "Desktop Standard", "status": "PASS" },
+    { "width": 1920, "height": 1080, "label": "Ultrawide Monitor", "status": "PASS" }
+  ],
+  "accessibility": {
+    "focusVisible": true,
+    "prefersReducedMotion": "static_horological_calibrations",
+    "keyboardOperable": true,
+    "wcagContrast": "AAA"
+  }
+}

@@ -59,6 +59,8 @@
 - Tensegrity structural mechanics, Snelson/Fuller cable-strut self-equilibrium, 10 discrete compression struts, 29 Kevlar tension cables, static self-stress nullspace $\mathbf{A} \mathbf{t}_0 = \mathbf{0}$, geometric stiffness matrix $\mathbf{K}_G(\mathbf{t}_0)$, prestress eigenvalue stiffening $\lambda_{\min} > 0$, and zero kinematic mechanisms ($m = 0$)
 - Superconducting Josephson junction array, Resistively Shunted Junction (RSJ) dynamics, Ambegaokar-Baratoff Cooper pair tunneling, dissipationless supercurrent zero-voltage state ($V=0$), resistive branch transition at $I_{\text{bias}} > I_c$ with live voltage drop $V = R_N\sqrt{I^2-I_c^2}$ and high-frequency AC Josephson oscillations ($f_J = 2eV/h$), and topological fluxoid quantization $\oint \nabla\phi\cdot d\mathbf{l} = 2\pi n$ across closed SQUID loops ('O','O','D')
 - Pure semantic HTML5 + CSS3 scriptless state machine architecture, mutually exclusive input radio controllers, CSS `:has()` parent-selector reactive styling, CSS `counter-increment` dynamic checklists, accessible `<details>` data dossiers, and zero-JavaScript cassette futurism industrial design system
+- Haute Horlogerie grand complication procedural CSS engineering: 3D exhibition sapphire caseback flip (`perspective: 1400px`, `preserve-3d`, `rotateY(180deg)`), 60-second flying tourbillon regulator (3 Hz / 21,600 vph balance oscillation), astronomical moonphase display, 72-hour power reserve sector, monopusher chronograph, procedural guilloché engine-turning (`repeating-conic-gradient` + radial masks), Côtes de Genève (Geneva waves), perlage, and UV Super-LumiNova luminescence under zero JavaScript runtime
+
 
 
 ## Mechanism Lineage
@@ -123,6 +125,8 @@
 - 059: 10 discrete compression struts of "HELLO WORLD" suspended in 29 Kevlar tension cables → tensegrity self-stress nullspace equilibrium A t_0 = 0 → geometric stiffness matrix K_G → prestress stiffening lambda_min = 42.8 -> 94.2 kN/m with zero kinematic mobility (m = 0)
 - 060: 10 superconducting islands of "HELLO WORLD" linked by 9 Josephson weak links → Resistively Shunted Junction (RSJ) dynamics → zero-voltage dissipationless state (V = 0) vs resistive branch transition at I_bias = 1.80 I_c (V = 4.31 uV, f_J = 2084.53 GHz) → topological fluxoid quantization oint grad phi . dl = 2 pi n in 3 closed SQUID loops ('O','O','D')
 - 201: AETHEL-OS / Hello World Colony OS → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → mutually exclusive radio bay selectors → skippable POST boot sequence with reduced-motion bypass → CSS :has() dynamic power grid load-shedding → CSS counter hardware diagnostics tally → 8 integrated colony modules
+- 202: Chronomètre Mécanique N° 202 → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → spatial 3D exhibition sapphire caseback flip (`perspective: 1400px`, `preserve-3d`, `rotateY(180deg)`) → 60s flying tourbillon carriage (1 RPM) & balance wheel (3 Hz / 21,600 vph) → astronomical moonphase & 72h power reserve sector → 3-alloy metallurgy matrix (18K Rose Gold, 950 Platinum, Grade 5 Titanium) → 2.5x horological loupe optical magnification → 365nm UV darkroom Super-LumiNova phosphorescence
+
 
 ## Design Lineage
 - 001: Architectural engineering schematic with subtle 40px grid, ivory letterforms, cyan/amber/crimson strain accents
@@ -185,6 +189,8 @@
 - 059: 1968 Kenneth Snelson / Buckminster Fuller Tensegrity Aerospace Mast Testbed with dark titanium slate casing, glowing amber Kevlar tension cables, and carbon fiber compression struts
 - 060: 1978 IBM Watson Research Dilution Refrigerator Cryostat at 15 mK with gold-plated thermal bus bars, cryogenic shields, phase phasors, SQUID fluxon loops, and real-time RSJ oscilloscope
 - 201: 1984 aerospace computer architecture deployed at 2180 off-world colony with charcoal chassis, oxidized olive plates, warm bone placards, rust/amber status indicators, segmented analog meters, and zero CRT effects
+- 202: Haute Horlogerie Grand Complication with hand-turned guilloché dial, fluted winding crown, 60s flying tourbillon, 3D exhibition sapphire caseback with Côtes de Genève & perlage, blued Breguet hands, and 365nm Super-LumiNova luminescence under zero JavaScript
+
 
 ## Repetition Watch
 Repeated patterns to avoid in future runs:
@@ -518,24 +524,25 @@ Recently successful alternatives:
 - 114: Completed and sealed (Data Transformation Frontier: Hamming [7, 4] Error Correction Pipeline).
 - 115: Completed and sealed (Material / Metaphor Frontier: 1804 Jacquard Programmable Punch-Card Loom & Textile Weave Mechanics).
 
-## Special Experiments (201)
+## Special Experiments (201-202)
 - 201: Completed and sealed (AETHEL-OS // Hello World Colony Operating System).
+- 202: Completed and sealed (Chronomètre Mécanique N° 202 // Grand Complication Astronomique).
 
 # CURRENT
-Experiment: 201 (AETHEL-OS // Colony Operating System)
+Experiment: 202 (Chronomètre Mécanique N° 202 // Grand Complication Astronomique)
 Status: COMPLETED
-Goal and acceptance criterion: Experiment 201 complete with 100% pure HTML+CSS (zero JavaScript), Cassette Futurism x Brutalism design without CRT effects, 8 substantive interconnected modules, skippable bootloader, verified responsive across all viewports, dependency certified, complete documentation, and sealed 201.html.
-Intended frontier contribution: Scriptless industrial operating system state machine architecture and brutalist space aerospace aesthetic.
+Goal and acceptance criterion: Experiment 202 complete with 100% pure semantic HTML+CSS (zero JavaScript), Haute Horlogerie grand complication procedural aesthetic, 3D exhibition sapphire caseback flip, 60s flying tourbillon, moonphase, 72h power reserve sector, monopusher chronograph, 3 alloy variations, 2.5x horological loupe, 365nm UV Super-LumiNova darkroom, dependency certified, verified responsive across all viewports via Chromium CDP, complete documentation, and sealed 202.html.
+Intended frontier contribution: Pure CSS mechanical horology and spatial micro-engineering state engine.
 Current novelty risk: None.
-Current visual repetition risk: None (unique brutalist space industrial aesthetic).
+Current visual repetition risk: None (unique luxury horological mechanical aesthetic).
 Current complexity risk: None (pure HTML/CSS, robust maintainable design system).
-Last verified progress: 201 sealed and verified (dependency-check passed OK, responsive Chrome testing passed OK).
+Last verified progress: 202 sealed and verified (dependency-check passed OK, responsive Chrome testing passed OK).
 Last error signature: None.
 Same-error repetition: 0
 No-progress attempts: 0
 Strategy changes: 0
 Total development-test cycles: 2 (dev -> verification -> seal).
-Recently attempted solutions: Sealed 201.
+Recently attempted solutions: Sealed 202.
 Next ONE concrete action: Run ./generate-readme.sh, commit & push.
 
 # NOTES
@@ -543,5 +550,7 @@ Next ONE concrete action: Run ./generate-readme.sh, commit & push.
 - Frontier Atlas 101-115 sealed historical run preserved intact.
 - Sequential run 051-060 completed and sealed.
 - Experiment 201 completed as a standalone pure HTML/CSS (zero JavaScript) industrial operating system artwork.
+- Experiment 202 completed as an autonomous pure HTML/CSS (zero JavaScript) Haute Horlogerie masterpiece.
 - All evidence strictly derived from live state without assertion constants.
 - Causal Hello World integration preserved across all experiments.
+
