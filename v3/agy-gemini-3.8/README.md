@@ -2,7 +2,7 @@
 
 [Repository index](../../README.md) · [Version prompt](../PROMPT.md)
 
-**65 base experiments** · 65 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
+**75 base experiments** · 75 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
 
 Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinished.
 
@@ -305,6 +305,66 @@ Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinishe
 [Demo](050/050.html) · [Report](050/report.md) · [Journal](050/journal.md) · [Screenshot](050/screenshot.png)
 
 ![Experiment 050](050/screenshot.png)
+
+## 051 — Experiment Report: 051 — Hele-Shaw Saffman-Taylor Viscous Fingering & Darcy Pressure Manifold
+
+[Demo](051/051.html) · [Report](051/report.md) · [Journal](051/journal.md) · [Screenshot](051/screenshot.png)
+
+![Experiment 051](051/screenshot.png)
+
+## 052 — Experiment Report: 052 — Ultrasonic Phased Array Holographic Levitation & Gor'kov Acoustic Potential
+
+[Demo](052/052.html) · [Report](052/report.md) · [Journal](052/journal.md) · [Screenshot](052/screenshot.png)
+
+![Experiment 052](052/screenshot.png)
+
+## 053 — Experiment Report: 053 — Nematic Liquid Crystal Schlieren Textures & Frank-Oseen Director Field
+
+[Demo](053/053.html) · [Report](053/report.md) · [Journal](053/journal.md) · [Screenshot](053/screenshot.png)
+
+![Experiment 053](053/screenshot.png)
+
+## 054 — Experiment Report: 054 — Poincaré Disk Conformal Hyperbolic Tessellation & Möbius Isometries
+
+[Demo](054/054.html) · [Report](054/report.md) · [Journal](054/journal.md) · [Screenshot](054/screenshot.png)
+
+![Experiment 054](054/screenshot.png)
+
+## 055 — Experiment Report: 055 — Belousov-Zhabotinsky Excitable Medium & Oregonator Spiral Wave Pinning
+
+[Demo](055/055.html) · [Report](055/report.md) · [Journal](055/journal.md) · [Screenshot](055/screenshot.png)
+
+![Experiment 055](055/screenshot.png)
+
+## 056 — Experiment Report: 056 — Magnetohydrodynamic Liquid Metal Channel Flow & Hartmann Layers
+
+[Demo](056/056.html) · [Report](056/report.md) · [Journal](056/journal.md) · [Screenshot](056/screenshot.png)
+
+![Experiment 056](056/screenshot.png)
+
+## 057 — Experiment Report: 057 — Granular Size-Segregation & Kinetic Sieving
+
+[Demo](057/057.html) · [Report](057/report.md) · [Journal](057/journal.md) · [Screenshot](057/screenshot.png)
+
+![Experiment 057](057/screenshot.png)
+
+## 058 — Experiment Report: 058 — Rayleigh-Bénard Convection Rolls & Boussinesq Buoyancy
+
+[Demo](058/058.html) · [Report](058/report.md) · [Journal](058/journal.md) · [Screenshot](058/screenshot.png)
+
+![Experiment 058](058/screenshot.png)
+
+## 059 — Experiment Report: 059 — Tensegrity Prestress Self-Equilibrium & Cable-Strut Stiffening
+
+[Demo](059/059.html) · [Report](059/report.md) · [Journal](059/journal.md) · [Screenshot](059/screenshot.png)
+
+![Experiment 059](059/screenshot.png)
+
+## 060 — Experiment Report: 060 — Superconducting Josephson Junction Array & Fluxoid Quantization
+
+[Demo](060/060.html) · [Report](060/report.md) · [Journal](060/journal.md) · [Screenshot](060/screenshot.png)
+
+![Experiment 060](060/screenshot.png)
 
 ## 101 — Experiment Report: 101 — Interaction & Viscoelastic Direct Manipulation Frontier ("HELLO WORLD")
 

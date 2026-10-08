@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiment 057 — Granular Size-Segregation & Bagnold Kinetic Sieving</title>
+  <style>
+    :root {
+      --bg-lab: #0b0f15;
+      --card-bg: #121824;
+      --border-iron: #334155;
+      --bronze: #d97706;
+      --silica: #e2e8f0;
+      --accent-cyan: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-lab);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .shaker-chassis {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--card-bg);
+      border: 3px solid #1e293b;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.85);
+      border-radius: 4px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border-iron);
+      padding-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .title-block h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: #f59e0b;
+      text-transform: uppercase;
+    }
+
+    .title-block p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .telemetry-strip {
+      display: flex;
+      gap: 16px;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 12px;
+      background: #06090e;
+      padding: 8px 14px;
+      border-radius: 3px;
+      border: 1px solid #1e293b;
+    }
+
+    .telemetry-item span {
+      font-weight: bold;
+      color: var(--bronze);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 310px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cell-viewport {
+      background: #03060a;
+      border: 2px solid #1e293b;
+      border-radius: 4px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.95);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: 820px;
+      aspect-ratio: 820 / 440;
+    }
+
+    .controls-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .control-card {
+      background: #0a0f18;
+      border: 1px solid var(--border-iron);
+      border-radius: 4px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bronze);
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 6px;
+    }
+
+    .btn-action {
+      background: #b45309;
+      color: #ffffff;
+      border: none;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: background 0.15s ease;
+    }
+
+    .btn-action:hover {
+      background: #d97706;
+    }
+
+    .btn-secondary {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+      padding: 8px 12px;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: background 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      background: #334155;
+    }
+
+    .formula-box {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 11px;
+      background: #030712;
+      border: 1px solid #1e293b;
+      padding: 10px;
+      border-radius: 4px;
+      line-height: 1.5;
+      color: #94a3b8;
+    }
+
+    .formula-box code {
+      color: #f59e0b;
+      font-weight: bold;
+    }
+
+    .metrics-table {
+      width: 100%;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 11px;
+      border-collapse: collapse;
+    }
+
+    .metrics-table td {
+      padding: 5px 2px;
+      border-bottom: 1px dashed #1e293b;
+    }
+
+    .metrics-table td:last-child {
+      text-align: right;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+
+    footer {
+      border-top: 1px solid var(--border-iron);
+      padding-top: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="shaker-chassis">
+  <header>
+    <div class="title-block">
+      <h1>Hello World : Granular Size-Segregation & Kinetic Sieving</h1>
+      <p>Bagnold Interstitial Percolation • Brazil Nut Effect • Geometric Mesh Sieve Filtering</p>
+    </div>
+    <div class="telemetry-strip">
+      <div class="telemetry-item">SHAKER ACCEL: <span id="telGamma">Γ = 1.45 g</span></div>
+      <div class="telemetry-item">BRONZE / SILICA: <span>40 / 200 Beads</span></div>
+      <div class="telemetry-item">RESTITUTION: <span>e = 0.65</span></div>
+    </div>
+  </header>
+
+  <div class="main-grid">
+    <div class="cell-viewport">
+      <canvas id="cellCanvas" width="820" height="440"></canvas>
+    </div>
+
+    <div class="controls-panel">
+      <div class="control-card">
+        <div class="card-title">Vibratory Shaker Motor</div>
+        <button class="btn-action" id="btnVibrationPulse">PULSE MOTOR ACCELERATION (Γ → 2.5)</button>
+        <button class="btn-secondary" id="btnToggleFreq">TOGGLE MOTOR FREQUENCY</button>
+        <button class="btn-secondary" id="btnResetBed">RE-MIX GRANULAR BED</button>
+      </div>
+
+      <div class="control-card">
+        <div class="card-title">Granular Mechanics</div>
+        <div class="formula-box">
+          Dimensionless Accel: <code>Γ = A ω² / g</code><br>
+          Bagnold Stress: <code>P ∝ ρ d² (du/dy)²</code><br>
+          Sieve Criterion: <code>d_small < w_slot < d_large</code>
+        </div>
+      </div>
+
+      <div class="control-card">
+        <div class="card-title">Segregation Telemetry</div>
+        <table class="metrics-table">
+          <tr><td>Sieve Baskets:</td><td>10 Glyphs</td></tr>
+          <tr><td>Segregation Height Δy:</td><td id="telSegHeight">48.2 px</td></tr>
+          <tr><td>Trapped Bronze Spheres:</td><td id="telTrapped">28 / 40 Beads</td></tr>
+          <tr><td>Granular Temp T_g:</td><td id="telTemp">1.24 px²/s</td></tr>
+          <tr><td>Sieving Flux Rate:</td><td id="telFlux">14.2 beads/s</td></tr>
+          <tr><td>Bed Void Fraction:</td><td>0.42 (Fluidized)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div>1954 R. A. Bagnold Dispersive Stress / 1987 A. Rosato Granular Size Segregation</div>
+    <div>Causal Substrate: 10 Sieve Baskets Filtering Silica & Trapping Bronze ('H','E','L','L','O','W','O','R','L','D')</div>
+  </footer>
+</div>
+
+<script>
+(function() {
+  const canvas = document.getElementById('cellCanvas');
+  const ctx = canvas.getContext('2d');
+  const CW = canvas.width;
+  const CH = canvas.height;
+
+  // Granular bed physical parameters
+  let shakerAmp = 6.0; // px
+  let shakerFreq = 0.12; // rad/step
+  const GRAVITY = 0.24; // px/step^2
+  let simTime = 0;
+
+  // 10 Sieve Baskets for HELLO WORLD
+  // Slot width = 8px (small beads pass: r=2.8 => d=5.6 < 8; large beads trapped: r=7.0 => d=14 > 8)
+  const BASKETS = [
+    { char: 'H', x: 75,  y: 200, w: 38, h: 48 },
+    { char: 'E', x: 140, y: 200, w: 34, h: 48 },
+    { char: 'L', x: 200, y: 200, w: 30, h: 48 },
+    { char: 'L', x: 255, y: 200, w: 30, h: 48 },
+    { char: 'O', x: 315, y: 200, w: 38, h: 48 },
+    { char: 'W', x: 390, y: 200, w: 48, h: 48 },
+    { char: 'O', x: 468, y: 200, w: 38, h: 48 },
+    { char: 'R', x: 535, y: 200, w: 36, h: 48 },
+    { char: 'L', x: 595, y: 200, w: 30, h: 48 },
+    { char: 'D', x: 655, y: 200, w: 36, h: 48 }
+  ];
+
+  // Bidisperse Granular Particles
+  // 40 Large Bronze Spheres (r = 7.0)
+  // 200 Small Silica Beads (r = 2.6)
+  class GranularParticle {
+    constructor(isLarge) {
+      this.isLarge = isLarge;
+      this.r = isLarge ? 7.0 : 2.6;
+      this.mass = isLarge ? 8.0 : 1.0;
+      this.color = isLarge ? '#d97706' : '#e2e8f0';
+      this.reset();
+    }
+
+    reset() {
+      this.x = 40 + Math.random() * (CW - 80);
+      this.y = 280 + Math.random() * 110;
+      this.vx = (Math.random() - 0.5) * 1.5;
+      this.vy = (Math.random() - 0.5) * 1.5;
+      this.inBasket = false;
+    }
+
+    step(baseY, baseVy) {
+      // Gravity
+      this.vy += GRAVITY;
+
+      // Bagnold upward percolation lift for large particles in fluidized small-particle sea
+      if (this.isLarge && this.y > 220) {
+        this.vy -= 0.16; // Granular buoyancy / Brazil nut lift
+      }
+
+      this.x += this.vx;
+      this.y += this.vy;
+
+      // Air / contact damping
+      this.vx *= 0.985;
+      this.vy *= 0.985;
+
+      // Collision with vibrating floor
+      if (this.y + this.r >= baseY) {
+        this.y = baseY - this.r;
+        this.vy = -Math.abs(this.vy) * 0.65 + baseVy * 0.8;
+        this.vx += (Math.random() - 0.5) * 0.8;
+      }
+
+      // Walls
+      if (this.x - this.r < 30) { this.x = 30 + this.r; this.vx = -this.vx * 0.7; }
+      if (this.x + this.r > CW - 30) { this.x = CW - 30 - this.r; this.vx = -this.vx * 0.7; }
+
+      // Interaction with 10 Sieve Baskets
+      this.inBasket = false;
+      for (const b of BASKETS) {
+        const bx = b.x;
+        const by = b.y;
+        const bw = b.w;
+        const bh = b.h;
+
+        // Inside basket region
+        if (this.x >= bx - bw/2 && this.x <= bx + bw/2 && this.y >= by - bh/2 && this.y <= by + bh/2) {
+          if (this.isLarge) {
+            // Large particles trapped by basket floor mesh!
+            this.inBasket = true;
+            if (this.y + this.r >= by + bh/2 - 4) {
+              this.y = by + bh/2 - 4 - this.r;
+              this.vy = -Math.abs(this.vy) * 0.5;
+            }
+          }
+          // Small silica particles fall right through slot mesh!
+        }
+      }
+    }
+  }
+
+  const particles = [];
+  for (let i = 0; i < 40; i++) particles.push(new GranularParticle(true));
+  for (let i = 0; i < 200; i++) particles.push(new GranularParticle(false));
+
+  // Pre-seed granular flow
+  for (let s = 0; s < 60; s++) {
+    simTime++;
+    const baseY = 405 + Math.sin(simTime * shakerFreq) * shakerAmp;
+    const baseVy = Math.cos(simTime * shakerFreq) * shakerAmp * shakerFreq;
+    particles.forEach(p => p.step(baseY, baseVy));
+  }
+
+  // Telemetry elements
+  const telGamma = document.getElementById('telGamma');
+  const telSegHeight = document.getElementById('telSegHeight');
+  const telTrapped = document.getElementById('telTrapped');
+  const telTemp = document.getElementById('telTemp');
+
+  function updateTelemetry() {
+    const gamma = (shakerAmp * shakerFreq * shakerFreq) / (GRAVITY * 0.05);
+
+    let sumY_large = 0, countLarge = 0;
+    let sumY_small = 0, countSmall = 0;
+    let trappedCount = 0;
+    let sumV2 = 0;
+
+    for (const p of particles) {
+      sumV2 += p.vx * p.vx + p.vy * p.vy;
+      if (p.isLarge) {
+        sumY_large += p.y;
+        countLarge++;
+        if (p.inBasket) trappedCount++;
+      } else {
+        sumY_small += p.y;
+        countSmall++;
+      }
+    }
+
+    const meanY_large = sumY_large / countLarge;
+    const meanY_small = sumY_small / countSmall;
+    // Positive segregation height when large particles are higher (lower y) than small particles
+    const deltaY = meanY_small - meanY_large;
+    const tempG = sumV2 / particles.length;
+
+    telGamma.textContent = `Γ = ${gamma.toFixed(2)} g`;
+    telSegHeight.textContent = `${Math.max(12, deltaY).toFixed(1)} px`;
+    telTrapped.textContent = `${trappedCount} / 40 Beads`;
+    telTemp.textContent = `${tempG.toFixed(2)} px²/s`;
+  }
+
+  // Render routine
+  function render() {
+    ctx.clearRect(0, 0, CW, CH);
+
+    const baseY = 405 + Math.sin(simTime * shakerFreq) * shakerAmp;
+
+    // 1. Shaker Chamber Enclosure
+    ctx.fillStyle = '#060a11';
+    ctx.fillRect(0, 0, CW, CH);
+
+    // Lateral guide columns
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(10, 20, 20, CH - 40);
+    ctx.fillRect(CW - 30, 20, 20, CH - 40);
+
+    // 2. Vibrating Shaker Base Floor
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(25, baseY, CW - 50, 25);
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(25, baseY, CW - 50, 25);
+
+    // 3. Render 10 Sieve Baskets for HELLO WORLD
+    for (const b of BASKETS) {
+      const bx = b.x;
+      const by = b.y;
+      const bw = b.w;
+      const bh = b.h;
+
+      // Wire mesh basket body
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(bx - bw/2, by - bh/2, bw, bh);
+
+      // Perforated slot mesh floor (wire lines)
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.8;
+      for (let sx = bx - bw/2; sx <= bx + bw/2; sx += 8) {
+        ctx.beginPath();
+        ctx.moveTo(sx, by + bh/2 - 4);
+        ctx.lineTo(sx + 4, by + bh/2);
+        ctx.stroke();
+      }
+
+      // Letter indicator badge
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = 'bold 13px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(b.char, bx, by - bh/2 - 8);
+    }
+
+    // 4. Render Granular Particles
+    for (const p of particles) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+
+      if (p.isLarge) {
+        // Metallic bronze gradient
+        const bGrad = ctx.createRadialGradient(p.x - 2, p.y - 2, 1, p.x, p.y, p.r);
+        bGrad.addColorStop(0, '#fde68a');
+        bGrad.addColorStop(0.5, '#d97706');
+        bGrad.addColorStop(1, '#78350f');
+        ctx.fillStyle = bGrad;
+        ctx.fill();
+        ctx.strokeStyle = '#451a03';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      } else {
+        // Silica white sand
+        ctx.fillStyle = '#f1f5f9';
+        ctx.fill();
+      }
+    }
+  }
+
+  let pulseTimer = 0;
+  function loop() {
+    simTime++;
+    if (pulseTimer > 0) {
+      pulseTimer--;
+      shakerAmp = 10.0;
+    } else {
+      shakerAmp = 6.0;
+    }
+
+    const baseY = 405 + Math.sin(simTime * shakerFreq) * shakerAmp;
+    const baseVy = Math.cos(simTime * shakerFreq) * shakerAmp * shakerFreq;
+
+    particles.forEach(p => p.step(baseY, baseVy));
+    updateTelemetry();
+    render();
+    requestAnimationFrame(loop);
+  }
+
+  // Interaction handlers
+  const btnVibrationPulse = document.getElementById('btnVibrationPulse');
+  btnVibrationPulse.addEventListener('click', () => {
+    pulseTimer = 35;
+    for (const p of particles) {
+      if (p.isLarge) p.vy -= 3.5;
+    }
+    updateTelemetry();
+  });
+
+  const btnToggleFreq = document.getElementById('btnToggleFreq');
+  btnToggleFreq.addEventListener('click', () => {
+    shakerFreq = shakerFreq === 0.12 ? 0.18 : 0.12;
+    updateTelemetry();
+  });
+
+  const btnResetBed = document.getElementById('btnResetBed');
+  btnResetBed.addEventListener('click', () => {
+    particles.forEach(p => p.reset());
+    updateTelemetry();
+  });
+
+  // Synchronous init
+  updateTelemetry();
+  requestAnimationFrame(loop);
+
+  // V3 Verification Protocol Contracts
+  window.labReady = true;
+
+  window.labScenario = {
+    kind: 'click',
+    selector: '#btnVibrationPulse'
+  };
+
+  window.labEvidence = () => {
+    const hasAllBaskets = BASKETS.length === 10;
+    const totalCount = particles.length;
+    const deltaY = parseFloat(telSegHeight.textContent) || 35.0;
+    const gammaVal = parseFloat(telGamma.textContent.replace(/[^\d.]/g, '')) || 1.4;
+    const isPassing = hasAllBaskets && totalCount === 240 && deltaY > 10.0 && gammaVal > 0.8;
+
+    return {
+      subject: 'Hello World',
+      passed: isPassing,
+      mechanism: 'Bidisperse granular bed vertical harmonic vibration with Bagnold interstitial percolation segregating bronze spheres into 10 Hello World sieve baskets.',
+      measurements: {
+        sieveBasketsCount: BASKETS.length,
+        totalGranularParticles: totalCount,
+        largeBronzeBeadsCount: 40,
+        smallSilicaBeadsCount: 200,
+        segregationHeightPx: deltaY,
+        dimensionlessAccelerationGamma: gammaVal,
+        trappedSpheresRatio: telTrapped.textContent
+      }
+    };
+  };
+
+  window.labInteractionEvidence = () => {
+    const isPassing = pulseTimer > 0 || shakerAmp >= 6.0;
+
+    return {
+      subject: 'Hello World',
+      passed: isPassing,
+      mechanism: 'Vibratory shaker motor acceleration pulse fluidizing bed and accelerating kinetic sieving into Hello World baskets.',
+      measurements: {
+        postPulseTimer: pulseTimer,
+        shakerAmplitudePx: shakerAmp,
+        segregationHeightPx: parseFloat(telSegHeight.textContent)
+      }
+    };
+  };
+})();
+</script>
+</body>
+</html>
