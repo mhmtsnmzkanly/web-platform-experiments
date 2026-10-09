@@ -133,6 +133,7 @@
 - 203: Chambre Noire d'Atelier N° 203 → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → 3D camera isometric perspective (`rotateY(-18deg) rotateX(4deg)`) → articulated triple-extension leather accordion bellows → camera obscura inverted projection (`scale(-1, -1)`) of Parisian atelier still life (bust, globe, manuscript) → Petzval iris diaphragm (f/2.8 bokeh orbs to f/64 pinhole) → rack-and-pinion focus rail shifting depth planes → Scheimpflug standard tilt (+12° / +14°) → pneumatic squeeze bulb shutter snap → 4 historical chemical emulsion processes (Collodion, Cyanotype, Platinotype, Autochrome)
 - 204: OPUS OPTICUM / Kinetic Op-Art & Gestalt Typographic Pavilion → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → relational state engine (`:has()`) → counter-rotating radial/conic optical gratings → `mix-blend-mode: difference` wave interference fringes → 3D Vasarely spherical bulging → Kanizsa negative-space illusory contour matrix → retinal opponent-process chromatic shimmer → anamorphic vortex funnel → multi-scale frequency, tempo & museum lighting controls
 - 205: TYPO-METRIC / Modular Typographic Workstation & Token Generator → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → pure CSS `calc()` geometric progression modular scale engine (6 ratios: 1.125 to 1.618) → cascading line height & letter spacing tokens → relational state engine (`:has()`) → 4 interactive workspaces (contenteditable Scale Ladder, Editorial In-Situ, UI Components, Token Export) → 4 workstation themes (Slate, Light, Vellum, OLED) → 8px baseline grid & 68ch measure diagnostics → `@media print` Spec Folio PDF export
+- 206: HADAL-7 / Bathymetric Deep-Trench Probe & Oceanic Stratigraphic Atlas → 100% pure semantic HTML5 + CSS3 (zero JavaScript) → native CSS scroll-driven animations (`animation-timeline: scroll(root block)`) driving depth vernier tape, hydrostatic pressure bar ($1\,\text{atm} \to 1,086\,\text{atm}$ / $110.1\,\text{MPa}$), Beer-Lambert water column optical extinction, and marine snow multi-layer parallax → CSS Anchor Positioning (`anchor-name`, `position-anchor`, `position-area: block-end span-inline-end`, `position-try-fallbacks`) tethering dynamic scientific telemetry callouts to benthic specimens → container queries (`container-type: inline-size`) for responsive telemetry pods → `:has()` multi-spectral sensor engine (Optical, Biolum 470nm, Sonar, Thermal IR) → causal hydroacoustic benthic transponder transmitting `"HELLO WORLD"` carrier wave
 
 
 
@@ -202,6 +203,7 @@
 - 203: 1888 Parisian optical and photographic atelier bench with Cuban mahogany cabinetry, knurled brass thumbscrews, liquid spirit levels, pleated leather bellows, frosted ground glass, and 630nm darkroom ruby safelight illumination under zero JavaScript
 - 204: Contemporary Kunsthalle / Tate Modern avant-garde exhibition hall with minimalist Swiss international typography, razor-sharp floating curatorial pills, monumental Op-Art canvas, and obsidian / white-cube / neon gallery lighting under zero JavaScript
 - 205: Production-grade developer and designer typographic utility workstation with Slate Dark, Studio Light, Warm Vellum, and OLED contrast themes, Swiss rationalist precision controls, reactive 8px baseline grid, and high-fidelity design system token export under zero JavaScript
+- 206: Deep-sea oceanic exploration trench probe and bathymetric stratigraphic atlas with titanium cockpit framing, vernier depth tapes, hydrostatic pressure bar, circular acoustic echogram radar, and sunlit cyan to abyssal obsidian OKLCH optical extinction under zero JavaScript
 
 
 
@@ -462,6 +464,7 @@ Recently successful alternatives:
 - 100% pure semantic HTML5 + CSS3, 0 JavaScript, 0 external dependencies, 3D camera isometric perspective, triple-extension bellows, inverted ground glass projection, Petzval iris diaphragm f/2.8-f/64, rack-and-pinion focus rail, Scheimpflug tilt, verified responsive across viewports established in 203.
 - 100% pure semantic HTML5 + CSS3, 0 JavaScript, 0 external dependencies, counter-rotating differential gratings, moiré wave interference, 3D Vasarely spherical bulging, Kanizsa illusory contours, retinal chromatic vibration, verified responsive across viewports established in 204.
 - 100% pure semantic HTML5 + CSS3, 0 JavaScript, 0 external dependencies, pure CSS calc() modular scale engine (6 geometric ratios), live contenteditable ladder specimens, UI component stress tests, syntax-highlighted token export, @media print design system handoff folio, verified responsive across viewports established in 205.
+- 100% pure semantic HTML5 + CSS3, 0 JavaScript, 0 external dependencies, native CSS scroll-driven animations (`animation-timeline: scroll(root block)`), CSS Anchor Positioning (`anchor-name`, `position-anchor`, `position-area`, `position-try-fallbacks`), container queries (`container-type: inline-size`), 4-channel spectral sensor selection via `:has()`, verified responsive across 390px, 768px, 1280px, and 1920px viewports established in 206.
 
 # PROGRESS
 - 001: Completed and sealed (Topological Glyph Vector Deformation & Curvature Stress Field).
@@ -542,28 +545,29 @@ Recently successful alternatives:
 - 114: Completed and sealed (Data Transformation Frontier: Hamming [7, 4] Error Correction Pipeline).
 - 115: Completed and sealed (Material / Metaphor Frontier: 1804 Jacquard Programmable Punch-Card Loom & Textile Weave Mechanics).
 
-## Special Experiments (201-205)
+## Special Experiments (201-206)
 - 201: Completed and sealed (AETHEL-OS // Hello World Colony Operating System).
 - 202: Completed and sealed (Chronomètre Mécanique N° 202 // Grand Complication Astronomique).
 - 203: Completed and sealed (Chambre Noire d'Atelier N° 203 // Grand Format 8×10 Pouces).
 - 204: Completed and sealed (OPUS OPTICUM // Pavillon d'Art Cinétique & Typographie Gestalt).
 - 205: Completed and sealed (TYPO-METRIC // Accessible Modular Typographic Workstation & Token Generator).
+- 206: Completed and sealed (HADAL-7 // Bathymetric Deep-Trench Probe & Oceanic Stratigraphic Atlas).
 
 # CURRENT
-Experiment: 205 (TYPO-METRIC // Accessible Modular Typographic Workstation & Token Generator)
+Experiment: 206 (HADAL-7 // Bathymetric Deep-Trench Probe & Oceanic Stratigraphic Atlas)
 Status: COMPLETED
-Goal and acceptance criterion: Experiment 205 complete with 100% pure semantic HTML+CSS (zero JavaScript), credible real-world utility product for design engineers and font leads, pure CSS calc() modular scale engine (6 geometric ratios), live editable specimens via contenteditable, editorial and UI component testing suites, syntax-highlighted token export, @media print design system handoff folio, dependency certified, verified across viewports via Chromium CDP, and sealed 205.html.
-Intended frontier contribution: Zero-JavaScript real-world utility product interface, mathematical CSS custom properties scaling engine, and accessible production tooling.
+Goal and acceptance criterion: Experiment 206 complete with 100% pure semantic HTML+CSS (zero JavaScript), epic 11,000-meter vertical descent down the Mariana Trench into Challenger Deep, native CSS scroll-driven animations (`animation-timeline: scroll(root block)`) driving depth vernier tape, hydrostatic pressure bar ($1\,\text{atm} \to 1,086\,\text{atm}$), optical Beer-Lambert water extinction, and marine snow multi-layer parallax, CSS Anchor Positioning (`anchor-name`, `position-anchor`, `position-area`, `position-try-fallbacks`) tethering scientific telemetry callouts to deep-sea specimens, container queries (`container-type: inline-size`), 4-channel spectral sensor selection via `:has()` (Optical, Biolum 470nm, Sonar, Thermal IR), causal hydroacoustic transponder transmitting `"HELLO WORLD"` carrier broadcast at benthic floor, dependency certified, verified across viewports via Chromium CDP, and sealed 206.html.
+Intended frontier contribution: Zero-JavaScript scroll-driven environmental timelines, CSS Anchor Positioning, container queries, and oceanic earth science cartography.
 Current novelty risk: None.
-Current visual repetition risk: None (transition from fine art / Op-Art to crisp, high-density utility tool).
-Current complexity risk: None (pure HTML/CSS, robust maintainable design system).
-Last verified progress: 205 sealed and verified (dependency-check passed OK, responsive Chrome testing passed OK).
+Current visual repetition risk: None (radical departure from mechanical objects, terminals, Op-Art, and SaaS forms into vertical deep-ocean scientific exploration).
+Current complexity risk: None (pure HTML/CSS, robust maintainable architecture).
+Last verified progress: 206 sealed and verified (dependency-check passed OK, responsive Chrome testing passed OK).
 Last error signature: None.
 Same-error repetition: 0
 No-progress attempts: 0
 Strategy changes: 0
 Total development-test cycles: 2 (dev -> verification -> seal).
-Recently attempted solutions: Sealed 205.
+Recently attempted solutions: Sealed 206.
 Next ONE concrete action: Run ./generate-readme.sh, commit & push.
 
 # NOTES
@@ -575,6 +579,7 @@ Next ONE concrete action: Run ./generate-readme.sh, commit & push.
 - Experiment 203 completed as an autonomous pure HTML/CSS (zero JavaScript) 1888 large-format camera obscura atelier masterpiece.
 - Experiment 204 completed as an autonomous pure HTML/CSS (zero JavaScript) kinetic Op-Art & Gestalt typographic pavilion.
 - Experiment 205 completed as an autonomous pure HTML/CSS (zero JavaScript) modular typographic workstation utility product.
+- Experiment 206 completed as an autonomous pure HTML/CSS (zero JavaScript) bathymetric deep-trench probe and oceanic stratigraphic atlas.
 - All evidence strictly derived from live state without assertion constants.
 - Causal Hello World integration preserved across all experiments.
 

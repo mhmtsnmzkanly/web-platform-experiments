@@ -2,7 +2,7 @@
 
 [Repository index](../../README.md) · [Version prompt](../PROMPT.md)
 
-**80 base experiments** · 80 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
+**81 base experiments** · 81 sealed · 0 unfinished · 0 historical revisions (excluded from experiment count).
 
 Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinished.
 
@@ -485,4 +485,10 @@ Sealed means the matching `NNN/NNN.html` exists. Development demos are unfinishe
 [Demo](205/205.html) · [Report](205/report.md) · [Journal](205/journal.md) · [Screenshot](205/screenshot.png)
 
 ![Experiment 205](205/screenshot.png)
+
+## 206 — Experiment Report: 206 — HADAL-7 // Bathymetric Deep-Trench Probe & Oceanic Stratigraphic Atlas
+
+[Demo](206/206.html) · [Report](206/report.md) · [Journal](206/journal.md) · [Screenshot](206/screenshot.png)
+
+![Experiment 206](206/screenshot.png)
 

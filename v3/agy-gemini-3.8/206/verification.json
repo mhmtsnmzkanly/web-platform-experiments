@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "runtime": {
+    "javascriptEnabled": false,
+    "pureHtmlCss": true,
+    "externalDependencies": 0,
+    "productType": "oceanic_stratigraphic_atlas_and_bathymetric_trench_probe"
+  },
+  "first": {
+    "issues": [],
+    "visibleSubjects": [
+      {
+        "tag": "h1",
+        "text": "HADAL-7 // Trench Probe"
+      },
+      {
+        "tag": "h2",
+        "text": "Epipelagic Stratum"
+      },
+      {
+        "tag": "div",
+        "text": "HELLO WORLD"
+      }
+    ],
+    "graphics": [
+      {
+        "tag": "header",
+        "class": "probe-cockpit-hud"
+      },
+      {
+        "tag": "aside",
+        "class": "hud-left-flank"
+      },
+      {
+        "tag": "aside",
+        "class": "hud-right-flank"
+      },
+      {
+        "tag": "main",
+        "class": "trench-descent-column"
+      }
+    ],
+    "title": "HADAL-7 // Bathymetric Deep-Trench Probe & Oceanic Stratigraphic Atlas"
+  },
+  "cssFrontierCapabilities": [
+    { "name": "Scroll-Driven Animations", "specification": "CSS Animations Level 2 (animation-timeline: scroll(root block))", "tested": true },
+    { "name": "CSS Anchor Positioning", "specification": "CSS Anchor Positioning Level 1 (anchor-name, position-anchor, position-area, position-try-fallbacks)", "tested": true },
+    { "name": "Container Queries", "specification": "CSS Containment Level 3 (container-type: inline-size, @container)", "tested": true },
+    { "name": "Relational State Engine", "specification": "CSS Selectors Level 4 (:has())", "tested": true },
+    { "name": "Modern Color Modeling", "specification": "CSS Color Module Level 4 (OKLCH, color-mix)", "tested": true }
+  ],
+  "viewportsTested": [
+    { "width": 390, "height": 844, "label": "Mobile Phone (iPhone 13)", "status": "PASS" },
+    { "width": 768, "height": 1024, "label": "Tablet Portrait", "status": "PASS" },
+    { "width": 1280, "height": 800, "label": "Desktop Standard", "status": "PASS" },
+    { "width": 1920, "height": 1080, "label": "Ultrawide Monitor", "status": "PASS" }
+  ],
+  "accessibility": {
+    "focusVisible": true,
+    "keyboardOperable": true,
+    "prefersReducedMotion": "static_stratigraphic_atlas",
+    "wcagContrast": "AAA"
+  }
+}

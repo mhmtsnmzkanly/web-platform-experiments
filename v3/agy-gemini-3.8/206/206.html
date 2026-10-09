@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HADAL-7 // Bathymetric Deep-Trench Probe & Oceanic Stratigraphic Atlas</title>
+  <style>
+    /* ==========================================================================
+       HADAL-7 // OCEANIC STRATIGRAPHIC ATLAS & BATHYMETRIC TRENCH PROBE
+       100% PURE SEMANTIC HTML5 & CSS3 — ZERO JAVASCRIPT RUNTIME
+       Features: Scroll-Driven Animations, CSS Anchor Positioning,
+                 Container Queries, Modern OKLCH Color Space, Relational :has()
+       ========================================================================== */
+
+    :root {
+      /* Core Oceanographic Color Systems in OKLCH */
+      --ocean-surface: oklch(0.58 0.16 230);
+      --ocean-meso: oklch(0.35 0.14 240);
+      --ocean-bathy: oklch(0.18 0.08 250);
+      --ocean-abyss: oklch(0.11 0.04 255);
+      --ocean-hadal: oklch(0.06 0.02 260);
+
+      /* Instrument Palette */
+      --titanium-base: #0a0e14;
+      --titanium-panel: rgba(14, 21, 32, 0.88);
+      --titanium-border: rgba(56, 82, 115, 0.45);
+      --hud-cyan: #00f0ff;
+      --hud-teal: #00e5a3;
+      --hud-amber: #ffb703;
+      --hud-alert: #ff3366;
+      --biolum-blue: #38bdf8;
+      --biolum-violet: #c084fc;
+      --sonar-green: #22c55e;
+      --thermal-infrared: #f97316;
+
+      /* Typography */
+      --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+      color-scheme: dark;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      background-color: var(--ocean-hadal);
+      font-family: var(--font-sans);
+      color: #e2e8f0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      background: var(--titanium-base);
+    }
+
+    /* --------------------------------------------------------------------------
+       SCROLL PROGRESSION & SCROLL-DRIVEN TIMELINES
+       -------------------------------------------------------------------------- */
+    @keyframes progress-grow {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    @keyframes depth-vernier-slide {
+      from { transform: translateY(0%); }
+      to { transform: translateY(-85%); }
+    }
+
+    @keyframes pressure-bar-fill {
+      from { height: 1%; }
+      to { height: 100%; }
+    }
+
+    @keyframes ocean-light-attenuation {
+      0% {
+        background-color: var(--ocean-surface);
+      }
+      18% {
+        background-color: var(--ocean-meso);
+      }
+      45% {
+        background-color: var(--ocean-bathy);
+      }
+      75% {
+        background-color: var(--ocean-abyss);
+      }
+      100% {
+        background-color: var(--ocean-hadal);
+      }
+    }
+
+    @keyframes marine-snow-drift {
+      from { transform: translateY(0); }
+      to { transform: translateY(-300px); }
+    }
+
+    @keyframes marine-snow-drift-deep {
+      from { transform: translateY(0); }
+      to { transform: translateY(-600px); }
+    }
+
+    @keyframes sonar-pulse {
+      0% { transform: scale(0.6); opacity: 0.9; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    @keyframes beacon-ping {
+      0%, 100% { opacity: 0.3; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1.02); filter: drop-shadow(0 0 16px var(--hud-cyan)); }
+    }
+
+    /* --------------------------------------------------------------------------
+       TOP FIXED NAVIGATION & SENSOR ENGINE
+       -------------------------------------------------------------------------- */
+    .probe-cockpit-hud {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(10, 14, 20, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--titanium-border);
+      padding: 0.6rem 1.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+
+    .cockpit-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .probe-insignia {
+      width: 2.2rem;
+      height: 2.2rem;
+      border: 2px solid var(--hud-cyan);
+      border-radius: 4px;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: var(--hud-cyan);
+      background: rgba(0, 240, 255, 0.08);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    }
+
+    .probe-title-group h1 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #f8fafc;
+    }
+
+    .probe-title-group p {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: #94a3b8;
+      letter-spacing: 0.04em;
+    }
+
+    /* Sensor Selector Radios */
+    .sensor-modes-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 0.25rem 0.35rem;
+      border-radius: 6px;
+      border: 1px solid var(--titanium-border);
+    }
+
+    .sensor-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-right: 0.25rem;
+      padding-left: 0.25rem;
+    }
+
+    .sensor-radio-btn {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .sensor-radio-btn input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .sensor-radio-btn span {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.3rem 0.65rem;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      color: #94a3b8;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .sensor-radio-btn:hover span {
+      color: #f1f5f9;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .sensor-radio-btn input[type="radio"]:focus-visible + span {
+      outline: 2px solid var(--hud-cyan);
+      outline-offset: 1px;
+    }
+
+    /* Sensor Selected States */
+    body:has(#sensor-optical:checked) label[for="sensor-optical"] span {
+      background: rgba(0, 240, 255, 0.18);
+      color: var(--hud-cyan);
+      border-color: rgba(0, 240, 255, 0.5);
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+    }
+
+    body:has(#sensor-biolum:checked) label[for="sensor-biolum"] span {
+      background: rgba(192, 132, 252, 0.22);
+      color: var(--biolum-violet);
+      border-color: rgba(192, 132, 252, 0.6);
+      box-shadow: 0 0 10px rgba(192, 132, 252, 0.3);
+    }
+
+    body:has(#sensor-sonar:checked) label[for="sensor-sonar"] span {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--sonar-green);
+      border-color: rgba(34, 197, 94, 0.5);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.25);
+    }
+
+    body:has(#sensor-thermal:checked) label[for="sensor-thermal"] span {
+      background: rgba(249, 115, 22, 0.22);
+      color: var(--thermal-infrared);
+      border-color: rgba(249, 115, 22, 0.6);
+      box-shadow: 0 0 10px rgba(249, 115, 22, 0.3);
+    }
+
+    /* Top Progress Bar driven by scroll timeline */
+    .scroll-progress-line {
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      height: 3px;
+      width: 100%;
+      background: linear-gradient(90deg, var(--hud-cyan), var(--hud-teal), var(--hud-amber));
+      transform-origin: left center;
+      transform: scaleX(0);
+      animation: progress-grow linear both;
+      animation-timeline: scroll(root block);
+    }
+
+    /* --------------------------------------------------------------------------
+       FIXED SIDEBAR TELEMETRY PODS (DESKTOP & TABLET HUD)
+       -------------------------------------------------------------------------- */
+    .hud-left-flank {
+      position: fixed;
+      top: 4.8rem;
+      left: 1.2rem;
+      bottom: 1.5rem;
+      width: 140px;
+      z-index: 80;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      container-type: inline-size;
+      container-name: flank-left;
+    }
+
+    .telemetry-card {
+      background: var(--titanium-panel);
+      border: 1px solid var(--titanium-border);
+      border-radius: 6px;
+      padding: 0.75rem;
+      backdrop-filter: blur(8px);
+      pointer-events: auto;
+      font-family: var(--font-mono);
+    }
+
+    .card-title {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-value {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #f8fafc;
+      letter-spacing: -0.02em;
+    }
+
+    .card-unit {
+      font-size: 0.65rem;
+      color: #64748b;
+      font-weight: 500;
+      margin-left: 0.2rem;
+    }
+
+    /* Vernier Depth Scale */
+    .depth-gauge-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .depth-gauge-track {
+      flex: 1;
+      position: relative;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 4px;
+      border: 1px solid rgba(56, 82, 115, 0.3);
+      overflow: hidden;
+      margin-top: 0.4rem;
+    }
+
+    .depth-vernier-tape {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem 0.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      animation: depth-vernier-slide linear both;
+      animation-timeline: scroll(root block);
+    }
+
+    .tape-tick {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.65rem;
+      color: #64748b;
+    }
+
+    .tape-tick::before {
+      content: "";
+      width: 10px;
+      height: 1px;
+      background: #64748b;
+    }
+
+    .tape-tick.major {
+      color: var(--hud-cyan);
+      font-weight: 700;
+    }
+
+    .tape-tick.major::before {
+      width: 16px;
+      height: 2px;
+      background: var(--hud-cyan);
+    }
+
+    .depth-needle-cursor {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--hud-alert);
+      box-shadow: 0 0 6px var(--hud-alert);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Hydrostatic Pressure Bar */
+    .pressure-gauge-card {
+      margin-top: auto;
+    }
+
+    .pressure-bar-track {
+      width: 100%;
+      height: 60px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--titanium-border);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      margin-top: 0.4rem;
+    }
+
+    .pressure-bar-fill {
+      width: 100%;
+      background: linear-gradient(0deg, var(--hud-teal), var(--hud-amber), var(--hud-alert));
+      height: 1%;
+      animation: pressure-bar-fill linear both;
+      animation-timeline: scroll(root block);
+    }
+
+    /* Right Flank Telemetry */
+    .hud-right-flank {
+      position: fixed;
+      top: 4.8rem;
+      right: 1.2rem;
+      bottom: 1.5rem;
+      width: 170px;
+      z-index: 80;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      container-type: inline-size;
+      container-name: flank-right;
+    }
+
+    .sonar-radar-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .sonar-screen {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.08) 0%, rgba(10, 14, 20, 0.95) 100%);
+      border: 1.5px solid rgba(34, 197, 94, 0.4);
+      position: relative;
+      overflow: hidden;
+      margin: 0.5rem 0;
+      box-shadow: inset 0 0 15px rgba(34, 197, 94, 0.2);
+    }
+
+    .sonar-screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px dashed rgba(34, 197, 94, 0.25);
+      margin: 15px;
+    }
+
+    .sonar-ping-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 40px;
+      height: 40px;
+      margin-top: -20px;
+      margin-left: -20px;
+      border-radius: 50%;
+      border: 1.5px solid var(--sonar-green);
+      animation: sonar-pulse 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+    }
+
+    .sonar-sweep-line {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 50px;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent, var(--sonar-green));
+      transform-origin: 0% 50%;
+      animation: sweep-spin 4s linear infinite;
+    }
+
+    @keyframes sweep-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Container Queries for Telemetry Pods */
+    @container flank-right (max-width: 160px) {
+      .card-value { font-size: 0.88rem; }
+      .sonar-screen { width: 90px; height: 90px; }
+    }
+
+    /* --------------------------------------------------------------------------
+       CENTRAL OCEANIC STRATIGRAPHIC COLUMN
+       The vertical trench descent represents 0m down to -10,935m.
+       -------------------------------------------------------------------------- */
+    .trench-descent-column {
+      position: relative;
+      width: 100%;
+      max-width: 980px;
+      margin: 0 auto;
+      padding-top: 5rem;
+      padding-bottom: 4rem;
+      padding-left: 170px;
+      padding-right: 190px;
+      animation: ocean-light-attenuation linear both;
+      animation-timeline: scroll(root block);
+      transition: background-color 0.3s ease;
+    }
+
+    /* Atmospheric Water Column Particle Shaders (Marine Snow) */
+    .marine-snow-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+      background-image:
+        radial-gradient(1.5px 1.5px at 15% 20%, rgba(255, 255, 255, 0.45), transparent),
+        radial-gradient(1px 1px at 35% 60%, rgba(255, 255, 255, 0.3), transparent),
+        radial-gradient(2px 2px at 75% 30%, rgba(255, 255, 255, 0.4), transparent),
+        radial-gradient(1.5px 1.5px at 85% 80%, rgba(255, 255, 255, 0.35), transparent);
+      background-size: 400px 400px;
+      animation: marine-snow-drift 12s linear infinite;
+    }
+
+    .marine-snow-layer-deep {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 6;
+      background-image:
+        radial-gradient(1px 1px at 50% 10%, rgba(0, 240, 255, 0.3), transparent),
+        radial-gradient(1.5px 1.5px at 20% 70%, rgba(0, 229, 163, 0.25), transparent),
+        radial-gradient(1px 1px at 80% 50%, rgba(255, 255, 255, 0.2), transparent);
+      background-size: 550px 550px;
+      animation: marine-snow-drift-deep 20s linear infinite;
+    }
+
+    /* Subduction Escarpment Canyon Walls (Left & Right Flanking Ridges) */
+    .trench-canyon-wall-left {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 140px;
+      width: 28px;
+      border-right: 1px dashed rgba(56, 82, 115, 0.3);
+      background: linear-gradient(90deg, rgba(14, 21, 32, 0.7), transparent);
+      pointer-events: none;
+    }
+
+    .trench-canyon-wall-right {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 160px;
+      width: 28px;
+      border-left: 1px dashed rgba(56, 82, 115, 0.3);
+      background: linear-gradient(-90deg, rgba(14, 21, 32, 0.7), transparent);
+      pointer-events: none;
+    }
+
+    /* --------------------------------------------------------------------------
+       STRATIGRAPHIC ZONES (PALAEO-OCEANOGRAPHIC DIVISIONS)
+       -------------------------------------------------------------------------- */
+    .ocean-stratum {
+      position: relative;
+      margin-bottom: 250px;
+      padding: 2.5rem 1.8rem;
+      border-radius: 8px;
+      border: 1px solid var(--titanium-border);
+      background: rgba(10, 15, 24, 0.85);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+      z-index: 10;
+    }
+
+    .stratum-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem;
+      border-bottom: 1px solid rgba(56, 82, 115, 0.35);
+      padding-bottom: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .stratum-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .stratum-badge {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stratum-name {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #f8fafc;
+    }
+
+    .stratum-depth-metric {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--hud-cyan);
+    }
+
+    .stratum-parameters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.8rem;
+      margin: 1.2rem 0;
+      padding: 0.8rem;
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 6px;
+      border: 1px solid rgba(56, 82, 115, 0.25);
+    }
+
+    .param-col {
+      font-family: var(--font-mono);
+    }
+
+    .param-lbl {
+      font-size: 0.62rem;
+      color: #64748b;
+      text-transform: uppercase;
+      margin-bottom: 0.15rem;
+    }
+
+    .param-val {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #cbd5e1;
+    }
+
+    .stratum-narrative {
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: #94a3b8;
+      margin-top: 0.8rem;
+    }
+
+    /* --------------------------------------------------------------------------
+       SPECIMEN STATIONS & CSS ANCHOR POSITIONING
+       -------------------------------------------------------------------------- */
+    .specimen-station {
+      position: relative;
+      margin: 3.5rem 0;
+      padding: 1.5rem;
+      background: rgba(15, 23, 42, 0.75);
+      border-radius: 6px;
+      border: 1px solid rgba(56, 82, 115, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .specimen-anchor-target {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 1rem;
+      background: rgba(10, 14, 20, 0.9);
+      border: 1.5px solid var(--hud-cyan);
+      border-radius: 4px;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.25);
+      width: fit-content;
+      cursor: default;
+    }
+
+    .anchor-target-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--hud-cyan);
+      box-shadow: 0 0 8px var(--hud-cyan);
+    }
+
+    .anchor-target-name {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #f8fafc;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* Explicit Anchor Definitions */
+    #anchor-target-siphonophore { anchor-name: --anchor-siphonophore; }
+    #anchor-target-anglerfish   { anchor-name: --anchor-anglerfish; }
+    #anchor-target-smoker       { anchor-name: --anchor-smoker; }
+    #anchor-target-snailfish    { anchor-name: --anchor-snailfish; }
+    #anchor-target-beacon       { anchor-name: --anchor-beacon; }
+
+    /* Anchor Positioned Telemetry Callouts */
+    .specimen-telemetry-callout {
+      /* Native Anchor Positioning with Fallback */
+      background: rgba(10, 15, 24, 0.95);
+      border: 1px solid var(--titanium-border);
+      border-left: 3px solid var(--hud-cyan);
+      border-radius: 6px;
+      padding: 0.8rem 1rem;
+      font-family: var(--font-mono);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      max-width: 440px;
+      margin-top: 0.5rem;
+    }
+
+    /* When browser supports CSS Anchor Positioning */
+    @supports (position-anchor: --anchor-siphonophore) {
+      .specimen-telemetry-callout.anchored-siphonophore {
+        position-anchor: --anchor-siphonophore;
+        position-area: block-end span-inline-end;
+        position-try-fallbacks: flip-block, flip-inline;
+        margin-top: 0;
+      }
+      .specimen-telemetry-callout.anchored-anglerfish {
+        position-anchor: --anchor-anglerfish;
+        position-area: block-end span-inline-end;
+        position-try-fallbacks: flip-block, flip-inline;
+        margin-top: 0;
+      }
+      .specimen-telemetry-callout.anchored-smoker {
+        position-anchor: --anchor-smoker;
+        position-area: block-end span-inline-end;
+        position-try-fallbacks: flip-block, flip-inline;
+        margin-top: 0;
+      }
+      .specimen-telemetry-callout.anchored-snailfish {
+        position-anchor: --anchor-snailfish;
+        position-area: block-end span-inline-end;
+        position-try-fallbacks: flip-block, flip-inline;
+        margin-top: 0;
+      }
+      .specimen-telemetry-callout.anchored-beacon {
+        position-anchor: --anchor-beacon;
+        position-area: block-end span-inline-end;
+        position-try-fallbacks: flip-block, flip-inline;
+        margin-top: 0;
+      }
+    }
+
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.72rem;
+      padding: 0.2rem 0;
+      border-bottom: 1px dotted rgba(56, 82, 115, 0.25);
+    }
+
+    .telemetry-row:last-child {
+      border-bottom: none;
+    }
+
+    .t-label { color: #64748b; }
+    .t-val   { color: #e2e8f0; font-weight: 600; }
+
+    /* --------------------------------------------------------------------------
+       SPECIFIC ZONE COLOR SCHEMES & ACCENTS
+       -------------------------------------------------------------------------- */
+    /* Zone 1: Epipelagic */
+    .stratum-epi { border-top: 3px solid #38bdf8; }
+    .stratum-epi .stratum-badge { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+
+    /* Zone 2: Mesopelagic */
+    .stratum-meso { border-top: 3px solid #6366f1; }
+    .stratum-meso .stratum-badge { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+
+    /* Zone 3: Bathypelagic */
+    .stratum-bathy { border-top: 3px solid #a855f7; }
+    .stratum-bathy .stratum-badge { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+
+    /* Zone 4: Abyssopelagic */
+    .stratum-abyss { border-top: 3px solid #eab308; }
+    .stratum-abyss .stratum-badge { background: rgba(234, 179, 8, 0.2); color: #facc15; }
+
+    /* Zone 5: Hadalpelagic & Challenger Deep */
+    .stratum-hadal { border-top: 3px solid var(--hud-alert); }
+    .stratum-hadal .stratum-badge { background: rgba(255, 51, 102, 0.2); color: var(--hud-alert); }
+
+    /* --------------------------------------------------------------------------
+       CAUSAL HELLO WORLD — THE HADAL ACOUSTIC BEACON
+       -------------------------------------------------------------------------- */
+    .hadal-acoustic-sanctuary {
+      position: relative;
+      margin-top: 3.5rem;
+      padding: 3rem 2rem;
+      border: 2px solid var(--hud-cyan);
+      border-radius: 10px;
+      background: radial-gradient(circle at center, rgba(0, 240, 255, 0.08) 0%, rgba(10, 14, 20, 0.98) 85%);
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.2), inset 0 0 30px rgba(0, 240, 255, 0.1);
+      text-align: center;
+      z-index: 20;
+    }
+
+    .beacon-header {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--hud-teal);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+    }
+
+    .hello-world-carrier-display {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: #ffffff;
+      text-transform: uppercase;
+      margin: 1.2rem 0;
+      font-family: var(--font-mono);
+      text-shadow: 0 0 20px var(--hud-cyan), 0 0 40px rgba(0, 240, 255, 0.5);
+      animation: beacon-ping 3s ease-in-out infinite;
+    }
+
+    .hydroacoustic-spectrum-waterfall {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 6px;
+      height: 70px;
+      margin: 1.8rem auto;
+      max-width: 480px;
+      padding: 0.5rem;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 6px;
+      border: 1px solid rgba(56, 82, 115, 0.35);
+    }
+
+    .spectrum-bar {
+      flex: 1;
+      background: linear-gradient(0deg, var(--hud-teal), var(--hud-cyan));
+      border-radius: 2px 2px 0 0;
+      opacity: 0.85;
+      transition: height 0.3s ease;
+    }
+
+    .spectrum-bar:nth-child(1)  { height: 45%; }
+    .spectrum-bar:nth-child(2)  { height: 80%; }
+    .spectrum-bar:nth-child(3)  { height: 60%; }
+    .spectrum-bar:nth-child(4)  { height: 95%; }
+    .spectrum-bar:nth-child(5)  { height: 75%; }
+    .spectrum-bar:nth-child(6)  { height: 100%; }
+    .spectrum-bar:nth-child(7)  { height: 50%; }
+    .spectrum-bar:nth-child(8)  { height: 85%; }
+    .spectrum-bar:nth-child(9)  { height: 65%; }
+    .spectrum-bar:nth-child(10) { height: 90%; }
+
+    .beacon-telemetry-table {
+      margin: 1.5rem auto 0;
+      max-width: 480px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.6rem;
+      text-align: left;
+    }
+
+    .beacon-data-tile {
+      background: rgba(15, 23, 42, 0.7);
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      border: 1px solid rgba(56, 82, 115, 0.25);
+    }
+
+    .b-label { color: #64748b; font-size: 0.62rem; text-transform: uppercase; }
+    .b-val   { color: var(--hud-cyan); font-weight: 700; margin-top: 0.15rem; }
+
+    /* --------------------------------------------------------------------------
+       SENSOR MODE SWITCH OVERLAYS (DRIVEN BY :HAS())
+       Applied to .trench-descent-column to preserve fixed cockpit HUD & flanks
+       -------------------------------------------------------------------------- */
+
+    /* Mode 2: 470nm Bioluminescence Blue Excitation */
+    body:has(#sensor-biolum:checked) .trench-descent-column {
+      filter: saturate(1.4) hue-rotate(15deg);
+    }
+    body:has(#sensor-biolum:checked) .ocean-stratum {
+      background: rgba(10, 10, 28, 0.92);
+      border-color: rgba(192, 132, 252, 0.4);
+    }
+    body:has(#sensor-biolum:checked) .specimen-anchor-target {
+      border-color: var(--biolum-violet);
+      box-shadow: 0 0 20px rgba(192, 132, 252, 0.45);
+    }
+    body:has(#sensor-biolum:checked) .anchor-target-dot {
+      background: var(--biolum-violet);
+      box-shadow: 0 0 12px var(--biolum-violet);
+    }
+
+    /* Mode 3: Hydroacoustic Sonar Bathymetry Scan */
+    body:has(#sensor-sonar:checked) .trench-descent-column {
+      background-image:
+        linear-gradient(rgba(34, 197, 94, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 197, 94, 0.12) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    body:has(#sensor-sonar:checked) .ocean-stratum {
+      border-color: rgba(34, 197, 94, 0.5);
+      background: rgba(6, 20, 12, 0.92);
+    }
+    body:has(#sensor-sonar:checked) .stratum-name,
+    body:has(#sensor-sonar:checked) .stratum-depth-metric {
+      color: var(--sonar-green);
+    }
+    body:has(#sensor-sonar:checked) .specimen-anchor-target {
+      border-color: var(--sonar-green);
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.4);
+    }
+    body:has(#sensor-sonar:checked) .anchor-target-dot {
+      background: var(--sonar-green);
+      box-shadow: 0 0 10px var(--sonar-green);
+    }
+
+    /* Mode 4: Hydrothermal Infrared Thermography */
+    body:has(#sensor-thermal:checked) .trench-descent-column {
+      filter: contrast(1.15) hue-rotate(-30deg);
+    }
+    body:has(#sensor-thermal:checked) .ocean-stratum {
+      background: rgba(28, 14, 8, 0.92);
+      border-color: rgba(249, 115, 22, 0.45);
+    }
+    body:has(#sensor-thermal:checked) .specimen-anchor-target {
+      border-color: var(--thermal-infrared);
+      box-shadow: 0 0 20px rgba(249, 115, 22, 0.45);
+    }
+    body:has(#sensor-thermal:checked) .anchor-target-dot {
+      background: var(--thermal-infrared);
+      box-shadow: 0 0 12px var(--thermal-infrared);
+    }
+
+    /* --------------------------------------------------------------------------
+       ACCESSIBILITY & PREFERS-REDUCED-MOTION
+       -------------------------------------------------------------------------- */
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-progress-line,
+      .depth-vernier-tape,
+      .pressure-bar-fill,
+      .trench-descent-column {
+        animation: none;
+      }
+      .marine-snow-layer,
+      .marine-snow-layer-deep,
+      .sonar-ping-ring,
+      .sonar-sweep-line,
+      .hello-world-carrier-display {
+        animation: none;
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       RESPONSIVE VIEWPORT ADAPTATIONS (MOBILE & TABLET)
+       -------------------------------------------------------------------------- */
+    @media (max-width: 900px) {
+      .hud-left-flank, .hud-right-flank {
+        display: none;
+      }
+      .trench-descent-column {
+        padding-left: 1.2rem;
+        padding-right: 1.2rem;
+        min-height: 6000px;
+      }
+      .trench-canyon-wall-left, .trench-canyon-wall-right {
+        display: none;
+      }
+      .probe-cockpit-hud {
+        padding: 0.5rem 0.8rem;
+      }
+      .sensor-modes-selector {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 0.2rem;
+      }
+      .sensor-radio-btn span {
+        padding: 0.25rem 0.45rem;
+        font-size: 0.65rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hidden Sensor Radio State Engine -->
+  <input type="radio" name="sensor-mode" id="sensor-optical" checked>
+  <input type="radio" name="sensor-mode" id="sensor-biolum">
+  <input type="radio" name="sensor-mode" id="sensor-sonar">
+  <input type="radio" name="sensor-mode" id="sensor-thermal">
+
+  <!-- ========================================================================
+       TOP COCKPIT HUD & SENSOR CONTROL BAR
+       ======================================================================== -->
+  <header class="probe-cockpit-hud">
+    <div class="cockpit-brand">
+      <div class="probe-insignia">H7</div>
+      <div class="probe-title-group">
+        <h1>HADAL-7 // Trench Probe</h1>
+        <p>MARIANA TRENCH BENTHIC SURVEY • BATHYMETRIC ATLAS</p>
+      </div>
+    </div>
+
+    <!-- Multi-Spectral Sensor Selector -->
+    <div class="sensor-modes-selector" role="radiogroup" aria-label="Spectral Sensor Arrays">
+      <span class="sensor-label">Sensor:</span>
+      <label class="sensor-radio-btn" for="sensor-optical">
+        <span>Optical</span>
+      </label>
+      <label class="sensor-radio-btn" for="sensor-biolum">
+        <span>Biolum 470nm</span>
+      </label>
+      <label class="sensor-radio-btn" for="sensor-sonar">
+        <span>Sonar</span>
+      </label>
+      <label class="sensor-radio-btn" for="sensor-thermal">
+        <span>Thermal IR</span>
+      </label>
+    </div>
+
+    <!-- Native Scroll-Driven Progress Line -->
+    <div class="scroll-progress-line" aria-hidden="true"></div>
+  </header>
+
+  <!-- ========================================================================
+       LEFT HUD FLANK: VERNIER DEPTH TAPE & HYDROSTATIC PRESSURE METER
+       ======================================================================== -->
+  <aside class="hud-left-flank" aria-label="Depth & Hydrostatic Pressure Instruments">
+    <div class="telemetry-card depth-gauge-container">
+      <div class="card-title">
+        <span>Descent Tape</span>
+        <span style="color: var(--hud-cyan);">CTD</span>
+      </div>
+      <div class="depth-gauge-track">
+        <div class="depth-needle-cursor"></div>
+        <div class="depth-vernier-tape">
+          <div class="tape-tick major">0m Sfc</div>
+          <div class="tape-tick">100m</div>
+          <div class="tape-tick major">200m Epi</div>
+          <div class="tape-tick">500m</div>
+          <div class="tape-tick major">1,000m Meso</div>
+          <div class="tape-tick">2,000m</div>
+          <div class="tape-tick major">4,000m Bathy</div>
+          <div class="tape-tick">5,000m</div>
+          <div class="tape-tick major">6,000m Abyss</div>
+          <div class="tape-tick">8,000m</div>
+          <div class="tape-tick major">10,000m Hadal</div>
+          <div class="tape-tick major" style="color: var(--hud-alert);">10,935m Benthic</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="telemetry-card pressure-gauge-card">
+      <div class="card-title">
+        <span>Hydrostatic P</span>
+        <span style="color: var(--hud-alert);">BAR</span>
+      </div>
+      <div class="card-value">1,086<span class="card-unit">atm</span></div>
+      <div class="pressure-bar-track">
+        <div class="pressure-bar-fill"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================================================
+       RIGHT HUD FLANK: HYDROACOUSTIC SONAR & ENVIRONMENTAL READOUT
+       ======================================================================== -->
+  <aside class="hud-right-flank" aria-label="Acoustic Sonar & Environmental Telemetry">
+    <div class="telemetry-card sonar-radar-card">
+      <div class="card-title">
+        <span>Acoustic Echogram</span>
+        <span style="color: var(--sonar-green);">8.5 kHz</span>
+      </div>
+      <div class="sonar-screen">
+        <div class="sonar-ping-ring"></div>
+        <div class="sonar-sweep-line"></div>
+      </div>
+      <div class="card-value" style="font-size: 0.85rem; color: var(--sonar-green);">PULSE ACTIVE</div>
+    </div>
+
+    <div class="telemetry-card">
+      <div class="card-title">
+        <span>Thermocline</span>
+        <span>Temp</span>
+      </div>
+      <div class="card-value">1.2<span class="card-unit">°C</span></div>
+      <div style="font-size: 0.65rem; color: #64748b; margin-top: 0.2rem;">Salinity: 34.7 PSU</div>
+    </div>
+
+    <div class="telemetry-card">
+      <div class="card-title">
+        <span>Hull Strain</span>
+        <span style="color: var(--hud-teal);">Ti-Gr5</span>
+      </div>
+      <div class="card-value">110.2<span class="card-unit">MPa</span></div>
+      <div style="font-size: 0.65rem; color: var(--hud-teal); margin-top: 0.2rem;">Integrity: 100%</div>
+    </div>
+  </aside>
+
+  <!-- Atmospheric Marine Snow Background Layers -->
+  <div class="marine-snow-layer" aria-hidden="true"></div>
+  <div class="marine-snow-layer-deep" aria-hidden="true"></div>
+
+  <!-- ========================================================================
+       CENTRAL DESCENT COLUMN: BATHYMETRIC STRATIGRAPHIC ATLAS
+       ======================================================================== -->
+  <main class="trench-descent-column">
+    <div class="trench-canyon-wall-left" aria-hidden="true"></div>
+    <div class="trench-canyon-wall-right" aria-hidden="true"></div>
+
+    <!-- ----------------------------------------------------------------------
+         ZONE 1: EPIPELAGIC (THE SUNLIT ZONE: 0m – 200m)
+         ---------------------------------------------------------------------- -->
+    <section class="ocean-stratum stratum-epi" id="zone-epipelagic">
+      <header class="stratum-header">
+        <div class="stratum-title-wrap">
+          <span class="stratum-badge">Zone 01</span>
+          <h2 class="stratum-name">Epipelagic Stratum</h2>
+        </div>
+        <div class="stratum-depth-metric">0 m → 200 m</div>
+      </header>
+
+      <div class="stratum-parameters-grid">
+        <div class="param-col">
+          <div class="param-lbl">Hydrostatic P</div>
+          <div class="param-val">1.0 → 21.0 atm</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Water Temp</div>
+          <div class="param-val">28.4°C → 15.2°C</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Solar Flux</div>
+          <div class="param-val">100% → 1% (PAR)</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Optical Wavelength</div>
+          <div class="param-val">450–650 nm (Full)</div>
+        </div>
+      </div>
+
+      <p class="stratum-narrative">
+        The euphotic zone encompasses the surface layer where solar radiance penetrates sufficiently to sustain photosynthesis. Primary biomass synthesis by diatoms and dinoflagellates drives the global oceanic biological pump, generating organic particulate carbon that descends into the darker abyss.
+      </p>
+
+      <!-- Specimen Station: Siphonophore Colony -->
+      <article class="specimen-station">
+        <div class="specimen-anchor-target" id="anchor-target-siphonophore">
+          <div class="anchor-target-dot"></div>
+          <div class="anchor-target-name">Target Alpha // Siphonophore Aggregation</div>
+        </div>
+
+        <aside class="specimen-telemetry-callout anchored-siphonophore">
+          <div class="telemetry-row">
+            <span class="t-label">Taxonomic Classification</span>
+            <span class="t-val">Praya dubia (Colonial Hydrozoan)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Recorded Depth</span>
+            <span class="t-val">-185 m (Epipelagic-Mesopelagic Boundary)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Colony Length</span>
+            <span class="t-val">38.4 meters (Continuous Nectophore Chain)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Bioluminescent Emission</span>
+            <span class="t-val">Luciferin-Luciferase Cascade (470 nm Cyan)</span>
+          </div>
+        </aside>
+      </article>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         ZONE 2: MESOPELAGIC (THE TWILIGHT ZONE: 200m – 1,000m)
+         ---------------------------------------------------------------------- -->
+    <section class="ocean-stratum stratum-meso" id="zone-mesopelagic">
+      <header class="stratum-header">
+        <div class="stratum-title-wrap">
+          <span class="stratum-badge">Zone 02</span>
+          <h2 class="stratum-name">Mesopelagic Stratum</h2>
+        </div>
+        <div class="stratum-depth-metric">200 m → 1,000 m</div>
+      </header>
+
+      <div class="stratum-parameters-grid">
+        <div class="param-col">
+          <div class="param-lbl">Hydrostatic P</div>
+          <div class="param-val">21.0 → 101.3 atm</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Water Temp</div>
+          <div class="param-val">15.2°C → 4.1°C (Thermocline)</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Light Level</div>
+          <div class="param-val">0.1% → 0.0001% (Dysphotic)</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Acoustic Speed</div>
+          <div class="param-val">1,482 m/s (SOFAR Axis)</div>
+        </div>
+      </div>
+
+      <p class="stratum-narrative">
+        In the dysphotic twilight stratum, solar photons are attenuated following Beer-Lambert extinction. Red, orange, and yellow wavelengths are entirely absorbed; only deep blue-violet light faintly filters through. Fauna rely on ventral photophores for counter-illumination camouflage against downwelling light.
+      </p>
+
+      <!-- Specimen Station: Bathypelagic Predator -->
+      <article class="specimen-station">
+        <div class="specimen-anchor-target" id="anchor-target-anglerfish">
+          <div class="anchor-target-dot"></div>
+          <div class="anchor-target-name">Target Beta // Ceratias Holboelli</div>
+        </div>
+
+        <aside class="specimen-telemetry-callout anchored-anglerfish">
+          <div class="telemetry-row">
+            <span class="t-label">Taxonomic Classification</span>
+            <span class="t-val">Ceratias holboelli (Deep-Sea Anglerfish)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Recorded Depth</span>
+            <span class="t-val">-840 m (Deep Dysphotic Horizon)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Esca Photophore</span>
+            <span class="t-val">Symbiotic Photobacterium kishitanii</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Hydrostatic Adaptation</span>
+            <span class="t-val">Reduced Bone Density & Gelatinous Muscle</span>
+          </div>
+        </aside>
+      </article>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         ZONE 3: BATHYPELAGIC (THE MIDNIGHT ZONE: 1,000m – 4,000m)
+         ---------------------------------------------------------------------- -->
+    <section class="ocean-stratum stratum-bathy" id="zone-bathypelagic">
+      <header class="stratum-header">
+        <div class="stratum-title-wrap">
+          <span class="stratum-badge">Zone 03</span>
+          <h2 class="stratum-name">Bathypelagic Stratum</h2>
+        </div>
+        <div class="stratum-depth-metric">1,000 m → 4,000 m</div>
+      </header>
+
+      <div class="stratum-parameters-grid">
+        <div class="param-col">
+          <div class="param-lbl">Hydrostatic P</div>
+          <div class="param-val">101.3 → 401.5 atm</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Water Temp</div>
+          <div class="param-val">4.1°C → 2.3°C (Constant)</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Solar Photons</div>
+          <div class="param-val">0.0% (Absolute Aphotic)</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Dissolved O2</div>
+          <div class="param-val">3.2 mL/L (Oxygen Minimum Recovery)</div>
+        </div>
+      </div>
+
+      <p class="stratum-narrative">
+        Total aphotic darkness. The midnight zone is devoid of sunlight. The only visual emissions originate from organismal bioluminescence. Organisms exhibit metabolic depression and specialized barophilic membranes rich in polyunsaturated fatty acids to maintain fluidity under extreme pressure.
+      </p>
+
+      <!-- Specimen Station: Hydrothermal Black Smoker Vent -->
+      <article class="specimen-station">
+        <div class="specimen-anchor-target" id="anchor-target-smoker">
+          <div class="anchor-target-dot"></div>
+          <div class="anchor-target-name">Target Gamma // Hydrothermal Vent Chimney</div>
+        </div>
+
+        <aside class="specimen-telemetry-callout anchored-smoker">
+          <div class="telemetry-row">
+            <span class="t-label">Geological Feature</span>
+            <span class="t-val">Polymetallic Sulfide Chimney (Black Smoker)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Recorded Depth</span>
+            <span class="t-val">-3,820 m (Seafloor Spreading Ridge)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Effluent Temperature</span>
+            <span class="t-val">368.5°C (Superheated Liquid Mineral Solution)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Chemosynthetic Base</span>
+            <span class="t-val">Sulfur-Oxidizing Epsilonproteobacteria</span>
+          </div>
+        </aside>
+      </article>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         ZONE 4: ABYSSOPELAGIC (THE ABYSSAL PLAIN: 4,000m – 6,000m)
+         ---------------------------------------------------------------------- -->
+    <section class="ocean-stratum stratum-abyss" id="zone-abyssopelagic">
+      <header class="stratum-header">
+        <div class="stratum-title-wrap">
+          <span class="stratum-badge">Zone 04</span>
+          <h2 class="stratum-name">Abyssopelagic Stratum</h2>
+        </div>
+        <div class="stratum-depth-metric">4,000 m → 6,000 m</div>
+      </header>
+
+      <div class="stratum-parameters-grid">
+        <div class="param-col">
+          <div class="param-lbl">Hydrostatic P</div>
+          <div class="param-val">401.5 → 601.8 atm</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Water Temp</div>
+          <div class="param-val">2.3°C → 1.8°C</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Sediment Base</div>
+          <div class="param-val">Pelagic Red Clay & Siliceous Ooze</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Current Speed</div>
+          <div class="param-val">0.03 m/s (Deep Thermohaline Flow)</div>
+        </div>
+      </div>
+
+      <p class="stratum-narrative">
+        Covering over 60% of the Earth's surface, the abyssal plains form a vast, tranquil expanse. Benthic fauna include giant xenophyophore foraminifera, stalked crinoids, and abyssal holothurians feeding on accumulated marine snow detritus.
+      </p>
+
+      <!-- Specimen Station: Mariana Snailfish -->
+      <article class="specimen-station">
+        <div class="specimen-anchor-target" id="anchor-target-snailfish">
+          <div class="anchor-target-dot"></div>
+          <div class="anchor-target-name">Target Delta // Pseudoliparis Amblystomopsis</div>
+        </div>
+
+        <aside class="specimen-telemetry-callout anchored-snailfish">
+          <div class="telemetry-row">
+            <span class="t-label">Taxonomic Classification</span>
+            <span class="t-val">Pseudoliparis swirei (Mariana Snailfish)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Observed Depth</span>
+            <span class="t-val">-7,450 m (Subduction Escarpment)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Cellular Adaptation</span>
+            <span class="t-val">High TMAO (Trimethylamine N-oxide) Osmolyte</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Piezolyte Saturation</span>
+            <span class="t-val">Protects Muscle Actin from Pressure Denaturation</span>
+          </div>
+        </aside>
+      </article>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         ZONE 5: HADALPELAGIC & CHALLENGER DEEP (6,000m – 10,935m)
+         ---------------------------------------------------------------------- -->
+    <section class="ocean-stratum stratum-hadal" id="zone-hadalpelagic">
+      <header class="stratum-header">
+        <div class="stratum-title-wrap">
+          <span class="stratum-badge">Zone 05</span>
+          <h2 class="stratum-name">Hadalpelagic Horizon</h2>
+        </div>
+        <div class="stratum-depth-metric">6,000 m → 10,935 m</div>
+      </header>
+
+      <div class="stratum-parameters-grid">
+        <div class="param-col">
+          <div class="param-lbl">Hydrostatic P</div>
+          <div class="param-val">601.8 → 1,086.2 atm</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Absolute Pressure</div>
+          <div class="param-val">110.1 MPa (1.10 kbar)</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Water Temp</div>
+          <div class="param-val">1.2°C (Adiabatic Compression)</div>
+        </div>
+        <div class="param-col">
+          <div class="param-lbl">Tectonic Setting</div>
+          <div class="param-val">Pacific / Mariana Plate Subduction Trench</div>
+        </div>
+      </div>
+
+      <p class="stratum-narrative">
+        The Hadal zone comprises the deepest trenches formed by oceanic plate subduction. At the Challenger Deep, hydrostatic pressure exceeds 1,086 atmospheres, crushing uncompensated gas cavities with a force of 1.1 metric tons per square centimeter. Microorganisms here are obligate piezophiles that cannot survive decompression.
+      </p>
+
+      <!-- Specimen Station: Challenger Deep Acoustic Transponder -->
+      <article class="specimen-station">
+        <div class="specimen-anchor-target" id="anchor-target-beacon">
+          <div class="anchor-target-dot"></div>
+          <div class="anchor-target-name">Target Omega // Benthic Telemetry Transponder</div>
+        </div>
+
+        <aside class="specimen-telemetry-callout anchored-beacon">
+          <div class="telemetry-row">
+            <span class="t-label">Benthic Coordinates</span>
+            <span class="t-val">11°22.4′N, 142°35.5′E (Challenger Deep)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Terminal Depth</span>
+            <span class="t-val">-10,935 m (Maximum Recorded Ocean Depth)</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Acoustic Carrier</span>
+            <span class="t-val">8.5 kHz Low-Frequency Piezo-Ceramic Transducer</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="t-label">Signal To Noise Ratio</span>
+            <span class="t-val">+34.8 dB (Active Benthic Resonant Link)</span>
+          </div>
+        </aside>
+      </article>
+
+      <!-- ====================================================================
+           CAUSAL HELLO WORLD BEACON SANCTUARY
+           ==================================================================== -->
+      <div class="hadal-acoustic-sanctuary">
+        <div class="beacon-header">BENTHIC TRANSDUCER BROADCAST ACTIVE</div>
+        
+        <div class="hello-world-carrier-display">
+          HELLO WORLD
+        </div>
+
+        <p style="font-family: var(--font-mono); font-size: 0.8rem; color: #94a3b8; max-width: 600px; margin: 0 auto;">
+          Hydroacoustic acoustic wave transmission propagated across the Hadal benthic floor. Modulated carrier wave confirmed by probe hydrophone array at 110 MPa hydrostatic pressure.
+        </p>
+
+        <!-- Echogram waterfall bars -->
+        <div class="hydroacoustic-spectrum-waterfall" aria-label="Hydroacoustic frequency bins">
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+        </div>
+
+        <div class="beacon-telemetry-table">
+          <div class="beacon-data-tile">
+            <div class="b-label">Carrier Frequency</div>
+            <div class="b-val">8,500 Hz ± 0.02 Hz</div>
+          </div>
+          <div class="beacon-data-tile">
+            <div class="b-label">Modulation</div>
+            <div class="b-val">Hydroacoustic FSK-128</div>
+          </div>
+          <div class="beacon-data-tile">
+            <div class="b-label">Acoustic Travel Time</div>
+            <div class="b-val">7.29 seconds (Benthic Return)</div>
+          </div>
+          <div class="beacon-data-tile">
+            <div class="b-label">Telemetric Status</div>
+            <div class="b-val">100% CARRIER LOCK</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>
