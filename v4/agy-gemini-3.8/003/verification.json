@@ -1,0 +1,30 @@
+{
+  "experimentId": "003",
+  "name": "AERO-VAULT 777 — Mechanical Video Slot Simulator",
+  "status": "PASSED",
+  "timestamp": "2026-10-18T23:54:09.658Z",
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "hasBalanceDisplay": true,
+  "hasSpinButton": true,
+  "gridCssDisplay": "grid",
+  "autoPlaySafetyDialog": true,
+  "errorCount": 0,
+  "errors": [],
+  "observables": {
+    "title": "AERO-VAULT 777 — Mechanical Video Slot Simulator",
+    "cssStylesCompiled": true,
+    "interactiveLever": true,
+    "proceduralWebAudio": true,
+    "paytableModal": true,
+    "statsModal": true,
+    "doubleOrNothingGamble": true,
+    "vaultHeistBonus": true,
+    "rtpTelemetry": true,
+    "reels": 5,
+    "rows": 3,
+    "paylines": 20
+  }
+}
