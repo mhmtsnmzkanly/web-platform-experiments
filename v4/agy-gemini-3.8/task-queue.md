@@ -116,10 +116,17 @@ Now that the initial 5 goals are fulfilled, we originate original, high-agency i
     - Deployment: `/var/www/novastrum/wbe/015/`
     - Git Commit: `0a17a18`
 
-16. [IN_PROGRESS] **Experiment 016 — RELATIVITY-LAB: Einsteinian Curved Spacetime, Geodesics, Gravitational Lensing & Kerr Black Hole Studio** (`016`)
+16. [COMPLETED] **Experiment 016 — RELATIVITY-LAB: Einsteinian Curved Spacetime, Geodesics, Gravitational Lensing & Kerr Black Hole Studio** (`016`)
     - Product: **RELATIVITY-LAB**
-    - Concept: Interactive 4D General Relativity, curved spacetime Riemannian metrics, null and timelike geodesic integrator, relativistic ray-tracing, Kerr rotating black holes, frame dragging, and gravitational wave chirp studio.
-    - Deployment Target: `/var/www/novastrum/wbe/016/`
+    - Features: 4th-order Runge-Kutta geodesic solver with adaptive sub-stepping for CFL stability ($dt_{\text{sub}} \le 0.01$ when $r < 4M$), intermediate sub-stage horizon capture guards, 1PN Schwarzschild precession ($-3ML^2/r^4$), Reissner-Nordström electrostatic force ($+Q^2/r^3$), and Kerr Lense-Thirring frame-dragging; 60 FPS fast $160 \times 120$ null-geodesic relativistic ray-tracer with Kerr shadow distortion, Shakura-Sunyaev accretion disk, sub-luminal clamped relativistic Doppler beaming ($\beta_\parallel \in [-0.99, 0.99]$, $\delta^4$), gravitational redshift $g(r)$, secondary photon rings, and star grid deflection; 3.5PN post-Newtonian quadrupole radiation reaction gravitational wave engine with continuous merger phase matching into Kerr Quasi-Normal Mode (QNM) ringdown ($f_{\text{qnm}}, \tau_{\text{qnm}}$); Flamm paraboloid 3D isometric embedding diagram with geodesic spatial curvature; 6 curated scenarios (Kerr Superspinning $a/M=0.98$, Schwarzschild Einstein Ring, Mercury Perihelion Precession, Binary BH Merger GW150914, Penrose Energy Extraction, Flamm Curvature Embedding); 4 suite modes; 3 relativistic colormaps; 100% procedural Web Audio sonification (Doppler whistlers, curvature drones, GW chirp sweeps with dynamics limiter); and full CSV/JSON telemetry export.
+    - Audits: Dual independent Technical & Product Quality audits passed with all remediations verified (eliminated React render cascades by throttling telemetry to ~12 Hz and memoizing callbacks, decoupled canvas mouse dragging into ref-based zero-GC state, wired control deck buttons to spawn and clear geodesics, clamped relativistic Doppler beaming to sub-luminal velocities, matched GW strain continuous phase across merger into QNM ringdown, added adaptive sub-stepping for CFL stability near horizon, and completed explicit Web Audio resource teardown).
+    - Deployment: `/var/www/novastrum/wbe/016/`
+
+17. [IN_PROGRESS] **Experiment 017 — COLLIDER-LAB: High-Energy Particle Physics, Relativistic Quantum Scattering, Jet Clustering & Collider Detector Studio** (`017`)
+    - Product: **COLLIDER-LAB**
+    - Concept: Interactive high-energy particle physics collision and detector laboratory. Features beam collision kinematics at $\sqrt{s} = 0.5\text{–}14\text{ TeV}$, parton distribution functions (PDFs), relativistic 4-momentum scattering, helical tracking chamber with axial magnetic field ($p_T = 0.3 B R$), electromagnetic calorimeter (ECAL) crystal showers, hadronic calorimeter (HCAL) cascades, muon spectrometer penetration, anti-$k_t$ jet clustering algorithm, missing transverse energy ($E_T^{\text{miss}}$) vector calculation, invariant mass reconstruction histogram with Breit-Wigner resonance fitting (Higgs $H \to \gamma\gamma, 4\ell$, $Z^0 \to \mu^+\mu^-$, $W^\pm \to \ell\nu$, $t\bar{t}$ pair production, Dark Matter / SUSY missing $E_T$, QCD Dijets), 2D/3D $\eta\text{–}\phi$ Lego plot, 100% procedural Web Audio detector sonification, and full event data export (CSV/JSON).
+    - Deployment Target: `/var/www/novastrum/wbe/017/`
+
 
 
 
