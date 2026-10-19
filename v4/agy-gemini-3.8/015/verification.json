@@ -1,0 +1,38 @@
+{
+  "experimentId": "015",
+  "name": "CRYO-LAB",
+  "subtitle": "Low-Temperature Quantum Superconductivity, Josephson Junctions & BEC Studio",
+  "status": "VERIFIED_AND_AUDITED",
+  "timestamp": "2026-10-19T05:10:00Z",
+  "dualAuditSignOff": {
+    "technicalAuditor": "PASSED",
+    "productQualityAuditor": "PASSED",
+    "technicalAuditId": "e261a8d7-bdaa-49c7-a383-890f9c198290",
+    "productQualityAuditId": "207004ac-ca46-4b06-8b03-eb3bfc87e838",
+    "remediationNotes": "Remediated all 1 critical, 2 major, and 5 minor audit findings: implemented symplectic staggered leapfrog and strict L2 norm conservation in BecGrossPitaevskii (eliminating exponential norm divergence), added getNormalizedCoords helper to compensate for CSS object-contain letterbox offsets in QuantumBenchCanvas pointer interactions, gated simulation engines by active suiteMode to eliminate unnecessary background CPU burn and acoustic cross-talk, moved engine mutations outside React state updater reducers, preserved signed phase velocity in Josephson voltageHistory buffer, added zero-divisor clamp on TDGL coil radius, replaced per-frame radial gradient allocation with zero-GC translucent arcs, and corrected dilution cooling power unit scaling in CryogenicThermalEngine."
+  },
+  "verificationSuite": {
+    "headlessIntegrationTest": "PASSED",
+    "presetsTested": 6,
+    "suiteModesTested": 4,
+    "colormapsTested": 4,
+    "canvasDraggingVerified": true,
+    "audioUnmuteVerified": true,
+    "exportModalVerified": true,
+    "consoleErrors": 0,
+    "digitalClipping": 0
+  },
+  "physicsEngines": {
+    "tdglSolver": "2D Time-Dependent Ginzburg-Landau gauge-invariant link-variable solver (120x120 grid) with Abrikosov vortex nucleation, pinning defect wells, Meissner screening, and 2x2 plaquette phase circulation winding detection",
+    "josephsonEngine": "Stewart-McCumber Resistively and Capacitively Shunted Junction (RCSJ) 4th-order Runge-Kutta solver, tilted washboard potential phase dynamics, microwave Shapiro voltage steps Vn = n*h*f/(2e), and DC SQUID 2-junction sub-flux-quantum magnetic interference",
+    "becSolver": "2D Gross-Pitaevskii nonlinear Schrödinger equation (NLSE) with symplectic staggered leapfrog time-stepping, atom-atom s-wave scattering parameter g, double-well optical potential, laser stirring vortex nucleation, strict L2 norm conservation, and time-of-flight matter-wave interference fringe analysis",
+    "cryoThermalEngine": "5-stage dilution refrigerator thermal model (300K -> 77K -> 4.2K -> 1.2K -> 15mK) with He3/He4 cooling power Q_cool = 84*n3*T^2, superconducting critical surfaces, and catastrophic magnet quench dynamics with emergency energy dump extraction"
+  },
+  "interactiveSystems": {
+    "visualizer": "60fps HTML5 Canvas with ref-based zero-GC offscreen pipeline and pre-computed 256-color palettes (Cyan Superconductor, HSV Phase Wheel, Bipolar Magnetic Flux, Golden BEC Density)",
+    "instrumentDeck": "Multi-tab lower instrumentation deck with real-time parameter sliders, pinning defect generator/cleaner, SQUID I-V oscilloscope and V(Phi) interferometer, BEC double-well controls, and dilution fridge cryogenic monitor",
+    "canvasGizmo": "Interactive draggable external magnetic coil handle on canvas with letterbox-compensated proximity hit-testing, hover halo, and direct click placement of nanoscale pinning defect centers",
+    "cryoSonification": "100% procedural Web Audio AC Josephson whistle, quantized vortex entry clicks, microwave Shapiro hum, dilution fridge vacuum pump and cryogen boil-off noise, and thermal quench alarm with master dynamics compressor",
+    "telemetryExport": "Full CSV and JSON quantum telemetry export with I-V curves, SQUID interferometry data, and physical state variables"
+  }
+}
