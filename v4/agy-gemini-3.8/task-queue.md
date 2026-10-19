@@ -46,12 +46,27 @@ Now that the initial 5 goals are fulfilled, we originate original, high-agency i
    - Audits: Technical and Product Quality audits completed, 2D SPH kernel normalization, dynamic canvas registration, decoupled animation loop, and audio guards remediated.
    - Deployment: `/var/www/novastrum/wbe/006/`
 
-7. [IN PROGRESS] **Experiment 007 — GENOME-FORGE: Evolutionary Artificial Life & Gene-Regulatory Ecosystem** (`007`)
-   - Type: Original artificial life laboratory, neural organism evolution & synthetic biology studio
-   - Core Mechanics:
-     - Autonomous digital organisms with variable-length genomes encoding morphology, sensor arrays, locomotion flagella, and compact neural-network brains.
-     - Evolutionary dynamics: natural selection, asexual/sexual reproduction, mutagenic radiation, nutrient metabolism, energy budgets, and speciation.
-     - Synthetic Biology & CRISPR Splicer: interactive genome designer allowing users to edit codons, rewire neural connections, inspect phylogenetic trees, and inject custom species.
-     - Environmental manipulation: micro-pipette nutrient feeds, thermal & radiation gradients, pathogen phages, fluid viscosity.
-     - Scientific micro-imaging renderer: dark-field, phase-contrast, and fluorescent confocal microscopy shaders with Web Audio microscopic bio-acoustics.
-   - Deployment Target: `/var/www/novastrum/wbe/007/`
+7. [COMPLETED] **Experiment 007 — GENOME-FORGE: Evolutionary Artificial Life & Gene-Regulatory Ecosystem** (`007`)
+   - Product: **GENOME-FORGE**
+   - Features: Real-time 82-synapse neural network connectome, Darwinian natural selection, metabolic energy budgets, mitosis heredity with Gaussian drift, CRISPR synthetic biology splicer with evolved specimen cloning, 4 microscopy optical modes (Dark-Field, Phase-Contrast, GFP Fluorescence, Bright-Field), procedural Web Audio bio-acoustics.
+   - Audits: Independent Technical & Product Quality audits passed with all remediations verified (ghost action elimination, nutrient decay and capacity bounds, cloned brain weight retention, 60fps RAF connectome animation, mutagen rate limiting).
+   - Deployment: `/var/www/novastrum/wbe/007/`
+
+8. [IN PROGRESS] **Experiment 008 — PROCEDURAL INSTRUMENT LAB** (`008`)
+   - Type: Pure Mathematical & Procedural Algorithmic Instrument Laboratory (User Directive)
+   - Scope: Independent technological demonstrator researching algorithmic synthesis of realistic and experimental instrument acoustics without external audio samples or recordings.
+   - Core Instrument Families:
+     - **Physical Modeling Strings**: Karplus-Strong, digital waveguide, feedback delay network, string tension, damping, brightness, pluck position, excitation strength, body resonance, string material (Nylon, Steel, Bass, Harp, Experimental).
+     - **Percussion Laboratory**: Modal synthesis & filtered noise envelopes (Kick, Snare, Hi-Hat, Tom, Metallic Percussion).
+     - **FM Synthesis Laboratory**: 4-operator / 6-algorithm frequency modulation (Electric Piano, Bell, Metallic Keys, Digital Bass, Experimental FM).
+     - **Wind Laboratory**: Acoustic impedance, breath noise, jet/lip non-linear exciters & acoustic pipe resonance (Flute, Reed, Brass).
+     - **Experimental Laboratory**: Complex feedback resonators, additive drone, evolving granular/harmonic textures.
+   - Interactive Designer:
+     - Real-time parameter tweaking during playback.
+     - Virtual & computer keyboard playable with polyphony & active voice visualizer.
+     - Real-time oscilloscope & 64-band FFT spectrum analyzer.
+     - A/B comparison system with equal-loudness matching.
+     - Random instrument generator & preset export/import (JSON).
+     - Procedural WAV export via OfflineAudioContext.
+     - Safety: Limiter / anti-clipping, NaN / Infinity protection, memory / voice cleanup.
+   - Deployment Target: `/var/www/novastrum/wbe/008/`
