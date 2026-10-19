@@ -1,0 +1,37 @@
+{
+  "experimentId": "014",
+  "name": "PLASMA-LAB",
+  "subtitle": "Magnetohydrodynamic (MHD) & Tokamak Fusion Reactor Studio",
+  "status": "VERIFIED_AND_AUDITED",
+  "timestamp": "2026-10-19T04:49:00Z",
+  "dualAuditSignOff": {
+    "technicalAuditor": "PASSED",
+    "productQualityAuditor": "PASSED",
+    "technicalAuditId": "4663aa1b-7dbe-46c2-b855-2f32e9412f02",
+    "productQualityAuditId": "d758070b-54dc-422d-94e7-0cc3b5887188",
+    "remediationNotes": "Remediated all 3 major and 4 minor audit findings: fixed Troyon beta unit conversion (recovering physical beta_N = 1.2-3.8), fixed double vertical offset on axis gizmo, implemented strict hit-test radius and hover affordance for pointer dragging, decoupled 30Hz React state updates from 60fps RAF loop, pre-allocated in-place radial profiles and cached typed array buffers, calibrated radiation formulas to physical keV units, added boundary finite differences, synchronized bi-directional suiteMode tabs, and dynamically updated Poincaré maps on slider adjustments."
+  },
+  "verificationSuite": {
+    "headlessIntegrationTest": "PASSED",
+    "scenariosTested": 5,
+    "suiteModesTested": 5,
+    "diagnosticModesTested": 4,
+    "disruptionTriggerVerified": true,
+    "reignitionVerified": true,
+    "exportModalVerified": true,
+    "consoleErrors": 0,
+    "digitalClipping": 0
+  },
+  "plasmaEngines": {
+    "gradShafranovSolver": "2D toroidal equilibrium solver for shaped D-shaped tokamaks with Solov'ev analytical-relaxation hybrid, Shafranov shift, lower divertor X-point, perimeter finite differences, and zero-GC radial profile mutation",
+    "thermonuclearEngine": "Bosch-Hale D-T fusion reactivity engine coupled to ITER IPB98(y,2) H-mode energy confinement scaling, alpha self-heating, Bremsstrahlung, and synchrotron cyclotron radiation losses",
+    "mhdInstabilityEngine": "Operational stability evaluator for Troyon beta limits, Greenwald density limits, Rutherford m=2/1 tearing mode island reconnection, and axisymmetric Vertical Displacement Events (VDE) with active PF feedback"
+  },
+  "interactiveSystems": {
+    "visualizer": "60fps HTML5 Canvas with ref-based zero-GC offscreen pipeline and pre-computed palettes (Thermal Fire, Magnetic Flux, Plasma Neon, MHD Vorticity)",
+    "instrumentDeck": "Multi-tab lower instrumentation deck with reactor controls, radial profile plots q(r) & Te(r), Poincaré island map, thermonuclear power balance, and PF coil sliders",
+    "axisGizmo": "Interactive draggable magnetic axis on canvas with proximity hit-testing and hover halo allowing real-time vertical displacement to physically test VDE recovery",
+    "plasmaSonification": "100% procedural Web Audio cyclotron resonance whine, turbulent MHD roar, magnetic reconnection crackles, fusion neutron hum, and disruption siren with master dynamics compressor",
+    "telemetryExport": "CSV export of 1D radial profiles, CSV export of power balance metrics, and JSON full reactor state"
+  }
+}
