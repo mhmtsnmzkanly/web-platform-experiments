@@ -154,3 +154,36 @@ Now that the initial 5 goals are fulfilled, we originate original, high-agency i
     - Audits: Dual independent Technical & Product Quality audits passed with all remediations verified (clamped CPL dark energy exponent to $[-700, 700]$ and sanitized $H_0 \le 0$ in `FriedmannSolver`, guarded $\Omega_{\text{cdm}} h^2$ against negative radicands in `CmbAcousticEngine`, eliminated 60 FPS React re-renders and VDOM churn in 3D wireframe canvases by migrating rotation angles to `useRef`, removed redundant per-frame subscriber broadcasts in `SimulationController`, resolved hook temporal dead zone by ensuring `renderCanvas` is declared prior to hooks referencing it, and added dedicated toolbar button for the `SCALE_FACTOR` sub-view).
     - Verification: 36/36 Layer 1 numerical tests PASS (100%), Layer 2 lifecycle PASS, Layer 3 headless browser PASS (0 errors).
     - Deployment: `/var/www/novastrum/wbe/020/` (Verified live over HTTPS).
+
+21. [COMPLETED] **Experiment 021 — PONTIFEX: 2D Truss Physics, Structural Mechanics & Bridge Builder Game** (`021`)
+    - Product: **PONTIFEX: Bridge Constructor & Truss Physics Studio**
+    - Concept: Physics-based structural engineering and bridge construction puzzle game with real mass-spring truss mechanics, material tensile/compressive limits, stress coloring, vehicle dynamics (car, truck, train, monster truck), and cliff-to-cliff canyon crossing gameplay.
+    - Features:
+      - 2D lumped-mass truss solver with damped Hooke elasticity, Hookean elasticity matrix, material yields (Road, Wood, Steel, Cable, Hydraulic Piston), dynamic stress failure snapping, and debris splashing.
+      - 2D vehicle suspension and wheel-ground contact model with engine torque, gravity, and bridge deck traction.
+      - Grid-based bridge designer with budget constraint ($), node placement, member drawing, drag-to-adjust, member click-deletion, undo/redo, and load testing.
+      - 5 curated challenge levels (Valley Creek, The Great Chasm, Twin Pillars Island, Iron Ore Express, Canyon Jump Launch) with vehicle progression.
+      - 100% procedural Web Audio sonification (construction clicks, wood creaks/groans under load, steel tension pings, structural snap/break transients, vehicle engine roar, water splash, victory fanfare with master dynamics limiter).
+      - Dual independent audits (Technical & Reliability + Product Quality) with all findings remediated at root cause (decoupled vehicle reaction force accumulation into persistent node force channels, asymmetric cliff elevation collision support for canyon drops, node dragging in `SELECT` tool, beam deletion in `DELETE` tool, elimination of RAF thrashing, and Web Audio node leak prevention).
+    - Verification: 39/39 Layer 1 numerical tests PASS (100%), Layer 2 lifecycle PASS, Layer 3 headless browser PASS (0 errors).
+    - Deployment: `/var/www/novastrum/wbe/021/` (Deployed and active).
+
+22. [IN_PROGRESS] **Experiment 022 — POWDER-BOX: Granular Materials, Thermodynamics & Falling Sand Cellular Automata Sandbox** (`022`)
+    - Product: **POWDER-BOX: Granular Physics & Elemental Reaction Sandbox**
+    - Concept: Real-time falling sand cellular automaton with multi-element interactions (sand, water, oil, fire, gunpowder, acid, seed/wood, stone, glass, steam, lava), heat diffusion, fluid pressure, and creative painting tools.
+    - Deployment Target: `/var/www/novastrum/wbe/022/`
+
+23. [QUEUED] **Experiment 023 — MARBLE-FORGE: Rube Goldberg Kinematic Physics, Chain Reactions & Marble Run Studio** (`023`)
+    - Product: **MARBLE-FORGE: Kinematic Contraption & Chain Reaction Studio**
+    - Concept: 2D/pseudo-3D physical contraption builder with ramps, curved tracks, trampolines, rotating paddle wheels, dominoes, elevators, levers, and musical chimes triggering cascading kinetic chain reactions.
+    - Deployment Target: `/var/www/novastrum/wbe/023/`
+
+24. [QUEUED] **Experiment 024 — POCKET-TERRARIUM: Aquatic Ecosystem, Nutrient Cycling & Population Dynamics Vivarium** (`024`)
+    - Product: **POCKET-TERRARIUM: Vivarium Ecology & Life Sim Studio**
+    - Concept: Relaxing, living biological micro-ecosystem simulating water chemistry, dissolved oxygen, algal blooms, photosynthetic plants, herbivore fish, predator crustaceans, feeding, temperature controls, and day/night cycles.
+    - Deployment Target: `/var/www/novastrum/wbe/024/`
+
+25. [QUEUED] **Experiment 025 — ORBITAL-SLINGSHOT: Astrodynamical Trajectory Optimization & Gravity Assist Puzzle Game** (`025`)
+    - Product: **ORBITAL-SLINGSHOT: Gravity Assist Puzzle & Celestial Navigation Game**
+    - Concept: Physics puzzle game where the player fires probes through celestial systems, using planetary gravity assists (slingshots) and orbital mechanics to reach exploration targets with limited fuel.
+    - Deployment Target: `/var/www/novastrum/wbe/025/`

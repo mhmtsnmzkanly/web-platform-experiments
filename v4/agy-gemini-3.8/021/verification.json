@@ -1,0 +1,28 @@
+{
+  "experiment": "021",
+  "name": "PONTIFEX",
+  "protocol": "Hardening Protocol 2.0",
+  "timestamp": "2026-10-19T17:22:41.134Z",
+  "status": "VERIFIED",
+  "layers": {
+    "layer1_numerical_tests": "PASS (39/39 tests, 100%)",
+    "layer2_simulation_lifecycle": "PASS (Single-owner state, unified clock, 5 levels)",
+    "layer3_browser_e2e": "PASS (Chromium headless, 5 levels, vehicle contact, zero errors)"
+  },
+  "observables_verified": [
+    "2D lumped-mass truss Hookean elasticity matrix with sub-stepped symplectic integration",
+    "Hanging beam static equilibrium Delta L = mg/k to < 0.001% relative error",
+    "Cable asymmetry condition: zero restoring force under compressive displacement",
+    "Symmetric Warren truss balanced reaction force distribution",
+    "Brittle fracture failure criterion: member snaps when stress sigma >= 1.0",
+    "Broken debris decoupling from structural stiffness graph",
+    "Vehicle multi-point wheel-road deck normal contact and suspension springs",
+    "Tangential drive traction and vehicle forward acceleration",
+    "Water submersion and vehicle flip crash detection",
+    "Opposite cliff flag crossing success detection",
+    "Material ledger exact budget calculation: sum(L0 * costPerMeter)",
+    "All 5 curated challenge levels loaded with valid budgets and cliff terrains",
+    "100% procedural Web Audio synthesis with master dynamics compressor limiter"
+  ],
+  "consoleErrors": 0
+}
