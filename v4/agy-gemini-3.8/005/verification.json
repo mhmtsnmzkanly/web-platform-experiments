@@ -1,0 +1,27 @@
+{
+  "experimentId": "005",
+  "title": "MAXWELL-LAB V2 — Interactive FDTD Electrodynamics & Metamaterials Studio",
+  "predecessor": "v3/agy-gemini-3.8/045",
+  "status": "VERIFIED_AUDITED",
+  "timestamp": "2026-10-19T00:25:10Z",
+  "checks": {
+    "typeScriptCompilation": "PASSED",
+    "viteProductionBuild": "PASSED",
+    "headlessChromiumExecution": "PASSED",
+    "zeroBrowserConsoleErrors": "PASSED",
+    "dualCanvasRendering": "PASSED",
+    "labEvidenceContract": "PASSED",
+    "labInteractionEvidenceContract": "PASSED",
+    "arbitraryTypographyRasterization": "PASSED",
+    "opticalPresetDevices": "PASSED",
+    "webAudioLifecycle": "PASSED",
+    "rafPerformanceDecoupling": "PASSED",
+    "colormapLutOptimization": "PASSED"
+  },
+  "metrics": {
+    "gridCells": 28800,
+    "cflStabilityNumber": 0.5,
+    "bundleSizeBytes": 249050,
+    "cssSizeBytes": 19730
+  }
+}
