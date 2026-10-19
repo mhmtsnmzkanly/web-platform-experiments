@@ -1,0 +1,39 @@
+{
+  "experimentId": "013",
+  "name": "SEISMIC-LAB",
+  "subtitle": "Geophysical Elastodynamics, Fault Rupture & Tsunami Wave Mechanics Studio",
+  "status": "VERIFIED_AND_AUDITED",
+  "timestamp": "2026-10-19T04:27:00Z",
+  "dualAuditSignOff": {
+    "technicalAuditor": "PASSED",
+    "productQualityAuditor": "PASSED",
+    "technicalAuditId": "dc99f991-dcda-4a26-89b9-fd5c251dc3d1",
+    "productQualityAuditId": "e7dd3594-038f-4c39-b620-7b5c6668ad14",
+    "remediationNotes": "Resolved all 5 audit items: zero-GC pre-allocated tsunami SWE buffers, physical scaling for realistic near-field PGA/PGV, dynamic displayGain for continuous sinusoidal seismogram traces, exact simulation timestamps in CSV exports, full GEOLOGY & STRATA parameter table, and acoustic phase pick needle clicks."
+  },
+  "verificationSuite": {
+    "headlessIntegrationTest": "PASSED",
+    "scenariosTested": 5,
+    "suiteModesTested": 4,
+    "displayModesTested": 3,
+    "ruptureTriggerVerified": true,
+    "seismographWaveformsVerified": true,
+    "tsunamiCouplingVerified": true,
+    "exportModalVerified": true,
+    "consoleErrors": 0,
+    "digitalClipping": 0
+  },
+  "geophysicsEngines": {
+    "elastodynamicsSolver": "2D velocity-stress staggered-grid finite-difference solver for isotropic elastic media with free-surface boundary (Rayleigh waves) and sponge absorption",
+    "faultRuptureEngine": "Double-couple tectonic fault dislocation with dip angle rotation, shear stress drop, and exponential moment magnitude scaling Mw",
+    "seismographNetwork": "4-station surface seismometer array recording vertical (Vz) and horizontal (Vx) ground velocities with calibrated physical units (cm/s, g) and automatic P, S, and Rayleigh phase picking",
+    "tsunamiSolver": "1D non-linear shallow water equations (SWE) with bathymetry shoaling, zero-GC buffers, and seafloor megathrust vertical uplift coupling"
+  },
+  "interactiveSystems": {
+    "visualizer": "60fps HTML5 Canvas with ref-based zero-GC offscreen pipeline and pre-computed palettes (Seismic Bipolar, Magma Thermal, Turbo Velocity)",
+    "waveformDeck": "Dynamic SVG multi-station rolling seismograms with adaptive gain, travel-time curves, geology strata parameters, and tsunami bathymetry plots",
+    "hypocenterGizmo": "Interactive draggable star gizmo on canvas allowing real-time focal depth and epicentral relocation",
+    "seismicSonification": "100% procedural Web Audio sub-bass P-wave rumble, S-wave friction roar, earth hum, and phase pick clicks with master dynamics limiter",
+    "telemetryExport": "CSV export of 4-station raw seismograms with exact simulation timestamps, CSV export of tsunami bathymetry/wave profile, and JSON earthquake simulation state"
+  }
+}
