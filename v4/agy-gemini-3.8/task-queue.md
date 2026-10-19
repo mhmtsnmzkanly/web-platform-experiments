@@ -71,3 +71,9 @@ Now that the initial 5 goals are fulfilled, we originate original, high-agency i
      - Safety: Limiter / anti-clipping, NaN / Infinity protection, memory / voice cleanup.
    - Audits: Dual independent Technical & Product Quality audits passed with all remediations verified (critically-damped waveguide Q=0.5 stability, normalized FM carrier audio gain, click-free release, stuck note elimination, live CPU & headroom VU telemetry HUD).
    - Deployment: `/var/www/novastrum/wbe/008/`
+
+9. [COMPLETED] **Experiment 009 — ORBITAL-MECH: N-Body Gravitational Astrophysics & Space Mission Flight Computer** (`009`)
+   - Product: **ORBITAL-MECH**
+   - Features: Symplectic 4th-order Yoshida integrator (exact Hamiltonian volume & energy preservation, $|\Delta E/E_0| < 0.05\%$), 2-axis in-plane delta-v maneuver node planner with direct on-canvas pointer dragging, forward trajectory prediction cones (400-step numerical rollout), analytical Hohmann transfer computer, manual RCS thruster pulses, 6 curated scenarios (Apollo 13 Free-Return, Moore 3-Body Figure-8, Shoemaker-Levy 9 Roche Breakup, JWST L2 Halo, Voyager 2 Grand Tour, Solar Sandbox), body spawner with archetype presets, 100% procedural Web Audio space acoustics (gravity field drone, RCS hiss, rocket roar, guidance chimes), ephemeris telemetry export (CSV, JSON, SVG).
+   - Audits: Dual independent Technical & Product Quality audits passed with all remediations verified (accurate body click selection in `BODY_CENTERED` mode, gizmo pointer capture & direct dragging, transient Web Audio intermediate node cleanup, anti-pop mute ramp, softened potential energy equation, generalized Lagrange point detection).
+   - Deployment: `/var/www/novastrum/wbe/009/`

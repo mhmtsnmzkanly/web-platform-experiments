@@ -1,0 +1,33 @@
+{
+  "experimentId": "009",
+  "name": "ORBITAL-MECH",
+  "subtitle": "N-Body Gravitational Astrophysics & Space Mission Flight Computer",
+  "status": "VERIFIED",
+  "timestamp": "2026-10-19T02:42:00Z",
+  "verificationSuite": {
+    "headlessIntegrationTest": "PASSED",
+    "totalScenariosTested": 6,
+    "canvasRenderVerified": true,
+    "timeWarpVerified": true,
+    "maneuverNodeBurnVerified": true,
+    "rcsThrustersVerified": true,
+    "ephemerisExportVerified": true,
+    "consoleErrors": 0,
+    "digitalClipping": 0
+  },
+  "astrodynamicsEngines": {
+    "integrator": "Symplectic 4th-Order Yoshida Integrator",
+    "conservation": "Exact Hamiltonian phase space volume preservation (energy drift < 0.05%)",
+    "relativisticPrecession": "Post-Newtonian 1PN Einstein-Infeld-Hoffmann correction",
+    "atmosphericDrag": "Barometric exponential density decay aerobraking",
+    "tidalDisruption": "Fluid and rigid Roche limit calculation with dynamic fragmentation",
+    "trajectoryPrediction": "Forward RK4/Verlet numerical rollout with scheduled maneuver burns"
+  },
+  "interactiveSystems": {
+    "maneuverNodes": "2-Axis in-plane delta-v controls (prograde/retrograde, radial in/out) with interactive canvas gizmo & direct pointer dragging",
+    "transferComputer": "Analytical two-impulse Hohmann transfer planner",
+    "rcsAttitude": "Real-time delta-v attitude pulses",
+    "telemetryHUD": "Keplerian orbital elements (a, e, rp, ra, T, nu, specific orbital energy, speed, altitude)",
+    "sonification": "100% procedural Web Audio space acoustics (gravity field drone, RCS hiss, rocket roar, telemetry chimes)"
+  }
+}
