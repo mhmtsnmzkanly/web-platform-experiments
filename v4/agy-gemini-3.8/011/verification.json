@@ -1,0 +1,35 @@
+{
+  "experimentId": "011",
+  "name": "AERO-TUNNEL",
+  "subtitle": "2D Lattice Boltzmann Wind Tunnel & Airfoil Flight Dynamics Studio",
+  "status": "VERIFIED_AND_AUDITED",
+  "timestamp": "2026-10-19T03:43:30Z",
+  "dualAuditSignOff": {
+    "technicalAuditor": "PASSED (Remediated momentum exchange force vector, pause handling, glider LBM synchronization, and render loop GC)",
+    "productQualityAuditor": "PASSED (Remediated drag clamping to zero, lift sign alignment, smoke trigger, and dual-mode polar plot)"
+  },
+  "verificationSuite": {
+    "headlessIntegrationTest": "PASSED",
+    "totalPresetsTested": 7,
+    "visModesTested": 4,
+    "windTunnelCanvasVerified": true,
+    "aoaAdjustmentVerified": true,
+    "gliderFlightModeVerified": true,
+    "exportModalVerified": true,
+    "dualPolarCurvesVerified": true,
+    "consoleErrors": 0,
+    "digitalClipping": 0
+  },
+  "aerodynamicsEngines": {
+    "lbmSolver": "D2Q9 BGK Lattice Boltzmann Method fluid dynamics with Zou-He velocity inlet, convective outflow, and free-slip wind tunnel walls",
+    "forceIntegration": "Momentum-exchange method on solid-fluid boundary links calculating exact sectional Lift (CL), Drag (CD), and L/D ratio with physical positive drag floor",
+    "strouhalVortexShedding": "Zero-crossing oscillation detection of lift fluctuations calculating physical shedding frequency f = St * U / L",
+    "airfoilGenerator": "Parametric NACA 4-digit airfoil geometry generator (camber m, position p, thickness t) with quarter-chord rotation"
+  },
+  "interactiveSystems": {
+    "visualizer": "60fps HTML5 Canvas with turbo velocity magnitude, pressure isobar, and bipolar vorticity colormaps, plus streakline smoke particles",
+    "gliderFlightSim": "Interactive flight dynamics testbed with pitch elevator control, aerodynamic stall detection, altitude tracking, and live LBM obstacle synchronization",
+    "aeroSonification": "100% procedural Web Audio turbulent boundary layer hiss, vortex shedding Strouhal hum, and stall buffet rumble",
+    "telemetryExport": "CSV export of chord pressure distribution Cp(x) and polar curves, and JSON state export"
+  }
+}

@@ -85,15 +85,22 @@ Now that the initial 5 goals are fulfilled, we originate original, high-agency i
     - Audits: Independent Technical and Product Quality Audits passed with all remediations verified (Toffoli control fallback protection, OpenQASM sync & 16-gate parser, Canvas density matrix heatmap, ResizeObserver, audio drone gesture sync).
     - Deployment: `/var/www/novastrum/wbe/010/`
 
-11. [IN PROGRESS] **Experiment 011 — AERO-TUNNEL: 2D Lattice Boltzmann (LBM) Wind Tunnel & Airfoil Aerodynamics Studio** (`011`)
+11. [COMPLETED] **Experiment 011 — AERO-TUNNEL: 2D Lattice Boltzmann (LBM) Wind Tunnel & Airfoil Aerodynamics Studio** (`011`)
     - Product: **AERO-TUNNEL**
-    - Concept: High-agency computational fluid dynamics (CFD) wind tunnel and aerodynamic flight testbed powered by the Lattice Boltzmann Method (D2Q9 BGK formulation).
+    - Features: D2Q9 BGK Lattice Boltzmann Method fluid dynamics on a $220 \times 90$ grid at 60 FPS, momentum-exchange aerodynamic force integration ($C_L, C_D, L/D$), parametric NACA 4-digit airfoil geometry generator (NACA 0012, 2412, 4415, 6409, Cylinder, Flat Plate, Wedge), dual-curve aerodynamic polar graphs ($C_L$ vs $\alpha$ Lift Curve and Lilienthal $C_L$ vs $C_D$ Drag Polar), real-time chord pressure distribution $C_p(x)$, multi-colormap rendering (Turbo velocity, Isobar pressure, Bipolar vorticity, and streakline smoke particles), interactive glider flight simulation testbed with aerodynamic stall warnings, freehand obstacle brush, 100% procedural Web Audio aero sonification, CSV & JSON data export.
+    - Audits: Independent Technical and Product Quality Audits passed with all remediations verified (momentum-exchange link vectors corrected, positive physical drag floor, lift sign convention aligned, pause state connected, glider position coupled to LBM grid, offscreen canvas allocation decoupled to eliminate GC churn, and dual polar views implemented).
+    - Deployment: `/var/www/novastrum/wbe/011/`
+
+12. [QUEUED] **Experiment 012 — OPTICA-FORGE: Physical Wave Optics, Holographic Interference & Thin-Film Studio** (`012`)
+    - Product: **OPTICA-FORGE**
+    - Concept: Browser-based physical wave optics, Fourier optics, and interferometry laboratory.
     - Core Capabilities:
-      - **D2Q9 BGK Lattice Boltzmann Solver**: 9 discrete velocity directions with equilibrium Maxwellian distribution $f_i^{eq}$, streaming step, relaxation collision step with tunable kinematic viscosity / Reynolds number $Re$, obstacle bounce-back boundary conditions, poiseuille inlet velocity, and non-reflective outflow.
-      - **Aerodynamic Observables & Force Integration**: Surface momentum-exchange integration for Lift coefficient $C_L$, Drag coefficient $C_D$, Lift-to-Drag ratio $L/D$, angle of attack $\alpha$, chord surface pressure distribution $C_p(x)$, and vortex shedding Strouhal frequency ($St = fL/U$).
-      - **Airfoil Geometry Designer**: Parametric NACA 4-digit airfoil generator (NACA 0012, 2412, 4415, 6409), supersonic wedge, flat plate, circular cylinder (von Kármán vortex street), ellipse, camber/thickness bezier curve manipulation, and freehand obstacle drawing brush.
-      - **Interactive Flow Visualizers**: Color contour maps for Velocity magnitude $|\vec{u}|$, Pressure / density fluctuations $\Delta \rho$, Vorticity $\omega = \nabla \times \vec{u}$, particle streamline tracer injectors with smoke bursts, and interactive angle-of-attack pitch rotator.
-      - **Dynamic Glider Flight Test Mode**: Interactive gliding simulator where the user flies an airfoil glider through dynamic wind currents, stalls, and ground effect.
-      - **100% Procedural Web Audio Aerodynamic Sonification**: Boundary layer turbulent air hisses, vortex shedding harmonic hum, and high-alpha stall buffet rumble.
-      - **Aero Polar Data Export**: Export polar drag curves ($C_L$ vs $\alpha$, $C_L$ vs $C_D$) as CSV and JSON, with SVG flow streamline snapshot.
-    - Deployment Target: `/var/www/novastrum/wbe/011/`
+      - **Physical Wave Optics Engine**: Angular Spectrum Method (ASM) and 2D Helmholtz wave equation solver for arbitrary scalar monochromatic & polychromatic electromagnetic waves.
+      - **Diffraction & Optical Elements**: Double-slit (Young's experiment), single-slit, circular aperture (Airy disc), diffraction gratings, Fresnel zone plates, spatial light modulators (SLM), refractive lenses, and parabolic mirrors.
+      - **Interferometry Suites**: Michelson interferometer, Mach-Zehnder interferometer, Sagnac interferometer, and Fabry-Pérot cavity with live fringe shifting.
+      - **Multi-Layer Thin-Film Transfer Matrix Method (TMM)**: Anti-reflective coatings, dielectric Bragg mirrors, and Fabry-Pérot filters with spectral reflectance/transmittance curves $R(\lambda), T(\lambda)$.
+      - **Digital Holography**: Interference recording of object and reference waves, and optical holographic reconstruction via inverse Fresnel propagation.
+      - **100% Procedural Web Audio Wave Sonification**: Acoustic frequency mapping of optical interferometric phase shifts, Doppler fringe velocity, and chromatic dispersion chimes.
+      - **Interactive Controls & Telemetry**: Live wavefront phase/intensity heatmap, spatial cross-section line plots, coherence sliders, and CSV/JSON state export.
+    - Deployment Target: `/var/www/novastrum/wbe/012/`
+
