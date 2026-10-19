@@ -1,0 +1,25 @@
+{
+  "experimentId": "002",
+  "title": "TYPOGRAPHIC SOKOBAN V3 — Syntactic Goal Grammar",
+  "status": "VERIFIED_AUDITED",
+  "timestamp": "2026-10-19T00:12:00Z",
+  "checks": {
+    "typeScriptCompilation": "PASSED",
+    "viteProductionBuild": "PASSED",
+    "headlessChromiumExecution": "PASSED",
+    "zeroBrowserConsoleErrors": "PASSED",
+    "canvasRendering": "PASSED",
+    "undoStackIntegrity": "PASSED",
+    "multiLevelProgression": "PASSED",
+    "webAudioLifecycle": "PASSED",
+    "solvabilityVerification": "PASSED",
+    "telemetryRestoration": "PASSED"
+  },
+  "metrics": {
+    "levelsCount": 5,
+    "palettesCount": 4,
+    "soundChannels": 4,
+    "bundleSizeBytes": 251390,
+    "cssSizeBytes": 24620
+  }
+}
