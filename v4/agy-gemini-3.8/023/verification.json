@@ -1,0 +1,27 @@
+{
+  "experiment": "023",
+  "name": "MARBLE-FORGE",
+  "protocol": "Hardening Protocol 2.0",
+  "timestamp": "2026-10-19T18:09:45.675Z",
+  "status": "VERIFIED",
+  "layers": {
+    "layer1_numerical_tests": "PASS (13/13 tests, 100%)",
+    "layer2_simulation_lifecycle": "PASS (Single-owner state, 5 challenge levels, undo/redo)",
+    "layer3_browser_e2e": "PASS (Chromium headless, 5 levels, drop, tools, export, zero errors)"
+  },
+  "observables_verified": [
+    "Rolling mechanics with spherical rotational inertia (a = 5/7 g sin(theta))",
+    "Continuous collision detection for straight rails and curved arcs",
+    "Loop-the-loop centripetal detachment criterion (N <= 0 check at critical speed)",
+    "Rigid-body seesaw lever torque dynamics and mechanical limit stops",
+    "Domino chain reaction cascading kinematics",
+    "Pairwise binary marble momentum conservation to floating-point precision",
+    "Pinball bumper active kick impulse with high restitution",
+    "Archimedes screw motorized conveyor vertical lift transport",
+    "Target objective bells with resonant modal overtone sonification",
+    "5 curated challenge levels and contraption presets",
+    "100% procedural Web Audio synthesis with master DynamicsCompressor limiter",
+    "Telemetry and contraption export in JSON and CSV formats"
+  ],
+  "consoleErrors": 0
+}
