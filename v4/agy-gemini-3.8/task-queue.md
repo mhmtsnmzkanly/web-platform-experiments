@@ -1,34 +1,49 @@
 # V4 Task Queue & Progress Record
 
 ## Overview
-Standing autonomous development queue for V4 interactive experiences.
-Execution order: Prioritized from fastest to slowest feasible high-depth experiences, followed by autonomous continuous expansion.
+Standing autonomous development queue for V4 interactive experiences under `web-platform-experiments/v4/agy-gemini-3.8/PROMPT.md`.
+Initial ordered queue completed: All 5 user goals delivered, verified, audited by independent Gemini subagents, deployed to `/var/www/novastrum/wbe/`, committed and pushed.
 
-## Active Queue
+---
+
+## Initial Queue Status (100% Complete)
+
 1. [COMPLETED] **Goal 3 — Realistic Slot Machine Simulation** (`003`)
-   - Type: New autonomous high-fidelity simulation (AERO-VAULT 777)
-   - Scope: Mechanical reel physics (spring overshoot damping, motion blur), procedural Web Audio sound synthesis, 5x3 20-payline mathematical model with transparent RTP telemetry, interactive 3D draggable lever, auto-spin with safety stopping rules, gamble card minigame, vault heist free spins bonus, dynamic LED cabinet lighting.
-   - Status: Complete & Verified. Independent Gemini audits passed. Deployed to `/var/www/novastrum/wbe/003/`.
+   - Product: **AERO-VAULT 777** (Mechanical Reel Physics & Simulation)
+   - Deployment: `/var/www/novastrum/wbe/003/`
+   - Git Commit: `da6e105`
 
-2. [COMPLETED] **Goal 2 — Experiment 108, V3 (Typographic Sokoban & Syntactic Goal Grammar V3)** (`002`)
-   - Type: Evolution of existing V3 experiment (`v3/agy-gemini-3.8/108/`)
-   - Scope: Deeper syntactic puzzle grammar, 10 handcrafted progression levels, undo/redo tree, Game Boy LCD palette themes, chiptune Web Audio synthesis, mobile touch D-pad.
-   - Status: Complete & Verified. Independent Gemini audits passed. Deployed to `/var/www/novastrum/wbe/002/`.
+2. [COMPLETED] **Goal 2 — Experiment 108, V3** (`002`)
+   - Product: **TYPOGRAPHIC SOKOBAN & SYNTACTIC GOAL GRAMMAR V3**
+   - Deployment: `/var/www/novastrum/wbe/002/`
+   - Git Commit: `e3730f7`
 
-3. [COMPLETED] **Goal 5 — Gemini 3.8 Experiment 45, V2 (MAXWELL-LAB V2: FDTD Electrodynamics Studio)** (`005`)
-   - Type: Evolution of Experiment 045 (`v3/agy-gemini-3.8/045/`)
-   - Scope: 2D Yee Leapfrog FDTD electrodynamics engine, Mur ABC absorption, arbitrary typography rasterization, multi-device optical presets, dual-channel oscilloscope, electromagnetic sonification.
-   - Status: Complete & Verified. Independent Gemini audits passed. Deployed to `/var/www/novastrum/wbe/005/`.
+3. [COMPLETED] **Goal 5 — Gemini 3.8 Experiment 45, V2** (`005`)
+   - Product: **MAXWELL-LAB V2: FDTD Electrodynamics Studio**
+   - Deployment: `/var/www/novastrum/wbe/005/`
+   - Git Commit: `534e96c`
 
-4. [COMPLETED] **Goal 1 — Infinite 2D Space Exploration Game (NOVA-STRUM: VOID INFINITY)** (`001`)
-   - Type: New autonomous infinite 2D space simulation / action RPG
-   - Scope: Chunk-based infinite procedural galaxy, Newtonian thrust & angular inertia physics, dynamic asteroid mining with magnetic tractor beam, 3 tiers of hostile pirate AI, starport docking economy with 4 shipyard upgrade paths, death & respawn cycle, holographic 360-degree radar HUD, procedural Web Audio engine.
-   - Status: Complete & Verified. Independent Gemini audits passed. Deployed to `/var/www/novastrum/wbe/001/`.
+4. [COMPLETED] **Goal 1 — Infinite 2D Space Exploration Game** (`001`)
+   - Product: **NOVA-STRUM: VOID INFINITY** (Chunk-Based Procedural Galaxy & Starport Economy)
+   - Deployment: `/var/www/novastrum/wbe/001/`
+   - Git Commit: `a6921c2`
 
-5. [IN PROGRESS] **Goal 4 — Browser-Based Music Studio (DAW)** (`004`)
-   - Type: Comprehensive Web Audio creative digital audio workstation (SYNTH-STRUM STUDIO)
-   - Scope: Multitrack polyphonic synthesizers, drum machine, effects rack (delay, biquad filter, distortion, reverb), channel mixer with volume faders and pan, JSON project import/export, interactive step sequencer / piano roll.
-   - Deployment Target: `/var/www/novastrum/wbe/004/`
+5. [COMPLETED] **Goal 4 — Browser-Based Music Studio (DAW)** (`004`)
+   - Product: **SYNTH-STRUM STUDIO: Browser Digital Audio Workstation**
+   - Features: Pure procedural Web Audio synthesis, 7-channel multitrack step sequencer, 3-octave chromatic piano roll with full ADSR envelope control, console mixer with volume/pan/mute/solo, 4-unit master effects rack (Filter, Ping-Pong Delay, Overdrive, Algorithmic Reverb), real-time 36-band FFT visualizer, JSON export/import.
+   - Audits: Independent Technical & Product Quality audits passed with all remediations verified.
+   - Deployment: `/var/www/novastrum/wbe/004/`
 
-6. [QUEUED] **Autonomous Original Expansions**
-   - Continuously originating and executing deep interactive experiences following the V4 charter once the supplied queue is complete.
+---
+
+## Autonomous Origination Queue (Rule 7: Continuous Autonomous Creation)
+
+Now that the initial 5 goals are fulfilled, we originate original, high-agency interactive experiences:
+
+6. [IN PROGRESS] **Experiment 006 — NEURO-FLUID: Autonomous SPH Hydrodynamics & Bioluminescent Reaction-Diffusion Studio** (`006`)
+   - Type: Original high-performance physical simulation & interactive creative studio
+   - Core Mechanics:
+     - 2D Smoothed-Particle Hydrodynamics (SPH) fluid simulation with density, pressure (Tait equation of state), surface tension, and Navier-Stokes viscosity.
+     - Dual simulation mode: Interactive SPH Particle Fluid coupled with a GPU/Canvas Gray-Scott Reaction-Diffusion substrate (bioluminescent chemical morphogenesis).
+     - User Agency: Interactive particle emitters, multi-fluid density mixing, draggable gravity well vortices, obstacle drawing with fluid deflection, optical refraction rendering, audio sonification of fluid velocity and pressure waves.
+   - Deployment Target: `/var/www/novastrum/wbe/006/`
