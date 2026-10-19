@@ -1,0 +1,26 @@
+{
+  "experiment": "022",
+  "name": "POWDER-BOX",
+  "protocol": "Hardening Protocol 2.0",
+  "timestamp": "2026-10-19T17:41:52.681Z",
+  "status": "VERIFIED",
+  "layers": {
+    "layer1_numerical_tests": "PASS (32/32 tests, 100%)",
+    "layer2_simulation_lifecycle": "PASS (Single-owner state, 36,000 cell CA lattice, 6 presets)",
+    "layer3_browser_e2e": "PASS (Chromium headless, 6 presets, painting, dual canvas, zero errors)"
+  },
+  "observables_verified": [
+    "Discrete 2D cellular automaton lattice transport (240x150 = 36,000 cells)",
+    "Granular kinematics: Sand gravity acceleration and angle of repose slip",
+    "Multi-phase fluid buoyancy: Density stratification (rho_oil < rho_water < rho_acid < rho_sand < rho_lava)",
+    "Thermodynamics: 5-point discrete Laplacian Fourier heat diffusion",
+    "Phase transformations: Ice -> Water -> Steam, Lava -> Stone crystallization",
+    "Chemical reactions: Gunpowder explosive deflagration, Acid corrosion of wood/plant",
+    "Reaction sweeps: 8-neighbor Moore neighborhood contact checks",
+    "Dual canvas rendering: Direct packed ABGR ImageData pixel writes + vector brush overlay",
+    "6 curated dynamic presets: Hourglass, Oil Spill, Volcano, Acid Chamber, Forest Fire, Steam Engine",
+    "100% procedural Web Audio sonification engine with master DynamicsCompressor limiter",
+    "Telemetry and full state export in JSON and CSV formats"
+  ],
+  "consoleErrors": 0
+}
