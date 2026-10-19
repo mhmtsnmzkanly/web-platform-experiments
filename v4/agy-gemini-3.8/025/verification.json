@@ -1,0 +1,25 @@
+{
+  "experiment": "025",
+  "name": "ORBITAL-SLINGSHOT",
+  "status": "PASSED",
+  "timestamp": "2026-10-19T18:58:19.987Z",
+  "testsPassed": 24,
+  "testsTotal": 24,
+  "browserErrors": 0,
+  "featuresValidated": [
+    "Symplectic Velocity Verlet (Order 2) orbital integration",
+    "Specific mechanical energy & angular momentum conservation",
+    "Analytical Vis-Viva velocity predictions at apsides",
+    "Hohmann transfer departure Delta-V & arrival circularization",
+    "Planetary hyperbolic gravity assist asymptotic speed invariance",
+    "Heliocentric energy boost & braking via trailing/leading flybys",
+    "Laplace Sphere of Influence (SOI) boundary patching",
+    "Lagrange L4 equilibrium libration stability",
+    "100% procedural Web Audio sonification (thrusters, SOI chimes, whooshes)",
+    "Master DynamicsCompressor limiter preventing digital distortion",
+    "High-DPI Retina HTML5 Canvas with real wall-clock FPS measurement",
+    "Maneuver node planner with interactive prograde/radial impulses",
+    "Single-owner controller with 30-step undo/redo stack",
+    "JSON and CSV flight telemetry ledger export"
+  ]
+}
