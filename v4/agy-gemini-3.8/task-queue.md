@@ -40,10 +40,18 @@ Initial ordered queue completed: All 5 user goals delivered, verified, audited b
 
 Now that the initial 5 goals are fulfilled, we originate original, high-agency interactive experiences:
 
-6. [IN PROGRESS] **Experiment 006 — NEURO-FLUID: Autonomous SPH Hydrodynamics & Bioluminescent Reaction-Diffusion Studio** (`006`)
-   - Type: Original high-performance physical simulation & interactive creative studio
+6. [COMPLETED] **Experiment 006 — NEURO-FLUID: SPH Hydrodynamics & Reaction-Diffusion Studio** (`006`)
+   - Product: **NEURO-FLUID STUDIO**
+   - Features: Real-time SPH Navier-Stokes fluid mechanics, Gray-Scott Reaction-Diffusion morphogenesis coupling, dynamic spatial grid partitioning, interactive fluid tools (emitters, stirring force, obstacles, vortices, eraser), procedural presets (Dam Break, Karman Vortex Street, Turing Coral), Web Audio hydrodynamic sonification.
+   - Audits: Technical and Product Quality audits completed, 2D SPH kernel normalization, dynamic canvas registration, decoupled animation loop, and audio guards remediated.
+   - Deployment: `/var/www/novastrum/wbe/006/`
+
+7. [IN PROGRESS] **Experiment 007 — GENOME-FORGE: Evolutionary Artificial Life & Gene-Regulatory Ecosystem** (`007`)
+   - Type: Original artificial life laboratory, neural organism evolution & synthetic biology studio
    - Core Mechanics:
-     - 2D Smoothed-Particle Hydrodynamics (SPH) fluid simulation with density, pressure (Tait equation of state), surface tension, and Navier-Stokes viscosity.
-     - Dual simulation mode: Interactive SPH Particle Fluid coupled with a GPU/Canvas Gray-Scott Reaction-Diffusion substrate (bioluminescent chemical morphogenesis).
-     - User Agency: Interactive particle emitters, multi-fluid density mixing, draggable gravity well vortices, obstacle drawing with fluid deflection, optical refraction rendering, audio sonification of fluid velocity and pressure waves.
-   - Deployment Target: `/var/www/novastrum/wbe/006/`
+     - Autonomous digital organisms with variable-length genomes encoding morphology, sensor arrays, locomotion flagella, and compact neural-network brains.
+     - Evolutionary dynamics: natural selection, asexual/sexual reproduction, mutagenic radiation, nutrient metabolism, energy budgets, and speciation.
+     - Synthetic Biology & CRISPR Splicer: interactive genome designer allowing users to edit codons, rewire neural connections, inspect phylogenetic trees, and inject custom species.
+     - Environmental manipulation: micro-pipette nutrient feeds, thermal & radiation gradients, pathogen phages, fluid viscosity.
+     - Scientific micro-imaging renderer: dark-field, phase-contrast, and fluorescent confocal microscopy shaders with Web Audio microscopic bio-acoustics.
+   - Deployment Target: `/var/www/novastrum/wbe/007/`
