@@ -1,0 +1,29 @@
+{
+  "experiment": "024",
+  "name": "POCKET-TERRARIUM",
+  "protocol": "Hardening Protocol 2.0",
+  "timestamp": "2026-10-19T18:33:57.198Z",
+  "status": "VERIFIED",
+  "layers": {
+    "layer1_numerical_tests": "PASS (17/17 tests, 100%)",
+    "layer2_simulation_lifecycle": "PASS (Single-owner state, 5 scenarios, undo/redo)",
+    "layer3_browser_e2e": "PASS (Chromium headless, 5 scenarios, tools, test kit, zero errors)"
+  },
+  "observables_verified": [
+    "Three-stage biological Nitrogen Cycle (Ammonia -> Nitrite -> Nitrate)",
+    "Monod enzyme kinetics for Nitrosomonas and Nitrobacter bacteria",
+    "Strict inorganic nitrogen mass conservation in closed volume",
+    "Plant vegetative nitrate assimilation and biomass growth",
+    "Diurnal Photosynthesis and nocturnal aerobic respiration gas exchange",
+    "Henry's Law surface atmospheric dissolved oxygen saturation",
+    "Active aerator air stone bubbler reaeration acceleration",
+    "Carbonate buffer equilibrium with daytime alkaline / night acidic pH shifts",
+    "Holling Type II multi-trophic grazing and guppy predation",
+    "Deterministic 20% and 50% solute dilution on partial water changes",
+    "5 curated challenge scenarios (Walstad, Bloom, Cycling, Trophic, Rescue)",
+    "Master colorimetric water test kit modal with 5 reagent test vials",
+    "100% procedural Web Audio synthesis with master DynamicsCompressor limiter",
+    "Telemetry and bio-ledger export in JSON and CSV formats"
+  ],
+  "consoleErrors": 0
+}
