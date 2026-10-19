@@ -1,0 +1,27 @@
+{
+  "experiment": "019",
+  "name": "BAND-FORGE",
+  "protocol": "Hardening Protocol 2.0",
+  "timestamp": "2026-10-19T13:17:31.466Z",
+  "status": "VERIFIED",
+  "layers": {
+    "layer1_numerical_tests": "PASS (41/41 tests, 100%)",
+    "layer2_simulation_lifecycle": "PASS (Single-owner state, unified clock, 6 presets)",
+    "layer3_browser_e2e": "PASS (Chromium headless, 5 modes, 6 presets, zero errors)"
+  },
+  "observables_verified": [
+    "Graphene Dirac cone analytical roots (E=0 eV) and bandwidth (+/-3t, +/-t) to < 1e-10 eV",
+    "Square lattice analytical extremes (-4t, +4t, 0) to < 1e-12 eV",
+    "Graphene Fermi velocity v_F formula to < 0.001%",
+    "SSH bulk gap Delta E = 2|t1 - t2| and topological winding numbers nu in {0, 1}",
+    "SSH zero-energy in-gap boundary solitons under OBC to < 1e-8 eV",
+    "Haldane Dirac masses and analytical phase boundary",
+    "Exact quantized integer Chern number C in {-1, 0, +1} via 2D toroidal Berry curvature integration and Fukui-Hatsugai-Suzuki discrete link products",
+    "Harper equation eigenspectrum bandwidth bound [-4t, +4t] and particle-hole symmetry",
+    "Diatomic phonon acoustic zero frequency at Gamma and zone-center optical frequency",
+    "Sound velocity long-wavelength limit vs = a*sqrt(Cs/[2(M1+M2)]) to < 0.1%",
+    "Phonon bandgap Delta_omega at Brillouin zone boundary pi/a",
+    "Procedural Web Audio synthesis with master dynamics compressor limiter"
+  ],
+  "consoleErrors": 0
+}
