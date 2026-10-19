@@ -77,3 +77,23 @@ Now that the initial 5 goals are fulfilled, we originate original, high-agency i
    - Features: Symplectic 4th-order Yoshida integrator (exact Hamiltonian volume & energy preservation, $|\Delta E/E_0| < 0.05\%$), 2-axis in-plane delta-v maneuver node planner with direct on-canvas pointer dragging, forward trajectory prediction cones (400-step numerical rollout), analytical Hohmann transfer computer, manual RCS thruster pulses, 6 curated scenarios (Apollo 13 Free-Return, Moore 3-Body Figure-8, Shoemaker-Levy 9 Roche Breakup, JWST L2 Halo, Voyager 2 Grand Tour, Solar Sandbox), body spawner with archetype presets, 100% procedural Web Audio space acoustics (gravity field drone, RCS hiss, rocket roar, guidance chimes), ephemeris telemetry export (CSV, JSON, SVG).
    - Audits: Dual independent Technical & Product Quality audits passed with all remediations verified (accurate body click selection in `BODY_CENTERED` mode, gizmo pointer capture & direct dragging, transient Web Audio intermediate node cleanup, anti-pop mute ramp, softened potential energy equation, generalized Lagrange point detection).
    - Deployment: `/var/www/novastrum/wbe/009/`
+
+10. [COMPLETED] **Experiment 010 — QUANTUM-GATE STUDIO: Multi-Qubit Circuit Simulator & Algorithm Visualizer** (`010`)
+    - Product: **QUANTUM-GATE STUDIO**
+    - Features: Complex state vector algebra engine ($\mathbb{C}^{2^n}$), full unitary gate matrix library ($H, X, Y, Z, S, T, T^\dagger, R_x, R_y, R_z, \text{CNOT}, \text{CZ}, \text{CP}, \text{SWAP}, \text{Toffoli}, \text{CSWAP}$), projective measurements, partial trace reduced density matrix derivation ($\text{Tr}_{\neg q}(\rho)$), rotatable 3D Bloch sphere with mixed-state vector shrinkage, probability histogram with complex phase color wheel, $O(1)$ HTML5 Canvas density matrix coherence heatmap, OpenQASM 2.0 bidirectional synchronization & parser, interactive starting state toggles, and 100% procedural Web Audio quantum state sonification.
+    - Curated Algorithms: Bell State ($|\Phi^+\rangle$), Quantum Teleportation, Grover's Search ($78.13\%$ 1-iteration amplification), 3-Qubit QFT, Deutsch-Jozsa, Superdense Coding.
+    - Audits: Independent Technical and Product Quality Audits passed with all remediations verified (Toffoli control fallback protection, OpenQASM sync & 16-gate parser, Canvas density matrix heatmap, ResizeObserver, audio drone gesture sync).
+    - Deployment: `/var/www/novastrum/wbe/010/`
+
+11. [IN PROGRESS] **Experiment 011 — AERO-TUNNEL: 2D Lattice Boltzmann (LBM) Wind Tunnel & Airfoil Aerodynamics Studio** (`011`)
+    - Product: **AERO-TUNNEL**
+    - Concept: High-agency computational fluid dynamics (CFD) wind tunnel and aerodynamic flight testbed powered by the Lattice Boltzmann Method (D2Q9 BGK formulation).
+    - Core Capabilities:
+      - **D2Q9 BGK Lattice Boltzmann Solver**: 9 discrete velocity directions with equilibrium Maxwellian distribution $f_i^{eq}$, streaming step, relaxation collision step with tunable kinematic viscosity / Reynolds number $Re$, obstacle bounce-back boundary conditions, poiseuille inlet velocity, and non-reflective outflow.
+      - **Aerodynamic Observables & Force Integration**: Surface momentum-exchange integration for Lift coefficient $C_L$, Drag coefficient $C_D$, Lift-to-Drag ratio $L/D$, angle of attack $\alpha$, chord surface pressure distribution $C_p(x)$, and vortex shedding Strouhal frequency ($St = fL/U$).
+      - **Airfoil Geometry Designer**: Parametric NACA 4-digit airfoil generator (NACA 0012, 2412, 4415, 6409), supersonic wedge, flat plate, circular cylinder (von Kármán vortex street), ellipse, camber/thickness bezier curve manipulation, and freehand obstacle drawing brush.
+      - **Interactive Flow Visualizers**: Color contour maps for Velocity magnitude $|\vec{u}|$, Pressure / density fluctuations $\Delta \rho$, Vorticity $\omega = \nabla \times \vec{u}$, particle streamline tracer injectors with smoke bursts, and interactive angle-of-attack pitch rotator.
+      - **Dynamic Glider Flight Test Mode**: Interactive gliding simulator where the user flies an airfoil glider through dynamic wind currents, stalls, and ground effect.
+      - **100% Procedural Web Audio Aerodynamic Sonification**: Boundary layer turbulent air hisses, vortex shedding harmonic hum, and high-alpha stall buffet rumble.
+      - **Aero Polar Data Export**: Export polar drag curves ($C_L$ vs $\alpha$, $C_L$ vs $C_D$) as CSV and JSON, with SVG flow streamline snapshot.
+    - Deployment Target: `/var/www/novastrum/wbe/011/`
