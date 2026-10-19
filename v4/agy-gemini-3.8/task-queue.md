@@ -52,7 +52,7 @@ Now that the initial 5 goals are fulfilled, we originate original, high-agency i
    - Audits: Independent Technical & Product Quality audits passed with all remediations verified (ghost action elimination, nutrient decay and capacity bounds, cloned brain weight retention, 60fps RAF connectome animation, mutagen rate limiting).
    - Deployment: `/var/www/novastrum/wbe/007/`
 
-8. [IN PROGRESS] **Experiment 008 — PROCEDURAL INSTRUMENT LAB** (`008`)
+8. [COMPLETED] **Experiment 008 — PROCEDURAL INSTRUMENT LAB** (`008`)
    - Type: Pure Mathematical & Procedural Algorithmic Instrument Laboratory (User Directive)
    - Scope: Independent technological demonstrator researching algorithmic synthesis of realistic and experimental instrument acoustics without external audio samples or recordings.
    - Core Instrument Families:
@@ -65,8 +65,9 @@ Now that the initial 5 goals are fulfilled, we originate original, high-agency i
      - Real-time parameter tweaking during playback.
      - Virtual & computer keyboard playable with polyphony & active voice visualizer.
      - Real-time oscilloscope & 64-band FFT spectrum analyzer.
-     - A/B comparison system with equal-loudness matching.
+     - A/B comparison system with equal-loudness matching and auto-sync.
      - Random instrument generator & preset export/import (JSON).
      - Procedural WAV export via OfflineAudioContext.
      - Safety: Limiter / anti-clipping, NaN / Infinity protection, memory / voice cleanup.
-   - Deployment Target: `/var/www/novastrum/wbe/008/`
+   - Audits: Dual independent Technical & Product Quality audits passed with all remediations verified (critically-damped waveguide Q=0.5 stability, normalized FM carrier audio gain, click-free release, stuck note elimination, live CPU & headroom VU telemetry HUD).
+   - Deployment: `/var/www/novastrum/wbe/008/`
