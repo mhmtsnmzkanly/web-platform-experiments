@@ -2,7 +2,7 @@
   "experiment": "022",
   "name": "POWDER-BOX",
   "protocol": "Hardening Protocol 2.0",
-  "timestamp": "2026-10-19T17:41:52.681Z",
+  "timestamp": "2026-10-19T17:52:31.019Z",
   "status": "VERIFIED",
   "layers": {
     "layer1_numerical_tests": "PASS (32/32 tests, 100%)",

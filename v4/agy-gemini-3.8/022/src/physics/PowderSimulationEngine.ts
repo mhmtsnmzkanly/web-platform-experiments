@@ -145,7 +145,7 @@ export class PowderSimulationEngine {
     this.diffuseHeat();
 
     // 4. Bottom-up sweep for falling powders, liquids, and downward flows
-    for (let y = this.height - 2; y >= 0; y--) {
+    for (let y = this.height - 1; y >= 0; y--) {
       // Alternate horizontal traversal direction per row to prevent left/right drift bias
       const startX = (this.frameIndex + y) % 2 === 0 ? 0 : this.width - 1;
       const endX = (this.frameIndex + y) % 2 === 0 ? this.width : -1;
@@ -170,7 +170,7 @@ export class PowderSimulationEngine {
     }
 
     // 5. Top-down sweep for rising gases and buoyant energy (Fire, Steam, Smoke)
-    for (let y = 1; y < this.height; y++) {
+    for (let y = 0; y < this.height; y++) {
       const startX = (this.frameIndex + y) % 2 === 0 ? 0 : this.width - 1;
       const endX = (this.frameIndex + y) % 2 === 0 ? this.width : -1;
       const stepX = (this.frameIndex + y) % 2 === 0 ? 1 : -1;
@@ -256,8 +256,12 @@ export class PowderSimulationEngine {
     const belowId = this.getElementId(x, y + 1);
     const belowDef = ELEMENT_DEFINITIONS[ID_TO_ELEMENT[belowId]];
 
-    // 1. Fall down if empty or lighter fluid
-    if (belowId === ELEMENT_IDS.EMPTY || (belowDef.category === 'LIQUID' && belowDef.density < def.density)) {
+    // 1. Fall down if empty, lighter fluid, gas/energy, or lighter powder
+    if (
+      belowId === ELEMENT_IDS.EMPTY ||
+      ((belowDef.category === 'LIQUID' || belowDef.category === 'GAS' || belowDef.category === 'ENERGY' || (belowDef.category === 'POWDER' && def.density > belowDef.density * 1.3)) &&
+        belowDef.density < def.density)
+    ) {
       this.swapCells(x, y, x, y + 1);
       return;
     }
@@ -385,6 +389,7 @@ export class PowderSimulationEngine {
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
         const i = this.idx(x, y);
+        if (this.updated[i] === currParity) continue;
         const elemId = this.elements[i];
         if (elemId === ELEMENT_IDS.EMPTY) continue;
 
@@ -400,7 +405,7 @@ export class PowderSimulationEngine {
             const nDef = ELEMENT_DEFINITIONS[nType];
 
             // Direct ignition of flammable elements
-            if (nDef.flammability > 0 && Math.random() < nDef.flammability) {
+            if (nDef.flammability > 0 && (nType === 'GUNPOWDER' || Math.random() < nDef.flammability)) {
               if (nType === 'GUNPOWDER') {
                 // EXPLOSIVE DEFLAGRATION!
                 this.triggerExplosion(nx, ny);
@@ -419,6 +424,7 @@ export class PowderSimulationEngine {
               this.elements[i] = ELEMENT_IDS.STEAM;
               this.temperature[i] = 110.0;
               this.life[i] = 60;
+              this.elements[ni] = ELEMENT_IDS.EMPTY; // Consume water reactant
               this.reactionCount++;
               if (this.reactionCallback && Math.random() < 0.15) {
                 this.reactionCallback({ type: 'HISS', x, y, intensity: 0.6 });
@@ -571,7 +577,9 @@ export class PowderSimulationEngine {
         const laplacian = tLeft + tRight + tUp + tDown - 4.0 * tCenter;
         let newTemp = tCenter + alpha * laplacian - dissipation * (tCenter - ambient);
 
-        this.temperature[i] = Math.max(-50.0, Math.min(2500.0, newTemp));
+        this.temperature[i] = Number.isFinite(newTemp)
+          ? Math.max(-50.0, Math.min(2500.0, newTemp))
+          : ambient;
       }
     }
   }
@@ -614,8 +622,16 @@ export class PowderSimulationEngine {
 
     for (let i = 0; i < total; i++) {
       if (showThermalView) {
-        // Thermal false-color colormap: Deep blue (-20C) -> Cyan (0C) -> Green (20C) -> Yellow (100C) -> Crimson (600C) -> White (>1000C)
+        const elemId = this.elements[i];
         const t = this.temperature[i];
+
+        // Ambient empty air rendered as dark void for crisp scene geometry contrast
+        if (elemId === ELEMENT_IDS.EMPTY && Math.abs(t - 20.0) < 1.5) {
+          data32[i] = 0xff140c06; // Deep navy-black void in packed ABGR
+          continue;
+        }
+
+        // Thermal false-color colormap: Deep blue (-20C) -> Cyan (0C) -> Green (20C) -> Yellow (100C) -> Crimson (600C) -> White (>1000C)
         let r = 10,
           g = 15,
           b = 30;

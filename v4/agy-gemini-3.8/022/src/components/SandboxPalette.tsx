@@ -23,6 +23,25 @@ interface SandboxPaletteProps {
   controller: PowderSimulationController;
 }
 
+const ELEMENT_DISPLAY_NAMES: Record<ElementType, string> = {
+  EMPTY: 'Air',
+  SAND: 'Sand',
+  GUNPOWDER: 'Gunpowder',
+  WATER: 'Water',
+  OIL: 'Oil',
+  ACID: 'Acid',
+  LAVA: 'Lava',
+  WOOD: 'Wood',
+  STONE: 'Stone',
+  ICE: 'Ice',
+  PLANT: 'Plant',
+  GLASS: 'Glass',
+  IRON: 'Iron',
+  FIRE: 'Fire',
+  STEAM: 'Steam',
+  SMOKE: 'Smoke',
+};
+
 export const SandboxPalette: React.FC<SandboxPaletteProps> = ({ controller }) => {
   const activeTool = controller.activeTool;
 
@@ -61,7 +80,7 @@ export const SandboxPalette: React.FC<SandboxPaletteProps> = ({ controller }) =>
             const def = ELEMENT_DEFINITIONS[el];
             const [r, g, b] = def.color;
             const tooltip = `${def.name} • ${def.density} kg/m³ • ${def.state}`;
-            return renderToolButton(el, def.name.split(' ')[0], `rgb(${r},${g},${b})`, tooltip);
+            return renderToolButton(el, ELEMENT_DISPLAY_NAMES[el], `rgb(${r},${g},${b})`, tooltip);
           })}
         </div>
 
@@ -72,7 +91,7 @@ export const SandboxPalette: React.FC<SandboxPaletteProps> = ({ controller }) =>
             const def = ELEMENT_DEFINITIONS[el];
             const [r, g, b] = def.color;
             const tooltip = `${def.name} • ${def.density} kg/m³ • ${def.state}`;
-            return renderToolButton(el, def.name.split(' ')[0], `rgb(${r},${g},${b})`, tooltip);
+            return renderToolButton(el, ELEMENT_DISPLAY_NAMES[el], `rgb(${r},${g},${b})`, tooltip);
           })}
         </div>
 
@@ -83,7 +102,7 @@ export const SandboxPalette: React.FC<SandboxPaletteProps> = ({ controller }) =>
             const def = ELEMENT_DEFINITIONS[el];
             const [r, g, b] = def.color;
             const tooltip = `${def.name} • ${def.density} kg/m³ • ${def.state}`;
-            return renderToolButton(el, def.name.split(' ')[0], `rgb(${r},${g},${b})`, tooltip);
+            return renderToolButton(el, ELEMENT_DISPLAY_NAMES[el], `rgb(${r},${g},${b})`, tooltip);
           })}
         </div>
 
@@ -94,7 +113,7 @@ export const SandboxPalette: React.FC<SandboxPaletteProps> = ({ controller }) =>
             const def = ELEMENT_DEFINITIONS[el];
             const [r, g, b] = def.color;
             const tooltip = `${def.name} • ${def.density} kg/m³ • ${def.state}`;
-            return renderToolButton(el, def.name.split(' ')[0], `rgb(${r},${g},${b})`, tooltip);
+            return renderToolButton(el, ELEMENT_DISPLAY_NAMES[el], `rgb(${r},${g},${b})`, tooltip);
           })}
         </div>
 
@@ -162,7 +181,7 @@ export const SandboxPalette: React.FC<SandboxPaletteProps> = ({ controller }) =>
           <input
             type="range"
             min="1"
-            max="12"
+            max="16"
             value={controller.brushRadius}
             onChange={(e) => controller.setBrushRadius(parseInt(e.target.value, 10))}
             className="w-20 accent-amber-500 cursor-pointer h-1.5 bg-slate-700 rounded-lg"

@@ -103,8 +103,11 @@ export const SandboxCanvas: React.FC<SandboxCanvasProps> = ({ controller }) => {
   };
 
   // Pointer event handlers
-  const handlePointerDown = (e: React.PointerEvent) => {
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     isPointerDownRef.current = true;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {}
     const pos = clientToGrid(e.clientX, e.clientY);
     if (pos) {
       pointerGridPosRef.current = pos;
@@ -112,7 +115,7 @@ export const SandboxCanvas: React.FC<SandboxCanvasProps> = ({ controller }) => {
     }
   };
 
-  const handlePointerMove = (e: React.PointerEvent) => {
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const pos = clientToGrid(e.clientX, e.clientY);
     pointerGridPosRef.current = pos;
 
@@ -121,13 +124,17 @@ export const SandboxCanvas: React.FC<SandboxCanvasProps> = ({ controller }) => {
     }
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     isPointerDownRef.current = false;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
   };
 
   const handlePointerLeave = () => {
-    isPointerDownRef.current = false;
-    pointerGridPosRef.current = null;
+    if (!isPointerDownRef.current) {
+      pointerGridPosRef.current = null;
+    }
   };
 
   // ResizeObserver for overlay canvas matching canvas element dimensions
@@ -172,7 +179,7 @@ export const SandboxCanvas: React.FC<SandboxCanvasProps> = ({ controller }) => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full cursor-crosshair overflow-hidden select-none bg-black flex items-center justify-center p-2"
+      className="relative w-full h-full cursor-crosshair overflow-hidden select-none bg-black flex items-center justify-center p-2 touch-none"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}

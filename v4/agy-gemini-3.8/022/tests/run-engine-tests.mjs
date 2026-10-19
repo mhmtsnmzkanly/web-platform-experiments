@@ -333,13 +333,19 @@ console.log('\n5. Chemical Reactions & Combustion (REACT):');
 }
 
 {
-  // Test: Acid corrodes organic wood
+  // Test: Acid corrodes organic wood in contained crucible
   const engine = new PowderSimulationEngine(30, 30);
+  // Containment vessel (Glass does not react with acid)
+  engine.setElement(14, 14, 'GLASS');
+  engine.setElement(16, 14, 'GLASS');
+  engine.setElement(14, 15, 'GLASS');
+  engine.setElement(16, 15, 'GLASS');
+  engine.setElement(15, 16, 'GLASS');
   engine.setElement(15, 15, 'WOOD');
-  engine.setElement(15, 14, 'ACID'); // Acid directly touching wood
+  engine.setElement(15, 14, 'ACID'); // Acid directly touching wood inside beaker
 
   // Step multiple ticks to allow probabilistic acid etching
-  for (let s = 0; s < 25; s++) {
+  for (let s = 0; s < 30; s++) {
     engine.step();
   }
 
