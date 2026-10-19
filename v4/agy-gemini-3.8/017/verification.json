@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-10-19T05:50:38.576Z",
+  "experiment": "017",
+  "title": "COLLIDER-LAB",
+  "status": "VERIFIED",
+  "checks": {
+    "pageLoaded": true,
+    "canvasRendered": true,
+    "suiteModesTested": 4,
+    "presetsTested": 6,
+    "manualCollideFunctional": true,
+    "continuousBeamFunctional": true,
+    "audioSonificationTested": true,
+    "exportModalFunctional": true,
+    "consoleErrors": 0
+  }
+}
