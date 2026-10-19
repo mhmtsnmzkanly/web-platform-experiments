@@ -91,16 +91,22 @@ Now that the initial 5 goals are fulfilled, we originate original, high-agency i
     - Audits: Independent Technical and Product Quality Audits passed with all remediations verified (momentum-exchange link vectors corrected, positive physical drag floor, lift sign convention aligned, pause state connected, glider position coupled to LBM grid, offscreen canvas allocation decoupled to eliminate GC churn, and dual polar views implemented).
     - Deployment: `/var/www/novastrum/wbe/011/`
 
-12. [QUEUED] **Experiment 012 — OPTICA-FORGE: Physical Wave Optics, Holographic Interference & Thin-Film Studio** (`012`)
+12. [COMPLETED] **Experiment 012 — OPTICA-FORGE: Physical Wave Optics, Holographic Interference & Thin-Film Studio** (`012`)
     - Product: **OPTICA-FORGE**
-    - Concept: Browser-based physical wave optics, Fourier optics, and interferometry laboratory.
+    - Features: 2D scalar optical field simulation on a $280 \times 140$ lattice (39,200 complex cells) at 60 FPS, Huygens-Fresnel diffraction integration, 6 aperture presets (Young double-slit, single-slit, circular Airy aperture, diffraction grating, Fresnel zone plate, custom SLM), 3 interferometers (Michelson with piezo scan and coherence decay, Mach-Zehnder with test cell refractometer, Fabry-Pérot resonant cavity with finesse $\mathcal{F} > 150$), exact 2x2 Transfer Matrix Method (TMM) thin-film coating engine (6 presets including $\text{MgF}_2$ AR, DBR laser mirror, Silver metallic plasmonic reflector) with TE/TM polarization and angle of incidence $\theta_0 \in [0^\circ, 75^\circ]$, off-axis Leith-Upatnieks digital holography recording & 3D virtual image diffractive reconstruction, dynamic SVG detector cross-section $I(y)$, visible reflection/transmission spectrum $R(\lambda), T(\lambda)$, ref-based zero-GC canvas rendering with Laser Green, Cyan Neon, Solar Amber, and Spectrum RGB palettes, 100% procedural Web Audio sonification with master dynamics limiting, and full CSV/JSON telemetry export.
+    - Audits: Independent Technical and Product Quality Audits passed with all remediations verified (complex extinction coefficient & oblique incidence NaN guards on metallic films, TMM spectrum percentage formatting, dirty-tracking flag eliminating static CPU churn, Spectrum RGB colormap palette, and one-shot chime compressor routing).
+    - Deployment: `/var/www/novastrum/wbe/012/`
+
+13. [QUEUED] **Experiment 013 — SEISMIC-LAB: Geophysical Elastodynamics, Fault Rupture & Tsunami Wave Mechanics Studio** (`013`)
+    - Product: **SEISMIC-LAB**
+    - Concept: Browser-based geophysical elastodynamics, tectonic fault slip, seismic wave propagation, and coastal tsunami hydrodynamic laboratory.
     - Core Capabilities:
-      - **Physical Wave Optics Engine**: Angular Spectrum Method (ASM) and 2D Helmholtz wave equation solver for arbitrary scalar monochromatic & polychromatic electromagnetic waves.
-      - **Diffraction & Optical Elements**: Double-slit (Young's experiment), single-slit, circular aperture (Airy disc), diffraction gratings, Fresnel zone plates, spatial light modulators (SLM), refractive lenses, and parabolic mirrors.
-      - **Interferometry Suites**: Michelson interferometer, Mach-Zehnder interferometer, Sagnac interferometer, and Fabry-Pérot cavity with live fringe shifting.
-      - **Multi-Layer Thin-Film Transfer Matrix Method (TMM)**: Anti-reflective coatings, dielectric Bragg mirrors, and Fabry-Pérot filters with spectral reflectance/transmittance curves $R(\lambda), T(\lambda)$.
-      - **Digital Holography**: Interference recording of object and reference waves, and optical holographic reconstruction via inverse Fresnel propagation.
-      - **100% Procedural Web Audio Wave Sonification**: Acoustic frequency mapping of optical interferometric phase shifts, Doppler fringe velocity, and chromatic dispersion chimes.
-      - **Interactive Controls & Telemetry**: Live wavefront phase/intensity heatmap, spatial cross-section line plots, coherence sliders, and CSV/JSON state export.
-    - Deployment Target: `/var/www/novastrum/wbe/012/`
+      - **Elastodynamic Wave Equation Solver**: 2D velocity-stress staggered-grid finite-difference (FDTD) or continuous elastodynamic lattice simulating P-waves (compressional, primary), S-waves (shear, secondary), and Rayleigh surface waves across heterogeneous geological strata (crust, mantle, fault gouge, sediment basins).
+      - **Dynamic Tectonic Fault Rupture**: Rate-and-state friction law governing slip nucleation, stress drop, rupture velocity, and seismic moment magnitude $M_w$.
+      - **Seismograph Station Network**: Multi-station 3-component seismogram telemetry recording ground acceleration, velocity, and displacement, with live P/S-wave arrival time travel curves and epicentral triangulation.
+      - **Shallow-Water Tsunami Hydrodynamics**: Nonlinear shallow water equations (SWE) coupling seafloor vertical displacement to open-ocean tsunami propagation, shoaling amplification, and coastal run-up bathymetry.
+      - **100% Procedural Web Audio Infrasound Sonification**: Sub-bass P-wave compressional rumbles, S-wave shear grating, and Rayleigh wave ground displacement infrasound, pitch-shifted to audible frequencies with master limiting.
+      - **Interactive Controls & Scenario Presets**: Subduction megathrust, strike-slip transform fault, sedimentary basin amplification, volcanic caldera collapse, custom geological layer painting, and CSV/JSON ephemeris export.
+    - Deployment Target: `/var/www/novastrum/wbe/013/`
+
 
