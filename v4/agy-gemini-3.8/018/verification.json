@@ -1,0 +1,23 @@
+{
+  "experiment": "018",
+  "name": "STELLAR-FORGE",
+  "protocol": "Hardening Protocol 2.0",
+  "timestamp": "2026-10-19T12:22:59.335Z",
+  "status": "VERIFIED",
+  "layers": {
+    "layer1_numerical_tests": "PASS (36/36 tests, 100%)",
+    "layer2_simulation_lifecycle": "PASS (Single-owner state, unified clock, 6 presets)",
+    "layer3_browser_e2e": "PASS (Chromium headless, 4 modes, 6 presets, zero errors)"
+  },
+  "observables_verified": [
+    "Lane-Emden analytical solutions (n=0, 1) and astronomical benchmarks (n=1.5, 3.0)",
+    "RK4 4th-order numerical convergence ratio ~16",
+    "Enclosed mass conservation int 4*pi*r^2*rho dr = M(R) to < 0.002%",
+    "Thermonuclear Gamow crossover (pp vs CNO at 18 MK, triple-alpha ignition at 100 MK)",
+    "Exact Chandrasekhar mass limit invariance 1.442 +/- 0.002 M_sun",
+    "Tolman-Oppenheimer-Volkoff general relativistic metric balance and surface redshift",
+    "Core collapse kinematics, nuclear bounce shock breakout, and r-process nucleosynthesis",
+    "Procedural Web Audio synthesis with master dynamics compressor limiter"
+  ],
+  "consoleErrors": 0
+}
